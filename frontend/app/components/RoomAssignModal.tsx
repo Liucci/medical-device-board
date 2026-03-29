@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-
+//onCreatでhandleCreateRoomDeviceを呼び出す
 type Props = {
   onClose: () => void
   onCreate: (roomNumber: string, patientName: string) => void

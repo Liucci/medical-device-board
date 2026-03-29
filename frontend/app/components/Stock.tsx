@@ -31,7 +31,10 @@ export default function Stock({ devices, startDrag, deleteDevice }: Props) {
               onMouseDown={(e) => startDrag(e, d)}
               onContextMenu={(e) => {
                 e.preventDefault()
-                deleteDevice(d.id)
+                // 機種名の型式を削除しますか？確認ダイアログを表示
+                if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
+                  deleteDevice(d.id)
+                }
               }}
               style={{ position: "absolute", top: d.y, left: d.x, cursor: "grab" }}
               className={`p-3 border rounded ${colorMap[typeName]}`}

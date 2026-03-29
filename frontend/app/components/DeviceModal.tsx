@@ -29,7 +29,7 @@ export default function DeviceModal({ onClose, onCreate }: Props) {
       assetType: selectedAssetType,
       status: "stock",
       x: 100,
-      y: 100
+      y: 200
     }
 
     onCreate(newDevice)

@@ -2,21 +2,25 @@
 
 import { useState, useRef, useEffect } from "react"
 import WardList from "./components/WardList"
+import RoomDeviceList from "./components/RoomDeviceList"
 import Stock from "./components/Stock"
 import DeviceModal from "./components/DeviceModal"
 import RoomAssignModal from "./components/RoomAssignModal"
 import { Device, deviceModels, deviceTypes } from "./types/deviceTypes"
 import { rooms as roomsMaster } from "./types/wards"
+import { getDevicePosition } from "./utils/deviceLayout"
 
 export default function Home() {
   const wardRefs = useRef<{ [key: number]: HTMLDivElement | null }>({})
   const stockRef = useRef<HTMLDivElement | null>(null)
 
-  const [devices, setDevices] = useState<Device[]>([])
-  const [draggingId, setDraggingId] = useState<number | null>(null)
-  const [draggingRoomDevice, setDraggingRoomDevice] = useState<Device | null>(null)
+  const [deviceList, setDeviceList] = useState<Device[]>([])
+  const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [pendingDrop, setPendingDrop] = useState<{ device: Device; wardId: number } | null>(null)
+  const [pendingDrop, setPendingDrop] = useState(false)
+  const [droppedDevice, setDroppedDevice] = useState<Device | null>(null)
+  const [HitwardID, setHitWardID] = useState<number | null>(null)
+
 
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openAssignModal, setOpenAssignModal] = useState(false)
@@ -29,113 +33,144 @@ export default function Home() {
   // DeviceModalから新しい機器をストックに追加
   //新規登録された機器のみを追加するため、addDevice関数を作成
   const addDevice = (device:Device) =>
-    setDevices((prev) => [...prev, { ...device}])
+    {setDeviceList((prev) => [...prev, { ...device}])
+    console.log("Added device:", device)
+    }
 
-  const deleteDevice = (id: number) => setDevices((prev) => prev.filter((d) => d.id !== id))
-  const deleteRoomDevice = (id: number) => setDevices((prev) => prev.filter((d) => d.id !== id))
+  const deleteDevice = (id: number) => setDeviceList((prev) => prev.filter((d) => d.id !== id))
+  const deleteRoomDevice = (id: number) => setDeviceList((prev) => prev.filter((d) => d.id !== id))
+  
   // ドラッグ開始時の処理
-  const startDrag = (e: React.MouseEvent, device: Device, isRoomDevice = false) => {
-    if (isRoomDevice) setDraggingRoomDevice(device)
-    else setDraggingId(device.id)
+  //ドラッグした機器をDragingDeviceにセットし、マウス位置と機器位置の差分をDragOffsetにセットする
+  const startDrag = (e: React.MouseEvent, device: Device) => {
+    setDraggingDevice(device)
+    console.log("drag start", device)
     setDragOffset({ x: e.clientX - (device.x || 0), y: e.clientY - (device.y || 0) })
   }
   // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (draggingId !== null)
-      setDevices((prev) =>
-        prev.map((d) =>
-          d.id === draggingId ? { ...d, x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y } : d
-        )
+    //draggingDeviceがnullの場合は何もしない
+    if (!draggingDevice) return
+    // ドラッグ中は機器の位置を更新する
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === draggingDevice.id
+          ? {
+              ...d,
+              x: e.clientX - dragOffset.x,
+              y: e.clientY - dragOffset.y,
+            }
+          : d
       )
-
-    if (draggingRoomDevice)
-      setDevices((prev) =>
-        prev.map((d) =>
-          d.id === draggingRoomDevice.id ? { ...d, x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y } : d
-        )
-      )
-  }
-
-  const moveRoomDeviceToStock = (device: Device) => {
-    setDevices((prev) => [...prev.filter((d) => d.id !== device.id), { ...device, x: 120, y: 120 }])
-    setDraggingRoomDevice(null)
-  }
-
-  const handleCreateRoomDevice = (roomNumber: string, patientName: string) => {
-    console.log("関数呼ばれた")
-    if (!pendingDrop) return
-    const newDevice = {
-      id: Date.now(),
-      type: pendingDrop.device.type,
-      model: pendingDrop.device.model,
-      assetType: pendingDrop.device.assetType,
-      // 新しい病室に配置された機器のstatusを"room"に設定
-      status: "room" as const,
-      wardId: pendingDrop.wardId,
-      roomNumber,
-      patientName,
-      device: pendingDrop.device,
-      x: 10,
-      y: 10,
-    }
-    console.log("配置された機器:", newDevice)
-
-    setPendingDrop(null)
-    setOpenAssignModal(false)
+    )
   }
 
   // -------------------------
   // ドロップ判定
   // -------------------------
-  useEffect(() => {
-    const handleMouseUp = (e: MouseEvent) => {
-      if (!draggingId && !draggingRoomDevice) return
-      // ドロップ位置の判定
-      const mouseX = e.clientX
+  //useEffect(() => {
+  const handleMouseUp = (e: React.MouseEvent) => {
+
+      if (!draggingDevice) return
+    //dragingDeviceの座標を取得
+      const mouseX =e.clientX
       const mouseY = e.clientY
+      console.log("Mouse up at:", mouseX, mouseY)
 
-      if (draggingRoomDevice && stockRef.current) {
-        const rect = stockRef.current.getBoundingClientRect()
-        if (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom) {
-          moveRoomDeviceToStock(draggingRoomDevice)
-          return
-        }
-      }
-
+      // ドロップ位置がどの病棟か判定
       let hitWardId: number | null = null
+      //wardrefs.currentに格納された病棟のDOM要素をループして、病棟の座標を取得
+      //マウス位置が病棟座標内にあれば、その病棟IDをhitWardIdにセット
       Object.entries(wardRefs.current).forEach(([id, el]) => {
         if (!el) return
         const rect = el.getBoundingClientRect()
         if (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom) {
           hitWardId = Number(id)
+          console.log("Hit ward ID:", hitWardId)
         }
       })
-
-      if (hitWardId !== null && draggingId !== null) {
-        const device = devices.find((d) => d.id === draggingId)
-        if (device) {
-          setPendingDrop({ device, wardId: hitWardId })
+      //hitwardIDが存在すれば、assignModalを開く
+      if (hitWardId !== null ) {
+        if (hitWardId !== null) {
+          setHitWardID(hitWardId)
+          setPendingDrop(true)
           setOpenAssignModal(true)
-        }
+        }} else {
+        setDraggingDevice(null)
+        } 
+        //病棟にドロップした機器情報をdropedDeviceにセット
+        //draggingDeviceをnullにしてドラッグ状態を終了
+        setDroppedDevice(draggingDevice)
+        console.log("Dropped device:", draggingDevice)
+        setDraggingDevice(null) 
+    }
+    //マウスボタンを離したらhandlemouseupが呼ばれるように、windowにイベントリスナーを登録
+/*     window.addEventListener("mouseup", handleMouseUp)
+    return () => window.removeEventListener("mouseup", handleMouseUp)
+  }, [draggingDevice, deviceList])
+ */
+  //AssignModalの情報をdevicesに反映させる関数
+  const handleCreateRoomDevice = (roomNumber: string, patientName: string) => {
+
+    console.log("draggingDevice:", draggingDevice)
+    console.log("HitwardID:", HitwardID)
+
+    if (pendingDrop === false) return
+
+    setDeviceList(prev => {
+
+      // 同じ病室の機器数を取得
+      const sameRoomDevices = prev.filter(
+        d => d.roomNumber === roomNumber && d.wardId === HitwardID
+      )
+      // 同じ病室に配置されている機器数が6台以上の場合は配置できないようにする
+      const index = sameRoomDevices.length
+
+      if (index >= 6) {
+        alert("この病室には6台まで配置できます")
+        return prev
       }
 
-      setDraggingId(null)
-      setDraggingRoomDevice(null)
-    }
+      const pos = getDevicePosition(index)
 
-    window.addEventListener("mouseup", handleMouseUp)
-    return () => window.removeEventListener("mouseup", handleMouseUp)
-  }, [draggingId, draggingRoomDevice, devices])
+      const updated = prev.map(d => {
+
+        if (d.id === droppedDevice?.id) {
+          return {
+            ...d,
+            status: "room" as const,
+            wardId: HitwardID,
+            roomNumber,
+            patientName,
+
+            // 自動配置座標
+            x: pos.x,
+            y: pos.y
+          }
+        }
+
+        return d
+      })
+      return updated
+    })
+    setPendingDrop(false)
+    setOpenAssignModal(false)
+  }
 
   return (
-    <div className="flex h-screen" onMouseMove={handleMouseMove} onClick={() => setMenu(null)}>
+    <div className="flex h-screen"
+     onMouseMove={handleMouseMove}
+     onMouseUp={handleMouseUp}
+     onClick={() => setMenu(null)}
+     
+     >
       <WardList
+      //wardListに４つのpropsを渡す
         wardRefs={wardRefs}
-        roomDevices={devices}
-        startRoomDrag={(e, d) => startDrag(e, d, true)}
+        roomDevices={deviceList}
+        startDrag={startDrag}
         deleteRoomDevice={deleteRoomDevice}
       />
-
       <div ref={stockRef} className="flex-1 p-4">
         <button
           onClick={() => setOpenDeviceModal(true)}
@@ -143,18 +178,20 @@ export default function Home() {
         >
           機器登録
         </button>
-        <Stock devices={devices.filter((d) => d.status === "stock")} startDrag={startDrag} deleteDevice={deleteDevice} />
+        <Stock devices={deviceList.filter((d) => d.status === "stock")} startDrag={startDrag} deleteDevice={deleteDevice} />
       </div>
 
       {openDeviceModal && <DeviceModal onClose={() => setOpenDeviceModal(false)} onCreate={addDevice} />}
       {openAssignModal && pendingDrop && (
         <RoomAssignModal
+        //RoomAssignModalのonCreateでhandleCreateRoomDeviceを呼び出す
           onClose={() => setOpenAssignModal(false)}
           onCreate={handleCreateRoomDevice}
-          rooms={roomsMaster.filter((r) => r.wardId === pendingDrop.wardId).map((r) => r.name)}
+          rooms={roomsMaster
+            .filter((r) => r.wardId === HitwardID)
+            .map((r) => r.name)}
         />
       )}
-
       {menu && (
         <div
           onClick={(e) => e.stopPropagation()}
