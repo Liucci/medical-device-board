@@ -2,9 +2,6 @@
 
 import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
 
-// ストックにある機器を表示するコンポーネント
-// ストックの機器は、ドラッグして病棟リストに配置できる
-// ストックの機器は、右クリックで削除できる
 type Props = {
   devices: Device[]
   startDrag: (e: React.MouseEvent, device: Device) => void
@@ -18,12 +15,30 @@ const colorMap: Record<string, string> = {
 }
 
 export default function Stock({ devices, startDrag, deleteDevice }: Props) {
+
+  const ICON_W = 110
+  const ICON_H = 80
+  const GAP = 10
+  const COL = 6
+
   return (
     <div className="flex-1 p-4 relative">
       <div className="relative w-full h-full">
-        {devices.map((d) => {
-          const typeName = deviceTypes.find((t) => t.typeID === d.type)?.name || "不明"
-          const modelName = deviceModels.find((m) => m.modelID === d.model)?.name || "不明"
+
+        {devices.map((d, index) => {
+          //IDから機種と型式の名前を取得
+          const typeName =
+            deviceTypes.find((t) => t.typeID === d.type)?.name || "不明"
+
+          const modelName =
+            deviceModels.find((m) => m.modelID === d.model)?.name || "不明"
+
+          // ★座標決定
+          const autoX = (index % COL) * (ICON_W + GAP)
+          const autoY = Math.floor(index / COL) * (ICON_H + GAP)
+
+          const x = d.x ?? autoX
+          const y = d.y ?? autoY
 
           return (
             <div
@@ -31,17 +46,28 @@ export default function Stock({ devices, startDrag, deleteDevice }: Props) {
               onMouseDown={(e) => startDrag(e, d)}
               onContextMenu={(e) => {
                 e.preventDefault()
-                // 機種名の型式を削除しますか？確認ダイアログを表示
                 if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
                   deleteDevice(d.id)
                 }
               }}
-              style={{ position: "absolute", top: d.y, left: d.x, cursor: "grab" }}
-              className={`p-3 border rounded ${colorMap[typeName]}`}
+              style={{
+                position: "absolute",
+                left: x,
+                top: y,
+                cursor: "grab"
+              }}
+              className={`
+                w-24 h-16
+                border
+                rounded
+                shadow
+                ${colorMap[typeName]}
+                flex flex-col items-center justify-center
+                text-xs
+              `}
             >
-              {typeName}
-              <br />
-              {modelName}
+              <div className="font-bold">{typeName}</div>
+              <div>{modelName}</div>
             </div>
           )
         })}

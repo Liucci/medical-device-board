@@ -17,7 +17,6 @@ export default function Home() {
   const [deviceList, setDeviceList] = useState<Device[]>([])
   const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [pendingDrop, setPendingDrop] = useState(false)
   const [droppedDevice, setDroppedDevice] = useState<Device | null>(null)
   const [HitwardID, setHitWardID] = useState<number | null>(null)
 
@@ -68,14 +67,28 @@ export default function Home() {
   // -------------------------
   // ドロップ判定
   // -------------------------
-  //useEffect(() => {
   const handleMouseUp = (e: React.MouseEvent) => {
-
       if (!draggingDevice) return
     //dragingDeviceの座標を取得
       const mouseX =e.clientX
       const mouseY = e.clientY
       console.log("Mouse up at:", mouseX, mouseY)
+
+      let hitStock = false
+
+      if (stockRef.current) {
+        const rect = stockRef.current.getBoundingClientRect()
+
+        if (
+          mouseX >= rect.left &&
+          mouseX <= rect.right &&
+          mouseY >= rect.top &&
+          mouseY <= rect.bottom
+        ) {
+          hitStock = true
+          console.log("Hit Stock")
+        }
+      }
 
       // ドロップ位置がどの病棟か判定
       let hitWardId: number | null = null
@@ -90,32 +103,43 @@ export default function Home() {
         }
       })
       //hitwardIDが存在すれば、assignModalを開く
-      if (hitWardId !== null ) {
-        if (hitWardId !== null) {
-          setHitWardID(hitWardId)
-          setPendingDrop(true)
-          setOpenAssignModal(true)
-        }} else {
+      //draggingDeviceをdroppedDeviceにセットし、pendingDropをtrueにセットする
+      if (hitWardId !== null) {
+        setHitWardID(hitWardId)
+        setOpenAssignModal(true)
         setDraggingDevice(null)
-        } 
-        //病棟にドロップした機器情報をdropedDeviceにセット
-        //draggingDeviceをnullにしてドラッグ状態を終了
         setDroppedDevice(draggingDevice)
-        console.log("Dropped device:", draggingDevice)
-        setDraggingDevice(null) 
-    }
-    //マウスボタンを離したらhandlemouseupが呼ばれるように、windowにイベントリスナーを登録
-/*     window.addEventListener("mouseup", handleMouseUp)
-    return () => window.removeEventListener("mouseup", handleMouseUp)
-  }, [draggingDevice, deviceList])
- */
+        //hitstockがtrueであれば、機器の状態をstockに更新する
+      } else if (hitStock) {
+
+        setDeviceList(prev =>
+          prev.map(d =>
+            d.id === draggingDevice.id
+              ? {
+                  ...d,
+                  status: "stock",
+                  wardId: undefined,
+                  roomNumber: undefined,
+                  patientName: undefined,
+                  x: undefined,
+                  y: undefined
+                }
+              : d
+          )
+        )
+        setDraggingDevice(null)
+
+      } else {
+        setDraggingDevice(null)
+      }
+  }
+
   //AssignModalの情報をdevicesに反映させる関数
   const handleCreateRoomDevice = (roomNumber: string, patientName: string) => {
 
     console.log("draggingDevice:", draggingDevice)
     console.log("HitwardID:", HitwardID)
 
-    if (pendingDrop === false) return
 
     setDeviceList(prev => {
 
@@ -153,9 +177,11 @@ export default function Home() {
       })
       return updated
     })
-    setPendingDrop(false)
+    //setPendingDrop(false)
     setOpenAssignModal(false)
   }
+
+
 
   return (
     <div className="flex h-screen"
@@ -182,7 +208,7 @@ export default function Home() {
       </div>
 
       {openDeviceModal && <DeviceModal onClose={() => setOpenDeviceModal(false)} onCreate={addDevice} />}
-      {openAssignModal && pendingDrop && (
+      {openAssignModal &&  (
         <RoomAssignModal
         //RoomAssignModalのonCreateでhandleCreateRoomDeviceを呼び出す
           onClose={() => setOpenAssignModal(false)}
