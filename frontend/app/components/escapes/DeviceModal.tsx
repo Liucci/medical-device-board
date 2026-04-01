@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Device, deviceTypes, deviceModels, AssetTypes } from "../types/deviceTypes"
+import { Device, deviceTypes, deviceModels, AssetTypes } from "../../types/deviceTypes"
 
 type Props = {
   onClose: () => void

@@ -1,8 +1,8 @@
 "use client"
 
 import { MutableRefObject } from "react"
-import { Device } from "../types/deviceTypes"
-import { wards } from "../types/wards"
+import { Device } from "../../types/deviceTypes"
+import { wards } from "../../types/wards"
 import RoomDeviceList from "./RoomDeviceList"
 import { useEffect } from "react"
 // 病棟ごとの配置された機器を表示するコンポーネント

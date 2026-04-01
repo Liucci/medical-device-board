@@ -1,6 +1,6 @@
 "use client"
 
-import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
+import { Device, deviceModels, deviceTypes } from "../../types/deviceTypes"
 
 type Props = {
   devices: Device[]

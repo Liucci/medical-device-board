@@ -1,0 +1,24 @@
+.layout{
+  height:100vh;
+
+  display:grid;
+
+  grid-template-columns: 1fr 80px;
+  grid-template-rows: 2fr 1fr;
+
+  grid-template-areas:
+    "ward button"
+    "stock button";
+}
+
+.ward{
+  grid-area: ward;
+}
+
+.stock{
+  grid-area: stock;
+}
+
+.button{
+  grid-area: button;
+}
