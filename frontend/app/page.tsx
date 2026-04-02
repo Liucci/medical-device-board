@@ -1,5 +1,9 @@
 import styles from "./page.module.css"
 
+import WardArea from "./components/WardArea"
+import StockArea from "./components/StockArea"
+import ButtonPanel from "./components/ButtonPanel"
+
 export default function Page() {
 
   return (
@@ -7,15 +11,15 @@ export default function Page() {
     <div className={styles.layout}>
 
       <div className={styles.ward}>
-        病棟エリア
+        <WardArea/>
       </div>
 
       <div className={styles.stock}>
-        ストックエリア
+        <StockArea/>
       </div>
 
       <div className={styles.button}>
-        ボタン
+        <ButtonPanel/>
       </div>
 
     </div>

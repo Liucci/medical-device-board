@@ -11,14 +11,33 @@
     "stock button";
 }
 
+/* 病棟エリア */
 .ward{
   grid-area: ward;
+  background:#eef6ff;
+
+  border-right:2px solid #888;
+  border-bottom:2px solid #888;
+  padding:10px;
+  overflow:auto;
 }
 
+/* ストックエリア */
 .stock{
   grid-area: stock;
+  background:#fff7e6;
+
+  border-right:2px solid #888;
+  padding:10px;
+  overflow:auto;
 }
 
+/* ボタンエリア */
 .button{
   grid-area: button;
+  background:#f0f0f0;
+
+  border-left:2px solid #888;
+  padding:10px;
+  overflow-y:auto;
 }

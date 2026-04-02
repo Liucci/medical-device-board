@@ -41,6 +41,6 @@ export type Device = {
   wardId?: number      // 配置されている場合のみ
   roomNumber?: string  // 配置されている場合のみ
   patientName?: string // 配置されている場合のみ
-  x?: number           // UI上の座標（必要な場合）
-  y?: number
+  row: number
+  col: number
 }

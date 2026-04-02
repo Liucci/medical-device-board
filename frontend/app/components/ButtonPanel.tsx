@@ -1,10 +1,13 @@
-import StockGrid from "./StockGrid"
+import ButtonGrid from "./ButtonGrid"
 
 export default function Stock(){
 
   return (
-    <div className="stock-area">
-      <StockGrid />
+   <div className="p-3">
+
+      <h5 className="text-lg font-bold mb-3">
+      ボタン
+      </h5>
     </div>
   )
 
