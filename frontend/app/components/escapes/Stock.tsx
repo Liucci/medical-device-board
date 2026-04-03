@@ -1,4 +1,4 @@
-"use client"
+/* "use client"
 
 import { Device, deviceModels, deviceTypes } from "../../types/deviceTypes"
 
@@ -37,8 +37,8 @@ export default function Stock({ devices, startDrag, deleteDevice }: Props) {
           const autoX = (index % COL) * (ICON_W + GAP)
           const autoY = Math.floor(index / COL) * (ICON_H + GAP)
 
-          const x = d.x ?? autoX
-          const y = d.y ?? autoY
+          const x = d.row ?? autoX
+          const y = d.col ?? autoY
 
           return (
             <div
@@ -74,4 +74,4 @@ export default function Stock({ devices, startDrag, deleteDevice }: Props) {
       </div>
     </div>
   )
-}
+} */

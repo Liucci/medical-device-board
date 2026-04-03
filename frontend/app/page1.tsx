@@ -1,10 +1,10 @@
-"use client"
+/* "use client"
 
 import { useState, useRef, useEffect } from "react"
 import WardList from "./components/escapes/WardList"
 import RoomDeviceList from "./components/escapes/RoomDeviceList"
 import Stock from "./components/escapes/Stock"
-import DeviceModal from "./components/escapes/DeviceModal"
+import DeviceModal from "./components/DeviceModal"
 import RoomAssignModal from "./components/escapes/RoomAssignModal"
 import { Device, deviceModels, deviceTypes } from "./types/deviceTypes"
 import { rooms as roomsMaster } from "./types/wards"
@@ -237,4 +237,4 @@ export default function Home() {
       )}
     </div>
   )
-}
+} */

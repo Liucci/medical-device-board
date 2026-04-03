@@ -1,0 +1,94 @@
+"use client"
+
+import { useState } from "react"
+import { Device, deviceTypes, deviceModels, AssetTypes } from "../types/deviceTypes"
+import { createPortal } from "react-dom"
+
+import { useEffect } from "react"
+type Props = {
+  onClose: () => void
+  onCreate: (device: Device) => void
+}
+
+export default function DeviceModal({ onClose, onCreate }: Props) {
+
+  const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
+  const [selectedModelID, setSelectedModelID] = useState<number | "">("")
+  const [selectedAssetType, setSelectedAssetType] = useState<typeof AssetTypes[number]>("資産")
+
+  // 選択した機種に紐づくモデルを取得
+  const modelsForType = selectedTypeID === ""
+    ? []
+    : deviceModels.filter(m => m.typeID === selectedTypeID)
+
+  const handleSubmit = () => {
+    if (selectedTypeID === "" || selectedModelID === "") return
+
+    const newDevice: Device = {
+      id: Date.now(),
+      type: selectedTypeID,
+      model: selectedModelID,
+      assetType: selectedAssetType,
+      status: "stock",
+      row: 0,
+      col: 0
+    }
+
+    onCreate(newDevice)
+    onClose()
+  }
+
+return (
+  <div className="p-6 max-w-md mx-auto">
+    <h2 className="font-bold mb-4">機器登録</h2>
+
+    <div className="space-y-3">
+
+      <select
+        className="border p-2 w-full"
+        value={selectedTypeID}
+        onChange={(e) => setSelectedTypeID(Number(e.target.value))}
+      >
+        <option value="">機種選択</option>
+        {deviceTypes.map(t => (
+          <option key={t.typeID} value={t.typeID}>{t.name}</option>
+        ))}
+      </select>
+
+      <select
+        className="border p-2 w-full"
+        value={selectedModelID}
+        onChange={(e) => setSelectedModelID(Number(e.target.value))}
+        disabled={modelsForType.length === 0}
+      >
+        <option value="">型式選択</option>
+        {modelsForType.map(m => (
+          <option key={m.modelID} value={m.modelID}>{m.name}</option>
+        ))}
+      </select>
+
+      <select
+        className="border p-2 w-full"
+        value={selectedAssetType}
+        onChange={(e) =>
+          setSelectedAssetType(e.target.value as typeof AssetTypes[number])
+        }
+      >
+        {AssetTypes.map(a => (
+          <option key={a} value={a}>{a}</option>
+        ))}
+      </select>
+
+    </div>
+
+    <div className="flex justify-end gap-2 mt-4">
+      <button onClick={onClose} className="px-3 py-1 bg-gray-300 rounded">
+        キャンセル
+      </button>
+      <button onClick={handleSubmit} className="px-3 py-1 bg-blue-500 text-white rounded">
+        登録
+      </button>
+    </div>
+  </div>
+)
+}
