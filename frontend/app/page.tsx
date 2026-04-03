@@ -7,9 +7,8 @@ import ButtonPanel from "./components/ButtonPanel"
 export default function Page() {
 
   return (
-
     <div className={styles.layout}>
-
+<div className="bg-red-500 text-white">test</div>
       <div className={styles.ward}>
         <WardArea/>
       </div>
