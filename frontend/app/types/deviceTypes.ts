@@ -32,12 +32,27 @@ export const AssetTypes = [
 
 export type DeviceStatus = "stock" | "room"
 
+type stockArea = {
+  id: number
+  name: string
+}
+
+export const stockAreas: stockArea[] = [
+  { id: 1, name: "CE室" },
+  { id: 2, name: "倉庫A" },
+  { id: 3, name: "倉庫B" },
+  { id: 4, name: "倉庫C" },
+  { id: 5, name: "倉庫D" },
+  { id: 6, name: "倉庫E" },
+]
+
 export type Device = {
   id: number
   type: DeviceType["typeID"] 
   model: DeviceModel["modelID"]
   assetType: typeof AssetTypes[number]
   status: DeviceStatus // "stock" または "room"
+  stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
   roomNumber?: string  // 配置されている場合のみ
   patientName?: string // 配置されている場合のみ

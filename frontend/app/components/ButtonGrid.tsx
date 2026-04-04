@@ -1,11 +1,14 @@
 type Props = {
+  title: string
   onAdd: () => void
 }
 
-export default function ButtonGrid({ onAdd }: Props) {
+export default function ButtonGrid({ title, onAdd }: Props) {
   return (
-    <button onClick={onAdd}>
-      新規登録
+    //ボタンを表示するためのグリッドレイアウト
+    //CSSグリッドを使用して、ボタンを配置するためのスタイルを定義
+    <button onClick={onAdd} className="rounded-lg p-3 bg-white shadow-xl">
+      {title}
     </button>
   )
 }

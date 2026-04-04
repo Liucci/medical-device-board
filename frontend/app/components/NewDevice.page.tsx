@@ -2,14 +2,13 @@
 
 import { useState } from "react"
 import { Device, deviceTypes, deviceModels, AssetTypes } from "../types/deviceTypes"
-import { createPortal } from "react-dom"
 
- type Props = {
+type Props = {
   onClose: () => void
   onCreate: (device: Device) => void
 }
 
-export default function DeviceModal({ onClose, onCreate }: Props) {
+export default function NewDevicePage({ onClose, onCreate }: Props) {
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
   const [selectedModelID, setSelectedModelID] = useState<number | "">("")
   const [selectedAssetType, setSelectedAssetType] = useState<typeof AssetTypes[number]>("資産")
@@ -18,35 +17,28 @@ export default function DeviceModal({ onClose, onCreate }: Props) {
     ? []
     : deviceModels.filter(m => m.typeID === selectedTypeID)
 
-
-const handleSubmit = () => {
-  if (selectedTypeID === "" || selectedModelID === "") return
-
-  const newDevice: Device = {
-    id: Date.now(),
-    type: selectedTypeID,
-    model: selectedModelID,
-    assetType: selectedAssetType,
-    status: "stock",
-    stockAreaID: 1, // 仮にCE室に配置
-    row: 0,
-    col: 0
+  const handleSubmit = () => {
+    if (selectedTypeID === "" || selectedModelID === "") return
+    const newDevice: Device = {
+      id: Date.now(),
+      type: selectedTypeID,
+      model: selectedModelID,
+      assetType: selectedAssetType,
+      status: "stock",
+      row: 0,
+      col: 0
+    }
+    onCreate(newDevice)
+    onClose()
   }
 
-  onCreate(newDevice)
-  onClose()
-}
-
-
-return createPortal(
-  <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-    
+  return (
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
       <h2 className="text-2xl font-bold mb-6 text-center">機器登録</h2>
 
       <div className="space-y-4">
         <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
+          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={selectedTypeID}
           onChange={(e) => setSelectedTypeID(Number(e.target.value))}
         >
@@ -57,7 +49,7 @@ return createPortal(
         </select>
 
         <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
+          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={selectedModelID}
           onChange={(e) => setSelectedModelID(Number(e.target.value))}
           disabled={modelsForType.length === 0}
@@ -69,11 +61,9 @@ return createPortal(
         </select>
 
         <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
+          className="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={selectedAssetType}
-          onChange={(e) =>
-            setSelectedAssetType(e.target.value as typeof AssetTypes[number])
-          }
+          onChange={(e) => setSelectedAssetType(e.target.value as typeof AssetTypes[number])}
         >
           {AssetTypes.map(a => (
             <option key={a} value={a}>{a}</option>
@@ -84,21 +74,17 @@ return createPortal(
       <div className="flex justify-end gap-4 mt-6">
         <button
           onClick={onClose}
-          className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
+          className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition-colors"
         >
           キャンセル
         </button>
-
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
+          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
         >
           登録
         </button>
       </div>
-
     </div>
-
-  </div>,
-  document.body
-)}
+  )
+}

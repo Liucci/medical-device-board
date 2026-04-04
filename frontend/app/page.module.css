@@ -1,9 +1,10 @@
+/* ルートページ全体のレイアウトを定義するCSS */
 .layout{
   height:100vh;
 
   display:grid;
 
-  grid-template-columns: 1fr 80px;
+  grid-template-columns: 1fr 100px;
   grid-template-rows: 2fr 1fr;
 
   grid-template-areas:
@@ -16,8 +17,8 @@
   grid-area: ward;
   background:#eef6ff;
 
-  border-right:2px solid #888;
-  border-bottom:2px solid #888;
+  border-right:1px solid #888;
+  border-bottom:1px solid #888;
   padding:10px;
   overflow:auto;
 }
@@ -27,7 +28,7 @@
   grid-area: stock;
   background:#fff7e6;
 
-  border-right:2px solid #888;
+  border-right:1px solid #888;
   padding:10px;
   overflow:auto;
 }
@@ -37,7 +38,7 @@
   grid-area: button;
   background:#f0f0f0;
 
-  border-left:2px solid #888;
+  border-left:0px solid #888;
   padding:10px;
   overflow-y:auto;
 }

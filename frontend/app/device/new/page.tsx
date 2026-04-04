@@ -1,6 +1,6 @@
 "use client"
 
-import DeviceModal from "../../components/DeviceModal"
+import NewDevicePage from "../../components/NewDevice.page"
 import { useState } from "react"
 import { Device } from "../../types/deviceTypes"
 
@@ -19,7 +19,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-      <DeviceModal onClose={handleClose} onCreate={handleCreate} />
+      <NewDevicePage onClose={handleClose} onCreate={handleCreate} />
     </div>
   )
 }

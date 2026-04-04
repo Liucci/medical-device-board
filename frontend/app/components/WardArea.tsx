@@ -2,9 +2,9 @@ import WardGrid from "./WardGrid"
 
 export default function WardArea(){
   return (
-    <div className="p-3">
+    <div className="p-3 ">
 
-      <h2 className="text-lg font-bold mb-3">
+      <h2 className="text-2xl font-bold mb-3">
         病棟一覧
       </h2>            
       <div

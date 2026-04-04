@@ -1,9 +1,17 @@
 "use client"
-
+import DeviceModal from "./DeviceModal"
 import ButtonGrid from "./ButtonGrid"
+import { useState } from "react"
+import { Device } from "../types/deviceTypes"
 
-export default function ButtonPanel() {
+//page.tsxからaddDevice関数をpropsで受け取る
+type Props = {
+addDevice: (device: Device) => void}
 
+export default function ButtonPanel({ addDevice }: Props) {
+    const [openDeviceModal, setOpenDeviceModal] = useState(false)
+
+  
   const handleAdd = () => {
     const width = 600
     const height = 700
@@ -18,5 +26,19 @@ export default function ButtonPanel() {
     )
   }
 
-  return <ButtonGrid onAdd={handleAdd} />
+  const OpenModal = () => {
+    setOpenDeviceModal(true)
+  }
+
+  return(
+    <>
+      <ButtonGrid onAdd={OpenModal} title={"新規登録"} />
+        {/* 隙間を空ける */}
+      <div className="h-4" />
+      <ButtonGrid onAdd={handleAdd} title={"設定"} />
+      {/* openDeviceModal=trueのときにモーダルを表示 */}
+      {/*Modalの登録ボタンにはaddDevice関数を渡す*/}
+      {openDeviceModal && <DeviceModal onCreate={addDevice} onClose={() => setOpenDeviceModal(false)} />}
+    </>
+  )
 }
