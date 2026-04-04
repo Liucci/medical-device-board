@@ -1,42 +1,51 @@
 "use client"
-import styles from "./page.module.css"
 
+import styles from "./page.module.css"
+import StockAreas from "./components/StockArea"
 import WardArea from "./components/WardArea"
-import StockArea from "./components/StockArea"
 import ButtonPanel from "./components/ButtonPanel"
-import DeviceModal from "./components/DeviceModal"
 import { Device } from "./types/deviceTypes"
 import { useState } from "react"
 
-
 export default function Page() {
-  const [modalOpen, setModalOpen] = useState(false)
+
   const [deviceList, setDeviceList] = useState<Device[]>([])
-  // DeviceModalから新しい機器をストックに追加
-  //新規登録された機器のみを追加するため、addDevice関数を作成
+
   const addDevice = (device: Device) => {
     setDeviceList((prev) => [...prev, { ...device }])
     console.log("Added device:", device)
   }
 
+  const startDrag = (e: React.MouseEvent, device: Device) => {
+    console.log("drag start", device)
+  }
+
+  const deleteDevice = (id: number) => {
+    setDeviceList((prev) => prev.filter(d => d.id !== id))
+  }
+
   return (
-    <>
-       <div className={styles.layout}>
-        <div className={styles.ward}>
-          <WardArea/>
-        </div>
+    <div className={styles.layout}>
 
-      
-       <div className={styles.stock}>
-          <StockArea/>
-        </div>
+      {/* 病棟エリア */}
+      <div className={styles.ward}>
+        <WardArea/>
+      </div>
 
-        <div className={styles.button}>
-          {/* //ButtonPanelにaddDevice関数を渡す */}
-          <ButtonPanel addDevice={addDevice} />
-        </div>
-       </div>
-      
-    </>
+      {/* CE室 / 在庫エリア */}
+      <div className={styles.stock}>
+        <StockAreas
+          devices={deviceList}
+          startDrag={startDrag}
+          deleteDevice={deleteDevice}
+        />
+      </div>      
+
+      {/* ボタンパネル */}
+      <div className={styles.button}>
+        <ButtonPanel addDevice={addDevice}/>
+      </div>
+
+    </div>
   )
 }

@@ -1,6 +1,16 @@
-import StockGrid from "./StockGrid"
+"use client"
 
-export default function Stock() {
+import StockGrid from "./StockGrid"
+import Stock from "./Stock"
+import { stockAreas, Device } from "../types/deviceTypes"
+
+type Props = {  
+  devices: Device[]
+  startDrag: (e: React.MouseEvent, device: Device) => void
+  deleteDevice: (id: number) => void
+}
+
+export default function StockAreas({ devices, startDrag, deleteDevice }: Props) {
 
   return (
     <div className="p-3">
@@ -17,18 +27,26 @@ export default function Stock() {
           gap: "12px"
         }}
       >
-
-        <div style={{ gridColumn: "span 3" }}>
-          <StockGrid title="CE室" />
-        </div>
-
-        <StockGrid title="倉庫A" />
-        <StockGrid title="倉庫B" />
-        <StockGrid title="倉庫C" />
-
-        <StockGrid title="倉庫D" />
-        <StockGrid title="倉庫E" />
-
+        {stockAreas.map((area) => (
+          <div
+            key={area.id}
+            style={{
+              gridColumn: area.id === 1 ? "span 3" : undefined
+            }}
+          >
+            <StockGrid title={area.name}>
+              {/* CE室だけ Stock を表示 */}
+              {area.id === 1 && (
+                <Stock
+                  devices={devices}     // 修正: deviceList → devices
+                  stockAreaID={1}
+                  startDrag={startDrag}
+                  deleteDevice={deleteDevice}
+                />
+              )}
+            </StockGrid>
+          </div>
+        ))}
       </div>
 
     </div>
