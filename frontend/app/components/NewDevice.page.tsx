@@ -26,7 +26,10 @@ export default function NewDevicePage({ onClose, onCreate }: Props) {
       assetType: selectedAssetType,
       status: "stock",
       row: 0,
-      col: 0
+      col: 0,
+      x:0,
+      y:0
+
     }
     onCreate(newDevice)
     onClose()

@@ -58,4 +58,6 @@ export type Device = {
   patientName?: string // 配置されている場合のみ
   row: number
   col: number
+  x?: number // ドラッグ中の一時的なx座標
+  y?: number // ドラッグ中の一時的なy座標
 }
