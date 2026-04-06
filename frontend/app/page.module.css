@@ -45,16 +45,15 @@
 }
 
 /* ドラッグ専用レイヤー */
-.dragLayer {
+.dragLayer{
   position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10000;
+}
 
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  pointer-events: none; /* 下のUI操作を邪魔しない */
-
-  z-index: 9999;
+/* ドラッグ中はテキスト選択を無効にするためのクラス  */
+.dragging {
+  user-select: none;
+  cursor: grabbing;
 }

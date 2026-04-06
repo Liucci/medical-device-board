@@ -1,7 +1,7 @@
 "use client"
 
 import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
-
+import DeviceIcon from "../utils/DeviceIcon"
 type Props = {
   devices: Device[]
   stockAreaID: number
@@ -11,11 +11,6 @@ type Props = {
   draggingDevice: Device | null
 }
 
-const colorMap: Record<string, string> = {
-  人工呼吸器: "bg-blue-200",
-  血液浄化装置: "bg-red-200",
-  補助循環装置: "bg-green-200",
-}
 
 export default function Stock({
                                 devices,
@@ -60,35 +55,23 @@ export default function Stock({
               position:relativeでマウスに追従させる。
               それ以外はgridの位置に配置する。*/ 
               style={
-                isDragging
-                  ? {
-                      position:"fixed",
-                      left: d.x ?? 0,
-                      top: d.y ?? 0,
-                      cursor: "grabbing",
-                      zIndex: 9999
-                    }
-                  : {
+                   {
                       gridColumn: d.col,
                       gridRow: d.row,
-                      cursor: "grab"
+                      cursor: "grab",
+                      //dragLayerのアイコンドラッグ中はiconを非表示にす
+                      visibility: isDragging ? "hidden" : "visible"
                     }
-              }            
-              className={`
-              w-20 h-16
-              border
-              rounded
-              shadow
-              ${colorMap[typeName]}
-              flex flex-col items-center justify-center
-              text-xs
-            `}
-          >
-            <div className="font-bold">{typeName}</div>
-            <div>{modelName}</div>
-          </div>
-        )
-      })}
-    </>
-  )
+              }
+            >
+          <DeviceIcon
+            typeName={typeName}
+            modelName={modelName}
+          />
+
+        </div>
+      )
+    })}
+  </>
+)
 }

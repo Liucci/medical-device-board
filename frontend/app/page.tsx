@@ -34,14 +34,14 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
                 y: e.clientY
               })
 
-  setDeviceList(prev =>
+/*   setDeviceList(prev =>
     prev.map(d =>
       d.id === device.id
         ? { ...d, x: rect.left, y: rect.top }
         : d
     )
   )
-
+ */
   setDraggingDevice(device)
 }
     // ドラッグ中の処理
@@ -49,7 +49,14 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
     //console.log("mouse move", draggingDevice)
     //draggingDeviceがnullの場合は何もしない
     if (!draggingDevice) return
-    // ドラッグ中は機器の位置を更新する
+    //DragLayerのマウス位置情報のMousePosを更新する
+        setMousePos({
+          x: e.clientX, 
+          y: e.clientY 
+        })
+
+/*     // ドラッグ中は機器の位置を更新する
+        //idが一致するDeviceListのdeviceのx,yを更新する
     setDeviceList(prev =>
       prev.map(d =>
         d.id === draggingDevice.id
@@ -61,7 +68,7 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
           : d
       )
     )
-    
+ */    
   }
 
   const handleMouseUp = () => {
@@ -74,12 +81,13 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
   }
 
   return (
-    <div className={styles.layout}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      
-    >
-
+      <div
+        //page.module.cssのlayoutクラスと
+        // draggingDeviceが存在する場合はdraggingクラスを呼び出す
+        className={`${styles.layout} ${draggingDevice ? styles.dragging : ""}`}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
       {/* 病棟エリア */}
       <div className={styles.ward}>
         <WardArea/>
