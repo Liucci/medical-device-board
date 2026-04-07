@@ -6,7 +6,7 @@ import WardArea from "./components/WardArea"
 import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
 import { Device } from "./types/deviceTypes"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Page() {
 
@@ -43,7 +43,12 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
   )
  */
   setDraggingDevice(device)
-}
+            }
+    //draggingDeviceの状態が変わるたびにコンソールに出力する
+    useEffect(() => {
+      console.log("selected draggingDevice", draggingDevice)
+    }, [draggingDevice])
+
     // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
     //console.log("mouse move", draggingDevice)
@@ -71,11 +76,14 @@ const startDrag = (e: React.MouseEvent, device: Device) => {
  */    
   }
 
-  const handleMouseUp = () => {
-    setDraggingDevice(null)
-    
-  }
+  const handleMouseUp = (e: React.MouseEvent) => {
+    const x = e.clientX
+    const y = e.clientY
 
+    console.log("drop position", x, y)
+
+    setDraggingDevice(null)
+  }
   const deleteDevice = (id: number) => {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
   }

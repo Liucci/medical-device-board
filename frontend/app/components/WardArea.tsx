@@ -1,4 +1,5 @@
 import WardGrid from "./WardGrid"
+import { wards, rooms } from "../types/wards"
 
 export default function WardArea(){
   return (
@@ -14,19 +15,18 @@ export default function WardArea(){
                 gap: "12px"
                }}
             >
-      
-              <div style={{ gridColumn: "span 3" }}>
-                <WardGrid title="ICU" />
-              </div>
-      
-              <WardGrid title="CCU" />
-              <WardGrid title="HCU" />
-              <WardGrid title="SCU" />
-      
-              <WardGrid title="東３" />
-              <WardGrid title="西６" />
-      
+        {wards.map((ward) => (
+          <div
+            key={ward.wardID}
+                        style={{
+              gridColumn: ward.wardID === 1 ? "span 3" : undefined
+            }}
+          >
+            {/* 病棟ごとにWardGridコンポーネントを生成。titleには病棟名を渡す。 */}
+            <WardGrid title={ward.name} />
+          </div>
+        ))}
+
             </div>
     </div>
-  )
-}
+  )}

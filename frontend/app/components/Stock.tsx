@@ -43,7 +43,7 @@ export default function Stock({
         return (
           <div  
             key={d.id}
-            onMouseDown={(e) => startDrag(e, d)}
+             onMouseDown={(e) => startDrag(e, d)}
  
               onContextMenu={(e) => {
               e.preventDefault()

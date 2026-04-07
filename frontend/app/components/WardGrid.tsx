@@ -1,7 +1,7 @@
 type Props = {
   title: string
 }
-
+//病棟コンテナのUIを定義する関数コンポーネント
 export default function WardGrid({ title }: Props) {
 
   return (
