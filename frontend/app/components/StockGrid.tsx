@@ -4,10 +4,15 @@ type Props = {
 
 }
 
-export default function StockGrid({ title, children }: Props) {
+  export default function StockGrid({
+    title,
+    children,
+  }: Props) {
 
+    
   return (
-    <div className="rounded-lg p-2 h-full flex flex-col bg-white shadow-xl">      
+    <div className="rounded-lg p-2 h-full flex flex-col bg-white shadow-xl"
+    >      
       <div style={{ height: "180px" }}>
         {/* 倉庫名 */}
         <div style={{

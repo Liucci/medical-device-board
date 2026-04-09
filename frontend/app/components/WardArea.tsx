@@ -1,7 +1,28 @@
 import WardGrid from "./WardGrid"
+import Ward from "./Ward"
+import { Device } from "../types/deviceTypes"
 import { wards, rooms } from "../types/wards"
 
-export default function WardArea(){
+type Props = {
+  devices: Device[]
+  startDrag: (e: React.MouseEvent, device: Device) => void
+  deleteDevice: (id: number) => void
+  draggingDevice: Device | null
+  onDrop: (
+    device: Device,
+    status: "stock" | "room",
+    id: number
+  ) => void
+}
+
+export default function WardArea({
+                                  devices,
+                                  startDrag,
+                                  deleteDevice,
+                                  draggingDevice,
+                                  onDrop
+                                }: Props) {
+
   return (
     <div className="p-3 ">
 
@@ -21,9 +42,25 @@ export default function WardArea(){
                         style={{
               gridColumn: ward.wardID === 1 ? "span 3" : undefined
             }}
+        onMouseUp={() => {
+          if (!draggingDevice) return
+
+          onDrop(draggingDevice, "room", ward.wardID)
+        }}
+
+
           >
+            
             {/* 病棟ごとにWardGridコンポーネントを生成。titleには病棟名を渡す。 */}
-            <WardGrid title={ward.name} />
+            <WardGrid title={ward.name}>
+              <Ward
+                devices={devices}
+                wardId={ward.wardID}
+                startDrag={startDrag}
+                deleteDevice={deleteDevice}
+                draggingDevice={draggingDevice}
+              />
+            </WardGrid>            
           </div>
         ))}
 

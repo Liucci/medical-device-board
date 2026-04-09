@@ -10,9 +10,10 @@ type Props = {
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
+  onDrop: (device: Device, status: "stock" | "room", id: number) => void
 }
 
-export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice }: Props) {
+export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice, onDrop }: Props) {
 
   return (
     <div className="p-3">
@@ -29,28 +30,32 @@ export default function StockAreas({ devices, startDrag, handleMouseMove, delete
           gap: "12px"
         }}
       >
-        {/* stockAreasはdeviceTypes.tsで定義された倉庫エリアのリスト。これをマッピングしてStockGridコンポーネントを生成。 */}
-        {stockAreas.map((area) => (
-          <div
-            key={area.id}
-            style={{
-              gridColumn: area.id === 1 ? "span 3" : undefined
-            }}
-          >
-            {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
-            <StockGrid title={area.name}>
+    {stockAreas.map((area) => (
+      <div
+        key={area.id}
+        style={{
+          gridColumn: area.id === 1 ? "span 3" : undefined
+        }}
+
+        // ★ここに追加
+        onMouseUp={() => {
+          if (!draggingDevice) return
+
+          onDrop(draggingDevice, "stock", area.id)
+        }}
+  >            {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
+          <StockGrid
+              title={area.name}
+            >             
               {/* Stockは機器アイコン作成ファイル */}
-              {/*area.id=1のCE室コンテナに機器アイコンを配置するための条件分岐*/}
-              {area.id === 1 && (
                 <Stock
                   devices={devices}     // 修正: deviceList → devices
-                  stockAreaID={1}
+                  stockAreaID={area.id}
                   startDrag={startDrag}
                   handleMouseMove={handleMouseMove}
                   deleteDevice={deleteDevice}
                   draggingDevice={draggingDevice}
                 />
-              )}
             </StockGrid>
           </div>
         ))}

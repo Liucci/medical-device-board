@@ -25,7 +25,7 @@ export default function Stock({
   console.log("CE室 devices:", devices.filter(d => d.stockAreaID === stockAreaID));
  */  // この倉庫のdeviceだけ取得
   const areaDevices = devices.filter(
-    (d) => d.stockAreaID === stockAreaID
+    (d) => d.status === "stock" && d.stockAreaID === stockAreaID
   )
 
   return (
