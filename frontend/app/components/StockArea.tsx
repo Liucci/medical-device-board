@@ -10,7 +10,7 @@ type Props = {
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
-  onDrop: (device: Device, status: "stock" | "room", id: number) => void
+  onDrop:(device: Device, stockAreaId: number) => void
 }
 
 export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice, onDrop }: Props) {
@@ -40,8 +40,8 @@ export default function StockAreas({ devices, startDrag, handleMouseMove, delete
         // ★ここに追加
         onMouseUp={() => {
           if (!draggingDevice) return
-
-          onDrop(draggingDevice, "stock", area.id)
+          //onDropにdraggingDeviceとarea.idを渡す
+          onDrop(draggingDevice, area.id)
         }}
   >            {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
           <StockGrid

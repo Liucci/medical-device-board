@@ -5,7 +5,7 @@ import DeviceIcon from "../utils/DeviceIcon"
 type Props = {
   devices: Device[]
   stockAreaID: number
- startDrag: (e: React.MouseEvent, device: Device) => void
+  startDrag: (e: React.MouseEvent, device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null

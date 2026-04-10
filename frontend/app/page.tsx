@@ -5,7 +5,9 @@ import StockAreas from "./components/StockArea"
 import WardArea from "./components/WardArea"
 import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
-import { Device,stockAreas } from "./types/deviceTypes"
+import RoomModal from "./components/RoomModal"
+import { Device,stockAreas} from "./types/deviceTypes"
+import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState } from "react"
 
 export default function Page() {
@@ -14,7 +16,13 @@ export default function Page() {
   const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-
+  //病室の情報を管理するstate,初期値はinitialRoomsから
+  const [rooms, setRooms] = useState<Room[]>(initialRooms)  
+  //roomModalを開くためのstate
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
+  //どのデバイスをどの病棟に落としたかを保存するstate
+  const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
+  const [targetWardId, setTargetWardId] = useState<number | null>(null)
 //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
   const addDevice = (device: Device) => {
     setDeviceList((prev) => [...prev, { 
@@ -91,23 +99,59 @@ export default function Page() {
   }
 
 
-  const handleDrop = (device: Device,
-                      status: "stock" | "room",
-                      id: number) => {
+  
+
+  const handleDropToStock = (device: Device, stockAreaId: number) => {
     setDeviceList(prev =>
       prev.map(d =>
         d.id === device.id
-          ? { ...d, 
-              status,
-              stockAreaID: status === "stock" ? id: undefined, // ドロップ先がstockならCE室に配置
-              wardId: status === "room" ? id : undefined, // ドロップ先がroomなら病棟エリアに配置
+          ? {
+              ...d,
+              status: "stock",
+              stockAreaID: stockAreaId,
+              wardId: undefined,
+              roomId: undefined
             }
           : d
       )
     )
-    console.log(`Device :${device.id} stockAreaID:${status === "stock" ? id: undefined} wardId:${status === "room" ? id : undefined} に更新`)
   }
-  // Device削除関数
+  const handleDropToWard = (device: Device, wardId: number) => {
+    setPendingDevice(device)
+    setTargetWardId(wardId)
+    setRoomModalOpen(true)
+  }
+  //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
+  const handleRoomSubmit = (roomID: number, patientName: string) => {
+    if (!pendingDevice) return
+
+    // Deviceを選択されたRoomに更新する
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === pendingDevice.id
+          ? {
+              ...d,
+              status: "room",
+              roomId: roomID
+            }
+          : d
+      )
+    )
+
+    // RoomにroomIDと患者名を格納する
+    setRooms(prev =>
+      prev.map(r =>
+        r.id === roomID
+          ? { ...r, patientName }
+          : r
+      )
+    )
+
+    setRoomModalOpen(false)
+    setPendingDevice(null)
+    setTargetWardId(null)
+  }    
+    // Device削除関数
   const deleteDevice = (id: number) => {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
   }
@@ -127,9 +171,19 @@ export default function Page() {
           startDrag={startDrag}
           deleteDevice={deleteDevice}
           draggingDevice={draggingDevice}
-          onDrop={handleDrop} 
+          onDrop={handleDropToWard} 
+          rooms={rooms}
         />
       </div>
+      {/* 病室モーダル表示 */}
+      <RoomModal
+        isOpen={roomModalOpen}
+        onClose={() => setRoomModalOpen(false)}
+        onSubmit={handleRoomSubmit}
+        wardId={targetWardId}
+        rooms={rooms}
+        
+      />
 
       {/* 在庫エリア */}
       <div className={styles.stock}>
@@ -139,7 +193,7 @@ export default function Page() {
           handleMouseMove={handleMouseMove}
           deleteDevice={deleteDevice}
           draggingDevice={draggingDevice}
-          onDrop={handleDrop}
+          onDrop={handleDropToStock}
         />
       </div>      
 

@@ -54,8 +54,11 @@ export type Device = {
   status: DeviceStatus // "stock" または "room"
   stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
-  roomNumber?: string  // 配置されている場合のみ
-  patientName?: string // 配置されている場合のみ
+   roomId?: number
+  roomName?: string  // 配置されている場合のみ
+
+
+ // patientName?: string // 配置されている場合のみ
   row: number
   col: number
   x?: number // ドラッグ中の一時的なx座標

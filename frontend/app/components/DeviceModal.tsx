@@ -28,7 +28,7 @@ const handleSubmit = () => {
     model: selectedModelID,
     assetType: selectedAssetType,
     status: "stock",
-    stockAreaID: 1, // 仮にCE室に配置
+    stockAreaID: 1, //初期値はCE室
     row: 0,
     col: 0
   }
