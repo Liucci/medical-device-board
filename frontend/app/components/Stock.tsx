@@ -9,6 +9,7 @@ type Props = {
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
+  pendingDevice: Device | null
 }
 
 
@@ -18,14 +19,17 @@ export default function Stock({
                                 startDrag,
                                 handleMouseMove,
                                 deleteDevice,
-                                draggingDevice
+                                draggingDevice,
+                                pendingDevice
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
   console.log("CE室 devices:", devices.filter(d => d.stockAreaID === stockAreaID));
  */  // この倉庫のdeviceだけ取得
   const areaDevices = devices.filter(
-    (d) => d.status === "stock" && d.stockAreaID === stockAreaID
+    (d) => d.status === "stock" &&
+     d.stockAreaID === stockAreaID &&
+     d.id !== pendingDevice?.id
   )
 
   return (

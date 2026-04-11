@@ -10,10 +10,11 @@ type Props = {
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
+  pendingDevice: Device | null
   onDrop:(device: Device, stockAreaId: number) => void
 }
 
-export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice, onDrop }: Props) {
+export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice, pendingDevice, onDrop }: Props) {
 
   return (
     <div className="p-3">
@@ -55,6 +56,7 @@ export default function StockAreas({ devices, startDrag, handleMouseMove, delete
                   handleMouseMove={handleMouseMove}
                   deleteDevice={deleteDevice}
                   draggingDevice={draggingDevice}
+                  pendingDevice={pendingDevice}
                 />
             </StockGrid>
           </div>

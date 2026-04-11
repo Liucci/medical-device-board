@@ -10,6 +10,7 @@ type Props = {
   startDrag: (e: React.MouseEvent, device: Device) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
+  pendingDevice: Device | null
   onDrop: (device: Device, wardId: number) => void
   rooms: RoomType[]
 }
@@ -22,6 +23,7 @@ export default function WardArea({
                                   startDrag,
                                   deleteDevice,
                                   draggingDevice,
+                                  pendingDevice,
                                   onDrop,
                                   rooms
 
@@ -68,6 +70,7 @@ export default function WardArea({
                     patientName={room.patientName}
                     startDrag={startDrag}
                     draggingDevice={draggingDevice}
+                    pendingDevice={pendingDevice}
                   />
                 ))}
             </WardGrid>            

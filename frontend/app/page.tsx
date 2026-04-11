@@ -116,7 +116,8 @@ export default function Page() {
       )
     )
   }
-  const handleDropToWard = (device: Device, wardId: number) => {
+  const handleDropToWard = (device: Device, wardId: number) => {  
+  
     setPendingDevice(device)
     setTargetWardId(wardId)
     setRoomModalOpen(true)
@@ -150,7 +151,10 @@ export default function Page() {
     setRoomModalOpen(false)
     setPendingDevice(null)
     setTargetWardId(null)
-  }    
+  } 
+  
+  
+  
     // Device削除関数
   const deleteDevice = (id: number) => {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
@@ -171,6 +175,7 @@ export default function Page() {
           startDrag={startDrag}
           deleteDevice={deleteDevice}
           draggingDevice={draggingDevice}
+          pendingDevice={pendingDevice}
           onDrop={handleDropToWard} 
           rooms={rooms}
         />
@@ -193,7 +198,9 @@ export default function Page() {
           handleMouseMove={handleMouseMove}
           deleteDevice={deleteDevice}
           draggingDevice={draggingDevice}
+          pendingDevice={pendingDevice}
           onDrop={handleDropToStock}
+          
         />
       </div>      
 

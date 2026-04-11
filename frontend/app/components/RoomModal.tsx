@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom"
 import { useState } from "react"
+import { useEffect } from "react"
 import { wards, Room } from "../types/wards"
 
 type Props = {
@@ -21,7 +22,29 @@ export default function RoomModal({
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
   const [patientName, setPatientName] = useState("")
 
+
+  // モーダルが開くたびに選択状態をリセット
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedRoomId(null)
+      setPatientName("")
+  }
+}, [isOpen])
+
+  //既存の病室の患者名を表示するためのuseEffect
+  useEffect(() => {
+    if (!selectedRoomId) return
+
+    const selectedRoom = rooms.find(r => r.id === selectedRoomId)
+
+    if (selectedRoom) {
+      setPatientName(selectedRoom.patientName ?? "")
+    }
+  }, [selectedRoomId, rooms])
+
+
   if (!isOpen || wardId === null) return null
+
 
   const ward = wards.find(w => w.wardID === wardId)
 

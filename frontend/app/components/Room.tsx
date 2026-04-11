@@ -9,6 +9,7 @@ type Props = {
   patientName?: string
   startDrag: (e: React.MouseEvent, device: Device) => void
   draggingDevice: Device | null
+  pendingDevice: Device | null
 }
 
 export default function Room({
@@ -17,11 +18,14 @@ export default function Room({
                             roomName,
                             patientName,
                             startDrag,
-                            draggingDevice
+                            draggingDevice,
+                            pendingDevice                            
                             }: Props) {
 
 const roomDevices = devices.filter(
-  d => d.status === "room" && d.roomId === roomId
+  d => d.status === "room" && 
+  d.roomId === roomId &&
+  d.id !== pendingDevice?.id
 )
   //console.log("roomName(props):", roomName)
 
