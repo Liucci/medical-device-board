@@ -59,20 +59,28 @@ export default function WardArea({
             
         {/* WardGridを呼び出し、病棟ごとにWardGridコンポーネントを生成。titleには病棟名を渡す。 */}
             <WardGrid title={ward.name}>
-              {rooms
-                .filter(r => r.wardId === ward.wardID)
-                .map(room => (
-                  <Room
-                    key={room.id}
-                    devices={devices}
-                    roomId={room.id}
-                    roomName={room.roomName}
-                    patientName={room.patientName}
-                    startDrag={startDrag}
-                    draggingDevice={draggingDevice}
-                    pendingDevice={pendingDevice}
-                  />
-                ))}
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",  // 👈 横並び + 折り返し
+                    gap: "12px"
+                  }}
+                >
+                  {rooms
+                    .filter(r => r.wardId === ward.wardID)
+                    .map(room => (
+                      <Room
+                        key={room.id}
+                        devices={devices}
+                        roomId={room.id}
+                        roomName={room.roomName}
+                        patientName={room.patientName}
+                        startDrag={startDrag}
+                        draggingDevice={draggingDevice}
+                        pendingDevice={pendingDevice}
+                      />
+                    ))}
+              </div>
             </WardGrid>            
           </div>
         ))}

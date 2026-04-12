@@ -1,17 +1,21 @@
 /* ルートページ全体のレイアウトを定義するCSS */
 .layout{
   height:100vh;
-
   display:grid;
 
   grid-template-columns: 1fr 100px;
-  grid-template-rows: 2fr 1fr;
+  /* grid-template-rows: 2fr 1fr; */
 
+  /* rowsはJSで制御する */
+  /*driverは画面を分割するためのバーを指す */
   grid-template-areas:
     "ward button"
+    "divider button"
     "stock button";
 }
-
+.divider {
+  grid-area: divider;
+}
 /* 病棟エリア */
 .ward{
   grid-area: ward;

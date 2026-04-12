@@ -39,15 +39,31 @@ const roomDevices = devices.filter(
 
    
 return (
-    <div className="border p-2 rounded bg-gray-50">
+    <div
+      style={{
+        border: "1px solid #888",
+        borderRadius: "8px",
+        padding: "8px",
+        background: "#f9fafb",
+        width: "calc(90px * 2 + 8px)" // 👈 2列固定（80px×2 + gap）
+      }}
+    >      
       <div className="text-sm font-bold mb-1">{roomName}</div>
 
         {/* 🔥 患者名 */}
     <div className="text-xs text-gray-600 mb-1">
       {patientName ? `患者: ${patientName}` : "患者なし"}
     </div>
+          {/* 👇 flex配置 */}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px"
+        }}
+      >
 
-      {roomDevices.map(d => {
+      {roomDevices.slice(0, 6).map(d => {
         const isDragging = draggingDevice?.id === d.id
 
         const typeName =
@@ -68,6 +84,7 @@ return (
           </div>
         )
       })}
+      </div>
     </div>
   )
 }

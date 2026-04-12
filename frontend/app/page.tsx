@@ -6,7 +6,7 @@ import WardArea from "./components/WardArea"
 import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
 import RoomModal from "./components/RoomModal"
-import { Device,stockAreas} from "./types/deviceTypes"
+import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState } from "react"
 
@@ -23,7 +23,11 @@ export default function Page() {
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
-//新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
+  //StockAreaとWardAreaの仕切りをドラッグするためのstate
+  const [split, setSplit] = useState(0.65) // 上の割合
+  const [isResizing, setIsResizing] = useState(false)
+
+  //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
   const addDevice = (device: Device) => {
     setDeviceList((prev) => [...prev, { 
                                         ...device,
@@ -47,24 +51,26 @@ export default function Page() {
                   y: e.clientY
                 })
 
-  /*   setDeviceList(prev =>
-      prev.map(d =>
-        d.id === device.id
-          ? { ...d, x: rect.left, y: rect.top }
-          : d
-      )
-    )
-  */
     setDraggingDevice(device)
               }
-      //draggingDeviceの状態が変わるたびにコンソールに出力する
-      useEffect(() => {
-        console.log("selected draggingDevice", draggingDevice)
-      }, [draggingDevice])
+  //draggingDeviceの状態が変わるたびにコンソールに出力する
+  useEffect(() => {
+    console.log("selected draggingDevice", draggingDevice)
+  }, [draggingDevice])
 
     // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
-    //console.log("mouse move", draggingDevice)
+    // ✅ リサイズ優先
+    //isResizingがtrueでdraggingDeviceがnullの場合は、splitを更新する
+    if (isResizing && !draggingDevice) {
+      const newSplit = e.clientY / window.innerHeight
+    // splitは0.2から0.8の範囲で更新する
+      if (newSplit > 0.2 && newSplit < 0.8) {
+        setSplit(newSplit)
+      }
+      return
+    }    
+    
     //draggingDeviceがnullの場合は何もしない
     if (!draggingDevice) return
     //DragLayerのマウス位置情報のMousePosを更新する
@@ -96,6 +102,7 @@ export default function Page() {
     console.log("drop position", x, y)
 
     setDraggingDevice(null)
+    setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
   }
 
 
@@ -160,14 +167,19 @@ export default function Page() {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
   }
 
+  //StockAreaとWaerdAreaの仕切りをドラッグするための関数
+
   return (
       <div
         //page.module.cssのlayoutクラスと
         // draggingDeviceが存在する場合はdraggingクラスを呼び出す
         className={`${styles.layout} ${draggingDevice ? styles.dragging : ""}`}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
+        style={{
+        gridTemplateRows: `${split}fr 6px ${1 - split}fr` // 画面をsplitと6pxと残りの割合で分割
+        }}
+        onMouseMove={e => {handleMouseMove(e)}}
+        onMouseUp={e => {handleMouseUp(e)}}
+        >
       {/* 病棟エリア */}
       <div className={styles.ward}>
         <WardArea
@@ -180,6 +192,15 @@ export default function Page() {
           rooms={rooms}
         />
       </div>
+      {/* ✅ 境界バー */}
+      <div
+        style={{
+          background: "#ccc",
+          cursor: "row-resize"
+        }}
+        onMouseDown={() => setIsResizing(true)}
+      />
+
       {/* 病室モーダル表示 */}
       <RoomModal
         isOpen={roomModalOpen}
