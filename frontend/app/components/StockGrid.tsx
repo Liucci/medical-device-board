@@ -11,9 +11,15 @@ type Props = {
 
     
   return (
-    <div className="rounded-lg p-2 h-full flex flex-col bg-white shadow-xl"
-    >      
-      <div style={{ height: "180px" }}>
+<div
+    className="rounded-lg p-2 flex flex-col bg-white shadow-xl"
+    style={{
+    minWidth: "200px",
+    width: "fit-content",
+    alignSelf: "flex-start"
+   }}
+>      
+        {/* <div style={{ height: "180px" }}> */}
         {/* 倉庫名 */}
         <div style={{
           fontWeight: "bold",
@@ -23,16 +29,17 @@ type Props = {
         </div>
 
         {/* 倉庫内部グリッド */}
-        <div
-          className="grid flex-1"
-style={{
-          gridTemplateColumns: "repeat(3, 80px)", // 3列
-          gridTemplateRows: "repeat(2, 70px)",    // 2行
+      <div
+        className="grid"
+        style={{
+          gridAutoFlow: "column",
+          gridAutoColumns: "80px",
           gap: "6px"
-        }}        >
+        }}
+      >     
           {children}
-        </div>
       </div>
-    </div>
+</div>
+    // </div>
   )
 }

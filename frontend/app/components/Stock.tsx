@@ -26,12 +26,21 @@ export default function Stock({
 /*   console.log("Stock CE室ID:", stockAreaID);
   console.log("CE室 devices:", devices.filter(d => d.stockAreaID === stockAreaID));
  */  // この倉庫のdeviceだけ取得
-  const areaDevices = devices.filter(
-    (d) => d.status === "stock" &&
-     d.stockAreaID === stockAreaID &&
-     d.id !== pendingDevice?.id
-  )
+  const areaDevices = devices
+    .filter(
+      (d) => d.status === "stock" &&
+      d.stockAreaID === stockAreaID &&
+      d.id !== pendingDevice?.id
+    )
+    .sort((a, b) => {
+      // 第1優先：type
+      if (a.type !== b.type) {
+        return a.type - b.type
+      }
 
+      // 第2優先：model
+      return a.model - b.model
+    })
   return (
     <>
       {areaDevices.map((d) => {

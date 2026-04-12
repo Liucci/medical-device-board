@@ -28,8 +28,7 @@ export default function RoomModal({
     if (isOpen) {
       setSelectedRoomId(null)
       setPatientName("")
-  }
-}, [isOpen])
+  }}, [isOpen])
 
   //既存の病室の患者名を表示するためのuseEffect
   useEffect(() => {
@@ -39,8 +38,7 @@ export default function RoomModal({
 
     if (selectedRoom) {
       setPatientName(selectedRoom.patientName ?? "")
-    }
-  }, [selectedRoomId, rooms])
+    }}, [selectedRoomId, rooms])
 
 
   if (!isOpen || wardId === null) return null

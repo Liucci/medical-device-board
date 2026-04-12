@@ -25,10 +25,10 @@ export default function StockAreas({ devices, startDrag, handleMouseMove, delete
       {/* 倉庫用コンテナの単位当たりのスタイル */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          gridTemplateRows: "220px 220px",
-          gap: "12px"
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "12px"
         }}
       >
     {stockAreas.map((area) => (

@@ -39,8 +39,10 @@ export default function WardArea({
       </h2>            
         <div
             style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                display: "flex",
+                flexDirection: "column",
+                //gridTemplateColumns:"1fr",
+                alignItems: "flex-start",
               gap: "12px"
               }}
         >

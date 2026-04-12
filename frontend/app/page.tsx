@@ -65,7 +65,7 @@ export default function Page() {
     if (isResizing && !draggingDevice) {
       const newSplit = e.clientY / window.innerHeight
     // splitは0.2から0.8の範囲で更新する
-      if (newSplit > 0.2 && newSplit < 0.8) {
+      if (newSplit > 0.1 && newSplit < 0.9) {
         setSplit(newSplit)
       }
       return
@@ -78,21 +78,6 @@ export default function Page() {
           x: e.clientX, 
           y: e.clientY 
         })
-
-/*     // ドラッグ中は機器の位置を更新する
-        //idが一致するDeviceListのdeviceのx,yを更新する
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === draggingDevice.id
-          ? {
-              ...d,
-              x: e.clientX - dragOffset.x,
-              y: e.clientY - dragOffset.y,
-            }
-          : d
-      )
-    )
- */    
   }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -159,6 +144,12 @@ export default function Page() {
     setPendingDevice(null)
     setTargetWardId(null)
   } 
+
+  const handleRoomCancel = () => {
+  setRoomModalOpen(false)
+  setPendingDevice(null)
+  setTargetWardId(null)
+}
   
   
   
@@ -166,6 +157,21 @@ export default function Page() {
   const deleteDevice = (id: number) => {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
   }
+  //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
+  //deviceListが更新されるたびにroomsを更新する
+  useEffect(() => {
+  setRooms(prev =>
+    prev.map(room => {
+      const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
+
+      if (devicesInRoom.length === 0 && room.patientName) {
+        return { ...room, patientName: "" }
+      }
+
+      return room
+    })
+  )
+}, [deviceList])
 
   //StockAreaとWaerdAreaの仕切りをドラッグするための関数
 
@@ -204,7 +210,7 @@ export default function Page() {
       {/* 病室モーダル表示 */}
       <RoomModal
         isOpen={roomModalOpen}
-        onClose={() => setRoomModalOpen(false)}
+        onClose={handleRoomCancel}
         onSubmit={handleRoomSubmit}
         wardId={targetWardId}
         rooms={rooms}

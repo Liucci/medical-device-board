@@ -25,6 +25,7 @@
   border-bottom:1px solid #888;
   padding:10px;
   overflow:auto;
+  user-select: none;
 }
 
 /* ストックエリア */
@@ -35,7 +36,7 @@
   border-right:1px solid #888;
   padding:10px;
   overflow:auto;
-
+  user-select: none;
 }
 
 /* ボタンエリア */
