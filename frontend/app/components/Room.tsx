@@ -10,6 +10,7 @@ type Props = {
   startDrag: (e: React.MouseEvent, device: Device) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
+  deleteDevice: (id: number) => void
 }
 
 export default function Room({
@@ -19,7 +20,8 @@ export default function Room({
                             patientName,
                             startDrag,
                             draggingDevice,
-                            pendingDevice                            
+                            pendingDevice,   
+                            deleteDevice
                             }: Props) {
 
 const roomDevices = devices.filter(
@@ -76,6 +78,14 @@ return (
           <div
             key={d.id}
             onMouseDown={(e) => startDrag(e, d)}
+              onContextMenu={(e) => {
+                              console.log("右クリック検知")
+              e.preventDefault()
+              if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
+                deleteDevice(d.id)
+              }
+            }}
+            //機器アイコンdrag中は元位置のアイコンは見えなくする
             style={{
               visibility: isDragging ? "hidden" : "visible"
             }}

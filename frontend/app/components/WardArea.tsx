@@ -80,6 +80,7 @@ export default function WardArea({
                         startDrag={startDrag}
                         draggingDevice={draggingDevice}
                         pendingDevice={pendingDevice}
+                        deleteDevice={deleteDevice}
                       />
                     ))}
               </div>

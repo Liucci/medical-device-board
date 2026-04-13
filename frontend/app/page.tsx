@@ -39,7 +39,7 @@ export default function Page() {
     console.log("x,y,stockAreaID:", device.x, device.y, device.stockAreaID)
   }
   const startDrag = (e: React.MouseEvent, device: Device) => {
-
+    if (e.button !== 0) return
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
 
     setDragOffset({
@@ -89,9 +89,6 @@ export default function Page() {
     setDraggingDevice(null)
     setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
   }
-
-
-  
 
   const handleDropToStock = (device: Device, stockAreaId: number) => {
     setDeviceList(prev =>
@@ -150,8 +147,6 @@ export default function Page() {
   setPendingDevice(null)
   setTargetWardId(null)
 }
-  
-  
   
     // Device削除関数
   const deleteDevice = (id: number) => {
