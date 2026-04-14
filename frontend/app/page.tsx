@@ -6,6 +6,7 @@ import WardArea from "./components/WardArea"
 import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
 import RoomModal from "./components/RoomModal"
+import StockInfoModal from "./components/StockInfoModal"
 import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState } from "react"
@@ -20,6 +21,9 @@ export default function Page() {
   const [rooms, setRooms] = useState<Room[]>(initialRooms)  
   //roomModalを開くためのstate
   const [roomModalOpen, setRoomModalOpen] = useState(false)
+  //StockInfoModalを開くためのstate
+  const [stockInfoModalOpen, setStockInfoModalOpen] = useState(false)
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
@@ -38,7 +42,29 @@ export default function Page() {
     console.log("Added device:", device)
     console.log("x,y,stockAreaID:", device.x, device.y, device.stockAreaID)
   }
-  const startDrag = (e: React.MouseEvent, device: Device) => {
+
+  const startDrag = (
+    target: HTMLElement,
+    clientX: number,
+    clientY: number,
+    device: Device
+  ) => {
+    const rect = target.getBoundingClientRect()
+
+    setDragOffset({
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    })
+
+    setMousePos({
+      x: clientX,
+      y: clientY
+    })
+
+    setDraggingDevice(device)
+}
+
+/*   const startDrag = (e: React.MouseEvent, device: Device) => {
     if (e.button !== 0) return
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
 
@@ -53,7 +79,9 @@ export default function Page() {
 
     setDraggingDevice(device)
               }
-  //draggingDeviceの状態が変わるたびにコンソールに出力する
+ */  
+
+   //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
   }, [draggingDevice])
@@ -155,20 +183,33 @@ export default function Page() {
   //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
   //deviceListが更新されるたびにroomsを更新する
   useEffect(() => {
-  setRooms(prev =>
-    prev.map(room => {
-      const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
+    setRooms(prev =>
+      prev.map(room => {
+        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
 
-      if (devicesInRoom.length === 0 && room.patientName) {
-        return { ...room, patientName: "" }
-      }
+        if (devicesInRoom.length === 0 && room.patientName) {
+          return { ...room, patientName: "" }
+        }
 
-      return room
-    })
-  )
-}, [deviceList])
+        return room
+      })
+    )
+  }, [deviceList])
 
-  //StockAreaとWaerdAreaの仕切りをドラッグするための関数
+  const openStockInfoModal = (device: Device) => {
+  setSelectedDevice(device)
+  setStockInfoModalOpen(true)
+  }
+
+  const handleStockInfoSubmit = (data: any) => {
+    console.log("保存データ", data)
+    setStockInfoModalOpen(false)
+  }
+
+  const handleStockInfoCancel = () => {
+    setStockInfoModalOpen(false)
+  }
+
 
   return (
       <div
@@ -191,6 +232,7 @@ export default function Page() {
           pendingDevice={pendingDevice}
           onDrop={handleDropToWard} 
           rooms={rooms}
+          
         />
       </div>
       {/* ✅ 境界バー */}
@@ -202,15 +244,7 @@ export default function Page() {
         onMouseDown={() => setIsResizing(true)}
       />
 
-      {/* 病室モーダル表示 */}
-      <RoomModal
-        isOpen={roomModalOpen}
-        onClose={handleRoomCancel}
-        onSubmit={handleRoomSubmit}
-        wardId={targetWardId}
-        rooms={rooms}
-        
-      />
+
 
       {/* 在庫エリア */}
       <div className={styles.stock}>
@@ -222,7 +256,7 @@ export default function Page() {
           draggingDevice={draggingDevice}
           pendingDevice={pendingDevice}
           onDrop={handleDropToStock}
-          
+          openStockInfoModal={openStockInfoModal}
         />
       </div>      
 
@@ -238,6 +272,23 @@ export default function Page() {
           mousePos={mousePos}
         />
       </div>
+      {/* 病室モーダル表示 */}
+      <RoomModal
+        isOpen={roomModalOpen}
+        onClose={handleRoomCancel}
+        onSubmit={handleRoomSubmit}
+        wardId={targetWardId}
+        rooms={rooms}
+      />
+      <StockInfoModal
+        isOpen={stockInfoModalOpen}
+        device={selectedDevice}
+        onSubmit={handleStockInfoSubmit}
+        onCancel={handleStockInfoCancel}
+      />
+
+
+
 
     </div>
   )

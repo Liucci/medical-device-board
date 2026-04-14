@@ -6,15 +6,24 @@ import { stockAreas, Device } from "../types/deviceTypes"
 
 type Props = {  
   devices: Device[]
-  startDrag: (e: React.MouseEvent, device: Device) => void
+  startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
   onDrop:(device: Device, stockAreaId: number) => void
+  openStockInfoModal: (device: Device) => void
 }
 
-export default function StockAreas({ devices, startDrag, handleMouseMove, deleteDevice, draggingDevice, pendingDevice, onDrop }: Props) {
+export default function StockAreas({ devices,
+                                     startDrag,
+                                     handleMouseMove,
+                                     deleteDevice,
+                                     draggingDevice,
+                                     pendingDevice,
+                                     onDrop,
+                                     openStockInfoModal
+                                    }: Props) {
 
   return (
     <div className="p-3">
@@ -57,6 +66,8 @@ export default function StockAreas({ devices, startDrag, handleMouseMove, delete
                   deleteDevice={deleteDevice}
                   draggingDevice={draggingDevice}
                   pendingDevice={pendingDevice}
+                  openStockInfoModal={openStockInfoModal}
+
                 />
             </StockGrid>
           </div>

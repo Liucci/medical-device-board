@@ -7,7 +7,7 @@ import Room from "./Room"
 
 type Props = {
   devices: Device[]
-  startDrag: (e: React.MouseEvent, device: Device) => void
+  startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null

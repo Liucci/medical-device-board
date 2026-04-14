@@ -1,13 +1,14 @@
 import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
 import { deviceTypes, deviceModels } from "../types/deviceTypes"
+import {useRef} from "react"
 
 type Props = {
   devices: Device[]
   roomId: number
   roomName: string
   patientName?: string
-  startDrag: (e: React.MouseEvent, device: Device) => void
+  startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
@@ -73,11 +74,39 @@ return (
 
         const modelName =
           deviceModels.find(m => m.modelID === d.model)?.name ?? "不明"
-
+        const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+        const isLongPress = useRef(false)
         return (
           <div
             key={d.id}
-            onMouseDown={(e) => startDrag(e, d)}
+              onMouseDown={(e) => {
+                if (e.button !== 0) return
+
+                isLongPress.current = false
+
+                // ✅ 必要な値を先に退避
+                const target = e.currentTarget as HTMLElement
+                const clientX = e.clientX
+                const clientY = e.clientY
+
+                longPressTimer.current = setTimeout(() => {
+                  console.log("長押し → drag開始")
+                  isLongPress.current = true
+
+                  startDrag(target, clientX, clientY, d)
+                }, 300)
+              }}
+              onMouseUp={() => {
+                if (longPressTimer.current) {
+                  clearTimeout(longPressTimer.current)
+                  longPressTimer.current = null
+                }
+                if (!isLongPress.current) {
+                  console.log("シングルクリック")
+                }
+              }}
+
+
               onContextMenu={(e) => {
                               console.log("右クリック検知")
               e.preventDefault()

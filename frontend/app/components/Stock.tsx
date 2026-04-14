@@ -2,14 +2,17 @@
 
 import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
+import {useRef} from "react"
+
 type Props = {
   devices: Device[]
   stockAreaID: number
-  startDrag: (e: React.MouseEvent, device: Device) => void
+  startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
+  openStockInfoModal: (device: Device) => void
 }
 
 
@@ -20,7 +23,8 @@ export default function Stock({
                                 handleMouseMove,
                                 deleteDevice,
                                 draggingDevice,
-                                pendingDevice
+                                pendingDevice,
+                                openStockInfoModal
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -41,7 +45,8 @@ export default function Stock({
       // 第2優先：model
       return a.model - b.model
     })
-  return (
+
+return (
     <>
       {areaDevices.map((d) => {
         //dragging中は座標管理、それ以外はgridで配置するためのフラグ
@@ -53,11 +58,48 @@ export default function Stock({
         const modelName =
           deviceModels.find((m) => m.modelID === d.model)?.name || "不明"
           //console.log("typeName:", typeName, "modelName:", modelName);
+        const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+        const isLongPress = useRef(false)
         return (
-          <div  
-            key={d.id}
-             onMouseDown={(e) => startDrag(e, d)}
- 
+            <div
+              key={d.id}
+
+              onMouseDown={(e) => {
+                if (e.button !== 0) return
+
+                isLongPress.current = false
+
+                // ✅ 必要な値を先に退避
+                const target = e.currentTarget as HTMLElement
+                const clientX = e.clientX
+                const clientY = e.clientY
+
+                longPressTimer.current = setTimeout(() => {
+                  console.log("長押し → drag開始")
+                  isLongPress.current = true
+
+                  startDrag(target, clientX, clientY, d)
+                }, 300)
+              }}
+              onMouseUp={() => {
+                if (longPressTimer.current) {
+                  clearTimeout(longPressTimer.current)
+                  longPressTimer.current = null
+                }
+                if (!isLongPress.current) {
+                  console.log("シングルクリック")
+                  openStockInfoModal(d)
+                }
+              }}
+
+              onMouseLeave={() => {
+                if (longPressTimer.current) {
+                  clearTimeout(longPressTimer.current)
+                  longPressTimer.current = null
+                }
+              }}
+
+
               onContextMenu={(e) => {
               e.preventDefault()
               if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
