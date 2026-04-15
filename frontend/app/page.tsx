@@ -7,6 +7,7 @@ import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
 import RoomModal from "./components/RoomModal"
 import StockInfoModal from "./components/StockInfoModal"
+import RoomDeviceInfoModal from "./components/RoomDeviceInfoModal"
 import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState } from "react"
@@ -21,9 +22,11 @@ export default function Page() {
   const [rooms, setRooms] = useState<Room[]>(initialRooms)  
   //roomModalを開くためのstate
   const [roomModalOpen, setRoomModalOpen] = useState(false)
-  //StockInfoModalを開くためのstate
+  //StockInfoModal,RoomDeviceInfoModalを開くためのstate
   const [stockInfoModalOpen, setStockInfoModalOpen] = useState(false)
+  const [roomDeviceInfoModalOpen, setRoomDeviceInfoModalOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
+  const [selectedRoomDevice, setSelectedRoomDevice] = useState<Device | null>(null)
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
@@ -139,6 +142,7 @@ export default function Page() {
     setTargetWardId(wardId)
     setRoomModalOpen(true)
   }
+  //roomMadalを開く
   //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
   const handleRoomSubmit = (roomID: number, patientName: string) => {
     if (!pendingDevice) return
@@ -195,21 +199,30 @@ export default function Page() {
       })
     )
   }, [deviceList])
-
+  //StockInfoModal開くコンポーネント
   const openStockInfoModal = (device: Device) => {
   setSelectedDevice(device)
   setStockInfoModalOpen(true)
   }
-
   const handleStockInfoSubmit = (data: any) => {
     console.log("保存データ", data)
     setStockInfoModalOpen(false)
   }
-
   const handleStockInfoCancel = () => {
     setStockInfoModalOpen(false)
   }
-
+  //RoomDeviceModalを開くコンポーネント
+  const openRoomDeviceInfoModal = (device: Device) => {
+  setSelectedRoomDevice(device)
+  setRoomDeviceInfoModalOpen(true)
+  }
+  const handleRoomDeviceInfoSubmit = (data: any) => {
+    console.log("保存データ", data)
+    setRoomDeviceInfoModalOpen(false)
+  }
+  const handleRoomDeviceInfoCancel = () => {
+    setRoomDeviceInfoModalOpen(false)
+  }
 
   return (
       <div
@@ -232,7 +245,7 @@ export default function Page() {
           pendingDevice={pendingDevice}
           onDrop={handleDropToWard} 
           rooms={rooms}
-          
+          openRoomDeviceInfoModal={openRoomDeviceInfoModal}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -280,13 +293,20 @@ export default function Page() {
         wardId={targetWardId}
         rooms={rooms}
       />
+      {/*ストック機器詳細モーダル表示 */}
       <StockInfoModal
         isOpen={stockInfoModalOpen}
         device={selectedDevice}
         onSubmit={handleStockInfoSubmit}
         onCancel={handleStockInfoCancel}
       />
-
+       {/* 病室機器詳細モーダル表示 */}
+      <RoomDeviceInfoModal
+        isOpen={roomDeviceInfoModalOpen}
+        device={selectedRoomDevice}
+        onSubmit={handleRoomDeviceInfoSubmit}
+        onCancel={handleRoomDeviceInfoCancel}
+      />
 
 
 
