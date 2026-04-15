@@ -1,8 +1,7 @@
 "use client"
 
 import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
-import {wards,rooms} from "../types/wards"
-
+import type { Room } from "../types/wards"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
@@ -16,13 +15,15 @@ type Props = {
     note: string
   }) => void
   onCancel: () => void
+  rooms: Room[]
 }
 
 export default function RoomDeviceInfoModal({
   isOpen,
   device,
   onSubmit,
-  onCancel
+  onCancel,
+  rooms
 }: Props) {
   const [managementNumber, setManagementNumber] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
@@ -46,8 +47,9 @@ export default function RoomDeviceInfoModal({
     deviceModels.find(m => m.modelID === device.model)?.name ?? "不明"
   const roomName =
     rooms.find(r => r.id === device.roomId)?.roomName ?? "不明"
-  const patientName =
-  rooms.find(r => r.id === device.roomId)?.patientName ?? ""
+  //roomのidから患者名を取得する
+  const room = rooms.find(r => r.id === device.roomId)
+  const patientName = room?.patientName ?? ""
     return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">

@@ -330,6 +330,7 @@ useEffect(() => {
         device={selectedRoomDevice}
         onSubmit={handleRoomDeviceInfoSubmit}
         onCancel={handleRoomDeviceInfoCancel}
+        rooms={rooms}
       />
 
 
