@@ -10,7 +10,7 @@ import StockInfoModal from "./components/StockInfoModal"
 import RoomDeviceInfoModal from "./components/RoomDeviceInfoModal"
 import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
-import { useEffect, useState } from "react"
+import { useEffect, useState,useRef } from "react"
 
 export default function Page() {
 
@@ -67,27 +67,7 @@ export default function Page() {
     setDraggingDevice(device)
 }
 
-/*   const startDrag = (e: React.MouseEvent, device: Device) => {
-    if (e.button !== 0) return
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
 
-    setDragOffset({
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                  })
-    setMousePos({
-                  x: e.clientX,
-                  y: e.clientY
-                })
-
-    setDraggingDevice(device)
-              }
- */  
-
-   //draggingDeviceの状態が変わるたびにコンソールに出力する
-  useEffect(() => {
-    console.log("selected draggingDevice", draggingDevice)
-  }, [draggingDevice])
 
     // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -184,30 +164,32 @@ export default function Page() {
   const deleteDevice = (id: number) => {
     setDeviceList((prev) => prev.filter(d => d.id !== id))
   }
-  //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
-  //deviceListが更新されるたびにroomsを更新する
-  useEffect(() => {
-    setRooms(prev =>
-      prev.map(room => {
-        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
-
-        if (devicesInRoom.length === 0 && room.patientName) {
-          return { ...room, patientName: "" }
-        }
-
-        return room
-      })
-    )
-  }, [deviceList])
   //StockInfoModal開くコンポーネント
   const openStockInfoModal = (device: Device) => {
   setSelectedDevice(device)
   setStockInfoModalOpen(true)
   }
-  const handleStockInfoSubmit = (data: any) => {
-    console.log("保存データ", data)
+  const handleStockInfoSubmit = (data: {
+    id: number
+    managementNumber: string
+    serialNumber: string
+    note: string
+  }) => {
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === data.id
+          ? {
+              ...d,
+              managementNumber: data.managementNumber,
+              serialNumber: data.serialNumber,
+              note: data.note
+            }
+          : d
+      )
+    )
     setStockInfoModalOpen(false)
   }
+
   const handleStockInfoCancel = () => {
     setStockInfoModalOpen(false)
   }
@@ -223,6 +205,48 @@ export default function Page() {
   const handleRoomDeviceInfoCancel = () => {
     setRoomDeviceInfoModalOpen(false)
   }
+
+   //draggingDeviceの状態が変わるたびにコンソールに出力する
+  useEffect(() => {
+    console.log("selected draggingDevice", draggingDevice)
+  }, [draggingDevice])
+
+
+  //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
+  //deviceListが更新されるたびにroomsを更新する
+  useEffect(() => {
+    setRooms(prev =>
+      prev.map(room => {
+        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
+
+        if (devicesInRoom.length === 0 && room.patientName) {
+          return { ...room, patientName: "" }
+        }
+
+        return room
+      })
+    )
+  }, [deviceList])
+  //deviveListが更新されたら、更新されたdeviceだけ出力
+const prevDeviceListRef = useRef<Device[]>([])
+useEffect(() => {
+  const prev = prevDeviceListRef.current
+
+  // 更新されたdeviceだけ抽出
+  const updatedDevices = deviceList.filter(current => {
+    const old = prev.find(d => d.id === current.id)
+
+    // 新規 or 内容が変わった
+    return !old || JSON.stringify(old) !== JSON.stringify(current)
+  })
+
+  if (updatedDevices.length > 0) {
+    console.log("更新されたdevice:", updatedDevices)
+  }
+
+  // 次回のために保存
+  prevDeviceListRef.current = deviceList
+}, [deviceList])
 
   return (
       <div

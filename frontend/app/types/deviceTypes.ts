@@ -48,9 +48,9 @@ export const deviceModels: DeviceModel[] = [
 
 export const AssetTypes = [
   "資産",
-  "レンタル"
+  "レンタル",
+  "代替器"
 ] as const;
-
 export type DeviceStatus = "stock" | "room"
 
 type stockArea = {
@@ -80,10 +80,14 @@ export type Device = {
   status: DeviceStatus // "stock" または "room"
   stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
-   roomId?: number
-  roomName?: string  // 配置されている場合のみ
+  roomId?: number
+  //roomName?: string  // 配置されている場合のみ
   row: number
   col: number
   x?: number // ドラッグ中の一時的なx座標
   y?: number // ドラッグ中の一時的なy座標
+  managementNumber?: string
+  serialNumber?: string
+  note?: string
+
 }

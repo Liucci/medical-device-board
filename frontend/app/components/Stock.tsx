@@ -57,6 +57,9 @@ return (
 
         const modelName =
           deviceModels.find((m) => m.modelID === d.model)?.name || "不明"
+        const assetType=d.assetType
+
+          
           //console.log("typeName:", typeName, "modelName:", modelName);
         const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
         const isLongPress = useRef(false)
@@ -88,6 +91,7 @@ return (
                 }
                 if (!isLongPress.current) {
                   console.log("シングルクリック")
+                  console.log("stockDevice",d)
                   openStockInfoModal(d)
                 }
               }}
@@ -122,6 +126,7 @@ return (
           <DeviceIcon
             typeName={typeName}
             modelName={modelName}
+            assetType={assetType}
           />
 
         </div>

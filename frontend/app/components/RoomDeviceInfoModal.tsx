@@ -1,7 +1,7 @@
 "use client"
 
 import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
-import type { Room as RoomType} from "../types/wards"
+import {wards,rooms} from "../types/wards"
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
@@ -36,7 +36,7 @@ export default function RoomDeviceInfoModal({
       setNote("")
     }
   }, [device])
-  console.log("RoomDeviceinfoModalのdevice", device)
+  //console.log("RoomDeviceinfoModalのdevice", device)
   if (!isOpen || !device) return null
 
   const typeName =
@@ -44,8 +44,11 @@ export default function RoomDeviceInfoModal({
 
   const modelName =
     deviceModels.find(m => m.modelID === device.model)?.name ?? "不明"
-
-return createPortal(
+  const roomName =
+    rooms.find(r => r.id === device.roomId)?.roomName ?? "不明"
+  const patientName =
+  rooms.find(r => r.id === device.roomId)?.patientName ?? ""
+    return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
 
@@ -65,13 +68,17 @@ return createPortal(
       </div>
 
       <div className="mb-4">
-        <div className="text-sm text-gray-500">配置場所</div>
-        <div className="font-bold">Stock</div>
+        <div className="text-sm text-gray-500">病室</div>
+        <div className="font-bold">{roomName}</div>
       </div>
 
       <div className="mb-4">
         <div className="text-sm text-gray-500">状態</div>
         <div className="font-bold">{device.status}</div>
+      </div>
+            <div className="mb-4">
+        <div className="text-sm text-gray-500">患者</div>
+        <div className="font-bold">{patientName}</div>
       </div>
 
       {/* 🔽 入力 */}

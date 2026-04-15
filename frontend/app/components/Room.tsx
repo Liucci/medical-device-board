@@ -12,6 +12,7 @@ type Props = {
   draggingDevice: Device | null
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
+  openRoomDeviceInfoModal: (device: Device) => void
 }
 
 export default function Room({
@@ -22,7 +23,8 @@ export default function Room({
                             startDrag,
                             draggingDevice,
                             pendingDevice,   
-                            deleteDevice
+                            deleteDevice,
+                            openRoomDeviceInfoModal
                             }: Props) {
 
 const roomDevices = devices.filter(
@@ -74,6 +76,8 @@ return (
 
         const modelName =
           deviceModels.find(m => m.modelID === d.model)?.name ?? "不明"
+        const assetType=d.assetType
+
         const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
         const isLongPress = useRef(false)
         return (
@@ -103,6 +107,8 @@ return (
                 }
                 if (!isLongPress.current) {
                   console.log("シングルクリック")
+                  console.log("roomDevice",d)
+                  openRoomDeviceInfoModal(d)
                 }
               }}
 
@@ -119,7 +125,11 @@ return (
               visibility: isDragging ? "hidden" : "visible"
             }}
           >
-            <DeviceIcon typeName={typeName} modelName={modelName} />
+            <DeviceIcon 
+              typeName={typeName}
+              modelName={modelName}
+              assetType={assetType}
+             />
           </div>
         )
       })}

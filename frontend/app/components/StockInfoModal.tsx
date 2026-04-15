@@ -1,6 +1,6 @@
 "use client"
 
-import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
+import { Device, deviceModels, deviceTypes,stockAreas} from "../types/deviceTypes"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
@@ -17,38 +17,42 @@ type Props = {
 }
 
 export default function StockInfoModal({
-  isOpen,
-  device,
-  onSubmit,
-  onCancel
-}: Props) {
+                                        isOpen,
+                                        device,
+                                        onSubmit,
+                                        onCancel
+                                      }: Props) {
   const [managementNumber, setManagementNumber] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
   const [note, setNote] = useState("")
 
-  // deviceが変わったら初期化
-  useEffect(() => {
-    if (device) {
-      setManagementNumber("")
-      setSerialNumber("")
-      setNote("")
-    }
-  }, [device])
-
-  if (!isOpen || !device) return null
-
+if (!isOpen || !device) return null
   const typeName =
     deviceTypes.find(t => t.typeID === device.type)?.name ?? "不明"
-
   const modelName =
     deviceModels.find(m => m.modelID === device.model)?.name ?? "不明"
+  const locationName =
+    stockAreas.find(s => s.id === device.stockAreaID)?.name ?? "不明"
+
+    useEffect(() => {
+  if (!isOpen) return
+  if (device) {
+    setManagementNumber(device.managementNumber ?? "")
+    setSerialNumber(device.serialNumber ?? "")
+    setNote(device.note ?? "")
+  }
+}, [device, isOpen])
+
+  
+
+
 
 return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
 
       <h2 className="text-2xl font-bold mb-6 text-center">
-        機器情報（Stock）
+        機器詳細情報（Stock）
       </h2>
 
       {/* 🔽 参照情報 */}
@@ -64,7 +68,7 @@ return createPortal(
 
       <div className="mb-4">
         <div className="text-sm text-gray-500">配置場所</div>
-        <div className="font-bold">Stock</div>
+        <div className="font-bold">{locationName}</div>
       </div>
 
       <div className="mb-4">

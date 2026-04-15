@@ -14,7 +14,8 @@ export default function DragLayer({  draggingDevice, mousePos }: Props) {
 
   const modelName =
     deviceModels.find(m => m.modelID === draggingDevice.model)?.name ?? "Unknown"
-  //console.log("draggingDevice", draggingDevice)
+  const assetType=draggingDevice.assetType
+    //console.log("draggingDevice", draggingDevice)
   //console.log("mousePos", mousePos)
 
   return (
@@ -30,6 +31,7 @@ export default function DragLayer({  draggingDevice, mousePos }: Props) {
         <DeviceIcon
           typeName={typeName}
           modelName={modelName}
+          assetType={assetType}
         />
       </div>
   )
