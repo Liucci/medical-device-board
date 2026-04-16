@@ -13,6 +13,8 @@ type Props = {
     managementNumber: string
     serialNumber: string
     note: string
+    patientName:string
+    roomId: number 
   }) => void
   onCancel: () => void
   rooms: Room[]
@@ -28,16 +30,19 @@ export default function RoomDeviceInfoModal({
   const [managementNumber, setManagementNumber] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
   const [note, setNote] = useState("")
+  const [patientName, setPatientName] = useState("")
 
-  // deviceが変わったら初期化
   useEffect(() => {
-    if (device) {
-      setManagementNumber("")
-      setSerialNumber("")
-      setNote("")
-    }
-  }, [device])
-  //console.log("RoomDeviceinfoModalのdevice", device)
+    if (!isOpen || !device) return
+
+    setManagementNumber(device.managementNumber ?? "")
+    setSerialNumber(device.serialNumber ?? "")
+    setNote(device.note ?? "")
+
+    const room = rooms.find(r => r.id === device.roomId)
+    setPatientName(room?.patientName ?? "")
+  }, [device, isOpen, rooms]) 
+
   if (!isOpen || !device) return null
 
   const typeName =
@@ -48,14 +53,13 @@ export default function RoomDeviceInfoModal({
   const roomName =
     rooms.find(r => r.id === device.roomId)?.roomName ?? "不明"
   //roomのidから患者名を取得する
-  const room = rooms.find(r => r.id === device.roomId)
-  const patientName = room?.patientName ?? ""
-    return createPortal(
+
+  return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
 
       <h2 className="text-2xl font-bold mb-6 text-center">
-        機器情報（Stock）
+        病棟機器情報（room）
       </h2>
 
       {/* 🔽 参照情報 */}
@@ -78,9 +82,14 @@ export default function RoomDeviceInfoModal({
         <div className="text-sm text-gray-500">状態</div>
         <div className="font-bold">{device.status}</div>
       </div>
-            <div className="mb-4">
+
+      <div className="mb-4">
         <div className="text-sm text-gray-500">患者</div>
-        <div className="font-bold">{patientName}</div>
+        <input
+          className="border p-2 w-full"
+          value={patientName}
+          onChange={(e) => setPatientName(e.target.value)}
+        />
       </div>
 
       {/* 🔽 入力 */}
@@ -121,7 +130,10 @@ export default function RoomDeviceInfoModal({
               id: device.id,
               managementNumber,
               serialNumber,
-              note
+              note,
+              patientName,
+              //device内にroomIdは必ず存在する意味の「!」
+              roomId: device.roomId!
             })
           }
           className="bg-blue-500 text-white px-3 py-1 rounded"

@@ -1,7 +1,7 @@
 import { Device } from "../../types/deviceTypes"
 import DeviceIcon from "../../utils/DeviceIcon"
 import { wards, rooms } from "../../types/wards"
-import Room from "../Room"
+import Room from "../RoomContainer"
 import { deviceTypes, deviceModels } from "../../types/deviceTypes"
 type Props = {
   devices: Device[]

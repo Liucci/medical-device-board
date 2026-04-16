@@ -30,6 +30,10 @@ export default function Stock({
 /*   console.log("Stock CE室ID:", stockAreaID);
   console.log("CE室 devices:", devices.filter(d => d.stockAreaID === stockAreaID));
  */  // この倉庫のdeviceだけ取得
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+  const isLongPress = useRef(false)
+
+                                
   const areaDevices = devices
     .filter(
       (d) => d.status === "stock" &&
@@ -61,13 +65,12 @@ return (
 
           
           //console.log("typeName:", typeName, "modelName:", modelName);
-        const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
-        const isLongPress = useRef(false)
         return (
             <div
               key={d.id}
 
               onMouseDown={(e) => {
+                //左クリック以外排除
                 if (e.button !== 0) return
 
                 isLongPress.current = false
@@ -84,7 +87,9 @@ return (
                   startDrag(target, clientX, clientY, d)
                 }, 300)
               }}
-              onMouseUp={() => {
+              onMouseUp={(e) => {
+                //左クリック以外排除
+                if (e.button !== 0) return
                 if (longPressTimer.current) {
                   clearTimeout(longPressTimer.current)
                   longPressTimer.current = null

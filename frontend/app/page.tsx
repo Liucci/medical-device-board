@@ -11,6 +11,7 @@ import RoomDeviceInfoModal from "./components/RoomDeviceInfoModal"
 import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState,useRef } from "react"
+import RoomContainer from "./components/RoomContainer"
 
 export default function Page() {
 
@@ -27,12 +28,17 @@ export default function Page() {
   const [roomDeviceInfoModalOpen, setRoomDeviceInfoModalOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [selectedRoomDevice, setSelectedRoomDevice] = useState<Device | null>(null)
+  //RoomMOdalとRoomDeviceInfoModal同時に開かないようにするフラグstate
+  const [justDropped, setJustDropped] = useState(false)
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
   //StockAreaとWardAreaの仕切りをドラッグするためのstate
   const [split, setSplit] = useState(0.65) // 上の割合
   const [isResizing, setIsResizing] = useState(false)
+  //auto scroll用にStockArea / WardArea のDOMをrefで取得
+  const wardRef = useRef<HTMLDivElement | null>(null)
+  const stockRef = useRef<HTMLDivElement | null>(null)
 
   //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
   const addDevice = (device: Device) => {
@@ -65,10 +71,44 @@ export default function Page() {
     })
 
     setDraggingDevice(device)
+    //Dragイベント発生のフラグ
+    setJustDropped(true)
 }
+  //auto scroll関連
+  const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
+    const AUTO_SCROLL_MARGIN = 60  // 端の判定範囲(px)
+    const AUTO_SCROLL_SPEED = 10   // スクロール速度
+    const rect = container.getBoundingClientRect()
+        // ===== 縦スクロール =====
+    // 上端
+    if (mouseY < rect.top + AUTO_SCROLL_MARGIN) {
+      container.scrollTop -= AUTO_SCROLL_SPEED
+    }
 
-
-
+    // 下端
+    if (mouseY > rect.bottom - AUTO_SCROLL_MARGIN) {
+      container.scrollTop += AUTO_SCROLL_SPEED
+    }
+        // ===== 横スクロール =====
+        //左端
+    if (mouseX < rect.left + AUTO_SCROLL_MARGIN) {
+      container.scrollLeft -= AUTO_SCROLL_SPEED
+    }
+        //右端
+    if (mouseX > rect.right - AUTO_SCROLL_MARGIN) {
+      container.scrollLeft += AUTO_SCROLL_SPEED
+    }
+  }
+  //マウスがStockAreaまたはWardArea内にあるか判定するための関数
+  const isInside = (e: React.MouseEvent, el: HTMLElement) => {
+    const rect = el.getBoundingClientRect()
+    return (
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom
+    )
+  }
     // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
     // ✅ リサイズ優先
@@ -89,6 +129,13 @@ export default function Page() {
           x: e.clientX, 
           y: e.clientY 
         })
+    // 👇 追加：自動スクロール
+    if (wardRef.current && isInside(e, wardRef.current)) {
+      autoScroll(wardRef.current,e.clientX,e.clientY)
+    }
+    if (stockRef.current && isInside(e, stockRef.current)) {
+      autoScroll(stockRef.current,e.clientX,e.clientY)
+    }  
   }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -121,6 +168,11 @@ export default function Page() {
     setPendingDevice(device)
     setTargetWardId(wardId)
     setRoomModalOpen(true)
+    //機器アイコンのdragですのフラグ
+    //setJustDropped(true)
+    console.log("機器アイコンのドラッグイベント")
+  // 少し後に解除
+  setTimeout(() => setJustDropped(false), 100)
   }
   //roomMadalを開く
   //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
@@ -195,13 +247,39 @@ export default function Page() {
   }
   //RoomDeviceModalを開くコンポーネント
   const openRoomDeviceInfoModal = (device: Device) => {
-  setSelectedRoomDevice(device)
-  setRoomDeviceInfoModalOpen(true)
-  }
-  const handleRoomDeviceInfoSubmit = (data: any) => {
-    console.log("保存データ", data)
-    setRoomDeviceInfoModalOpen(false)
-  }
+if  (device.roomId === undefined) return    
+    setSelectedRoomDevice(device)
+    setRoomDeviceInfoModalOpen(true)
+    }
+  const handleRoomDeviceInfoSubmit = (data:{
+    id: number
+    managementNumber: string
+    serialNumber: string
+    note: string
+    patientName: string
+    roomId: number 
+  }) => {
+          setDeviceList(prev =>
+            prev.map(d =>
+              d.id === data.id
+                ? {
+                    ...d,
+                    managementNumber: data.managementNumber,
+                    serialNumber: data.serialNumber,
+                    note: data.note
+                  }
+                : d
+            )
+          )
+          setRooms(prev =>
+                    prev.map(r =>
+                      r.id === data.roomId
+                        ? { ...r, patientName: data.patientName }
+                        : r
+                    )
+                  )
+          setRoomDeviceInfoModalOpen(false)
+        }
   const handleRoomDeviceInfoCancel = () => {
     setRoomDeviceInfoModalOpen(false)
   }
@@ -228,8 +306,9 @@ export default function Page() {
     )
   }, [deviceList])
   //deviveListが更新されたら、更新されたdeviceだけ出力
-const prevDeviceListRef = useRef<Device[]>([])
-useEffect(() => {
+  const prevDeviceListRef = useRef<Device[]>([])
+
+  useEffect(() => {
   const prev = prevDeviceListRef.current
 
   // 更新されたdeviceだけ抽出
@@ -260,7 +339,7 @@ useEffect(() => {
         onMouseUp={e => {handleMouseUp(e)}}
         >
       {/* 病棟エリア */}
-      <div className={styles.ward}>
+      <div className={styles.ward} ref={wardRef}>
         <WardArea
           devices={deviceList}
           startDrag={startDrag}
@@ -270,6 +349,7 @@ useEffect(() => {
           onDrop={handleDropToWard} 
           rooms={rooms}
           openRoomDeviceInfoModal={openRoomDeviceInfoModal}
+          justDropped={justDropped}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -284,7 +364,7 @@ useEffect(() => {
 
 
       {/* 在庫エリア */}
-      <div className={styles.stock}>
+      <div className={styles.stock} ref={stockRef}>
         <StockAreas
           devices={deviceList}
           startDrag={startDrag}

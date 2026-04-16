@@ -3,7 +3,8 @@ import Ward from "./escapes/Ward"
 import { Device } from "../types/deviceTypes"
 import { wards } from "../types/wards"
 import type { Room as RoomType} from "../types/wards"
-import Room from "./Room"
+import Room from "./RoomContainer"
+import RoomContainer from "./RoomContainer"
 
 type Props = {
   devices: Device[]
@@ -14,6 +15,7 @@ type Props = {
   onDrop: (device: Device, wardId: number) => void
   rooms: RoomType[]
   openRoomDeviceInfoModal: (device: Device) => void
+  justDropped: boolean
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -27,7 +29,8 @@ export default function WardArea({
                                   pendingDevice,
                                   onDrop,
                                   rooms,
-                                  openRoomDeviceInfoModal
+                                  openRoomDeviceInfoModal,
+                                  justDropped
 
                                 }: Props) {
   
@@ -73,7 +76,7 @@ export default function WardArea({
                   {rooms
                     .filter(r => r.wardId === ward.wardID)
                     .map(room => (
-                      <Room
+                      <RoomContainer
                         key={room.id}
                         devices={devices}
                         roomId={room.id}
@@ -84,6 +87,7 @@ export default function WardArea({
                         pendingDevice={pendingDevice}
                         deleteDevice={deleteDevice}
                         openRoomDeviceInfoModal={openRoomDeviceInfoModal}
+                        justDropped={justDropped}
                       />
                     ))}
               </div>

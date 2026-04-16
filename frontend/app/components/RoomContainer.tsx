@@ -13,9 +13,10 @@ type Props = {
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
   openRoomDeviceInfoModal: (device: Device) => void
+  justDropped: boolean
 }
 
-export default function Room({
+export default function RoomContainer({
                             devices,
                             roomId,
                             roomName,
@@ -24,7 +25,9 @@ export default function Room({
                             draggingDevice,
                             pendingDevice,   
                             deleteDevice,
-                            openRoomDeviceInfoModal
+                            openRoomDeviceInfoModal,
+                            justDropped
+
                             }: Props) {
 
 const roomDevices = devices.filter(
@@ -34,6 +37,8 @@ const roomDevices = devices.filter(
 )
   //console.log("roomName(props):", roomName)
 
+const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+const isLongPress = useRef(false)
 
 
 
@@ -78,12 +83,11 @@ return (
           deviceModels.find(m => m.modelID === d.model)?.name ?? "不明"
         const assetType=d.assetType
 
-        const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
-        const isLongPress = useRef(false)
         return (
           <div
             key={d.id}
               onMouseDown={(e) => {
+                //左クリック以外は排除
                 if (e.button !== 0) return
 
                 isLongPress.current = false
@@ -100,7 +104,11 @@ return (
                   startDrag(target, clientX, clientY, d)
                 }, 300)
               }}
-              onMouseUp={() => {
+              onMouseUp={(e) => {
+                //機器アイコンdragでの発火は除外
+                if (justDropped) return
+                //左クリック以外排除
+                if (e.button !== 0) return
                 if (longPressTimer.current) {
                   clearTimeout(longPressTimer.current)
                   longPressTimer.current = null
@@ -114,10 +122,10 @@ return (
 
 
               onContextMenu={(e) => {
-                              console.log("右クリック検知")
-              e.preventDefault()
-              if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
-                deleteDevice(d.id)
+                console.log("右クリック検知")
+                e.preventDefault()
+                if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
+                  deleteDevice(d.id)
               }
             }}
             //機器アイコンdrag中は元位置のアイコンは見えなくする

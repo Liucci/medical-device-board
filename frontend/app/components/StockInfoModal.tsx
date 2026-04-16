@@ -26,7 +26,17 @@ export default function StockInfoModal({
   const [serialNumber, setSerialNumber] = useState("")
   const [note, setNote] = useState("")
 
-if (!isOpen || !device) return null
+  useEffect(() => {
+    if (!isOpen) return
+    if (device) {
+      setManagementNumber(device.managementNumber ?? "")
+      setSerialNumber(device.serialNumber ?? "")
+      setNote(device.note ?? "")
+    }
+  }, [device, isOpen])
+
+  if (!isOpen || !device) return null
+  
   const typeName =
     deviceTypes.find(t => t.typeID === device.type)?.name ?? "不明"
   const modelName =
@@ -34,14 +44,6 @@ if (!isOpen || !device) return null
   const locationName =
     stockAreas.find(s => s.id === device.stockAreaID)?.name ?? "不明"
 
-    useEffect(() => {
-  if (!isOpen) return
-  if (device) {
-    setManagementNumber(device.managementNumber ?? "")
-    setSerialNumber(device.serialNumber ?? "")
-    setNote(device.note ?? "")
-  }
-}, [device, isOpen])
 
   
 
