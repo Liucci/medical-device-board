@@ -2,9 +2,10 @@ import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
 import { deviceTypes, deviceModels } from "../types/deviceTypes"
 import {useRef} from "react"
-
+//WardArea.tsxより
 type Props = {
   devices: Device[]
+  rooms:rooms[]
   roomId: number
   roomName: string
   patientName?: string
@@ -18,6 +19,7 @@ type Props = {
 
 export default function RoomContainer({
                             devices,
+                            rooms,
                             roomId,
                             roomName,
                             patientName,
@@ -35,7 +37,8 @@ const roomDevices = devices.filter(
   d.roomId === roomId &&
   d.id !== pendingDevice?.id
 )
-  //console.log("roomName(props):", roomName)
+  //console.log("患者名:",patientName)
+  //console.log("rooms",rooms)
 
 const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
 const isLongPress = useRef(false)
@@ -46,6 +49,7 @@ const isLongPress = useRef(false)
   if (roomDevices.length === 0) {
   return 
   }
+
 
    
 return (

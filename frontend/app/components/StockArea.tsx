@@ -2,10 +2,11 @@
 
 import StockGrid from "./StockGrid"
 import Stock from "./Stock"
-import { stockAreas, Device } from "../types/deviceTypes"
+import { Device } from "../types/deviceTypes"
 
 type Props = {  
   devices: Device[]
+  stockAreas: StockAreaType[] 
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
@@ -16,6 +17,7 @@ type Props = {
 }
 
 export default function StockAreas({ devices,
+                                     stockAreas,
                                      startDrag,
                                      handleMouseMove,
                                      deleteDevice,

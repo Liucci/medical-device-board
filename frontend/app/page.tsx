@@ -12,15 +12,29 @@ import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState,useRef } from "react"
 import RoomContainer from "./components/RoomContainer"
+//supabasek
+import { createClient } from '@supabase/supabase-js'
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
 export default function Page() {
 
   const [deviceList, setDeviceList] = useState<Device[]>([])
+  //DBからtableを取得するためのstate
+  const [stockAreas, setStockAreas] = useState<any[]>([])
+  const [wards, setWards] = useState<any[]>([])
+  const [rooms, setRooms] = useState<any[]>([])
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([])
+  const [deviceModels, setDeviceModels] = useState<any[]>([])
+
   const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   //病室の情報を管理するstate,初期値はinitialRoomsから
-  const [rooms, setRooms] = useState<Room[]>(initialRooms)  
+  //const [rooms, setRooms] = useState<Room[]>(initialRooms)  
   //roomModalを開くためのstate
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   //StockInfoModal,RoomDeviceInfoModalを開くためのstate
@@ -40,24 +54,56 @@ export default function Page() {
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
 
-  //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
-  const addDevice = (device: Device) => {
-    setDeviceList((prev) => [...prev, { 
-                                        ...device,
-                                         x: 0,
-                                         y: 0,
-                                         stockAreaID: 1
-                                        }])
-    console.log("Added device:", device)
-    console.log("x,y,stockAreaID:", device.x, device.y, device.stockAreaID)
-  }
+//device tableにfetchする
+  const fetchDevices = async () => {
+    const { data, error } = await supabase
+      .from('devices')
+      .select('*')
 
+    if (error) {
+      console.error("fetchDevices error:", error)
+      return
+    }
+
+    if (data) {
+      setDeviceList(
+        data.map(d => ({
+          ...d,
+          stockAreaID: d.stock_area_id,
+          roomId: d.room_id,
+          assetType: d.asset_type
+        }))
+      )
+    }
+  }
+  //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
+  const addDevice = async (device: Device) => {
+    const { error } = await supabase
+      .from('devices')
+      .insert([
+        {
+          type: device.type,
+          model: device.model,
+          asset_type: device.assetType,
+          status: "stock",
+          stock_area_id: 1,
+          room_id: null
+        }
+      ])
+
+    if (error) {
+      console.error("insert error:", error)
+      return
+    }
+
+    await fetchDevices()
+  }
   const startDrag = (
     target: HTMLElement,
     clientX: number,
     clientY: number,
     device: Device
-  ) => {
+    ) => {
     const rect = target.getBoundingClientRect()
 
     setDragOffset({
@@ -73,7 +119,7 @@ export default function Page() {
     setDraggingDevice(device)
     //Dragイベント発生のフラグ
     setJustDropped(true)
-}
+  }
   //auto scroll関連
   const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
     const AUTO_SCROLL_MARGIN = 60  // 端の判定範囲(px)
@@ -163,21 +209,31 @@ export default function Page() {
       )
     )
   }
-  const handleDropToWard = (device: Device, wardId: number) => {  
+  const handleDropToWard = (device: Device, wardID: number) => {  
   
     setPendingDevice(device)
-    setTargetWardId(wardId)
+    setTargetWardId(wardID)
     setRoomModalOpen(true)
     //機器アイコンのdragですのフラグ
     //setJustDropped(true)
     console.log("機器アイコンのドラッグイベント")
-  // 少し後に解除
-  setTimeout(() => setJustDropped(false), 100)
+    // 少し後に解除
+    setTimeout(() => setJustDropped(false), 100)
   }
   //roomMadalを開く
   //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
-  const handleRoomSubmit = (roomID: number, patientName: string) => {
-    if (!pendingDevice) return
+  const handleRoomSubmit = async (roomID: number, patientName: string) => {    if (!pendingDevice) return
+
+        // ① DB更新（患者名）
+    const { error } = await supabase
+      .from('rooms')
+      .update({ patient_name: patientName })
+      .eq('id', roomID)
+
+    if (error) {
+      console.error(error)
+      return
+    }
 
     // Deviceを選択されたRoomに更新する
     setDeviceList(prev =>
@@ -193,14 +249,15 @@ export default function Page() {
     )
 
     // RoomにroomIDと患者名を格納する
+    //patientNameはUI上の情報
     setRooms(prev =>
       prev.map(r =>
         r.id === roomID
-          ? { ...r, patientName }
+          ? { ...r, patientName:patientName }
           : r
       )
     )
-
+    console.log("患者名",patientName)
     setRoomModalOpen(false)
     setPendingDevice(null)
     setTargetWardId(null)
@@ -226,19 +283,19 @@ export default function Page() {
     managementNumber: string
     serialNumber: string
     note: string
-  }) => {
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === data.id
-          ? {
-              ...d,
-              managementNumber: data.managementNumber,
-              serialNumber: data.serialNumber,
-              note: data.note
-            }
-          : d
+    }) => {
+      setDeviceList(prev =>
+        prev.map(d =>
+          d.id === data.id
+            ? {
+                ...d,
+                managementNumber: data.managementNumber,
+                serialNumber: data.serialNumber,
+                note: data.note
+              }
+            : d
+        )
       )
-    )
     setStockInfoModalOpen(false)
   }
 
@@ -247,10 +304,10 @@ export default function Page() {
   }
   //RoomDeviceModalを開くコンポーネント
   const openRoomDeviceInfoModal = (device: Device) => {
-if  (device.roomId === undefined) return    
-    setSelectedRoomDevice(device)
-    setRoomDeviceInfoModalOpen(true)
-    }
+    if  (device.roomId === undefined) return    
+        setSelectedRoomDevice(device)
+        setRoomDeviceInfoModalOpen(true)
+  }
   const handleRoomDeviceInfoSubmit = (data:{
     id: number
     managementNumber: string
@@ -258,19 +315,19 @@ if  (device.roomId === undefined) return
     note: string
     patientName: string
     roomId: number 
-  }) => {
-          setDeviceList(prev =>
-            prev.map(d =>
-              d.id === data.id
-                ? {
-                    ...d,
-                    managementNumber: data.managementNumber,
-                    serialNumber: data.serialNumber,
-                    note: data.note
-                  }
-                : d
+    }) => {
+            setDeviceList(prev =>
+              prev.map(d =>
+                d.id === data.id
+                  ? {
+                      ...d,
+                      managementNumber: data.managementNumber,
+                      serialNumber: data.serialNumber,
+                      note: data.note
+                    }
+                  : d
+              )
             )
-          )
           setRooms(prev =>
                     prev.map(r =>
                       r.id === data.roomId
@@ -307,27 +364,94 @@ if  (device.roomId === undefined) return
   }, [deviceList])
   //deviveListが更新されたら、更新されたdeviceだけ出力
   const prevDeviceListRef = useRef<Device[]>([])
+  useEffect(() => {
+    const prev = prevDeviceListRef.current
+
+    // 更新されたdeviceだけ抽出
+    const updatedDevices = deviceList.filter(current => {
+      const old = prev.find(d => d.id === current.id)
+
+      // 新規 or 内容が変わった
+      return !old || JSON.stringify(old) !== JSON.stringify(current)
+    })
+
+    if (updatedDevices.length > 0) {
+      console.log("更新されたdevice:", updatedDevices)
+    }
+
+    // 次回のために保存
+    prevDeviceListRef.current = deviceList
+  }, [deviceList])
+
+  //DBからstock_area tableを取得しstockAreaに格納
+  useEffect(() => {
+    const fetchStockAreas = async () => {
+      const { data, error } = await supabase
+        .from('stock_areas')
+        .select('*')
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      if (data) {
+        setStockAreas(data)
+      }
+    }
+    fetchStockAreas()
+  }, [])
 
   useEffect(() => {
-  const prev = prevDeviceListRef.current
+    const fetchWards = async () => {
+      const { data, error } = await supabase
+        .from('wards')
+        .select('*')
 
-  // 更新されたdeviceだけ抽出
-  const updatedDevices = deviceList.filter(current => {
-    const old = prev.find(d => d.id === current.id)
+      if (error) {
+        console.error(error)
+        return
+      }
 
-    // 新規 or 内容が変わった
-    return !old || JSON.stringify(old) !== JSON.stringify(current)
-  })
+      if (data) {
+        setWards(data)
+      }
+    }
 
-  if (updatedDevices.length > 0) {
-    console.log("更新されたdevice:", updatedDevices)
+      fetchWards()
+  }, [])
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const { data, error } = await supabase
+        .from('rooms')
+        .select('*')
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+      if (data) {
+        setRooms(data)
+      }
+    }
+
+    fetchRooms()
+  }, [])
+  useEffect(() => {
+  const fetchMaster = async () => {
+    const { data: types } = await supabase.from('device_types').select('*')
+    const { data: models } = await supabase.from('device_models').select('*')
+
+    if (types) setDeviceTypes(types)
+    if (models) setDeviceModels(models)
   }
 
-  // 次回のために保存
-  prevDeviceListRef.current = deviceList
-}, [deviceList])
-
-  return (
+  fetchMaster()
+}, [])
+  
+    return (
       <div
         //page.module.cssのlayoutクラスと
         // draggingDeviceが存在する場合はdraggingクラスを呼び出す
@@ -342,6 +466,7 @@ if  (device.roomId === undefined) return
       <div className={styles.ward} ref={wardRef}>
         <WardArea
           devices={deviceList}
+          wards={wards}
           startDrag={startDrag}
           deleteDevice={deleteDevice}
           draggingDevice={draggingDevice}
@@ -367,6 +492,7 @@ if  (device.roomId === undefined) return
       <div className={styles.stock} ref={stockRef}>
         <StockAreas
           devices={deviceList}
+          stockAreas={stockAreas}
           startDrag={startDrag}
           handleMouseMove={handleMouseMove}
           deleteDevice={deleteDevice}
@@ -379,7 +505,11 @@ if  (device.roomId === undefined) return
 
       {/* ボタンパネル */}
       <div className={styles.button}>
-        <ButtonPanel addDevice={addDevice}/>
+        <ButtonPanel 
+          addDevice={addDevice}
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
+        />
       </div>
 
             {/* drag layer */}
@@ -395,6 +525,7 @@ if  (device.roomId === undefined) return
         onClose={handleRoomCancel}
         onSubmit={handleRoomSubmit}
         wardId={targetWardId}
+        wards={wards}
         rooms={rooms}
       />
       {/*ストック機器詳細モーダル表示 */}

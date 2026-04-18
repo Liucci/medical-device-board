@@ -1,19 +1,19 @@
 import WardGrid from "./WardGrid"
-import Ward from "./escapes/Ward"
 import { Device } from "../types/deviceTypes"
-import { wards } from "../types/wards"
-import type { Room as RoomType} from "../types/wards"
-import Room from "./RoomContainer"
+//import { wards } from "../types/wards"
+//import type { Room as RoomType} from "../types/wards"
+//import Room from "./RoomContainer"
 import RoomContainer from "./RoomContainer"
-
+//page.tsxより
 type Props = {
   devices: Device[]
+  wards:wards[]
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
   onDrop: (device: Device, wardId: number) => void
-  rooms: RoomType[]
+  rooms: rooms[]
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
 }
@@ -23,6 +23,7 @@ type Props = {
 // さらに、ドラッグアンドドロップの処理も担当する。
 export default function WardArea({
                                   devices,
+                                  wards,
                                   startDrag,
                                   deleteDevice,
                                   draggingDevice,
@@ -53,14 +54,14 @@ export default function WardArea({
         >
         {wards.map((ward) => (
                               <div
-                                key={ward.wardID}
+                                key={ward.id}
                                 style={{
-                                  gridColumn: ward.wardID === 1 ? "span 3" : undefined
+                                  gridColumn: ward.id === 1 ? "span 3" : undefined
                                 }}
                                 onMouseUp={() => {
                                   if (!draggingDevice) return
                                   //onDropにdraggingDeviceとward.wardIDを渡す
-                                    onDrop(draggingDevice, ward.wardID)
+                                    onDrop(draggingDevice, ward.id)
                                   }}
                               >
             
@@ -74,13 +75,14 @@ export default function WardArea({
                   }}
                 >
                   {rooms
-                    .filter(r => r.wardId === ward.wardID)
+                    .filter(r => r.ward_id === ward.id)
                     .map(room => (
                       <RoomContainer
                         key={room.id}
                         devices={devices}
+                        rooms={rooms}
                         roomId={room.id}
-                        roomName={room.roomName}
+                        roomName={room.name}
                         patientName={room.patientName}
                         startDrag={startDrag}
                         draggingDevice={draggingDevice}

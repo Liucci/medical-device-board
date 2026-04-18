@@ -1,13 +1,14 @@
 import { createPortal } from "react-dom"
 import { useState } from "react"
 import { useEffect } from "react"
-import { wards, Room } from "../types/wards"
+//import { wards, Room } from "../types/wards"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   onSubmit: (roomId: number, patientName: string) => void
   wardId: number | null
+  wards: Ward[]
   rooms: Room[]
 }
 
@@ -16,6 +17,7 @@ export default function RoomModal({
   onClose,
   onSubmit,
   wardId,
+  wards,
   rooms
 }: Props) {
 
@@ -44,9 +46,9 @@ export default function RoomModal({
   if (!isOpen || wardId === null) return null
 
 
-  const ward = wards.find(w => w.wardID === wardId)
+  const ward = wards.find(w => w.id === wardId)
 
-  const filteredRooms = rooms.filter(r => r.wardId === wardId)
+  const filteredRooms = rooms.filter(r => r.ward_id === wardId)
 
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -70,7 +72,7 @@ export default function RoomModal({
             <option value="">選択してください</option>
             {filteredRooms.map(r => (
               <option key={r.id} value={r.id}>
-                {r.roomName}
+                {r.name}
               </option>
             ))}
           </select>

@@ -2,17 +2,25 @@
 import DeviceModal from "./DeviceModal"
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
-import { Device } from "../types/deviceTypes"
+//import { Device } from "../types/deviceTypes"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
-addDevice: (device: Device) => void}
+  addDevice: (device: Device) => void
+  deviceTypes: { id: number; name: string }[]
+  deviceModels: { id: number; device_type_id: number; name: string }[]
+}
 
-export default function ButtonPanel({ addDevice }: Props) {
+export default function ButtonPanel({ 
+                                    addDevice,
+                                    deviceTypes,
+                                    deviceModels
+                                     }: Props)
+   {
     const [openDeviceModal, setOpenDeviceModal] = useState(false)
 
   
-  const handleAdd = () => {
+    const handleAdd = () => {
     const width = 600
     const height = 700
 
@@ -35,10 +43,15 @@ export default function ButtonPanel({ addDevice }: Props) {
       <ButtonGrid onAdd={OpenModal} title={"新規登録"} />
         {/* 隙間を空ける */}
       <div className="h-4" />
-      <ButtonGrid onAdd={handleAdd} title={"設定"} />
-      {/* openDeviceModal=trueのときにモーダルを表示 */}
-      {/*Modalの登録ボタンにはaddDevice関数を渡す*/}
-      {openDeviceModal && <DeviceModal onCreate={addDevice} onClose={() => setOpenDeviceModal(false)} />}
+      {openDeviceModal && 
+        <DeviceModal 
+          onCreate={addDevice}
+          onClose={() => setOpenDeviceModal(false)} 
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
+
+        />
+      }
     </>
   )
 }

@@ -7,20 +7,29 @@ import { createPortal } from "react-dom"
  type Props = {
   onClose: () => void
   onCreate: (device: Device) => void
+  deviceTypes: { id: number; name: string }[]
+  deviceModels: { id: number; device_type_id: number; name: string }[]
+
 }
 
-export default function DeviceModal({ onClose, onCreate }: Props) {
+export default function DeviceModal({
+                                      onClose,
+                                      onCreate,
+                                      deviceTypes,
+                                      deviceModels
+                                    }: Props) 
+  {
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
   const [selectedModelID, setSelectedModelID] = useState<number | "">("")
   const [selectedAssetType, setSelectedAssetType] = useState<typeof AssetTypes[number]>("資産")
 
   const modelsForType = selectedTypeID === ""
     ? []
-    : deviceModels.filter(m => m.typeID === selectedTypeID)
+    : deviceModels.filter(m => m.device_type_id === selectedTypeID)
 
 
-const handleSubmit = () => {
-  if (selectedTypeID === "" || selectedModelID === "") return
+  const handleSubmit = () => {
+    if (selectedTypeID === "" || selectedModelID === "") return
 
   const newDevice: Device = {
     id: Date.now(),
@@ -52,7 +61,7 @@ return createPortal(
         >
           <option value="">機種選択</option>
           {deviceTypes.map(t => (
-            <option key={t.typeID} value={t.typeID}>{t.name}</option>
+            <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
 
@@ -64,7 +73,7 @@ return createPortal(
         >
           <option value="">型式選択</option>
           {modelsForType.map(m => (
-            <option key={m.modelID} value={m.modelID}>{m.name}</option>
+            <option key={m.id} value={m.id}>{m.name}</option>
           ))}
         </select>
 
