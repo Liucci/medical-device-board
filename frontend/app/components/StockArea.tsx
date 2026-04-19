@@ -5,8 +5,10 @@ import Stock from "./Stock"
 import { Device } from "../types/deviceTypes"
 
 type Props = {  
-  devices: Device[]
-  stockAreas: StockAreaType[] 
+  deviceList: any[]
+  stockAreas: any[]
+  deviceTypes: any[]
+  deviceModels: any[] 
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
@@ -16,8 +18,10 @@ type Props = {
   openStockInfoModal: (device: Device) => void
 }
 
-export default function StockAreas({ devices,
+export default function StockAreas({ deviceList,
                                      stockAreas,
+                                     deviceTypes,
+                                     deviceModels,
                                      startDrag,
                                      handleMouseMove,
                                      deleteDevice,
@@ -61,8 +65,11 @@ export default function StockAreas({ devices,
             >             
               {/* Stockは機器アイコン作成ファイル */}
                 <Stock
-                  devices={devices}     // 修正: deviceList → devices
+                  deviceList={deviceList}     // 修正: deviceList → devices
                   stockAreaID={area.id}
+                  deviceTypes={deviceTypes}
+                  deviceModels={deviceModels}
+
                   startDrag={startDrag}
                   handleMouseMove={handleMouseMove}
                   deleteDevice={deleteDevice}

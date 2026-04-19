@@ -4,8 +4,8 @@ import { deviceTypes, deviceModels } from "../types/deviceTypes"
 import {useRef} from "react"
 //WardArea.tsxより
 type Props = {
-  devices: Device[]
-  rooms:rooms[]
+  deviceList: any[]
+  rooms: any[]
   roomId: number
   roomName: string
   patientName?: string
@@ -18,7 +18,7 @@ type Props = {
 }
 
 export default function RoomContainer({
-                            devices,
+                            deviceList,
                             rooms,
                             roomId,
                             roomName,
@@ -32,7 +32,7 @@ export default function RoomContainer({
 
                             }: Props) {
 
-const roomDevices = devices.filter(
+const roomDevices = deviceList.filter(
   d => d.status === "room" && 
   d.roomId === roomId &&
   d.id !== pendingDevice?.id

@@ -6,14 +6,14 @@ import { Device } from "../types/deviceTypes"
 import RoomContainer from "./RoomContainer"
 //page.tsxより
 type Props = {
-  devices: Device[]
-  wards:wards[]
+  deviceList: any[]
+  wards:any[]
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
   onDrop: (device: Device, wardId: number) => void
-  rooms: rooms[]
+  rooms: any[]
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
 }
@@ -22,7 +22,7 @@ type Props = {
 // 各病棟に対してWardコンポーネントを配置する。
 // さらに、ドラッグアンドドロップの処理も担当する。
 export default function WardArea({
-                                  devices,
+                                  deviceList,
                                   wards,
                                   startDrag,
                                   deleteDevice,
@@ -79,7 +79,7 @@ export default function WardArea({
                     .map(room => (
                       <RoomContainer
                         key={room.id}
-                        devices={devices}
+                        deviceList={deviceList}
                         rooms={rooms}
                         roomId={room.id}
                         roomName={room.name}

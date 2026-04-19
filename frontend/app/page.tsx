@@ -12,6 +12,7 @@ import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState,useRef } from "react"
 import RoomContainer from "./components/RoomContainer"
+
 //supabasek
 import { createClient } from '@supabase/supabase-js'
 
@@ -21,9 +22,9 @@ import { createClient } from '@supabase/supabase-js'
   )
 
 export default function Page() {
-
-  const [deviceList, setDeviceList] = useState<Device[]>([])
-  //DBからtableを取得するためのstate
+  //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
+  const [deviceList, setDeviceList] = useState<any[]>([])
+  //DBから各tableを取得するためのstate
   const [stockAreas, setStockAreas] = useState<any[]>([])
   const [wards, setWards] = useState<any[]>([])
   const [rooms, setRooms] = useState<any[]>([])
@@ -54,7 +55,7 @@ export default function Page() {
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
 
-//device tableにfetchする
+  //device tableにfetchする
   const fetchDevices = async () => {
     const { data, error } = await supabase
       .from('devices')
@@ -83,7 +84,7 @@ export default function Page() {
       .insert([
         {
           type: device.type,
-          model: device.model,
+          model: device.model,          
           asset_type: device.assetType,
           status: "stock",
           stock_area_id: 1,
@@ -270,9 +271,26 @@ export default function Page() {
 }
   
     // Device削除関数
-  const deleteDevice = (id: number) => {
-    setDeviceList((prev) => prev.filter(d => d.id !== id))
+  const deleteDevice = async (id: number) => {
+    // ① DBから削除
+    const { error } = await supabase
+      .from('devices')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error("delete error:", error)
+      return
+    }
+
+    // ② UI更新（どちらか）
+    // パターンA：ローカル削除
+    //setDeviceList(prev => prev.filter(d => d.id !== id))
+
+    // パターンB（おすすめ）：DB再取得
+    await fetchDevices()
   }
+
   //StockInfoModal開くコンポーネント
   const openStockInfoModal = (device: Device) => {
   setSelectedDevice(device)
@@ -398,10 +416,10 @@ export default function Page() {
       if (data) {
         setStockAreas(data)
       }
-    }
-    fetchStockAreas()
+      }
+      fetchStockAreas()
   }, [])
-
+  //DBからwards tableを取得しwardsに格納
   useEffect(() => {
     const fetchWards = async () => {
       const { data, error } = await supabase
@@ -420,7 +438,7 @@ export default function Page() {
 
       fetchWards()
   }, [])
-
+  //rooms tableからroomの情報を取得するためのuseEffect
   useEffect(() => {
     const fetchRooms = async () => {
       const { data, error } = await supabase
@@ -439,6 +457,7 @@ export default function Page() {
 
     fetchRooms()
   }, [])
+  //deviceTypesとdeviceModelsをDBから取得するためのuseEffect
   useEffect(() => {
   const fetchMaster = async () => {
     const { data: types } = await supabase.from('device_types').select('*')
@@ -450,7 +469,7 @@ export default function Page() {
 
   fetchMaster()
 }, [])
-  
+
     return (
       <div
         //page.module.cssのlayoutクラスと
@@ -465,7 +484,7 @@ export default function Page() {
       {/* 病棟エリア */}
       <div className={styles.ward} ref={wardRef}>
         <WardArea
-          devices={deviceList}
+          deviceList={deviceList}
           wards={wards}
           startDrag={startDrag}
           deleteDevice={deleteDevice}
@@ -491,8 +510,10 @@ export default function Page() {
       {/* 在庫エリア */}
       <div className={styles.stock} ref={stockRef}>
         <StockAreas
-          devices={deviceList}
+          deviceList={deviceList}
           stockAreas={stockAreas}
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
           startDrag={startDrag}
           handleMouseMove={handleMouseMove}
           deleteDevice={deleteDevice}

@@ -5,8 +5,11 @@ import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
 
 type Props = {
-  devices: Device[]
+  deviceList: any[]
   stockAreaID: number
+  deviceTypes: any[]
+  deviceModels: any[] 
+  
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
@@ -17,8 +20,10 @@ type Props = {
 
 
 export default function Stock({
-                                devices,
+                                deviceList,
                                 stockAreaID,
+                                deviceTypes,
+                                deviceModels,
                                 startDrag,
                                 handleMouseMove,
                                 deleteDevice,
@@ -33,8 +38,23 @@ export default function Stock({
   const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
   const isLongPress = useRef(false)
 
-                                
-  const areaDevices = devices
+  //console.log("🔥 devices:", deviceList)
+  //console.log("🔥 stockAreaID:", stockAreaID)      
+  const areaDevices = deviceList.filter((d) => {
+    console.log("CHECK:", {
+      status: d.status,
+      stockAreaID: d.stockAreaID,
+      target: stockAreaID
+    })
+
+    return (
+      d.status === "stock" &&
+      d.stockAreaID === stockAreaID &&
+      d.id !== pendingDevice?.id
+    )
+  })
+
+/*   const areaDevices = deviceList
     .filter(
       (d) => d.status === "stock" &&
       d.stockAreaID === stockAreaID &&
@@ -48,23 +68,23 @@ export default function Stock({
 
       // 第2優先：model
       return a.model - b.model
-    })
+    }) */
 
 return (
     <>
       {areaDevices.map((d) => {
         //dragging中は座標管理、それ以外はgridで配置するためのフラグ
-        const isDragging = draggingDevice?.id === d.id
+          const isDragging = draggingDevice?.id === d.id
 
-        const typeName =
-          deviceTypes.find((t) => t.typeID === d.type)?.name || "不明"
+          const typeName =
+            deviceTypes.find((t) => t.id === d.type)?.name || "不明"
 
-        const modelName =
-          deviceModels.find((m) => m.modelID === d.model)?.name || "不明"
-        const assetType=d.assetType
+          const modelName =
+            deviceModels.find((m) => m.id === d.model)?.name || "不明"
+          const assetType=d.assetType
 
           
-          //console.log("typeName:", typeName, "modelName:", modelName);
+          console.log("typeName:", typeName, "modelName:", modelName);
         return (
             <div
               key={d.id}
