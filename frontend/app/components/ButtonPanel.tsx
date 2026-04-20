@@ -6,7 +6,7 @@ import { useState } from "react"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
-  addDevice: (device: Device) => void
+  addDevice: (device: any) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
 }

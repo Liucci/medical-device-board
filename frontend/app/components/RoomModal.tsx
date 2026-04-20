@@ -8,8 +8,8 @@ type Props = {
   onClose: () => void
   onSubmit: (roomId: number, patientName: string) => void
   wardId: number | null
-  wards: Ward[]
-  rooms: Room[]
+  wards: any[]
+  rooms: any[]
 }
 
 export default function RoomModal({
@@ -48,7 +48,9 @@ export default function RoomModal({
 
   const ward = wards.find(w => w.id === wardId)
 
-  const filteredRooms = rooms.filter(r => r.ward_id === wardId)
+  const filteredRooms = rooms
+                        .filter(r => r.ward_id === wardId)
+                        .sort((a, b) => a.name.localeCompare(b.name, "ja"))
 
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">

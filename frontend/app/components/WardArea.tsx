@@ -1,12 +1,12 @@
 import WardGrid from "./WardGrid"
 import { Device } from "../types/deviceTypes"
-//import { wards } from "../types/wards"
-//import type { Room as RoomType} from "../types/wards"
-//import Room from "./RoomContainer"
 import RoomContainer from "./RoomContainer"
+
 //page.tsxより
 type Props = {
   deviceList: any[]
+  deviceTypes: any[]
+  deviceModels: any[]
   wards:any[]
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   deleteDevice: (id: number) => void
@@ -23,6 +23,8 @@ type Props = {
 // さらに、ドラッグアンドドロップの処理も担当する。
 export default function WardArea({
                                   deviceList,
+                                  deviceTypes,
+                                  deviceModels,
                                   wards,
                                   startDrag,
                                   deleteDevice,
@@ -79,7 +81,9 @@ export default function WardArea({
                     .map(room => (
                       <RoomContainer
                         key={room.id}
-                        deviceList={deviceList}
+                        deviceList={deviceList}     // 修正: deviceList → devices
+                        deviceTypes={deviceTypes}
+                        deviceModels={deviceModels}
                         rooms={rooms}
                         roomId={room.id}
                         roomName={room.name}

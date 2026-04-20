@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Device, deviceTypes, deviceModels, AssetTypes } from "../types/deviceTypes"
+import { Device,  AssetTypes } from "../types/deviceTypes"
 import { createPortal } from "react-dom"
 
  type Props = {

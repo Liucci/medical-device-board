@@ -1,24 +1,30 @@
 "use client"
 
-import { Device, deviceModels, deviceTypes,stockAreas} from "../types/deviceTypes"
+import { Device} from "../types/deviceTypes"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
 type Props = {
-  isOpen: boolean
-  device: Device | null
-  onSubmit: (data: {
-    id: number
-    managementNumber: string
-    serialNumber: string
-    note: string
-  }) => void
-  onCancel: () => void
+              isOpen: boolean
+              device: Device | null
+              deviceTypes: any[]
+              deviceModels: any[]
+              stockAreas: any[]
+              onSubmit: (data: {
+                id: number
+                managementNumber: string
+                serialNumber: string
+                note: string
+              }) => void
+              onCancel: () => void
 }
 
 export default function StockInfoModal({
                                         isOpen,
                                         device,
+                                        deviceTypes,
+                                        deviceModels,
+                                        stockAreas,
                                         onSubmit,
                                         onCancel
                                       }: Props) {
@@ -29,18 +35,18 @@ export default function StockInfoModal({
   useEffect(() => {
     if (!isOpen) return
     if (device) {
-      setManagementNumber(device.managementNumber ?? "")
-      setSerialNumber(device.serialNumber ?? "")
-      setNote(device.note ?? "")
-    }
+                  setManagementNumber(device.managementNumber ?? "")
+                  setSerialNumber(device.serialNumber ?? "")
+                  setNote(device.note ?? "")
+                }
   }, [device, isOpen])
 
   if (!isOpen || !device) return null
   
   const typeName =
-    deviceTypes.find(t => t.typeID === device.type)?.name ?? "不明"
+    deviceTypes.find(t => t.id === device.type)?.name ?? "不明"
   const modelName =
-    deviceModels.find(m => m.modelID === device.model)?.name ?? "不明"
+    deviceModels.find(m => m.id === device.model)?.name ?? "不明"
   const locationName =
     stockAreas.find(s => s.id === device.stockAreaID)?.name ?? "不明"
 

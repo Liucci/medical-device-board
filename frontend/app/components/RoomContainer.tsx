@@ -1,10 +1,12 @@
 import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
-import { deviceTypes, deviceModels } from "../types/deviceTypes"
+//import { deviceTypes, deviceModels } from "../types/deviceTypes"
 import {useRef} from "react"
 //WardArea.tsxより
 type Props = {
   deviceList: any[]
+  deviceTypes: any[]
+  deviceModels: any[] 
   rooms: any[]
   roomId: number
   roomName: string
@@ -19,6 +21,8 @@ type Props = {
 
 export default function RoomContainer({
                             deviceList,
+                            deviceTypes,
+                            deviceModels,
                             rooms,
                             roomId,
                             roomName,
@@ -81,10 +85,10 @@ return (
         const isDragging = draggingDevice?.id === d.id
 
         const typeName =
-          deviceTypes.find(t => t.typeID === d.type)?.name ?? "不明"
+          deviceTypes.find(t => t.id === d.type)?.name ?? "不明"
 
         const modelName =
-          deviceModels.find(m => m.modelID === d.model)?.name ?? "不明"
+          deviceModels.find(m => m.id === d.model)?.name ?? "不明"
         const assetType=d.assetType
 
         return (

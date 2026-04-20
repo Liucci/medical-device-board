@@ -1,13 +1,15 @@
 "use client"
 
-import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
+import { Device } from "../types/deviceTypes"
 import type { Room } from "../types/wards"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-
+//page.tsxからdeviceとroomsをpropsで受け取る
 type Props = {
   isOpen: boolean
   device: Device | null
+  deviceTypes: any[]
+  deviceModels: any[]
   onSubmit: (data: {
     id: number
     managementNumber: string
@@ -17,12 +19,14 @@ type Props = {
     roomId: number 
   }) => void
   onCancel: () => void
-  rooms: Room[]
+  rooms: any[]
 }
 
 export default function RoomDeviceInfoModal({
   isOpen,
   device,
+  deviceTypes,
+  deviceModels,
   onSubmit,
   onCancel,
   rooms
@@ -46,13 +50,16 @@ export default function RoomDeviceInfoModal({
   if (!isOpen || !device) return null
 
   const typeName =
-    deviceTypes.find(t => t.typeID === device.type)?.name ?? "不明"
+    deviceTypes.find(t => t.id === device.type)?.name ?? "不明"
 
   const modelName =
-    deviceModels.find(m => m.modelID === device.model)?.name ?? "不明"
+    deviceModels.find(m => m.id === device.model)?.name ?? "不明"
   const roomName =
-    rooms.find(r => r.id === device.roomId)?.roomName ?? "不明"
+    rooms.find(r => r.id === device.roomId)?.name ?? "不明"
   //roomのidから患者名を取得する
+  console.log("device.roomId", device.roomId)
+  console.log("rooms", rooms)
+  console.log("patientName", patientName)
 
   return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">

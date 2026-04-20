@@ -1,19 +1,28 @@
-import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
+import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
+//page.tsxからdraggingDeviceとmousePosをpropsで受け取る
 type Props = {
+  deviceTypes: any[]
+  deviceModels: any[] 
+
   draggingDevice: Device | null
   mousePos: { x: number; y: number }
 }
 
-export default function DragLayer({  draggingDevice, mousePos }: Props) {
+export default function DragLayer({ 
+                                    deviceTypes, 
+                                    deviceModels,
+                                    draggingDevice,
+                                    mousePos 
+                                  }: Props) {
 
   if (!draggingDevice) return null
 
   const typeName =
-    deviceTypes.find(t => t.typeID === draggingDevice.type)?.name ?? "Unknown"
+    deviceTypes.find(t => t.id === draggingDevice.type)?.name ?? "Unknown"
 
   const modelName =
-    deviceModels.find(m => m.modelID === draggingDevice.model)?.name ?? "Unknown"
+    deviceModels.find(m => m.id === draggingDevice.model)?.name ?? "Unknown"
   const assetType=draggingDevice.assetType
     //console.log("draggingDevice", draggingDevice)
   //console.log("mousePos", mousePos)

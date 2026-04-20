@@ -1,6 +1,6 @@
 "use client"
 
-import { Device, deviceModels, deviceTypes } from "../types/deviceTypes"
+import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
 
@@ -40,21 +40,8 @@ export default function Stock({
 
   //console.log("🔥 devices:", deviceList)
   //console.log("🔥 stockAreaID:", stockAreaID)      
-  const areaDevices = deviceList.filter((d) => {
-    console.log("CHECK:", {
-      status: d.status,
-      stockAreaID: d.stockAreaID,
-      target: stockAreaID
-    })
 
-    return (
-      d.status === "stock" &&
-      d.stockAreaID === stockAreaID &&
-      d.id !== pendingDevice?.id
-    )
-  })
-
-/*   const areaDevices = deviceList
+   const areaDevices = deviceList
     .filter(
       (d) => d.status === "stock" &&
       d.stockAreaID === stockAreaID &&
@@ -68,7 +55,7 @@ export default function Stock({
 
       // 第2優先：model
       return a.model - b.model
-    }) */
+    }) 
 
 return (
     <>
@@ -84,7 +71,7 @@ return (
           const assetType=d.assetType
 
           
-          console.log("typeName:", typeName, "modelName:", modelName);
+          //console.log("typeName:", typeName, "modelName:", modelName);
         return (
             <div
               key={d.id}

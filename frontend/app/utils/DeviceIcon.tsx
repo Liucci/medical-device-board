@@ -1,5 +1,6 @@
 import { colorMap } from "../utils/deviceColors"
-
+//DeviceIcon.tsxは機器のアイコンを表示するためのコンポーネント
+//
 type Props = {
   typeName: string
   modelName: string

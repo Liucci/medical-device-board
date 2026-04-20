@@ -235,7 +235,18 @@ export default function Page() {
       console.error(error)
       return
     }
+    const { error: deviceError } = await supabase
+      .from('devices')
+      .update({
+        status: "room",
+        room_id: roomID
+      })
+      .eq('id', pendingDevice.id)
 
+    if (deviceError) {
+      console.error(deviceError)
+      return
+    }
     // Deviceを選択されたRoomに更新する
     setDeviceList(prev =>
       prev.map(d =>
@@ -469,6 +480,10 @@ export default function Page() {
 
   fetchMaster()
 }, [])
+  //最初のレンダリングでdeviceListをDBから取得するためのuseEffect
+  useEffect(() => {
+    fetchDevices()
+  }, [])
 
     return (
       <div
@@ -485,6 +500,8 @@ export default function Page() {
       <div className={styles.ward} ref={wardRef}>
         <WardArea
           deviceList={deviceList}
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
           wards={wards}
           startDrag={startDrag}
           deleteDevice={deleteDevice}
@@ -536,6 +553,8 @@ export default function Page() {
             {/* drag layer */}
       <div className={styles.dragLayer}>
         <DragLayer
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
           draggingDevice={draggingDevice}
           mousePos={mousePos}
         />
@@ -553,6 +572,9 @@ export default function Page() {
       <StockInfoModal
         isOpen={stockInfoModalOpen}
         device={selectedDevice}
+        deviceTypes={deviceTypes}
+        deviceModels={deviceModels}
+        stockAreas={stockAreas}
         onSubmit={handleStockInfoSubmit}
         onCancel={handleStockInfoCancel}
       />
@@ -560,6 +582,8 @@ export default function Page() {
       <RoomDeviceInfoModal
         isOpen={roomDeviceInfoModalOpen}
         device={selectedRoomDevice}
+        deviceTypes={deviceTypes}
+        deviceModels={deviceModels}
         onSubmit={handleRoomDeviceInfoSubmit}
         onCancel={handleRoomDeviceInfoCancel}
         rooms={rooms}
