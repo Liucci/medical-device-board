@@ -32,7 +32,7 @@ export default function DeviceModal({
     if (selectedTypeID === "" || selectedModelID === "") return
 
   const newDevice: Device = {
-    id: Date.now(),
+    //id: null, 
     type: selectedTypeID,
     model: selectedModelID,
     assetType: selectedAssetType,

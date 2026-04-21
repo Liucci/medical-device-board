@@ -73,7 +73,7 @@ export const stockAreas: stockArea[] = [
 ]
 
 export type Device = {
-  id: number
+  id?: number
   type: DeviceType["typeID"] 
   model: DeviceModel["modelID"]
   assetType: typeof AssetTypes[number]
@@ -90,4 +90,16 @@ export type Device = {
   serialNumber?: string
   note?: string
 
+}
+export type DeviceDB = {
+  id: number
+  type: number
+  model: number
+  asset_type: string
+  status: "stock" | "room"
+  stock_area_id: number | null
+  room_id: number | null
+  management_number?: string | null
+  serial_number?: string | null
+  note?: string | null
 }

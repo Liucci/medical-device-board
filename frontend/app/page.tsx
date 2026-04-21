@@ -12,6 +12,7 @@ import { Device} from "./types/deviceTypes"
 import { rooms as initialRooms,Room} from "./types/wards"
 import { useEffect, useState,useRef } from "react"
 import RoomContainer from "./components/RoomContainer"
+import { normalizeDevice,toDBDevice} from "./utils/deviceMppaer"
 
 //supabasek
 import { createClient } from '@supabase/supabase-js'
@@ -55,7 +56,7 @@ export default function Page() {
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
 
-  //device tableにfetchする
+  //device tableのデータをDBから取得する関数
   const fetchDevices = async () => {
     const { data, error } = await supabase
       .from('devices')
@@ -65,46 +66,52 @@ export default function Page() {
       console.error("fetchDevices error:", error)
       return
     }
-
+    //DBから取得したデータをnormalizeDevice関数でDevice型に変換してからstateに格納する
     if (data) {
-      setDeviceList(
-        data.map(d => ({
-          ...d,
-          stockAreaID: d.stock_area_id,
-          roomId: d.room_id,
-          assetType: d.asset_type
-        }))
-      )
+      setDeviceList(data.map(normalizeDevice))
     }
+
   }
   //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
-  const addDevice = async (device: Device) => {
-    const { error } = await supabase
+  const addDevice = async (device: Omit<Device, 'id'>) => {
+    
+    // ① DB用データ作成（idなし）
+    const dbData = {
+      ...toDBDevice(device),
+      status: "stock",
+      stock_area_id: 1,
+      room_id: null
+    }
+
+    // デバッグ（必要なら）
+    console.log("insert data:", dbData)
+
+    // ② insert + DBからデータ取得
+    const { data, error } = await supabase
       .from('devices')
-      .insert([
-        {
-          type: device.type,
-          model: device.model,          
-          asset_type: device.assetType,
-          status: "stock",
-          stock_area_id: 1,
-          room_id: null
-        }
-      ])
+      .insert([dbData])
+      .select()
+      .single() // 1件だけ取得
 
     if (error) {
       console.error("insert error:", error)
       return
     }
 
-    await fetchDevices()
+    if (!data) return
+
+    // ③ UI用に変換
+    const newDevice = normalizeDevice(data)
+
+    // ④ UIに追加（DBのid付き）
+    setDeviceList(prev => [...prev, newDevice])
   }
   const startDrag = (
-    target: HTMLElement,
-    clientX: number,
-    clientY: number,
-    device: Device
-    ) => {
+                      target: HTMLElement,
+                      clientX: number,
+                      clientY: number,
+                      device: Device
+                    ) => {
     const rect = target.getBoundingClientRect()
 
     setDragOffset({
@@ -189,13 +196,14 @@ export default function Page() {
     const x = e.clientX
     const y = e.clientY
 
-    console.log("drop position", x, y)
+    //console.log("drop position", x, y)
 
     setDraggingDevice(null)
     setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
   }
 
-  const handleDropToStock = (device: Device, stockAreaId: number) => {
+  const handleDropToStock = async (device: Device, stockAreaId: number) => {
+    // ① UI即更新（UX）
     setDeviceList(prev =>
       prev.map(d =>
         d.id === device.id
@@ -203,13 +211,28 @@ export default function Page() {
               ...d,
               status: "stock",
               stockAreaID: stockAreaId,
-              wardId: undefined,
               roomId: undefined
             }
           : d
       )
     )
+
+    // ② DB更新
+    const { error } = await supabase
+      .from('devices')
+      .update({
+        status: "stock",
+        stock_area_id: stockAreaId,
+        room_id: null
+      })
+      .eq('id', device.id)
+
+    if (error) {
+      console.error(error)
+      // 必要ならrollback
+    }
   }
+
   const handleDropToWard = (device: Device, wardID: number) => {  
   
     setPendingDevice(device)
