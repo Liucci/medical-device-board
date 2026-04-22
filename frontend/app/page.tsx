@@ -211,7 +211,10 @@ export default function Page() {
               ...d,
               status: "stock",
               stockAreaID: stockAreaId,
-              roomId: undefined
+              roomId: undefined,
+              managementNumber: undefined, // ←追加
+              serialNumber: undefined,     // ←追加
+              note: undefined              // ←追加
             }
           : d
       )
@@ -223,7 +226,10 @@ export default function Page() {
       .update({
         status: "stock",
         stock_area_id: stockAreaId,
-        room_id: null
+        room_id: null,
+        management_number: null, // ←追加
+        serial_number: null,     // ←追加
+        note: null               // ←追加
       })
       .eq('id', device.id)
 
@@ -234,17 +240,16 @@ export default function Page() {
   }
 
   const handleDropToWard = (device: Device, wardID: number) => {  
-  
+    //RoomModalを開くためのstateを更新
     setPendingDevice(device)
     setTargetWardId(wardID)
     setRoomModalOpen(true)
     //機器アイコンのdragですのフラグ
-    //setJustDropped(true)
     console.log("機器アイコンのドラッグイベント")
     // 少し後に解除
     setTimeout(() => setJustDropped(false), 100)
   }
-  //roomMadalを開く
+
   //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
   const handleRoomSubmit = async (roomID: number, patientName: string) => {    if (!pendingDevice) return
 
@@ -270,7 +275,7 @@ export default function Page() {
       console.error(deviceError)
       return
     }
-    // Deviceを選択されたRoomに更新する
+    // ② UI更新（機器の状態と配置場所、Roomの患者名）
     setDeviceList(prev =>
       prev.map(d =>
         d.id === pendingDevice.id
@@ -330,24 +335,46 @@ export default function Page() {
   setSelectedDevice(device)
   setStockInfoModalOpen(true)
   }
-  const handleStockInfoSubmit = (data: {
+  //StockInfoModalの保存ボタンを押したときの処理
+  const handleStockInfoSubmit = async (data: {
+    //StockInfoModalから受け取るデータの型定義
     id: number
     managementNumber: string
     serialNumber: string
     note: string
-    }) => {
-      setDeviceList(prev =>
-        prev.map(d =>
-          d.id === data.id
-            ? {
-                ...d,
-                managementNumber: data.managementNumber,
-                serialNumber: data.serialNumber,
-                note: data.note
-              }
-            : d
-        )
+  }) => {
+
+    // ① DB更新（devicesテーブル）
+    const { error } = await supabase
+      .from('devices')
+      .update({
+        //statusや配置場所は変えず、機器情報のみ更新
+        management_number: data.managementNumber,
+        serial_number: data.serialNumber,
+        note: data.note
+      })
+      //idで更新対象を特定
+      .eq('id', data.id)
+
+    if (error) {
+      console.error("stock update error:", error)
+      return
+    }
+
+    // ② UI更新（今まで通り）
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === data.id
+          ? {
+              ...d,
+              managementNumber: data.managementNumber,
+              serialNumber: data.serialNumber,
+              note: data.note
+            }
+          : d
       )
+    )
+
     setStockInfoModalOpen(false)
   }
 
@@ -360,35 +387,70 @@ export default function Page() {
         setSelectedRoomDevice(device)
         setRoomDeviceInfoModalOpen(true)
   }
-  const handleRoomDeviceInfoSubmit = (data:{
+  //RoomDeviceInfoModalの保存ボタンを押したときの処理
+  const handleRoomDeviceInfoSubmit = async (data: {
+    //RoomDeviceInfoModalから受け取るデータの型定義
     id: number
     managementNumber: string
     serialNumber: string
     note: string
     patientName: string
-    roomId: number 
-    }) => {
-            setDeviceList(prev =>
-              prev.map(d =>
-                d.id === data.id
-                  ? {
-                      ...d,
-                      managementNumber: data.managementNumber,
-                      serialNumber: data.serialNumber,
-                      note: data.note
-                    }
-                  : d
-              )
-            )
-          setRooms(prev =>
-                    prev.map(r =>
-                      r.id === data.roomId
-                        ? { ...r, patientName: data.patientName }
-                        : r
-                    )
-                  )
-          setRoomDeviceInfoModalOpen(false)
-        }
+    roomId: number
+  }) => {
+
+    // ① devices更新（機器情報）
+    const { error: deviceError } = await supabase
+      .from('devices')
+      .update({
+        management_number: data.managementNumber,
+        serial_number: data.serialNumber,
+        note: data.note
+      })
+      .eq('id', data.id)
+
+    if (deviceError) {
+      console.error("device update error:", deviceError)
+      return
+    }
+
+    // ② rooms更新（患者名）
+    const { error: roomError } = await supabase
+      .from('rooms')
+      .update({
+        patient_name: data.patientName
+      })
+      .eq('id', data.roomId)
+
+    if (roomError) {
+      console.error("room update error:", roomError)
+      return
+    }
+
+    // ③ UI更新（今のままでOK）
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === data.id
+          ? {
+              ...d,
+              managementNumber: data.managementNumber,
+              serialNumber: data.serialNumber,
+              note: data.note
+            }
+          : d
+      )
+    )
+
+    setRooms(prev =>
+      prev.map(r =>
+        r.id === data.roomId
+          ? { ...r, patientName: data.patientName }
+          : r
+      )
+    )
+
+    setRoomDeviceInfoModalOpen(false)
+  }
+
   const handleRoomDeviceInfoCancel = () => {
     setRoomDeviceInfoModalOpen(false)
   }
@@ -402,18 +464,37 @@ export default function Page() {
   //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
   //deviceListが更新されるたびにroomsを更新する
   useEffect(() => {
-    setRooms(prev =>
-      prev.map(room => {
+    const updateRooms = async () => {
+      for (const room of rooms) {
         const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
 
         if (devicesInRoom.length === 0 && room.patientName) {
-          return { ...room, patientName: "" }
-        }
+          // ① DB更新
+          const { error } = await supabase
+            .from('rooms')
+            .update({ patient_name: null }) // or ""
+            .eq('id', room.id)
 
-        return room
-      })
-    )
+          if (error) {
+            console.error("patient clear error:", error)
+            continue
+          }
+
+          // ② UI更新
+          setRooms(prev =>
+            prev.map(r =>
+              r.id === room.id
+                ? { ...r, patientName: "" }
+                : r
+            )
+          )
+        }
+      }
+    }
+
+    updateRooms()
   }, [deviceList])
+    
   //deviveListが更新されたら、更新されたdeviceだけ出力
   const prevDeviceListRef = useRef<Device[]>([])
   useEffect(() => {
@@ -436,6 +517,7 @@ export default function Page() {
   }, [deviceList])
 
   //DBからstock_area tableを取得しstockAreaに格納
+  //stock_areas tableの内容をstockAreaに表示するためのuseEffect
   useEffect(() => {
     const fetchStockAreas = async () => {
       const { data, error } = await supabase
@@ -454,6 +536,7 @@ export default function Page() {
       fetchStockAreas()
   }, [])
   //DBからwards tableを取得しwardsに格納
+  //wards tableの内容をwardAreaに表示するためのuseEffect
   useEffect(() => {
     const fetchWards = async () => {
       const { data, error } = await supabase
@@ -472,7 +555,7 @@ export default function Page() {
 
       fetchWards()
   }, [])
-  //rooms tableからroomの情報を取得するためのuseEffect
+  //rooms tableの内容をroomContainerに表示するためのuseEffect
   useEffect(() => {
     const fetchRooms = async () => {
       const { data, error } = await supabase

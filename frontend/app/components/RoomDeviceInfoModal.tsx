@@ -57,9 +57,9 @@ export default function RoomDeviceInfoModal({
   const roomName =
     rooms.find(r => r.id === device.roomId)?.name ?? "不明"
   //roomのidから患者名を取得する
-  console.log("device.roomId", device.roomId)
-  console.log("rooms", rooms)
-  console.log("patientName", patientName)
+  // console.log("device.roomId", device.roomId)
+  // console.log("rooms", rooms)
+  // console.log("patientName", patientName)
 
   return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -132,7 +132,8 @@ export default function RoomDeviceInfoModal({
         <button onClick={onCancel}>キャンセル</button>
 
         <button
-          onClick={() =>
+          onClick={() =>{
+            if (!device.id || !device.roomId) return
             onSubmit({
               id: device.id,
               managementNumber,
@@ -142,7 +143,8 @@ export default function RoomDeviceInfoModal({
               //device内にroomIdは必ず存在する意味の「!」
               roomId: device.roomId!
             })
-          }
+          }}
+
           className="bg-blue-500 text-white px-3 py-1 rounded"
         >
           保存
