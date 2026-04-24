@@ -307,7 +307,7 @@ export default function Page() {
   setRoomModalOpen(false)
   setPendingDevice(null)
   setTargetWardId(null)
-}
+  }
   
     // Device削除関数
   const deleteDevice = async (id: number) => {
@@ -454,8 +454,514 @@ export default function Page() {
   const handleRoomDeviceInfoCancel = () => {
     setRoomDeviceInfoModalOpen(false)
   }
+  //DBのstock_areas tableに新しいストックエリアを追加する関数
+  const addStockArea = async (name: string) => {
+    // 前処理: 余分な空白を削除し、空文字を弾く
+    const trimmed = name.trim()
+    // 空文字チェック
+    if (!trimmed) return
+    // 🔥 同名チェック（ローカル）
+    //someで同じ名前が存在するかチェック（大文字小文字は区別しない）
+    const exists = stockAreas.some(
+      a => a.name.toLowerCase() === trimmed.toLowerCase()
+    )
+    if (exists) {
+      alert("同じ名前のストックエリアが既に存在します")
+      return
+    }
+    //DBのstock_areas tableに新しいストックエリアを追加する
+    const { data, error } = await supabase
+      .from("stock_areas")
+      .insert([{ name: trimmed }])
+      .select()
+      .single()
+    if (error) {
+      console.error(error.message)
+      alert("追加に失敗しました")
+      return
+    }
+    setStockAreas(prev => [...prev, data])
+  }
+  //DBのstock_areas tableからストックエリア名を変更する関数
+  const renameStockArea = async (id: number, newName: string) => {
+    const trimmed = newName.trim()
 
-   //draggingDeviceの状態が変わるたびにコンソールに出力する
+    if (!trimmed) return
+
+    // 🔥 重複チェック（自分以外）
+    const exists = stockAreas.some(
+      a =>
+        a.id !== id &&
+        a.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ名前のストックエリアが既に存在します")
+      return
+    }
+
+    const { error } = await supabase
+      .from("stock_areas")
+      .update({ name: trimmed })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.message)
+      alert("ストックエリア名の変更に失敗しました")
+      return
+    }
+
+    // 🔥 UI更新
+    setStockAreas(prev =>
+      prev.map(a =>
+        a.id === id ? { ...a, name: trimmed } : a
+      )
+    )
+  }
+  //DBのstock_areas tableからストックエリアを削除する関数
+  const deleteStockAreas = async (ids: number[]) => {
+    //削除するstockAreaに機器が存在したら削除できないようにする
+    // deviceListの"stock"状態のdeviceのstockAreaIDがidsに含まれているかチェック
+    const usedIds = new Set(
+      deviceList
+        .filter(d => d.status === "stock")
+        .map(d => d.stockAreaID)
+    )
+    //idsの中でusedIdsに含まれているものをblockedとして抽出
+    const blocked = ids.filter(id => usedIds.has(id))
+    //blockedが存在する場合はアラートを表示して処理を中断
+    if (blocked.length > 0) {
+      alert("機器が存在するストックエリアは削除できません")
+      return
+    }
+    //DBのstock_areas tableからストックエリアを削除する
+    const { error } = await supabase
+      .from("stock_areas")
+      .delete()
+      .in("id", ids)
+
+    if (error) {
+      console.error(error.message)
+      alert("削除に失敗しました")
+      return
+    }
+
+    setStockAreas(prev => prev.filter(a => !ids.includes(a.id)))
+  }
+  //DBのwards tableに新しい病棟を追加する関数
+  const addWard = async (name: string) => {
+    const trimmed = name.trim()
+
+    if (!trimmed) return
+
+    // 🔥 重複チェック
+    const exists = wards.some(
+      w => w.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ名前の病棟が既に存在します")
+      return
+    }
+
+    const { data, error } = await supabase
+      .from("wards")
+      .insert([{ name: trimmed }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error.message)
+      alert("病棟の追加に失敗しました")
+      return
+    }
+
+    setWards(prev => [...prev, data])
+  }
+  //DBのwards tableから病棟名を変更する関数
+  const renameWard = async (id: number, newName: string) => {
+    const trimmed = newName.trim()
+
+    if (!trimmed) return
+
+    // 🔥 重複チェック（自分は除外）
+    const exists = wards.some(
+      w =>
+        w.id !== id &&
+        w.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ名前の病棟が既に存在します")
+      return
+    }
+
+    const { error } = await supabase
+      .from("wards")
+      .update({ name: trimmed })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.message)
+      alert("病棟名の変更に失敗しました")
+      return
+    }
+
+    // 🔥 UI更新
+    setWards(prev =>
+      prev.map(w =>
+        w.id === id ? { ...w, name: trimmed } : w
+      )
+    )
+  }
+  //DBのwards tableから病棟を削除する関数
+  const deleteWards = async (ids: number[]) => {
+
+    // 🔥 対象Wardに属するRoom取得
+    const targetRooms = rooms.filter(r => ids.includes(r.ward_id))
+    const roomIds = targetRooms.map(r => r.id)
+
+    // 🔥 機器存在チェック（最重要）
+    const hasDevice = deviceList.some(
+      d => d.roomId && roomIds.includes(d.roomId)
+    )
+
+    if (hasDevice) {
+      alert("機器が存在する病棟は削除できません")
+      return
+    }
+
+    // ===== ここから削除 =====
+
+    // ① Room削除（先）
+    if (roomIds.length > 0) {
+      const { error: roomError } = await supabase
+        .from("rooms")
+        .delete()
+        .in("id", roomIds)
+
+      if (roomError) {
+        console.error(roomError.message)
+        alert("部屋削除に失敗しました")
+        return
+      }
+    }
+
+    // ② Ward削除
+    const { error: wardError } = await supabase
+      .from("wards")
+      .delete()
+      .in("id", ids)
+
+    if (wardError) {
+      console.error(wardError.message)
+      alert("病棟削除に失敗しました")
+      return
+    }
+
+    // ===== UI更新 =====
+    setRooms(prev => prev.filter(r => !roomIds.includes(r.id)))
+    setWards(prev => prev.filter(w => !ids.includes(w.id)))
+  }
+  //DBのrooms tableに新しい病室を追加する関数
+  const addRoom = async (wardId: number, name: string) => {
+    const trimmed = name.trim()
+
+    if (!trimmed) return
+
+    // 🔥 同一ward内で重複チェック
+    const exists = rooms.some(
+      r =>
+        r.ward_id === wardId &&
+        r.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ名前の部屋がこの病棟内に既に存在します")
+      return
+    }
+
+    const { data, error } = await supabase
+      .from("rooms")
+      .insert([{
+        name: trimmed,
+        ward_id: wardId
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error.message)
+      alert("部屋の追加に失敗しました")
+      return
+    }
+
+    setRooms(prev => [...prev, data])
+  }
+  //DBのrooms tableから病室名を変更する関数
+  const renameRoom = async (id: number, newName: string) => {
+    const trimmed = newName.trim()
+
+    if (!trimmed) return
+
+    const exists = rooms.some(
+      r =>
+        r.id !== id &&
+        r.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ名前の部屋がこの病棟内に存在します")
+      return
+    }
+
+    const { error } = await supabase
+      .from("rooms")
+      .update({ name: trimmed })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.message)
+      alert("部屋名の変更に失敗しました")
+      return
+    }
+
+    setRooms(prev =>
+      prev.map(r =>
+        r.id === id ? { ...r, name: trimmed } : r
+      )
+    )
+  }
+  //DBのrooms tableから病室を削除する関数
+  const deleteRooms = async (ids: number[]) => {
+
+    // 🔥 機器存在チェック
+    const hasDevice = deviceList.some(
+      d => d.roomId && ids.includes(d.roomId)
+    )
+
+    if (hasDevice) {
+      alert("機器が存在する部屋は削除できません")
+      return
+    }
+
+    const { error } = await supabase
+      .from("rooms")
+      .delete()
+      .in("id", ids)
+
+    if (error) {
+      console.error(error.message)
+      alert("削除に失敗しました")
+      return
+    }
+
+    setRooms(prev => prev.filter(r => !ids.includes(r.id)))
+  }
+  //DBのdevice_types tableに新しい機種を追加する関数
+  const addDeviceType = async (name: string) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+
+    // 🔥 重複チェック
+    const exists = deviceTypes.some(
+      t => t.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ機種が既に存在します")
+      return
+    }
+
+    const { data, error } = await supabase
+      .from("device_types")
+      .insert([{ name: trimmed }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error.message)
+      alert("機種の追加に失敗しました")
+      return
+    }
+
+    setDeviceTypes(prev => [...prev, data])
+  }
+  //DBのdevice_types tableの機種名を変更する関数
+  const renameDeviceType = async (id: number, newName: string) => {
+    const trimmed = newName.trim()
+
+    if (!trimmed) {
+      alert("名前を入力してください")
+      return
+    }
+
+    // 🔥 重複チェック（自分以外）
+    const exists = deviceTypes.some(
+      t =>
+        t.id !== id &&
+        t.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ機種が既に存在します")
+      return
+    }
+
+    const { error } = await supabase
+      .from("device_types")
+      .update({ name: trimmed })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.message)
+      alert("機種名の変更に失敗しました")
+      return
+    }
+
+    // UI更新
+    setDeviceTypes(prev =>
+      prev.map(t =>
+        t.id === id ? { ...t, name: trimmed } : t
+      )
+    )
+  }
+  //DBのdevice_types tableから機種を削除する関数
+  const deleteDeviceTypes = async (ids: number[]) => {
+    // 🔥 紐づくモデル取得
+    const relatedModels = deviceModels.filter(m =>
+      ids.includes(m.device_type_id)
+    )
+
+    if (relatedModels.length > 0) {
+      alert("型式が存在する機種は削除できません")
+      return
+    }
+
+    const { error } = await supabase
+      .from("device_types")
+      .delete()
+      .in("id", ids)
+
+    if (error) {
+      console.error(error.message)
+      alert("削除に失敗しました")
+      return
+    }
+
+    // UI更新
+    setDeviceTypes(prev =>
+      prev.filter(t => !ids.includes(t.id))
+    )
+  }
+  //DBのdevice_models tableに新しい型式を追加する関数
+  const addDeviceModel = async (deviceTypeId: number, name: string) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+
+    // 🔥 type内で重複チェック
+    const exists = deviceModels.some(
+      m =>
+        m.device_type_id === deviceTypeId &&
+        m.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ型式がこの機種内に既に存在します")
+      return
+    }
+
+    const { data, error } = await supabase
+      .from("device_models")
+      .insert([{
+        name: trimmed,
+        device_type_id: deviceTypeId
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error.message)
+      alert("型式の追加に失敗しました")
+      return
+    }
+
+    setDeviceModels(prev => [...prev, data])
+  }
+  //DBのdevice_models tableから型式名を変更する関数
+  const renameDeviceModel = async (id: number, newName: string) => {
+    const trimmed = newName.trim()
+
+    if (!trimmed) {
+      alert("名前を入力してください")
+      return
+    }
+
+    // 🔥 対象model取得（ward_idの代わりにtype_idが必要）
+    const target = deviceModels.find(m => m.id === id)
+    if (!target) return
+
+    // 🔥 同一type内で重複チェック
+    const exists = deviceModels.some(
+      m =>
+        m.id !== id &&
+        m.device_type_id === target.device_type_id &&
+        m.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ型式がこの機種内に既に存在します")
+      return
+    }
+
+    const { error } = await supabase
+      .from("device_models")
+      .update({ name: trimmed })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error.message)
+      alert("型式名の変更に失敗しました")
+      return
+    }
+
+    // UI更新
+    setDeviceModels(prev =>
+      prev.map(m =>
+        m.id === id ? { ...m, name: trimmed } : m
+      )
+    )
+  }
+  //DBのdevice_models tableから型式を削除する関数
+  const deleteDeviceModels = async (ids: number[]) => {
+    // 🔥 device使用チェック（最重要）
+    const used = deviceList.filter(d =>
+      ids.includes(d.model)
+    )
+
+    if (used.length > 0) {
+      alert("使用中の機器がある型式は削除できません")
+      return
+    }
+
+    const { error } = await supabase
+      .from("device_models")
+      .delete()
+      .in("id", ids)
+
+    if (error) {
+      console.error(error.message)
+      alert("削除に失敗しました")
+      return
+    }
+
+    // UI更新
+    setDeviceModels(prev =>
+      prev.filter(m => !ids.includes(m.id))
+    )
+  }
+
+  //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
   }, [draggingDevice])
@@ -538,6 +1044,7 @@ export default function Page() {
   //DBからwards tableを取得しwardsに格納
   //wards tableの内容をwardAreaに表示するためのuseEffect
   useEffect(() => {
+    //DBからwards tableを取得しwardsに格納
     const fetchWards = async () => {
       const { data, error } = await supabase
         .from('wards')
@@ -557,6 +1064,7 @@ export default function Page() {
   }, [])
   //rooms tableの内容をroomContainerに表示するためのuseEffect
   useEffect(() => {
+    //DBからrooms tableを取得しroomsに格納
     const fetchRooms = async () => {
       const { data, error } = await supabase
         .from('rooms')
@@ -653,6 +1161,25 @@ export default function Page() {
           addDevice={addDevice}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
+          stockAreas={stockAreas}
+          wards={wards}
+          rooms={rooms}
+          addStockArea={addStockArea}
+          renameStockArea={renameStockArea}
+          deleteStockAreas={deleteStockAreas}
+          addWard={addWard}
+          renameWard={renameWard}
+          deleteWards={deleteWards}
+          addRoom={addRoom}
+          renameRoom={renameRoom}
+          deleteRooms={deleteRooms}
+          addDeviceType={addDeviceType}
+          renameDeviceType={renameDeviceType}
+          deleteDeviceTypes={deleteDeviceTypes}
+          addDeviceModel={addDeviceModel}
+          renameDeviceModel={renameDeviceModel}
+          deleteDeviceModels={deleteDeviceModels}
+
         />
       </div>
 

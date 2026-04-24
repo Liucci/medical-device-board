@@ -1,5 +1,6 @@
 "use client"
 import DeviceModal from "./DeviceModal"
+import SettingsModal from "./SettingsModal"
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 //import { Device } from "../types/deviceTypes"
@@ -9,33 +10,63 @@ type Props = {
   addDevice: (device: any) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
+  stockAreas: { id: number; name: string }[]
+  wards: { id: number; name: string }[]
+  rooms: { id: number; ward_id: number; name: string }[]
+  addStockArea: (name: string) => Promise<void>
+  renameStockArea: (id: number, newName: string) => Promise<void>
+  deleteStockAreas: (ids: number[]) => Promise<void>
+  addWard: (name: string) => Promise<void>
+  renameWard: (id: number, newName: string) => Promise<void>
+  deleteWards: (ids: number[]) => Promise<void>
+  addRoom: (wardId: number, name: string) => Promise<void>
+  renameRoom: (id: number, newName: string) => Promise<void>
+  deleteRooms: (ids: number[]) => Promise<void>
+  addDeviceType: (name: string) => Promise<void>
+  renameDeviceType: (id: number, newName: string) => Promise<void>
+  deleteDeviceTypes: (ids: number[]) => Promise<void>
+  addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
+  renameDeviceModel: (id: number, newName: string) => Promise<void>
+  deleteDeviceModels: (ids: number[]) => Promise<void>
+
 }
 
 export default function ButtonPanel({ 
                                     addDevice,
                                     deviceTypes,
-                                    deviceModels
+                                    deviceModels,
+                                    stockAreas,
+                                    wards,
+                                    rooms,
+                                    addStockArea,
+                                    renameStockArea,
+                                    deleteStockAreas,
+                                    addWard,
+                                    renameWard,
+                                    deleteWards, 
+                                    addRoom,
+                                    renameRoom,
+                                    deleteRooms,
+                                    addDeviceType,
+                                    renameDeviceType,
+                                    deleteDeviceTypes,
+                                    addDeviceModel,
+                                    renameDeviceModel,
+                                    deleteDeviceModels
+
                                      }: Props)
    {
-    const [openDeviceModal, setOpenDeviceModal] = useState(false)
+  const [openDeviceModal, setOpenDeviceModal] = useState(false)
+  const [openSettingsModal, setOpenSettingsModal] = useState(false)
 
   
-    const handleAdd = () => {
-    const width = 600
-    const height = 700
 
-    const left = window.screenX + (window.outerWidth - width) / 2
-    const top = window.screenY + (window.outerHeight - height) / 2
-
-    window.open(
-      "/device/new",
-      "_blank",
-      `width=${width},height=${height},left=${left},top=${top}`
-    )
-  }
 
   const OpenModal = () => {
     setOpenDeviceModal(true)
+  }
+  const openSettings= () => {
+    setOpenSettingsModal(true)
   }
 
   return(
@@ -49,9 +80,35 @@ export default function ButtonPanel({
           onClose={() => setOpenDeviceModal(false)} 
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
-
         />
       }
+      <ButtonGrid onAdd={openSettings} title={"設定"} />
+      {openSettingsModal && 
+        <SettingsModal           
+          onClose={() => setOpenSettingsModal(false)} 
+          stockAreas={stockAreas}
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
+          wards={wards}
+          rooms={rooms}
+          addStockArea={addStockArea}
+          renameStockArea={renameStockArea}
+          deleteStockAreas={deleteStockAreas}
+          addWard={addWard}
+          renameWard={renameWard}
+          deleteWards={deleteWards}
+          addRoom={addRoom}
+          renameRoom={renameRoom}
+          deleteRooms={deleteRooms}
+          addDeviceType={addDeviceType}
+          renameDeviceType={renameDeviceType}
+          deleteDeviceTypes={deleteDeviceTypes}
+          addDeviceModel={addDeviceModel}
+          renameDeviceModel={renameDeviceModel}
+          deleteDeviceModels={deleteDeviceModels}
+        />
+      }
+
     </>
   )
 }
