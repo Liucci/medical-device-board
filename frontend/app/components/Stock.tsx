@@ -16,6 +16,7 @@ type Props = {
   draggingDevice: Device | null
   pendingDevice: Device | null
   openStockInfoModal: (device: Device) => void
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
 }
 
 
@@ -29,7 +30,8 @@ export default function Stock({
                                 deleteDevice,
                                 draggingDevice,
                                 pendingDevice,
-                                openStockInfoModal
+                                openStockInfoModal,
+                                getMAlert
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -139,6 +141,7 @@ return (
             typeName={typeName}
             modelName={modelName}
             assetType={assetType}
+            mAlert={getMAlert(d.id)}
           />
 
         </div>

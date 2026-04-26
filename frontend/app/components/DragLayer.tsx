@@ -7,13 +7,15 @@ type Props = {
 
   draggingDevice: Device | null
   mousePos: { x: number; y: number }
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
 }
 
 export default function DragLayer({ 
                                     deviceTypes, 
                                     deviceModels,
                                     draggingDevice,
-                                    mousePos 
+                                    mousePos ,
+                                    getMAlert
                                   }: Props) {
 
   if (!draggingDevice) return null
@@ -41,6 +43,7 @@ export default function DragLayer({
           typeName={typeName}
           modelName={modelName}
           assetType={assetType}
+          mAlert={getMAlert(draggingDevice.id)}
         />
       </div>
   )

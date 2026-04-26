@@ -16,6 +16,7 @@ type Props = {
   pendingDevice: Device | null
   onDrop:(device: Device, stockAreaId: number) => void
   openStockInfoModal: (device: Device) => void
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
 }
 
 export default function StockAreas({ deviceList,
@@ -28,7 +29,8 @@ export default function StockAreas({ deviceList,
                                      draggingDevice,
                                      pendingDevice,
                                      onDrop,
-                                     openStockInfoModal
+                                     openStockInfoModal,
+                                    getMAlert
                                     }: Props) {
 
   return (
@@ -76,7 +78,7 @@ export default function StockAreas({ deviceList,
                   draggingDevice={draggingDevice}
                   pendingDevice={pendingDevice}
                   openStockInfoModal={openStockInfoModal}
-
+                  getMAlert={getMAlert}
                 />
             </StockGrid>
           </div>

@@ -49,6 +49,10 @@ export default function Page() {
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
+
+  //メンテナンス関連を管理するstate
+  const [tasks, setTasks] = useState<any[]>([])
+  const [maintenanceTypes, setMaintenanceTypes] = useState<any[]>([])
   //StockAreaとWardAreaの仕切りをドラッグするためのstate
   const [split, setSplit] = useState(0.65) // 上の割合
   const [isResizing, setIsResizing] = useState(false)
@@ -251,58 +255,111 @@ export default function Page() {
   }
 
   //roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
-  const handleRoomSubmit = async (roomID: number, patientName: string) => {    if (!pendingDevice) return
+  const handleRoomSubmit = async (roomID: number, patientName: string) => {
+    if (!pendingDevice || pendingDevice.id === undefined) return
+      // 🔽 移動前の状態取得（重要）
+      const prevDevice = deviceList.find(d => d.id === pendingDevice.id)
+      const prevStatus = prevDevice?.status
+      const prevRoomId = prevDevice?.roomId
 
-        // ① DB更新（患者名）
-    const { error } = await supabase
-      .from('rooms')
-      .update({ patient_name: patientName })
-      .eq('id', roomID)
+      const prevRoom = rooms.find(r => r.id === prevRoomId)
+      const prevPatient = prevRoom?.patientName ?? ""
+      // console.log("prevStatus:", prevStatus)
+      // console.log("typeof:", typeof prevStatus)
 
-    if (error) {
-      console.error(error)
-      return
-    }
-    const { error: deviceError } = await supabase
-      .from('devices')
-      .update({
-        status: "room",
-        room_id: roomID
-      })
-      .eq('id', pendingDevice.id)
+      // ===== ① DB更新 =====
 
-    if (deviceError) {
-      console.error(deviceError)
-      return
-    }
-    // ② UI更新（機器の状態と配置場所、Roomの患者名）
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === pendingDevice.id
-          ? {
-              ...d,
-              status: "room",
-              roomId: roomID
-            }
-          : d
+      // 患者名
+      const { error: roomError } = await supabase
+        .from("rooms")
+        .update({ patient_name: patientName })
+        .eq("id", roomID)
+
+      if (roomError) {
+        console.error(roomError)
+        return
+      }
+
+      // device移動
+      const { error: deviceError } = await supabase
+        .from("devices")
+        .update({
+          status: "room",
+          room_id: roomID
+        })
+        .eq("id", pendingDevice.id)
+
+      if (deviceError) {
+        console.error(deviceError)
+        return
+      }
+
+      // ===== ② UI更新 =====
+
+      setDeviceList(prev =>
+        prev.map(d =>
+          d.id === pendingDevice.id
+            ? { ...d, status: "room", roomId: roomID }
+            : d
+        )
       )
-    )
 
-    // RoomにroomIDと患者名を格納する
-    //patientNameはUI上の情報
-    setRooms(prev =>
-      prev.map(r =>
-        r.id === roomID
-          ? { ...r, patientName:patientName }
-          : r
+      setRooms(prev =>
+        prev.map(r =>
+          r.id === roomID
+            ? { ...r, patientName }
+            : r
+        )
       )
-    )
-    console.log("患者名",patientName)
-    setRoomModalOpen(false)
-    setPendingDevice(null)
-    setTargetWardId(null)
-  } 
 
+      // ===== ③ メンテナンス種別取得（DBじゃなくstateから） =====
+
+      let types = maintenanceTypes.filter(
+        t => t.device_model_id === pendingDevice.model
+      )
+
+      if (types.length === 0) {
+        types = maintenanceTypes.filter(
+          t =>
+            t.device_type_id === pendingDevice.type &&
+            t.device_model_id === null
+        )
+      }
+
+      // ===== ④ 分岐ロジック =====
+
+      // 🟢 stock → room
+      if (prevStatus === "stock") {
+        if (types.length > 0) {
+          await cancelTasks(pendingDevice.id)
+          await createTasks(pendingDevice, types)
+        }
+      }
+      // 🟡 room → room
+    if (prevStatus?.trim() === "room") {
+
+      const proceed = window.confirm(
+        "同一患者に同一機器を使用しますか？\n\nOK：はい\nキャンセル：いいえ"
+      )
+
+      if (!proceed) {
+        // 別患者扱い → リセット
+        if (types.length > 0) {
+          await cancelTasks(pendingDevice.id)
+          await createTasks(pendingDevice, types)
+        }
+      } else {
+        console.log("タスク継続")
+      }
+    }
+        // ===== ⑤ 再取得 =====
+        await fetchTasks()
+
+        // ===== ⑥ 後処理 =====
+      setRoomModalOpen(false)
+      setPendingDevice(null)
+      setTargetWardId(null)
+    }
   const handleRoomCancel = () => {
   setRoomModalOpen(false)
   setPendingDevice(null)
@@ -311,25 +368,33 @@ export default function Page() {
   
     // Device削除関数
   const deleteDevice = async (id: number) => {
-    // ① DBから削除
+
+    // 🔽 ① task削除（先にやる）
+    const { error: taskError } = await supabase
+      .from("device_maintenance_tasks")
+      .delete()
+      .eq("device_id", id)
+
+    if (taskError) {
+      console.error("task delete error:", taskError)
+      return
+    }
+
+    // 🔽 ② device削除
     const { error } = await supabase
       .from('devices')
       .delete()
       .eq('id', id)
 
     if (error) {
-      console.error("delete error:", error)
+      console.error("device delete error:", error)
       return
     }
 
-    // ② UI更新（どちらか）
-    // パターンA：ローカル削除
-    //setDeviceList(prev => prev.filter(d => d.id !== id))
-
-    // パターンB（おすすめ）：DB再取得
+    // 🔽 ③ UI更新（DB再取得）
     await fetchDevices()
+    await fetchTasks()
   }
-
   //StockInfoModal開くコンポーネント
   const openStockInfoModal = (device: Device) => {
   setSelectedDevice(device)
@@ -960,8 +1025,162 @@ export default function Page() {
       prev.filter(m => !ids.includes(m.id))
     )
   }
+  //DBからdevice_maintenance_tasks tableを取得しtasksに格納する関数
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from("device_maintenance_tasks")
+      .select("*")
 
-  //draggingDeviceの状態が変わるたびにコンソールに出力する
+      if (error) {
+        console.error(error)
+        return
+      }
+
+    setTasks(data || [])
+  }
+  //DBからmaintenance_types tableを取得しmaintenanceTypesに格納する関数
+  const fetchMaintenanceTypes = async () => {
+    const { data, error } = await supabase
+      .from("maintenance_types")
+      .select("*")
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+    setMaintenanceTypes(data || [])
+  }
+  //device_idに紐づくタスクをキャンセルする関数
+  const cancelTasks = async (deviceId: number) => {
+    await supabase
+      .from("device_maintenance_tasks")
+      .update({ status: "canceled" })
+      .eq("device_id", deviceId)
+      .eq("status", "pending")
+  }
+  //新しいタスクを作成する関数
+  const createTasks = async (device: Device, types: any[]) => {
+    const now = new Date()
+
+    const inserts = types.map(type => {
+      const due = new Date(now)
+      due.setDate(due.getDate() + type.interval_days)
+
+      return {
+        device_id: device.id,
+        maintenance_type_id: type.id,
+        due_at: due.toISOString(),
+        status: "pending"
+      }
+    })
+
+    await supabase
+      .from("device_maintenance_tasks")
+      .insert(inserts)
+}
+  //タスク完了ボタンを押したときの処理
+  const handleCompleteTask = async (taskId: number) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return
+
+    const now = new Date().toISOString()
+
+    // ① task完了
+    const { error: updateError } = await supabase
+      .from("device_maintenance_tasks")
+      .update({
+        status: "completed",
+        completed_at: now
+      })
+      .eq("id", taskId)
+
+    if (updateError) {
+      console.error(updateError)
+      return
+    }
+
+    // ② log作成
+    await supabase
+      .from("device_maintenance_logs")
+      .insert({
+        device_id: task.device_id,
+        maintenance_type_id: task.maintenance_type_id,
+        performed_at: now,
+        task_id: task.id
+      })
+
+    // ③ 次タスク生成
+    const type = maintenanceTypes.find(
+      t => t.id === task.maintenance_type_id
+    )
+
+    if (type?.interval_days) {
+      const due = new Date()
+      due.setDate(due.getDate() + type.interval_days)
+
+      await supabase
+        .from("device_maintenance_tasks")
+        .insert({
+          device_id: task.device_id,
+          maintenance_type_id: task.maintenance_type_id,
+          due_at: due.toISOString(),
+          status: "pending"
+        })
+    }
+
+    // ④ 再取得（これ重要）
+    fetchTasks()
+  }
+  //device_idに紐づくタスクを取得する関数
+  const getDeviceTasks = (deviceId?: number) => {
+    if (!deviceId) return []
+
+    return tasks.filter(
+      t =>
+        Number(t.device_id) === Number(deviceId) &&
+        t.status === "pending"
+    )
+  }  
+  //device_idに紐づくタスクの状態からアラートカラーを返す関数
+  const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
+    if (!deviceId) return "green"
+
+    // 対象デバイスのタスクだけ取得
+    const deviceTasks = tasks.filter(
+      t =>
+        Number(t.device_id) === Number(deviceId) &&
+        t.status === "pending"
+    )
+
+    // タスクが無ければ正常
+    if (deviceTasks.length === 0) return "green"
+
+    const now = new Date()
+
+    let hasWarning = false
+
+    for (const task of deviceTasks) {
+      const diff =
+        new Date(task.due_at).getTime() - now.getTime()
+
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+
+      // 🔴 期限切れが1つでもあれば即赤
+      if (days < 0) return "red"
+
+      // 🟡 2日以内なら警告
+      if (days <= 2) hasWarning = true
+    }
+
+    // 🟡があれば黄色
+    if (hasWarning) return "yellow"
+
+    // それ以外は正常
+    return "green"
+  }
+  
+//draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
   }, [draggingDevice])
@@ -1094,10 +1313,14 @@ export default function Page() {
 
   fetchMaster()
 }, [])
-  //最初のレンダリングでdeviceListをDBから取得するためのuseEffect
+  //最初のレンダリングでdeviceList, tasks, maintenanceTypesをDBから取得するためのuseEffect
   useEffect(() => {
     fetchDevices()
+    fetchTasks()
+    fetchMaintenanceTypes()
   }, [])
+
+  
 
     return (
       <div
@@ -1125,6 +1348,7 @@ export default function Page() {
           rooms={rooms}
           openRoomDeviceInfoModal={openRoomDeviceInfoModal}
           justDropped={justDropped}
+          getMAlert={getMAlert}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1152,6 +1376,7 @@ export default function Page() {
           pendingDevice={pendingDevice}
           onDrop={handleDropToStock}
           openStockInfoModal={openStockInfoModal}
+          getMAlert={getMAlert}
         />
       </div>      
 
@@ -1190,6 +1415,7 @@ export default function Page() {
           deviceModels={deviceModels}
           draggingDevice={draggingDevice}
           mousePos={mousePos}
+          getMAlert={getMAlert}
         />
       </div>
       {/* 病室モーダル表示 */}
@@ -1220,6 +1446,10 @@ export default function Page() {
         onSubmit={handleRoomDeviceInfoSubmit}
         onCancel={handleRoomDeviceInfoCancel}
         rooms={rooms}
+        wards={wards}
+        tasks={getDeviceTasks(selectedRoomDevice?.id)}                  // ← 渡す
+        maintenanceTypes={maintenanceTypes} // ← 渡す
+        onCompleteTask={handleCompleteTask} // ← 渡す
       />
 
 

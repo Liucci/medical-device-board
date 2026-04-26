@@ -17,6 +17,7 @@ type Props = {
   deleteDevice: (id: number) => void
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
 }
 
 export default function RoomContainer({
@@ -32,7 +33,8 @@ export default function RoomContainer({
                             pendingDevice,   
                             deleteDevice,
                             openRoomDeviceInfoModal,
-                            justDropped
+                            justDropped,
+                            getMAlert
 
                             }: Props) {
 
@@ -145,6 +147,8 @@ return (
               typeName={typeName}
               modelName={modelName}
               assetType={assetType}
+              mAlert={getMAlert(d.id)}
+
              />
           </div>
         )

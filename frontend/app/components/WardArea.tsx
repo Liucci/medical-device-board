@@ -16,6 +16,7 @@ type Props = {
   rooms: any[]
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -33,7 +34,8 @@ export default function WardArea({
                                   onDrop,
                                   rooms,
                                   openRoomDeviceInfoModal,
-                                  justDropped
+                                  justDropped,
+                                  getMAlert
 
                                 }: Props) {
   
@@ -94,6 +96,7 @@ export default function WardArea({
                         deleteDevice={deleteDevice}
                         openRoomDeviceInfoModal={openRoomDeviceInfoModal}
                         justDropped={justDropped}
+                        getMAlert={getMAlert}
                       />
                     ))}
               </div>
