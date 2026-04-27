@@ -6,40 +6,51 @@ type Props = {
   modelName: string
   assetType: string
   mAlert?: "red" | "yellow" | "green"
+  //isDragging?: boolean 
 }
 //機器アイコンのUIを定義する関数コンポーネント
-export default function DeviceIcon({ typeName, modelName,assetType, mAlert }: Props) {
-  return (
-  <div className="relative">   {/* ← 追加 */}
+export default function DeviceIcon({ 
+  typeName, 
+  modelName,
+  assetType, 
+  mAlert,
+  //isDragging 
+}: Props) {
 
-    {mAlert && (
+  const isBlink = mAlert === "red"
+
+  return (
+    <div className={`relative ${isBlink ? "blink" : ""} `}>
+      
+      {mAlert && (
+        <div
+          className={`
+            absolute top-1 left-1
+            w-3 h-3 rounded-full
+            z-20
+            ${mAlert === "red" ? "bg-red-500" : ""}
+            ${mAlert === "yellow" ? "bg-yellow-400" : ""}
+            ${mAlert === "green" ? "bg-green-500" : ""}
+          `}
+        />
+      )}
+
       <div
         className={`
-          absolute top-1 left-1
-          w-3 h-3 rounded-full
-          ${mAlert === "red" ? "bg-red-500" : ""}
-          ${mAlert === "yellow" ? "bg-yellow-400" : ""}
-          ${mAlert === "green" ? "bg-green-500" : ""}
+          w-20 h-16
+          border
+          rounded
+          shadow
+          ${colorMap[typeName]}
+          flex flex-col items-center justify-center
+          text-xs
         `}
-      />
-    )}
+      >
+        <div>{typeName}</div>
+        <div>{modelName}</div>
+        {assetType !== "資産" && <div>{assetType}</div>}
+      </div>
 
-    <div
-      className={`
-        w-20 h-16
-        border
-        rounded
-        shadow
-        ${colorMap[typeName]}
-        flex flex-col items-center justify-center
-        text-xs
-      `}
-    >
-      <div>{typeName}</div>
-      <div>{modelName}</div>
-      {assetType !== "資産" && <div>{assetType}</div>}
     </div>
-
-  </div>
   )
 }

@@ -38,12 +38,14 @@ export default function DragLayer({
           pointerEvents: "none",
           zIndex: 10000
         }}
+        className="dragging-effect" //drag開始時アイコン拡大エフェクト
       >
         <DeviceIcon
           typeName={typeName}
           modelName={modelName}
           assetType={assetType}
           mAlert={getMAlert(draggingDevice.id)}
+          //isDragging={true}
         />
       </div>
   )
