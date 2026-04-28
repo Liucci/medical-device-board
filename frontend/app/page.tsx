@@ -1025,6 +1025,101 @@ export default function Page() {
       prev.filter(m => !ids.includes(m.id))
     )
   }
+  //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
+  const addMaintenanceType = async (data: {
+                                            name: string
+                                            deviceTypeId: number
+                                            deviceModelId: number | null
+                                            intervalDays: number
+                                          }) => {
+
+    const trimmed = data.name.trim()
+
+    if (!trimmed) return
+
+    const { data: inserted, error } = await supabase
+      .from("maintenance_types")
+      .insert([{
+        name: trimmed,
+        device_type_id: data.deviceTypeId,
+        device_model_id: data.deviceModelId,
+        interval_days: data.intervalDays
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error)
+      alert("追加失敗")
+      return
+    }
+
+  setMaintenanceTypes(prev => [...prev, inserted])
+  }
+  //DBのmaintenance_types tableからメンテナンス種別名を変更する関数
+  const renameMaintenanceType = async (
+    id: number,
+    data: {
+      name: string
+      intervalDays: number
+    }
+  ) => {
+
+    const trimmed = data.name.trim()
+
+    if (!trimmed) return
+
+    const { error } = await supabase
+      .from("maintenance_types")
+      .update({
+        name: trimmed,
+        interval_days: data.intervalDays
+      })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error)
+      alert("変更失敗")
+      return
+    }
+
+    setMaintenanceTypes(prev =>
+      prev.map(t =>
+        t.id === id
+          ? {
+              ...t,
+              name: trimmed,
+              interval_days: data.intervalDays
+            }
+          : t
+      )
+    )
+  }
+  //DBのmaintenance_types tableからメンテナンス種別を削除する関数
+  const deleteMaintenanceTypes = async (ids: number[]) => {
+    const used = tasks.some(t =>
+      ids.includes(t.maintenance_type_id)
+    )
+
+    if (used) {
+      alert("使用中のメンテ種別は削除できません")
+      return
+    }
+
+    const { error } = await supabase
+      .from("maintenance_types")
+      .delete()
+      .in("id", ids)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    setMaintenanceTypes(prev =>
+      prev.filter(t => !ids.includes(t.id))
+    )
+  }
   //DBからdevice_maintenance_tasks tableを取得しtasksに格納する関数
   const fetchTasks = async () => {
     const { data, error } = await supabase
@@ -1404,6 +1499,10 @@ export default function Page() {
           addDeviceModel={addDeviceModel}
           renameDeviceModel={renameDeviceModel}
           deleteDeviceModels={deleteDeviceModels}
+          maintenanceTypes={maintenanceTypes}
+          addMaintenanceType={addMaintenanceType}
+          renameMaintenanceType={renameMaintenanceType}
+          deleteMaintenanceTypes={deleteMaintenanceTypes}
 
         />
       </div>
@@ -1451,7 +1550,7 @@ export default function Page() {
         maintenanceTypes={maintenanceTypes} // ← 渡す
         onCompleteTask={handleCompleteTask} // ← 渡す
       />
-
+      
 
 
     </div>

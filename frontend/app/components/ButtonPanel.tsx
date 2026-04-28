@@ -28,64 +28,81 @@ type Props = {
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
   renameDeviceModel: (id: number, newName: string) => Promise<void>
   deleteDeviceModels: (ids: number[]) => Promise<void>
-
+  maintenanceTypes: { id: number; name: string; device_type_id: number; device_model_id: number | null; interval_days: number }[]
+  addMaintenanceType: (data: {
+    name: string
+    deviceTypeId: number
+    deviceModelId: number | null
+    intervalDays: number
+  }) => Promise<void>
+  renameMaintenanceType: (
+    id: number,
+    data: {
+      name: string
+      intervalDays: number
+    }
+  ) => Promise<void>
+  deleteMaintenanceTypes: (ids: number[]) => Promise<void>
 }
 
-export default function ButtonPanel({ 
-                                    addDevice,
-                                    deviceTypes,
-                                    deviceModels,
-                                    stockAreas,
-                                    wards,
-                                    rooms,
-                                    addStockArea,
-                                    renameStockArea,
-                                    deleteStockAreas,
-                                    addWard,
-                                    renameWard,
-                                    deleteWards, 
-                                    addRoom,
-                                    renameRoom,
-                                    deleteRooms,
-                                    addDeviceType,
-                                    renameDeviceType,
-                                    deleteDeviceTypes,
-                                    addDeviceModel,
-                                    renameDeviceModel,
-                                    deleteDeviceModels
+export default function ButtonPanel({
+  addDevice,
+  deviceTypes,
+  deviceModels,
+  stockAreas,
+  wards,
+  rooms,
+  addStockArea,
+  renameStockArea,
+  deleteStockAreas,
+  addWard,
+  renameWard,
+  deleteWards,
+  addRoom,
+  renameRoom,
+  deleteRooms,
+  addDeviceType,
+  renameDeviceType,
+  deleteDeviceTypes,
+  addDeviceModel,
+  renameDeviceModel,
+  deleteDeviceModels,
+  maintenanceTypes,
+  addMaintenanceType,
+  renameMaintenanceType,
+  deleteMaintenanceTypes
 
-                                     }: Props)
-   {
+}: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
 
-  
+
 
 
   const OpenModal = () => {
     setOpenDeviceModal(true)
   }
-  const openSettings= () => {
+  const openSettings = () => {
     setOpenSettingsModal(true)
   }
 
-  return(
+  return (
     <>
       <ButtonGrid onAdd={OpenModal} title={"新規登録"} />
-        {/* 隙間を空ける */}
+      {/* 隙間を空ける */}
       <div className="h-4" />
-      {openDeviceModal && 
-        <DeviceModal 
+      {openDeviceModal &&
+        <DeviceModal
           onCreate={addDevice}
-          onClose={() => setOpenDeviceModal(false)} 
+          onClose={() => setOpenDeviceModal(false)}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
         />
       }
       <ButtonGrid onAdd={openSettings} title={"設定"} />
-      {openSettingsModal && 
-        <SettingsModal           
-          onClose={() => setOpenSettingsModal(false)} 
+      {openSettingsModal &&
+        <SettingsModal
+          onClose={() => setOpenSettingsModal(false)}
           stockAreas={stockAreas}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
@@ -106,6 +123,10 @@ export default function ButtonPanel({
           addDeviceModel={addDeviceModel}
           renameDeviceModel={renameDeviceModel}
           deleteDeviceModels={deleteDeviceModels}
+          addMaintenanceType={addMaintenanceType}
+          renameMaintenanceType={renameMaintenanceType}
+          deleteMaintenanceTypes={deleteMaintenanceTypes}
+          maintenanceTypes={maintenanceTypes}
         />
       }
 
