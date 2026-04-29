@@ -31,6 +31,7 @@ export default function Page() {
   const [rooms, setRooms] = useState<any[]>([])
   const [deviceTypes, setDeviceTypes] = useState<any[]>([])
   const [deviceModels, setDeviceModels] = useState<any[]>([])
+  const [histories, setHistories] = useState<any[]>([])
 
   const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -98,18 +99,44 @@ export default function Page() {
       .single() // 1件だけ取得
 
     if (error) {
-      console.error("insert error:", error)
+      console.error("addDevice error:", error)
       return
     }
-
     if (!data) return
+    // ===== 履歴追加 =====
+    const type = deviceTypes.find(
+      t => Number(t.id) === Number(device.type)
+    )
 
+    const model = deviceModels.find(
+      m => Number(m.id) === Number(device.model)
+    )    
+    const { error: historyError } = await supabase
+          .from("device_histories")
+          .insert({
+            device_id: data.id,
+            action_type: "create",
+            status: "stock",
+            stock_area_id: 1,
+            stock_area_name: "CE室",
+            device_type_name: type?.name ?? null,
+            device_model_name: model?.name ?? null,
+            message: `${type?.name ?? "不明"} : ${model?.name ?? "不明"} 新規登録`
+            })
+
+    if (historyError) {
+      console.error("history insert error:", historyError)
+    }
+    // DBから再取得
+    await fetchHistories()
     // ③ UI用に変換
     const newDevice = normalizeDevice(data)
 
     // ④ UIに追加（DBのid付き）
     setDeviceList(prev => [...prev, newDevice])
   }
+
+
   const startDrag = (
                       target: HTMLElement,
                       clientX: number,
@@ -127,7 +154,7 @@ export default function Page() {
       x: clientX,
       y: clientY
     })
-
+    
     setDraggingDevice(device)
     //Dragイベント発生のフラグ
     setJustDropped(true)
@@ -241,6 +268,38 @@ export default function Page() {
       console.error(error)
       // 必要ならrollback
     }
+
+    // ===== 履歴追加 =====
+    const type = deviceTypes.find(
+      t => Number(t.id) === Number(device.type)
+    )
+    const model = deviceModels.find(
+      m => Number(m.id) === Number(device.model)
+    )    
+    const stockArea = stockAreas.find(a => Number(a.id) === Number(stockAreaId))
+    const { error: historyError } = await supabase
+      .from("device_histories")
+      .insert({
+        device_id: device.id,
+        action_type: "move",
+        device_type_name: type?.name ?? null,
+        device_model_name: model?.name ?? null,
+        status: "stock",
+        stock_area_id: stockAreaId,
+        stock_area_name: stockArea?.name ?? null,
+        room_id: null,
+        patient_name: null,
+        management_number: null,
+        serial_number: null,
+        note: null,
+        message: `${stockArea?.name ?? "不明"}へ移動`      
+      })
+
+    if (historyError) {
+      console.error("history insert error:", historyError)
+    }
+    // DBから再取得
+    await fetchHistories()
   }
 
   const handleDropToWard = (device: Device, wardID: number) => {  
@@ -294,8 +353,76 @@ export default function Page() {
         return
       }
 
-      // ===== ② UI更新 =====
+      // ===== 履歴用 =====
 
+      const room = rooms.find(
+        r => Number(r.id) === Number(roomID)
+      )
+
+      const type = deviceTypes.find(
+        t => Number(t.id) === Number(pendingDevice.type)
+      )
+
+      const model = deviceModels.find(
+        m => Number(m.id) === Number(pendingDevice.model)
+      )
+
+      // ===== message分岐 =====
+
+      let message = ""
+
+      // 病室変更
+      if (prevRoomId !== roomID) {
+        message =
+          `${type?.name ?? "不明"} : ` +
+          `${model?.name ?? "不明"} ` +
+          `${room?.name ?? "不明"}へ移動`
+      }
+      // 患者名変更のみ
+      else if (prevPatient !== patientName) {
+        message =
+          `${type?.name ?? "不明"} : ` +
+          `${model?.name ?? "不明"} ` +
+          `${room?.name ?? "不明"}` +
+          `患者名変更`
+      }
+      // 変化なし
+      else {
+        message =
+          `${type?.name ?? "不明"} : ` +
+          `${model?.name ?? "不明"} ` +
+          `${room?.name ?? "不明"}` +
+          `情報更新無し`
+      }
+
+      // ===== 履歴追加 =====
+
+      const { error: historyError } = await supabase
+        .from("device_histories")
+        .insert({
+          device_id: pendingDevice.id,
+          action_type: "move",
+          device_type_name: type?.name ?? null,
+          device_model_name: model?.name ?? null,
+          status: "room",
+          room_id: roomID,
+          room_name: room?.name ?? null,
+          stock_area_id: null,
+          stock_area_name: null,
+          patient_name: patientName || null,
+          message
+        })
+
+      if (historyError) {
+        console.error(
+          "history insert error:",
+          historyError
+        )
+      }
+      // DBから再取得
+      await fetchHistories()
+
+      // ===== ② UI更新 =====
       setDeviceList(prev =>
         prev.map(d =>
           d.id === pendingDevice.id
@@ -355,6 +482,8 @@ export default function Page() {
         // ===== ⑤ 再取得 =====
         await fetchTasks()
 
+    
+    
         // ===== ⑥ 後処理 =====
       setRoomModalOpen(false)
       setPendingDevice(null)
@@ -368,8 +497,20 @@ export default function Page() {
   
     // Device削除関数
   const deleteDevice = async (id: number) => {
+    // 🔽 事前準備：削除対象のdevice情報を先に取得（履歴のため）
+    const target = deviceList.find(d => d.id === id)
+    if (!target) return
+    // 履歴用の情報を取得
+    const type = deviceTypes.find(
+      t => Number(t.id) === Number(target.type)
+    )
+    const model = deviceModels.find(
+      m => Number(m.id) === Number(target.model)
+    )
+    const room = rooms.find(r => Number(r.id) === Number(target.roomId))
+    const stockArea = stockAreas.find(a => Number(a.id) === Number(target.stockAreaID))
 
-    // 🔽 ① task削除（先にやる）
+    // 🔽 ① maintenance_taskを先に削除
     const { error: taskError } = await supabase
       .from("device_maintenance_tasks")
       .delete()
@@ -390,6 +531,45 @@ export default function Page() {
       console.error("device delete error:", error)
       return
     }
+        // ===== 履歴追加 =====
+    const { error: historyError } = await supabase
+      .from("device_histories")
+      .insert({
+        device_id: id,
+        action_type: "delete",
+        device_type_name: type?.name ?? null,
+        device_model_name: model?.name ?? null,
+        status: target.status,
+        room_id: target.roomId ?? null,
+        room_name: room?.name ?? null,
+        stock_area_id: target.stockAreaID ?? null,
+        stock_area_name: stockArea?.name ?? null,
+        patient_name:
+          rooms.find(r => Number(r.id) === Number(target.roomId))
+            ?.patientName ?? null,
+
+        management_number:
+          target.managementNumber ?? null,
+
+        serial_number:
+          target.serialNumber ?? null,
+
+        note:
+          target.note ?? null,
+
+        message:
+          `${type?.name ?? "不明"} : ` +
+          `${model?.name ?? "不明"} 削除`
+      })
+
+    if (historyError) {
+      console.error(
+        "history insert error:",
+        historyError
+      )
+    }
+    // DBから再取得
+    await fetchHistories()
 
     // 🔽 ③ UI更新（DB再取得）
     await fetchDevices()
@@ -1274,6 +1454,22 @@ export default function Page() {
     // それ以外は正常
     return "green"
   }
+  //DBからdevice_histories tableを取得しhistoriesに格納する関数
+  const fetchHistories = async () => {
+    const { data, error } = await supabase
+      .from("device_histories")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(300)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    setHistories(data || [])
+    console.log("histories:", data)
+  }
   
 //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
@@ -1413,6 +1609,7 @@ export default function Page() {
     fetchDevices()
     fetchTasks()
     fetchMaintenanceTypes()
+    fetchHistories()
   }, [])
 
   
@@ -1503,6 +1700,7 @@ export default function Page() {
           addMaintenanceType={addMaintenanceType}
           renameMaintenanceType={renameMaintenanceType}
           deleteMaintenanceTypes={deleteMaintenanceTypes}
+          histories={histories}
 
         />
       </div>

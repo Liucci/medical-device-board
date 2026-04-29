@@ -1,6 +1,7 @@
 "use client"
 import DeviceModal from "./DeviceModal"
 import SettingsModal from "./SettingsModal"
+import HistoryModal from "./HistoryModal"
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 //import { Device } from "../types/deviceTypes"
@@ -43,6 +44,7 @@ type Props = {
     }
   ) => Promise<void>
   deleteMaintenanceTypes: (ids: number[]) => Promise<void>
+  histories: any[]
 }
 
 export default function ButtonPanel({
@@ -70,12 +72,13 @@ export default function ButtonPanel({
   maintenanceTypes,
   addMaintenanceType,
   renameMaintenanceType,
-  deleteMaintenanceTypes
+  deleteMaintenanceTypes,
+  histories
 
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
-
+  const [openHistoryModal, setOpenHistoryModal] = useState(false)
 
 
 
@@ -85,10 +88,15 @@ export default function ButtonPanel({
   const openSettings = () => {
     setOpenSettingsModal(true)
   }
+  const openHistory = () => {
+    setOpenHistoryModal(true)
+  }
 
   return (
     <>
       <ButtonGrid onAdd={OpenModal} title={"新規登録"} />
+      <div className="h-4" />
+      <ButtonGrid onAdd={openHistory} title={"履歴"} />
       {/* 隙間を空ける */}
       <div className="h-4" />
       {openDeviceModal &&
@@ -129,7 +137,13 @@ export default function ButtonPanel({
           maintenanceTypes={maintenanceTypes}
         />
       }
-
+      {openHistoryModal &&
+        <HistoryModal
+          isOpen={openHistoryModal}
+          onClose={() => setOpenHistoryModal(false)}
+          histories={histories}
+        />
+      }
     </>
   )
 }
