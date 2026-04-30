@@ -45,6 +45,7 @@ export default function DragLayer({
           modelName={modelName}
           assetType={assetType}
           mAlert={getMAlert(draggingDevice.id)}
+          cellSize={80} //ドラッグ中はアイコンを大きく表示
           //isDragging={true}
         />
       </div>

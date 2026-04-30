@@ -39,7 +39,7 @@ body {
 
 /* ドラッグ開始時の機器アイコンのアニメーション */
 /*DragLayerで使用*/
-
+/*scale固定*/
 .dragging-effect {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);

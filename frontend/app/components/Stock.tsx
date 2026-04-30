@@ -3,7 +3,7 @@
 import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
-
+//StockAreA.tsxよりpropを受け取る
 type Props = {
   deviceList: any[]
   stockAreaID: number
@@ -17,6 +17,7 @@ type Props = {
   pendingDevice: Device | null
   openStockInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  cellSize: number
 }
 
 
@@ -31,7 +32,8 @@ export default function Stock({
                                 draggingDevice,
                                 pendingDevice,
                                 openStockInfoModal,
-                                getMAlert
+                                getMAlert,
+                                cellSize
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -142,6 +144,7 @@ return (
             modelName={modelName}
             assetType={assetType}
             mAlert={getMAlert(d.id)}
+            cellSize={cellSize}
           />
 
         </div>

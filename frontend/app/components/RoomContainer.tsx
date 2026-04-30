@@ -18,6 +18,7 @@ type Props = {
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  cellSize: number
 }
 
 export default function RoomContainer({
@@ -34,7 +35,8 @@ export default function RoomContainer({
                             deleteDevice,
                             openRoomDeviceInfoModal,
                             justDropped,
-                            getMAlert
+                            getMAlert,
+                            cellSize
 
                             }: Props) {
 
@@ -148,6 +150,7 @@ return (
               modelName={modelName}
               assetType={assetType}
               mAlert={getMAlert(d.id)}
+              cellSize={cellSize}
 
              />
           </div>

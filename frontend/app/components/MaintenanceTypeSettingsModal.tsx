@@ -234,27 +234,66 @@ export default function MaintenanceTypeSettingsModal({
           </button>
         </div>
 
+        {/* 🔽 一覧 */}
         <div className="space-y-2 max-h-[250px] overflow-y-auto">
 
-          {maintenanceTypes.map(mt => {
+          {[...maintenanceTypes]
+            .sort((a, b) => {
 
-            const typeName =
-              deviceTypes.find(
-                t => t.id === mt.device_type_id
-              )?.name ?? "不明"
+              const aType =
+                deviceTypes.find(t => t.id === a.device_type_id)
+                  ?.name ?? ""
 
-            const modelName =
-              mt.device_model_id
-                ? deviceModels.find(
-                    m => m.id === mt.device_model_id
-                  )?.name
-                : "共通"
+              const bType =
+                deviceTypes.find(t => t.id === b.device_type_id)
+                  ?.name ?? ""
 
-            return (
-              <div
-                key={mt.id}
-                className="border rounded p-3 flex justify-between items-center"
-              >
+              // ① 機種名
+              const typeCompare = aType.localeCompare(bType, "ja")
+
+              if (typeCompare !== 0) return typeCompare
+
+              const aModel =
+                a.device_model_id
+                  ? deviceModels.find(
+                      m => m.id === a.device_model_id
+                    )?.name ?? ""
+                  : "共通"
+
+              const bModel =
+                b.device_model_id
+                  ? deviceModels.find(
+                      m => m.id === b.device_model_id
+                    )?.name ?? ""
+                  : "共通"
+
+              // ② 型式名
+              const modelCompare = aModel.localeCompare(bModel, "ja")
+
+              if (modelCompare !== 0) return modelCompare
+
+              // ③ メンテ名
+              return a.name.localeCompare(b.name, "ja")
+            })
+            .map(mt => {
+
+              const typeName =
+                deviceTypes.find(
+                  t => t.id === mt.device_type_id
+                )?.name ?? "不明"
+
+              const modelName =
+                mt.device_model_id
+                  ? deviceModels.find(
+                      m => m.id === mt.device_model_id
+                    )?.name
+                  : "共通"
+
+              return (
+                <div
+                  key={mt.id}
+                  className="border rounded p-3 flex justify-between items-center"
+                >
 
                 {/* 左 */}
                 <div className="flex items-start gap-3">

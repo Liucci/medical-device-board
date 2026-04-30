@@ -60,6 +60,9 @@ export default function Page() {
   //auto scroll用にStockArea / WardArea のDOMをrefで取得
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
+  //機器アイコンのサイズを管理するstate
+  const [wardCellSize, setWardCellSize] =useState(80)
+  const [stockCellSize, setStockCellSize] =useState(80)
 
   //device tableのデータをDBから取得する関数
   const fetchDevices = async () => {
@@ -1641,6 +1644,8 @@ export default function Page() {
           openRoomDeviceInfoModal={openRoomDeviceInfoModal}
           justDropped={justDropped}
           getMAlert={getMAlert}
+          wardCellSize={wardCellSize}
+          setWardCellSize={setWardCellSize}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1669,6 +1674,8 @@ export default function Page() {
           onDrop={handleDropToStock}
           openStockInfoModal={openStockInfoModal}
           getMAlert={getMAlert}
+          stockCellSize={stockCellSize}
+          setStockCellSize={setStockCellSize}
         />
       </div>      
 

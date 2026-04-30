@@ -17,6 +17,8 @@ type Props = {
   onDrop:(device: Device, stockAreaId: number) => void
   openStockInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  stockCellSize: number
+  setStockCellSize: React.Dispatch<React.SetStateAction<number>>
 }
 
 export default function StockAreas({ deviceList,
@@ -30,12 +32,85 @@ export default function StockAreas({ deviceList,
                                      pendingDevice,
                                      onDrop,
                                      openStockInfoModal,
-                                    getMAlert
+                                    getMAlert,
+                                    stockCellSize,
+                                    setStockCellSize
                                     }: Props) {
 
   return (
     <div className="p-3">
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          display: "flex",
+          justifyContent: "flex-end",
+          zIndex: 100,
+          paddingBottom: "8px",
+          background: "white"
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "6px",
+            padding: "8px",
+            borderRadius: "8px"
+          }}
+        >
+          {/* 上段 */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <div
+              style={{
+                minWidth: "48px",
+                textAlign: "right",
+                fontSize: "12px"
+              }}
+            >
+              {Math.round(stockCellSize / 80 * 100)}%
+            </div>
 
+            <button
+              onClick={() =>
+                setStockCellSize(s => Math.max(24, s - 4))
+              }
+            >
+              −
+            </button>
+
+            <button
+              onClick={() =>
+                setStockCellSize(s => Math.min(120, s + 4))
+              }
+            >
+              ＋
+            </button>
+          </div>
+
+          {/* 下段スライダー */}
+          <input
+            type="range"
+            min={24}
+            max={120}
+            step={4}
+            value={stockCellSize}
+            onChange={(e) =>
+              setStockCellSize(Number(e.target.value))
+            }
+            style={{
+              width: "140px"
+            }}
+          />
+        </div>
+      </div>
       <h2 className="text-lg font-bold mb-3">
         ストックエリア
       </h2>
@@ -79,6 +154,7 @@ export default function StockAreas({ deviceList,
                   pendingDevice={pendingDevice}
                   openStockInfoModal={openStockInfoModal}
                   getMAlert={getMAlert}
+                  cellSize={stockCellSize}
                 />
             </StockGrid>
           </div>

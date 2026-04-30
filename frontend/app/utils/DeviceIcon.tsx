@@ -6,6 +6,7 @@ type Props = {
   modelName: string
   assetType: string
   mAlert?: "red" | "yellow" | "green"
+  cellSize: number
   //isDragging?: boolean 
 }
 //機器アイコンのUIを定義する関数コンポーネント
@@ -14,10 +15,17 @@ export default function DeviceIcon({
   modelName,
   assetType, 
   mAlert,
+  cellSize,
   //isDragging 
 }: Props) {
 
   const isBlink = mAlert === "red"
+  const displayLevel =
+    cellSize >= 64
+      ? "full"
+      : cellSize >= 40
+      ? "compact"
+      : "minimal"
 
   return (
     <div className={`relative ${isBlink ? "blink" : ""} `}>
@@ -34,10 +42,9 @@ export default function DeviceIcon({
           `}
         />
       )}
-
+      {/*  w-20 h-16はやめて動的サイズ変更可に */}
       <div
         className={`
-          w-20 h-16
           border
           rounded
           shadow
@@ -45,10 +52,28 @@ export default function DeviceIcon({
           flex flex-col items-center justify-center
           text-xs
         `}
+      
+        // アイコンサイズを動的に調整するためのスタイル
+          style={{
+            width: cellSize,
+            height: cellSize * 0.8
+          }}
       >
-        <div>{typeName}</div>
-        <div>{modelName}</div>
-        {assetType !== "資産" && <div>{assetType}</div>}
+          {displayLevel === "full" && (
+            <>
+              <div>{typeName}</div>
+              <div>{modelName}</div>
+              {assetType !== "資産" && (
+                <div>{assetType}</div>
+              )}
+            </>
+          )}
+
+          {displayLevel === "compact" && (
+            <div>{modelName}</div>
+          )}
+
+          {displayLevel === "minimal" && null}
       </div>
 
     </div>

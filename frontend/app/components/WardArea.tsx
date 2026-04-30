@@ -17,6 +17,8 @@ type Props = {
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  wardCellSize: number
+  setWardCellSize: React.Dispatch<React.SetStateAction<number>>
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -35,7 +37,9 @@ export default function WardArea({
                                   rooms,
                                   openRoomDeviceInfoModal,
                                   justDropped,
-                                  getMAlert
+                                  getMAlert,
+                                  wardCellSize,
+                                  setWardCellSize
 
                                 }: Props) {
   
@@ -43,6 +47,77 @@ export default function WardArea({
 
   return (
     <div className="p-3 ">
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          display: "flex",
+          justifyContent: "flex-end",
+          zIndex: 100,
+          paddingBottom: "8px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "6px",
+            padding: "8px",
+            borderRadius: "8px"
+          }}
+        >
+          {/* 上段 */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <div
+              style={{
+                minWidth: "48px",
+                textAlign: "right",
+                fontSize: "12px"
+              }}
+            >
+              {Math.round(wardCellSize / 80 * 100)}%
+            </div>
+
+            <button
+              onClick={() =>
+                setWardCellSize(s => Math.max(24, s - 4))
+              }
+            >
+              −
+            </button>
+
+            <button
+              onClick={() =>
+                setWardCellSize(s => Math.min(120, s + 4))
+              }
+            >
+              ＋
+            </button>
+          </div>
+
+          {/* 下段スライダー */}
+          <input
+            type="range"
+            min={24}
+            max={120}
+            step={4}
+            value={wardCellSize}
+            onChange={(e) =>
+              setWardCellSize(Number(e.target.value))
+            }
+            style={{
+              width: "140px"
+            }}
+          />
+        </div>
+      </div>
 
       <h2 className="text-2xl font-bold mb-3">
         病棟一覧
@@ -97,6 +172,7 @@ export default function WardArea({
                         openRoomDeviceInfoModal={openRoomDeviceInfoModal}
                         justDropped={justDropped}
                         getMAlert={getMAlert}
+                        cellSize={wardCellSize}
                       />
                     ))}
               </div>
