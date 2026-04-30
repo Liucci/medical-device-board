@@ -67,8 +67,7 @@ return (
         borderRadius: "8px",
         padding: "8px",
         background: "#f9fafb",
-        width: "calc(90px * 2 + 8px)" // 👈 2列固定（80px×2 + gap）
-      }}
+        width: `${cellSize * 2 + 40}px` }}//病室の幅はアイコン2個分＋余白
     >      
       <div className="text-sm font-bold mb-1">{roomName}</div>
 

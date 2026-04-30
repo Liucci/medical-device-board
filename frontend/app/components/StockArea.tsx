@@ -47,7 +47,6 @@ export default function StockAreas({ deviceList,
           justifyContent: "flex-end",
           zIndex: 100,
           paddingBottom: "8px",
-          background: "white"
         }}
       >
         <div

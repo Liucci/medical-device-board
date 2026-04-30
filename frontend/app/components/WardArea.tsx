@@ -45,141 +45,168 @@ export default function WardArea({
   
                                   
 
-  return (
-    <div className="p-3 ">
+return (
+  <div
+    className="p-3"
+    style={{
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden"
+    }}
+  >
+    {/* header */}
+    <div
+      style={{
+        flexShrink: 0,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingTop: "8px",
+        paddingBottom: "8px",
+        marginBottom: "12px",
+        borderBottom: "1px solid #ddd",
+      }}
+    >
+      <h2 className="text-2xl font-bold">
+        病棟一覧
+      </h2>
+
       <div
         style={{
-          position: "sticky",
-          top: 0,
           display: "flex",
-          justifyContent: "flex-end",
-          zIndex: 100,
-          paddingBottom: "8px",
+          alignItems: "center",
+          gap: "8px"
         }}
       >
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-            gap: "6px",
-            padding: "8px",
-            borderRadius: "8px"
+            minWidth: "48px",
+            textAlign: "right",
+            fontSize: "12px"
           }}
         >
-          {/* 上段 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}
-          >
-            <div
-              style={{
-                minWidth: "48px",
-                textAlign: "right",
-                fontSize: "12px"
-              }}
-            >
-              {Math.round(wardCellSize / 80 * 100)}%
-            </div>
-
-            <button
-              onClick={() =>
-                setWardCellSize(s => Math.max(24, s - 4))
-              }
-            >
-              −
-            </button>
-
-            <button
-              onClick={() =>
-                setWardCellSize(s => Math.min(120, s + 4))
-              }
-            >
-              ＋
-            </button>
-          </div>
-
-          {/* 下段スライダー */}
-          <input
-            type="range"
-            min={24}
-            max={120}
-            step={4}
-            value={wardCellSize}
-            onChange={(e) =>
-              setWardCellSize(Number(e.target.value))
-            }
-            style={{
-              width: "140px"
-            }}
-          />
+          {Math.round(wardCellSize / 80 * 100)}%
         </div>
-      </div>
 
-      <h2 className="text-2xl font-bold mb-3">
-        病棟一覧
-      </h2>            
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                //gridTemplateColumns:"1fr",
-                alignItems: "flex-start",
-              gap: "12px"
-              }}
+        <button
+          onClick={() =>
+            setWardCellSize(s => Math.max(24, s - 4))
+          }
         >
-        {wards.map((ward) => (
-                              <div
-                                key={ward.id}
-                                style={{
-                                  gridColumn: ward.id === 1 ? "span 3" : undefined
-                                }}
-                                onMouseUp={() => {
-                                  if (!draggingDevice) return
-                                  //onDropにdraggingDeviceとward.wardIDを渡す
-                                    onDrop(draggingDevice, ward.id)
-                                  }}
-                              >
-            
-        {/* WardGridを呼び出し、病棟ごとにWardGridコンポーネントを生成。titleには病棟名を渡す。 */}
-            <WardGrid title={ward.name}>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",  // 👈 横並び + 折り返し
-                    gap: "12px"
-                  }}
-                >
-                  {rooms
-                    .filter(r => r.ward_id === ward.id)
-                    .map(room => (
-                      <RoomContainer
-                        key={room.id}
-                        deviceList={deviceList}     // 修正: deviceList → devices
-                        deviceTypes={deviceTypes}
-                        deviceModels={deviceModels}
-                        rooms={rooms}
-                        roomId={room.id}
-                        roomName={room.name}
-                        patientName={room.patientName}
-                        startDrag={startDrag}
-                        draggingDevice={draggingDevice}
-                        pendingDevice={pendingDevice}
-                        deleteDevice={deleteDevice}
-                        openRoomDeviceInfoModal={openRoomDeviceInfoModal}
-                        justDropped={justDropped}
-                        getMAlert={getMAlert}
-                        cellSize={wardCellSize}
-                      />
-                    ))}
-              </div>
-            </WardGrid>            
-          </div>
-        ))}
+          −
+        </button>
 
+        <button
+          onClick={() =>
+            setWardCellSize(s => Math.min(120, s + 4))
+          }
+        >
+          ＋
+        </button>
+
+        <input
+          type="range"
+          min={24}
+          max={120}
+          step={4}
+          value={wardCellSize}
+          onChange={(e) =>
+            setWardCellSize(Number(e.target.value))
+          }
+          style={{
+            width: "140px"
+          }}
+        />
       </div>
     </div>
-  )}
+
+    {/* scroll body */}
+    <div
+      style={{
+        flex: 1,
+        overflow: "auto"
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "12px"
+        }}
+      >
+        {wards.map((ward) => (
+          <div
+            key={ward.id}
+            style={{
+              gridColumn:
+                ward.id === 1
+                  ? "span 3"
+                  : undefined
+            }}
+            onMouseUp={() => {
+              if (!draggingDevice) return
+
+              onDrop(
+                draggingDevice,
+                ward.id
+              )
+            }}
+          >
+            {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}
+            {/* WardGridの中に、病室コンテナであるRoomContainerを配置する。 */}
+            <WardGrid
+              title={ward.name}
+              minWidth={Math.max(
+                200,
+                wardCellSize * 1
+              )}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "12px"
+                }}
+              >
+                {rooms
+                  .filter(
+                    r => r.ward_id === ward.id
+                  )
+                  .map(room => (
+                    <RoomContainer
+                      key={room.id}
+                      deviceList={deviceList}
+                      deviceTypes={deviceTypes}
+                      deviceModels={deviceModels}
+                      rooms={rooms}
+                      roomId={room.id}
+                      roomName={room.name}
+                      patientName={
+                        room.patientName
+                      }
+                      startDrag={startDrag}
+                      draggingDevice={
+                        draggingDevice
+                      }
+                      pendingDevice={
+                        pendingDevice
+                      }
+                      deleteDevice={deleteDevice}
+                      openRoomDeviceInfoModal={
+                        openRoomDeviceInfoModal
+                      }
+                      justDropped={justDropped}
+                      getMAlert={getMAlert}
+                      cellSize={wardCellSize}
+                    />
+                  ))}
+              </div>
+            </WardGrid>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
