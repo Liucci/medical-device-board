@@ -32,6 +32,7 @@ export default function Page() {
   const [deviceTypes, setDeviceTypes] = useState<any[]>([])
   const [deviceModels, setDeviceModels] = useState<any[]>([])
   const [histories, setHistories] = useState<any[]>([])
+  const [wardDeviceList, setWardDeviceList] = useState<any[]>([])
 
   const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -81,6 +82,7 @@ export default function Page() {
 
   }
   //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
+  //UseEffectで
   const addDevice = async (device: Omit<Device, 'id'>) => {
     
     // ① DB用データ作成（idなし）
@@ -94,7 +96,7 @@ export default function Page() {
     // デバッグ（必要なら）
     console.log("insert data:", dbData)
 
-    // ② insert + DBからデータ取得
+    // ② DBに追加してidを取得
     const { data, error } = await supabase
       .from('devices')
       .insert([dbData])
@@ -424,7 +426,6 @@ export default function Page() {
       }
       // DBから再取得
       await fetchHistories()
-
       // ===== ② UI更新 =====
       setDeviceList(prev =>
         prev.map(d =>
@@ -493,10 +494,10 @@ export default function Page() {
       setTargetWardId(null)
     }
   const handleRoomCancel = () => {
-  setRoomModalOpen(false)
-  setPendingDevice(null)
-  setTargetWardId(null)
-  }
+    setRoomModalOpen(false)
+    setPendingDevice(null)
+    setTargetWardId(null)
+    }
   
     // Device削除関数
   const deleteDevice = async (id: number) => {
@@ -1473,8 +1474,45 @@ export default function Page() {
     setHistories(data || [])
     console.log("histories:", data)
   }
-  
-//draggingDeviceの状態が変わるたびにコンソールに出力する
+  //deviceListの中でstatusが"room"のものだけを抽出する関数
+  //病棟機器リストを取得する関数
+  const getWardDeviceList = () => {
+    return deviceList.filter(
+      d => d.status === "room"
+    )
+  }
+  //getDeviceTasksを使って、device_idに紐づくタスクの中で最も期限が近いものを返す関数
+  // ===== 直近期限task取得 =====
+  const getLatestMaintenanceTask = (deviceId?: number
+      ) => {
+        if (!deviceId) return null
+            const deviceTasks =getDeviceTasks(deviceId)
+              if (deviceTasks.length === 0) {
+                return null
+            }
+            const sorted = [...deviceTasks]
+              .sort((a, b) =>
+                new Date(a.due_at).getTime()
+                -
+                new Date(b.due_at).getTime()
+              )
+            const latest = sorted[0]
+            const maintenanceType =
+              maintenanceTypes.find(
+                mt =>
+                  Number(mt.id)
+                  === Number(
+                    latest.maintenance_type_id
+                  )
+              )
+            return {
+              name:
+                maintenanceType?.name ?? "",
+              due_at:
+                latest.due_at
+            }
+          }
+  //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
   }, [draggingDevice])
@@ -1597,16 +1635,16 @@ export default function Page() {
   }, [])
   //deviceTypesとdeviceModelsをDBから取得するためのuseEffect
   useEffect(() => {
-  const fetchMaster = async () => {
-    const { data: types } = await supabase.from('device_types').select('*')
-    const { data: models } = await supabase.from('device_models').select('*')
+    const fetchMaster = async () => {
+      const { data: types } = await supabase.from('device_types').select('*')
+      const { data: models } = await supabase.from('device_models').select('*')
 
-    if (types) setDeviceTypes(types)
-    if (models) setDeviceModels(models)
-  }
+      if (types) setDeviceTypes(types)
+      if (models) setDeviceModels(models)
+    }
 
   fetchMaster()
-}, [])
+  }, [])
   //最初のレンダリングでdeviceList, tasks, maintenanceTypesをDBから取得するためのuseEffect
   useEffect(() => {
     fetchDevices()
@@ -1682,6 +1720,7 @@ export default function Page() {
       {/* ボタンパネル */}
       <div className={styles.button}>
         <ButtonPanel 
+          deviceList={deviceList}
           addDevice={addDevice}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
@@ -1708,7 +1747,9 @@ export default function Page() {
           renameMaintenanceType={renameMaintenanceType}
           deleteMaintenanceTypes={deleteMaintenanceTypes}
           histories={histories}
-
+          getWardDeviceList={getWardDeviceList}
+          getLatestMaintenanceTask={getLatestMaintenanceTask}
+        
         />
       </div>
 

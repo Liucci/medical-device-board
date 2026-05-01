@@ -37,91 +37,99 @@ export default function StockAreas({ deviceList,
                                     setStockCellSize
                                     }: Props) {
 
-  return (
-    <div className="p-3">
+return (
+  <div
+    className="p-3"
+    style={{
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden"
+    }}
+  >
+    {/* header */}
+    <div
+      style={{
+        flexShrink: 0,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingTop: "0px",
+        paddingBottom: "4px",
+        marginBottom: "6px",
+        borderBottom: "1px solid #ddd",
+      }}
+    >
+      <h2 className="text-1xl font-bold m-0">
+        ストックエリア一覧
+      </h2>
+
       <div
         style={{
-          position: "sticky",
-          top: 0,
           display: "flex",
-          justifyContent: "flex-end",
-          zIndex: 100,
-          paddingBottom: "8px",
+          alignItems: "center",
+          gap: "8px"
         }}
       >
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-            gap: "6px",
-            padding: "8px",
-            borderRadius: "8px"
+            minWidth: "48px",
+            textAlign: "right",
+            fontSize: "12px"
           }}
         >
-          {/* 上段 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px"
-            }}
-          >
-            <div
-              style={{
-                minWidth: "48px",
-                textAlign: "right",
-                fontSize: "12px"
-              }}
-            >
-              {Math.round(stockCellSize / 80 * 100)}%
-            </div>
-
-            <button
-              onClick={() =>
-                setStockCellSize(s => Math.max(24, s - 4))
-              }
-            >
-              −
-            </button>
-
-            <button
-              onClick={() =>
-                setStockCellSize(s => Math.min(120, s + 4))
-              }
-            >
-              ＋
-            </button>
-          </div>
-
-          {/* 下段スライダー */}
-          <input
-            type="range"
-            min={24}
-            max={120}
-            step={4}
-            value={stockCellSize}
-            onChange={(e) =>
-              setStockCellSize(Number(e.target.value))
-            }
-            style={{
-              width: "140px"
-            }}
-          />
+          {Math.round(stockCellSize / 80 * 100)}%
         </div>
+
+        <button
+          onClick={() =>
+            setStockCellSize(s => Math.max(24, s - 4))
+          }
+        >
+          −
+        </button>
+
+        <button
+          onClick={() =>
+            setStockCellSize(s => Math.min(120, s + 4))
+          }
+        >
+          ＋
+        </button>
+
+        <input
+          type="range"
+          min={24}
+          max={120}
+          step={4}
+          value={stockCellSize}
+          onChange={(e) =>
+            setStockCellSize(Number(e.target.value))
+          }
+          style={{
+            width: "140px"
+          }}
+        />
       </div>
-      <h2 className="text-lg font-bold mb-3">
-        ストックエリア
-      </h2>
-      {/* 倉庫用コンテナの単位当たりのスタイル */}
+    </div>
+
+    {/* scroll body */}
+    <div
+      style={{
+        flex: 1,
+        overflow: "auto"
+      }}
+    >
       <div
         style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: "12px"
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "12px"
         }}
       >
+
+
     {stockAreas.map((area) => (
       <div
         key={area.id}
@@ -161,5 +169,6 @@ export default function StockAreas({ deviceList,
       </div>
 
     </div>
+  </div>
   )
 }

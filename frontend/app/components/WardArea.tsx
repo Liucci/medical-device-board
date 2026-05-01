@@ -62,13 +62,13 @@ return (
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        paddingTop: "8px",
-        paddingBottom: "8px",
-        marginBottom: "12px",
+        paddingTop: "0px",
+        paddingBottom: "4px",
+        marginBottom: "6px",
         borderBottom: "1px solid #ddd",
       }}
     >
-      <h2 className="text-2xl font-bold">
+      <h2 className="text-1xl font-bold m-0">
         病棟一覧
       </h2>
 
@@ -171,9 +171,10 @@ return (
                 }}
               >
                 {rooms
-                  .filter(
-                    r => r.ward_id === ward.id
-                  )
+                  .filter(r => r.ward_id === ward.id)
+                  .sort((a, b) =>
+                          a.name.localeCompare(b.name, undefined, { numeric: true })
+                        ) 
                   .map(room => (
                     <RoomContainer
                       key={room.id}

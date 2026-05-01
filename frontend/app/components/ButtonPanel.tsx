@@ -2,12 +2,20 @@
 import DeviceModal from "./DeviceModal"
 import SettingsModal from "./SettingsModal"
 import HistoryModal from "./HistoryModal"
+import DeviceListModal from "./DeviceListModal"
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
+import {
+  Plus,
+  History,
+  Settings,
+  FileText
+} from "lucide-react"
 //import { Device } from "../types/deviceTypes"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
+  deviceList: any[]
   addDevice: (device: any) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
@@ -45,10 +53,17 @@ type Props = {
   ) => Promise<void>
   deleteMaintenanceTypes: (ids: number[]) => Promise<void>
   histories: any[]
+  getWardDeviceList: () => any[]
+  getLatestMaintenanceTask:
+                          (deviceId?: number) => {
+                            name: string
+                            due_at: string
+                          } | null
 }
 
 export default function ButtonPanel({
   addDevice,
+  deviceList,
   deviceTypes,
   deviceModels,
   stockAreas,
@@ -73,13 +88,14 @@ export default function ButtonPanel({
   addMaintenanceType,
   renameMaintenanceType,
   deleteMaintenanceTypes,
-  histories
-
+  histories,
+  getWardDeviceList,
+  getLatestMaintenanceTask
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
   const [openHistoryModal, setOpenHistoryModal] = useState(false)
-
+  const [openDeviceListModal, setOpenDeviceListModal] = useState(false)
 
 
   const OpenModal = () => {
@@ -91,14 +107,47 @@ export default function ButtonPanel({
   const openHistory = () => {
     setOpenHistoryModal(true)
   }
+  const openDeviceList = () => {
+    //機器一覧表のモーダルを開く処理
+    setOpenDeviceListModal(true)
+  }
 
   return (
     <>
-      <ButtonGrid onAdd={OpenModal} title={"新規登録"} />
-      <div className="h-4" />
-      <ButtonGrid onAdd={openHistory} title={"履歴"} />
-      {/* 隙間を空ける */}
-      <div className="h-4" />
+<ButtonGrid
+  onAdd={OpenModal}
+  title={"新規"}
+  titleSize="text-xs"
+  icon={<Plus size={38} />}
+/>
+
+<div className="h-4" />
+
+<ButtonGrid
+  onAdd={openHistory}
+  title={"履歴"}
+  titleSize="text-xs"
+  icon={<History size={38} />}
+
+/>
+
+<div className="h-4" />
+
+<ButtonGrid
+  onAdd={openSettings}
+  title={"設定"}
+  titleSize="text-xs"
+  icon={<Settings size={38} />}
+/>
+
+<div className="h-4" />
+
+<ButtonGrid
+  onAdd={openDeviceList}
+  title={"一覧"}
+  titleSize="text-xs"
+  icon={<FileText size={38} />}
+/>
       {openDeviceModal &&
         <DeviceModal
           onCreate={addDevice}
@@ -107,7 +156,7 @@ export default function ButtonPanel({
           deviceModels={deviceModels}
         />
       }
-      <ButtonGrid onAdd={openSettings} title={"設定"} />
+
       {openSettingsModal &&
         <SettingsModal
           onClose={() => setOpenSettingsModal(false)}
@@ -142,6 +191,19 @@ export default function ButtonPanel({
           isOpen={openHistoryModal}
           onClose={() => setOpenHistoryModal(false)}
           histories={histories}
+        />
+      }
+      {openDeviceListModal &&
+        <DeviceListModal
+          isOpen={openDeviceListModal}
+          onClose={() => setOpenDeviceListModal(false)}
+          rooms={rooms}
+          wards={wards}
+          stockAreas={stockAreas}
+          deviceTypes={deviceTypes}
+          deviceModels={deviceModels}
+          deviceList={deviceList}
+          getLatestMaintenanceTask={getLatestMaintenanceTask}
         />
       }
     </>
