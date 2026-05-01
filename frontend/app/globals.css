@@ -32,7 +32,7 @@ body {
 }
 
 @keyframes blink {
-  0%   { opacity: 0.2; }
+  0%   { opacity: 0.3; }
   20%  { opacity: 1.0; }
   100% { opacity: 1.0; }
 }
@@ -40,6 +40,7 @@ body {
 /* ドラッグ開始時の機器アイコンのアニメーション */
 /*DragLayerで使用*/
 /*scale固定*/
+/*ドラッグ中のアイコンを拡大して影をつける*/
 .dragging-effect {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
