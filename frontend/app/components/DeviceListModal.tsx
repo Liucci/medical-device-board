@@ -18,12 +18,10 @@ type Device = {
 
 type Room = {
   id: number
-  ward_id: number
-
-  name: string
+  wardId: number
+  roomName: string
   patientName?: string
 }
-
 type Ward = {
   id: number
   name: string
@@ -99,7 +97,7 @@ export default function DeviceListModal({
     const ward = wards.find(
       w =>
         Number(w.id)
-        === Number(room?.ward_id)
+        === Number(room?.wardId)
     )
     return ward?.name ?? ""
   }
@@ -157,26 +155,42 @@ export default function DeviceListModal({
   }
 
   // ===== options =====
+  const locationOptions = useMemo(() => {
 
-  const wardOptions = useMemo(() => {
+    const wardNames =
+      (deviceList ?? [])
+        .filter(
+          d => d.status === "room"
+        )
+        .map(d =>
+          getWardName(d.roomId)
+        )
+        .filter(Boolean)
+
+    const stockNames =
+      (deviceList ?? [])
+        .filter(
+          d => d.status === "stock"
+        )
+        .map(d =>
+          getStockAreaName(
+            d.stockAreaID
+          )
+        )
+        .filter(Boolean)
 
     return Array.from(
-      new Set(
-        (deviceList ?? [])
-          .filter(
-            d => d.status === "room"
-          )
-          .map(d =>
-            getWardName(d.roomId)
-          )
-          .filter(Boolean)
-      )
+      new Set([
+        ...wardNames,
+        ...stockNames
+      ])
     )
 
   }, [
     deviceList,
     rooms,
-    wards
+    wards,
+    stockAreas
   ])
 
   const typeOptions = useMemo(() => {
@@ -216,19 +230,24 @@ export default function DeviceListModal({
         // ward
 
         if (
-          selectedStatus === "room"
-          &&
+          
           selectedWards.length > 0
         ) {
 
-          const wardName =
-            getWardName(
-              device.roomId
-            )
+        const locationName =
 
+          device.status === "room"
+
+            ? getWardName(
+                device.roomId
+              )
+
+            : getStockAreaName(
+                device.stockAreaID
+              )
           if (
             !selectedWards.includes(
-              wardName
+              locationName
             )
           ) {
             return false
@@ -258,6 +277,55 @@ export default function DeviceListModal({
         }
 
         return true
+
+      })
+      // ===== sort =====
+
+      .sort((a, b) => {
+
+        // ① 状態
+
+        const statusCompare =
+          (a.status ?? "")
+            .localeCompare(
+              b.status ?? "",
+              "ja",
+              { numeric: true }
+            )
+
+        if (statusCompare !== 0) {
+          return statusCompare
+        }
+
+        // ② 病棟
+
+        const wardCompare =
+          getWardName(a.roomId)
+            .localeCompare(
+              getWardName(b.roomId),
+              "ja",
+              { numeric: true }
+            )
+
+        if (wardCompare !== 0) {
+          return wardCompare
+        }
+
+        // ③ 病室
+
+        const roomA =
+          getRoom(a.roomId)
+            ?.roomName ?? ""
+
+        const roomB =
+          getRoom(b.roomId)
+            ?.roomName ?? ""
+
+        return roomA.localeCompare(
+          roomB,
+          "ja",
+          { numeric: true }
+        )
 
       })
 
@@ -304,7 +372,7 @@ export default function DeviceListModal({
           : "",
 
         device.status === "room"
-          ? room?.name ?? ""
+          ? room?.roomName ?? ""
           : getStockAreaName(
               device.stockAreaID
             ),
@@ -400,7 +468,7 @@ export default function DeviceListModal({
             : "",
         roomName:
           device.status === "room"
-            ? room?.name ?? ""
+            ? room?.roomName ?? ""
             : getStockAreaName(
                 device.stockAreaID
               ),
@@ -580,10 +648,10 @@ export default function DeviceListModal({
               overflow-auto
             ">
 
-              {wardOptions.map(ward => (
+              {locationOptions.map(location => (
 
                 <label
-                  key={ward}
+                  key={location}
                   className="block"
                 >
 
@@ -591,12 +659,12 @@ export default function DeviceListModal({
                     type="checkbox"
                     checked={
                       selectedWards.includes(
-                        ward
+                        location
                       )
                     }
                     onChange={() =>
                       toggleSelection(
-                        ward,
+                        location,
                         selectedWards,
                         setSelectedWards
                       )
@@ -604,7 +672,7 @@ export default function DeviceListModal({
                   />
 
                   <span className="ml-1">
-                    {ward}
+                    {location}
                   </span>
 
                 </label>
@@ -800,7 +868,7 @@ export default function DeviceListModal({
 
                       {
                         device.status === "room"
-                          ? room?.name
+                          ? room?.roomName
                           : getStockAreaName(
                               device.stockAreaID
                             )

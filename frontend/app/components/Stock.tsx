@@ -9,7 +9,9 @@ type Props = {
   stockAreaID: number
   deviceTypes: any[]
   deviceModels: any[] 
-  
+  managementNumber: string | undefined
+  serialNumber: string | undefined
+
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
@@ -33,7 +35,9 @@ export default function Stock({
                                 pendingDevice,
                                 openStockInfoModal,
                                 getMAlert,
-                                cellSize
+                                cellSize,
+                                managementNumber,
+                                serialNumber
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -143,6 +147,8 @@ return (
             typeName={typeName}
             modelName={modelName}
             assetType={assetType}
+            managementNumber={d.managementNumber}
+            serialNumber={d.serialNumber}
             mAlert={getMAlert(d.id)}
             cellSize={cellSize}
           />

@@ -44,6 +44,8 @@ export default function DragLayer({
           typeName={typeName}
           modelName={modelName}
           assetType={assetType}
+          managementNumber={draggingDevice.managementNumber}
+          serialNumber={draggingDevice.serialNumber}
           mAlert={getMAlert(draggingDevice.id)}
           cellSize={80} //ドラッグ中はアイコンを大きく表示
           //isDragging={true}

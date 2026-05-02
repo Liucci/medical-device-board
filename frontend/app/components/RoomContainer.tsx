@@ -11,6 +11,8 @@ type Props = {
   roomId: number
   roomName: string
   patientName?: string
+  managementNumber?: string
+  serialNumber?: string
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
@@ -36,7 +38,9 @@ export default function RoomContainer({
                             openRoomDeviceInfoModal,
                             justDropped,
                             getMAlert,
-                            cellSize
+                            cellSize,
+                            managementNumber,
+                            serialNumber
 
                             }: Props) {
 
@@ -148,6 +152,8 @@ return (
               typeName={typeName}
               modelName={modelName}
               assetType={assetType}
+              managementNumber={d.managementNumber}
+              serialNumber={d.serialNumber}
               mAlert={getMAlert(d.id)}
               cellSize={cellSize}
 

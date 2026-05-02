@@ -8,6 +8,8 @@ type Props = {
   deviceTypes: any[]
   deviceModels: any[]
   wards:any[]
+  managementNumber?: string
+  serialNumber?: string
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
@@ -39,6 +41,8 @@ export default function WardArea({
                                   justDropped,
                                   getMAlert,
                                   wardCellSize,
+                                  managementNumber,
+                                  serialNumber,
                                   setWardCellSize
 
                                 }: Props) {
@@ -171,9 +175,9 @@ return (
                 }}
               >
                 {rooms
-                  .filter(r => r.ward_id === ward.id)
+                  .filter(r => r.wardId === ward.id)
                   .sort((a, b) =>
-                          a.name.localeCompare(b.name, undefined, { numeric: true })
+                          a.roomName.localeCompare(b.roomName, undefined, { numeric: true })
                         ) 
                   .map(room => (
                     <RoomContainer
@@ -183,8 +187,9 @@ return (
                       deviceModels={deviceModels}
                       rooms={rooms}
                       roomId={room.id}
-                      roomName={room.name}
+                      roomName={room.roomName}
                       patientName={
+              
                         room.patientName
                       }
                       startDrag={startDrag}
@@ -201,6 +206,8 @@ return (
                       justDropped={justDropped}
                       getMAlert={getMAlert}
                       cellSize={wardCellSize}
+                      managementNumber={managementNumber}
+                      serialNumber={serialNumber}
                     />
                   ))}
               </div>

@@ -28,6 +28,12 @@ export type Room={
 
   //patientName?: string
 }
+export type RoomDB={
+  id: number
+  ward_id: number
+  name: string
+  patient_name?: string
+}
 
 export const rooms: Room[] = [
   // --- ICU ---

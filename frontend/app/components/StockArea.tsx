@@ -3,12 +3,14 @@
 import StockGrid from "./StockGrid"
 import Stock from "./Stock"
 import { Device } from "../types/deviceTypes"
-
+//page.tsxより
 type Props = {  
   deviceList: any[]
   stockAreas: any[]
   deviceTypes: any[]
-  deviceModels: any[] 
+  deviceModels: any[]
+  managementNumber: string | undefined
+  serialNumber: string | undefined
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
   handleMouseMove: (e: React.MouseEvent) => void
   deleteDevice: (id: number) => void
@@ -25,6 +27,8 @@ export default function StockAreas({ deviceList,
                                      stockAreas,
                                      deviceTypes,
                                      deviceModels,
+                                     managementNumber,
+                                     serialNumber,
                                      startDrag,
                                      handleMouseMove,
                                      deleteDevice,
@@ -162,6 +166,8 @@ return (
                   openStockInfoModal={openStockInfoModal}
                   getMAlert={getMAlert}
                   cellSize={stockCellSize}
+                  managementNumber={managementNumber}
+                  serialNumber={serialNumber}
                 />
             </StockGrid>
           </div>

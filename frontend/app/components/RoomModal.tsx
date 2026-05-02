@@ -10,6 +10,7 @@ type Props = {
   wardId: number | null
   wards: any[]
   rooms: any[]
+  pendingDevice: any
 }
 
 export default function RoomModal({
@@ -18,20 +19,39 @@ export default function RoomModal({
   onSubmit,
   wardId,
   wards,
-  rooms
+  rooms,
+  pendingDevice
 }: Props) {
 
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
   const [patientName, setPatientName] = useState("")
 
 
-  // モーダルが開くたびに選択状態をリセット
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return
+    // ===== 既存room =====
+    if (pendingDevice?.roomId) {
+      setSelectedRoomId(
+        pendingDevice.roomId
+      )
+      const room = rooms.find(
+        r => r.id === pendingDevice.roomId
+      )
+      setPatientName(
+        room?.patientName ?? ""
+      )
+    }
+    // ===== stock機器 =====
+    else {
       setSelectedRoomId(null)
       setPatientName("")
-  }}, [isOpen])
-
+    }
+  }, [
+    isOpen,
+    pendingDevice,
+    rooms
+  ])
+  
   //既存の病室の患者名を表示するためのuseEffect
   useEffect(() => {
     if (!selectedRoomId) return

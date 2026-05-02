@@ -64,7 +64,7 @@ export default function RoomDeviceInfoModal({
     deviceModels.find(m => m.id === device.model)?.name ?? "不明"
 
   const room = rooms.find(r => r.id === device.roomId)
-  const roomName = room?.name ?? "不明"
+  const roomName = room?.roomName ?? "不明"
   const wardName =
     wards.find(w => w.id === room?.ward_id)?.name ?? "不明"
   // 🔽 共通表示行
@@ -136,7 +136,15 @@ export default function RoomDeviceInfoModal({
               if (val !== null) setPatientName(val)
             }}
           />
-
+          {/* 管理番号 */}
+          <InfoRow
+            label="管理番号"
+            value={managementNumber}
+            onEdit={() => {
+              const val = prompt("管理番号を入力", managementNumber)
+              if (val !== null) setManagementNumber(val)
+            }}
+          />
           {/* シリアル */}
           <InfoRow
             label="シリアル"

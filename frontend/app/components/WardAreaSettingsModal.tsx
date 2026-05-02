@@ -2,7 +2,7 @@ import { useState } from "react"
 
 type Props = {
   wards: { id: number; name: string }[]
-  rooms: { id: number; name: string; ward_id: number }[]
+  rooms: { id: number; roomName: string; wardId: number }[]
 
   addWard: (name: string) => Promise<void>
   renameWard: (id: number, newName: string) => Promise<void>
@@ -60,8 +60,8 @@ export default function WardAreaSettingsModal({
   // ===== Room =====
   // 選択中の病棟に属する部屋だけ表示
   const filteredRooms = rooms
-    .filter(r => r.ward_id === selectedWardId)
-    .sort((a, b) => a.name.localeCompare(b.name, "ja"))
+    .filter(r => r.wardId === selectedWardId)
+    .sort((a, b) => a.roomName.localeCompare(b.roomName, "ja"))
   // チェック切り替え
   const toggleRoom = (id: number) => {
     setCheckedRoomIds(prev =>
@@ -88,8 +88,8 @@ export default function WardAreaSettingsModal({
     setCheckedRoomIds([])
   }
   // 部屋名前変更（prompt使用の仮実装）
-  const handleRenameRoom = (room: { id: number; name: string }) => {
-    const name = prompt("新しい部屋名", room.name)
+  const handleRenameRoom = (room: { id: number; roomName: string }) => {
+    const name = prompt("新しい部屋名", room.roomName)
     if (!name) return
 
     renameRoom(room.id, name)
@@ -153,7 +153,7 @@ export default function WardAreaSettingsModal({
                 onChange={() => toggleRoom(room.id)}
               />
 
-              <span className="flex-1">{room.name}</span>
+              <span className="flex-1">{room.roomName}</span>
 
               <button
                 onClick={() => handleRenameRoom(room)}
