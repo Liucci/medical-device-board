@@ -23,8 +23,8 @@ type Room = {
   patientName?: string
 }
 type Ward = {
-  id: number
-  name: string
+  wardId: number
+  wardName: string
 }
 
 type StockArea = {
@@ -96,10 +96,10 @@ export default function DeviceListModal({
     const room = getRoom(roomId)
     const ward = wards.find(
       w =>
-        Number(w.id)
+        Number(w.wardId)
         === Number(room?.wardId)
     )
-    return ward?.name ?? ""
+    return ward?.wardName ?? ""
   }
   const getStockAreaName = (
     stockAreaID?: number

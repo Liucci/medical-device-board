@@ -66,7 +66,7 @@ export default function RoomDeviceInfoModal({
   const room = rooms.find(r => r.id === device.roomId)
   const roomName = room?.roomName ?? "不明"
   const wardName =
-    wards.find(w => w.id === room?.ward_id)?.name ?? "不明"
+    wards.find(w => w.wardId === room?.wardId)?.wardName ?? "不明"
   // 🔽 共通表示行
   const InfoRow = ({
                     label,
@@ -116,8 +116,9 @@ export default function RoomDeviceInfoModal({
         {/* 🔽 機種 + 型式 */}
         <div>
           <div className="text-lg font-bold">
-            {typeName}　{modelName}
+            {typeName}　{modelName}　{device.assetType}
           </div>
+
 
           <div className="text-gray-600">
             {wardName}　{roomName}

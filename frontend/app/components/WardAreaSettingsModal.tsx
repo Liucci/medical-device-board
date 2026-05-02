@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 type Props = {
-  wards: { id: number; name: string }[]
+  wards: { wardId: number; wardName: string }[]
   rooms: { id: number; roomName: string; wardId: number }[]
 
   addWard: (name: string) => Promise<void>
@@ -41,10 +41,10 @@ export default function WardAreaSettingsModal({
     // selectedWardIdがnullのときは何もしない
     if (!selectedWardId) return
     // selectedWardIdに対応する病棟を見つける
-    const ward = wards.find(w => w.id === selectedWardId)
+    const ward = wards.find(w => w.wardId === selectedWardId)
     if (!ward) return
     // promptで新しい名前を入力してもらう
-    const name = prompt("新しい病棟名", ward.name)
+    const name = prompt("新しい病棟名", ward.wardName)
     if (!name) return
     // renameWard関数を呼び出す
     renameWard(selectedWardId, name)
@@ -113,7 +113,7 @@ export default function WardAreaSettingsModal({
             >
                 <option value="">病棟選択</option>
                 {wards.map(w => (
-                <option key={w.id} value={w.id}>{w.name}</option>
+                <option key={w.wardId} value={w.wardId}>{w.wardName}</option>
                 ))}
             </select>
 

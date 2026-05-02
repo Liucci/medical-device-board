@@ -51,7 +51,7 @@ export default function RoomToRoomModal({
 
   const currentWard =
     wards.find(
-      w => w.id === currentRoom?.wardId
+      w => w.wardId === currentRoom?.wardId
     )
 
   // ===== 機種 =====
@@ -225,7 +225,7 @@ export default function RoomToRoomModal({
                 </div>
 
                 <div className="font-bold">
-                  {currentWard?.name ?? "-"}
+                  {currentWard?.wardName ?? "-"}
                 </div>
               </div>
 
@@ -343,10 +343,10 @@ export default function RoomToRoomModal({
                   {wards.map(w => (
 
                     <option
-                      key={w.id}
-                      value={w.id}
+                      key={w.wardId}
+                      value={w.wardId}
                     >
-                      {w.name}
+                      {w.wardName}
                     </option>
                   ))}
                 </select>

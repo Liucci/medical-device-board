@@ -30,19 +30,19 @@ export default function WardList({ wardRefs,
       <h2 className="font-bold mb-4">病棟一覧</h2>
       <ul className="space-y-4">
         {wards.map((ward) => {
-          const devicesInWard = roomDevices.filter((d) => d.wardId === ward.wardID)
+          const devicesInWard = roomDevices.filter((d) => d.wardId === ward.wardId)
           
           return (
-            <li key={ward.wardID}>
+            <li key={ward.wardId}>
 
               <div
                 ref={(el) => {
-                  wardRefs.current[ward.wardID] = el
+                  wardRefs.current[ward.wardId] = el
                 }}
              
                 className="p-2 bg-gray-100 rounded relative"
               >
-                {ward.name}
+                {ward.wardName}
               </div>
               <RoomDeviceList
                 devices={devicesInWard}

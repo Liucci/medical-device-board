@@ -91,7 +91,7 @@ export default function StockInfoModal({
         {/* 🔽 機種 + 型式 */}
         <div>
           <div className="text-lg font-bold">
-            {typeName}　{modelName}
+            {typeName}　{modelName}　{device.assetType}
           </div>
 
           <div className="text-gray-600">

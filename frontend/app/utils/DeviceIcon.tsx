@@ -1,5 +1,5 @@
 import { colorMap } from "../utils/deviceColors"
-//stock.tsxとroomContainer.tsxで使用するDeviceIconコンポーネントを定義するファイル
+
 // DeviceIcon.tsx
 // 機器アイコン表示コンポーネント
 
@@ -70,6 +70,18 @@ export default function DeviceIcon({
       ? 1.1
       : 1.0
 
+  // ===== 資産マークサイズ =====
+  const assetMarkSize =
+    cellSize >= 88 ? 18 : 14
+
+  const assetFontSize =
+    cellSize >= 88 ? 10 : 8
+
+  // ===== 資産マーク位置 =====
+  // メンテランプの右横
+  const assetLeft =
+    cellSize >= 88 ? 18 : 14
+
   return (
     <div
       className={`
@@ -98,6 +110,67 @@ export default function DeviceIcon({
             height: cellSize >= 88 ? 12 : 9
           }}
         />
+      )}
+
+      {/* ===== 資産分類マーク ===== */}
+      {showIndicator && assetType === "レンタル" && (
+        <div
+          className="
+            absolute
+            z-30
+            font-bold
+            rounded-full
+            bg-white
+            border
+            border-black
+            flex
+            items-center
+            justify-center
+            shadow-sm
+          "
+          style={{
+            top: 2,
+            left: assetLeft,
+
+            width: assetMarkSize,
+            height: assetMarkSize,
+
+            fontSize: assetFontSize,
+            lineHeight: 1
+          }}
+        >
+          レ
+        </div>
+      )}
+
+      {showIndicator && assetType === "代替機" && (
+        <div
+          className="
+            absolute
+            z-30
+            font-bold
+            rounded-full
+            bg-white
+            border-2
+            border-black
+            flex
+            items-center
+            justify-center
+            shadow-sm
+          "
+          style={{
+            top: 2,
+            left: assetLeft,
+
+            width: assetMarkSize,
+            height: assetMarkSize,
+
+            fontSize: assetFontSize,
+            lineHeight: 1
+          }}
+        >
+          代
+        </div>
       )}
 
       {/* ===== 本体 ===== */}

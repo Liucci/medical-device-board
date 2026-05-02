@@ -1,24 +1,13 @@
 export type Ward = {
-  wardID: number
+  wardId: number
+  wardName: string
+}
+
+export type WardDB = {
+  id: number
   name: string
 }
 
-export const wards: Ward[] = [
-  { wardID: 1, name: "ICU" },
-  { wardID: 2, name: "HCU" },
-  { wardID: 3, name: "E3" },
-  { wardID: 4, name: "CCU" },
-  { wardID: 5, name: "W6" },
-  { wardID: 6, name: "SCU" },
-  { wardID: 7, name: "E6" },
-  { wardID: 8, name: "NICU" },
-  { wardID: 9, name: "E4小児" },
-  { wardID: 10, name: "E4産科" },
-  { wardID: 11, name: "W5" },
-  { wardID: 12, name: "E5" },
-  { wardID: 13, name: "W7" },
-  { wardID: 14, name: "E7" }
-]
 
 export type Room={
   id: number

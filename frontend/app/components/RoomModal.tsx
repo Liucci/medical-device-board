@@ -51,7 +51,7 @@ export default function RoomModal({
     pendingDevice,
     rooms
   ])
-  
+
   //既存の病室の患者名を表示するためのuseEffect
   useEffect(() => {
     if (!selectedRoomId) return
@@ -66,11 +66,11 @@ export default function RoomModal({
   if (!isOpen || wardId === null) return null
 
 
-  const ward = wards.find(w => w.id === wardId)
+  const ward = wards.find(w => w.wardId === wardId)
 
   const filteredRooms = rooms
-                        .filter(r => r.ward_id === wardId)
-                        .sort((a, b) => a.name.localeCompare(b.name, "ja"))
+                        .filter(r => r.wardId === wardId)
+                        .sort((a, b) => a.roomName.localeCompare(b.roomName, "ja"))
 
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -80,7 +80,7 @@ export default function RoomModal({
         {/* 病棟表示 */}
         <div className="mb-4">
           <div className="text-sm text-gray-500">病棟</div>
-          <div className="font-bold text-lg">{ward?.name}</div>
+          <div className="font-bold text-lg">{ward?.wardName}</div>
         </div>
 
         {/* Room dropdown */}
@@ -94,7 +94,7 @@ export default function RoomModal({
             <option value="">選択してください</option>
             {filteredRooms.map(r => (
               <option key={r.id} value={r.id}>
-                {r.name}
+                {r.roomName}
               </option>
             ))}
           </select>

@@ -142,10 +142,10 @@ return (
       >
         {wards.map((ward) => (
           <div
-            key={ward.id}
+            key={ward.wardId}
             style={{
               gridColumn:
-                ward.id === 1
+                ward.wardId === 1
                   ? "span 3"
                   : undefined
             }}
@@ -154,14 +154,14 @@ return (
 
               onDrop(
                 draggingDevice,
-                ward.id
+                ward.wardId
               )
             }}
           >
             {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}
             {/* WardGridの中に、病室コンテナであるRoomContainerを配置する。 */}
             <WardGrid
-              title={ward.name}
+              title={ward.wardName}
               minWidth={Math.max(
                 200,
                 wardCellSize * 1
@@ -175,7 +175,7 @@ return (
                 }}
               >
                 {rooms
-                  .filter(r => r.wardId === ward.id)
+                  .filter(r => r.wardId === ward.wardId)
                   .sort((a, b) =>
                           a.roomName.localeCompare(b.roomName, undefined, { numeric: true })
                         ) 

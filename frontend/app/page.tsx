@@ -13,6 +13,7 @@ import { Device} from "./types/deviceTypes"
 import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "./utils/deviceMapper"
 import { normalizeRoom } from "./utils/roomsMapper"
+import { normalizeWard } from "./utils/wardsMapper"
 
 //supabasek
 import { createClient } from '@supabase/supabase-js'
@@ -334,12 +335,12 @@ export default function Page() {
 
   const handleDropToWard = (
     device: Device,
-    wardID: number
+    wardId: number
   ) => {
 
     // 共通
     setPendingDevice(device)
-    setTargetWardId(wardID)
+    setTargetWardId(wardId)
 
     console.log("機器アイコンのドラッグイベント")
 
@@ -1290,7 +1291,7 @@ export default function Page() {
 
     // 🔥 重複チェック
     const exists = wards.some(
-      w => w.name.toLowerCase() === trimmed.toLowerCase()
+      w => w.wardName.toLowerCase() === trimmed.toLowerCase()
     )
 
     if (exists) {
@@ -1321,8 +1322,8 @@ export default function Page() {
     // 🔥 重複チェック（自分は除外）
     const exists = wards.some(
       w =>
-        w.id !== id &&
-        w.name.toLowerCase() === trimmed.toLowerCase()
+        w.wardId !== id &&
+        w.wardName.toLowerCase() === trimmed.toLowerCase()
     )
 
     if (exists) {
@@ -1344,7 +1345,7 @@ export default function Page() {
     // 🔥 UI更新
     setWards(prev =>
       prev.map(w =>
-        w.id === id ? { ...w, name: trimmed } : w
+        w.wardId === id ? { ...w, name: trimmed } : w
       )
     )
   }
@@ -1395,7 +1396,7 @@ export default function Page() {
 
     // ===== UI更新 =====
     setRooms(prev => prev.filter(r => !roomIds.includes(r.id)))
-    setWards(prev => prev.filter(w => !ids.includes(w.id)))
+    setWards(prev => prev.filter(w => !ids.includes(w.wardId)))
   }
   //DBのrooms tableに新しい病室を追加する関数
   const addRoom = async (wardId: number,roomName: string) => {
@@ -2128,7 +2129,9 @@ export default function Page() {
       }
 
       if (data) {
-        setWards(data)
+        setWards(
+          data.map(normalizeWard)
+        )      
       }
     }
 
