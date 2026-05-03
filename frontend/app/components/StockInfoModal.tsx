@@ -15,6 +15,11 @@ type Props = {
     managementNumber: string
     serialNumber: string
     note: string
+    rentalStartDate?: string
+    rentalEndDate?: string
+    isUnderMaintenance?: boolean
+    maintenanceStartedAt?: string
+    maintenanceFinishedAt?: string
   }) => void
   onCancel: () => void
 }
@@ -31,15 +36,24 @@ export default function StockInfoModal({
   const [managementNumber, setManagementNumber] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
   const [note, setNote] = useState("")
+  const [rentalStartDate, setRentalStartDate] = useState("")
+  const [rentalEndDate, setRentalEndDate] = useState("")
+  const [isUnderMaintenance,setIsUnderMaintenance] = useState(false)
+  const [maintenanceStartedAt,setMaintenanceStartedAt ] = useState("")
+  const [maintenanceFinishedAt,setMaintenanceFinishedAt] = useState("")
   
-
   useEffect(() => {
     if (!isOpen || !device) return
 
     setManagementNumber(device.managementNumber ?? "")
     setSerialNumber(device.serialNumber ?? "")
     setNote(device.note ?? "")
-  }, [device, isOpen])
+    setRentalStartDate(device.rentalStartDate || "")
+    setRentalEndDate(device.rentalEndDate || "")
+    setIsUnderMaintenance(device.isUnderMaintenance ?? false)
+    setMaintenanceStartedAt(device.maintenanceStartedAt || "")
+    setMaintenanceFinishedAt(device.maintenanceFinishedAt || "")
+      }, [device, isOpen])
 
   if (!isOpen || !device) return null
 
@@ -92,6 +106,38 @@ export default function StockInfoModal({
         <div>
           <div className="text-lg font-bold">
             {typeName}　{modelName}　{device.assetType}
+            {(device.assetType === "レンタル" ||
+              device.assetType === "代替機") &&
+              rentalEndDate && (() => {
+                const today = new Date()
+                const end = new Date(rentalEndDate)
+                // 時刻ズレ対策
+                today.setHours(0,0,0,0)
+                end.setHours(0,0,0,0)
+
+                const diff = end.getTime() - today.getTime()
+                const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+
+                // 返却日超過
+                if (days < 0) {
+                  return (
+                    <span className="ml-3 text-sm text-red-600 font-bold">
+                      返却日超過
+                    </span>
+                  )
+                }
+
+                // 2日前以内
+                if (days <= 2) {
+                  return (
+                    <span className="ml-3 text-sm text-red-600 font-bold">
+                      返却まで{days}日
+                    </span>
+                  )
+                }
+                return null
+              })
+              ()}            
           </div>
 
           <div className="text-gray-600">
@@ -121,6 +167,74 @@ export default function StockInfoModal({
               if (val !== null) setSerialNumber(val)
             }}
           />
+          {(device.assetType === "レンタル" ||
+            device.assetType === "代替機") && (
+            <>
+              {/* 貸与開始日 */}
+              <InfoRow
+                label="貸与開始日"
+                value={rentalStartDate}
+                onEdit={() => {
+                  const val = prompt(
+                    "貸与開始日を入力 (YYYY-MM-DD)",
+                    rentalStartDate
+                  )
+
+                  if (val !== null) {
+                    setRentalStartDate(val)
+                  }
+                }}
+              />
+              {/* 返却日 */}
+              <InfoRow
+                label="返却日"
+                value={rentalEndDate}
+                onEdit={() => {
+                  const val = prompt(
+                    "返却日を入力 (YYYY-MM-DD)",
+                    rentalEndDate
+                  )
+
+                  if (val !== null) {
+                    setRentalEndDate(val)
+                  }
+                }}
+              />
+            </>
+          )}
+          {isUnderMaintenance && (
+            <>
+              <InfoRow
+                label="保守開始日"
+                value={maintenanceStartedAt}
+                onEdit={() => {
+                  const val = prompt(
+                    "保守開始日",
+                    maintenanceStartedAt
+                  )
+
+                  if (val !== null) {
+                    setMaintenanceStartedAt(val)
+                  }
+                }}
+              />
+
+              <InfoRow
+                label="保守終了日"
+                value={maintenanceFinishedAt}
+                onEdit={() => {
+                  const val = prompt(
+                    "保守終了日",
+                    maintenanceFinishedAt
+                  )
+
+                  if (val !== null) {
+                    setMaintenanceFinishedAt(val)
+                  }
+                }}
+              />
+            </>
+          )}
 
           {/* 備考 */}
           <InfoRow
@@ -145,13 +259,43 @@ export default function StockInfoModal({
                 id: device.id,
                 managementNumber,
                 serialNumber,
-                note
+                note,
+                rentalStartDate:rentalStartDate|| undefined,
+                rentalEndDate:rentalEndDate|| undefined,
+                isUnderMaintenance,
+                maintenanceStartedAt:maintenanceStartedAt || undefined,
+                maintenanceFinishedAt:maintenanceFinishedAt || undefined
               })
             }}
             className="bg-blue-500 text-white px-3 py-1 rounded"
           >
             保存
           </button>
+          <button
+            onClick={() => {
+
+              const today =
+                new Date()
+                  .toISOString()
+                  .split("T")[0]
+
+              setIsUnderMaintenance(true)
+
+              setMaintenanceStartedAt(today)
+
+              setMaintenanceFinishedAt("")
+            }}
+            className="
+              bg-red-500
+              text-white
+              px-3
+              py-1
+              rounded
+            "
+          >
+            保守開始
+          </button>
+
         </div>
 
       </div>

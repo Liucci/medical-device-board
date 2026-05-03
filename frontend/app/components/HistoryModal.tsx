@@ -213,7 +213,8 @@ export default function HistoryModal({
   const actionLabelMap: Record<string, string> = {
     create: "新規",
     move: "移動",
-    delete: "削除"
+    delete: "削除",
+    fix:"修理"
   }
   const exportCsv = () => {
 
@@ -660,6 +661,9 @@ export default function HistoryModal({
 
               <option value="delete">
                 削除
+              </option>
+              <option value="fix">
+                修理
               </option>
 
             </select>

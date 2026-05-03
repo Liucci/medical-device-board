@@ -17,6 +17,8 @@ type Props = {
     note: string
     patientName: string
     roomId: number
+    rentalStartDate?: string
+    rentalEndDate?: string
   }) => void
   onCancel: () => void
   wards: any[]
@@ -43,6 +45,8 @@ export default function RoomDeviceInfoModal({
   const [serialNumber, setSerialNumber] = useState("")
   const [note, setNote] = useState("")
   const [patientName, setPatientName] = useState("")
+  const [rentalStartDate, setRentalStartDate] = useState("")
+  const [rentalEndDate, setRentalEndDate] = useState("")
 
   useEffect(() => {
     if (!isOpen || !device) return
@@ -50,6 +54,8 @@ export default function RoomDeviceInfoModal({
     setManagementNumber(device.managementNumber ?? "")
     setSerialNumber(device.serialNumber ?? "")
     setNote(device.note ?? "")
+    setRentalStartDate(device.rentalStartDate || "")
+    setRentalEndDate(device.rentalEndDate || "")
 
     const room = rooms.find(r => r.id === device.roomId)
     setPatientName(room?.patientName ?? "")
@@ -117,8 +123,56 @@ export default function RoomDeviceInfoModal({
         <div>
           <div className="text-lg font-bold">
             {typeName}　{modelName}　{device.assetType}
-          </div>
 
+            {(device.assetType === "レンタル" ||
+              device.assetType === "代替機") &&
+              rentalEndDate && (() => {
+
+                const today = new Date()
+
+                const end = new Date(rentalEndDate)
+
+                // 時刻ズレ防止
+                today.setHours(0,0,0,0)
+                end.setHours(0,0,0,0)
+
+                const diff =
+                  end.getTime() - today.getTime()
+
+                const days =
+                  Math.ceil(diff / (1000 * 60 * 60 * 24))
+
+                // 超過
+                if (days < 0) {
+                  return (
+                    <span className="ml-3 text-sm text-red-600 font-bold">
+                      返却日超過
+                    </span>
+                  )
+                }
+
+                // 当日
+                if (days === 0) {
+                  return (
+                    <span className="ml-3 text-sm text-red-600 font-bold">
+                      本日返却
+                    </span>
+                  )
+                }
+
+                // 2日前以内
+                if (days <= 2) {
+                  return (
+                    <span className="ml-3 text-sm text-red-600 font-bold">
+                      返却まで{days}日
+                    </span>
+                  )
+                }
+
+                return null
+
+              })()}
+          </div>
 
           <div className="text-gray-600">
             {wardName}　{roomName}
@@ -155,6 +209,43 @@ export default function RoomDeviceInfoModal({
               if (val !== null) setSerialNumber(val)
             }}
           />
+            {(device.assetType === "レンタル" ||
+              device.assetType === "代替機") && (
+              <>
+                {/* 貸与開始日 */}
+                <InfoRow
+                  label="貸与開始日"
+                  value={rentalStartDate}
+                  onEdit={() => {
+                    const val = prompt(
+                      "貸与開始日を入力 (YYYY-MM-DD)",
+                      rentalStartDate
+                    )
+
+                    if (val !== null) {
+                      setRentalStartDate(val)
+                    }
+                  }}
+                />
+                {/* 返却日 */}
+                <InfoRow
+                  label="返却日"
+                  value={rentalEndDate}
+                  onEdit={() => {
+                    const val = prompt(
+                      "返却日を入力 (YYYY-MM-DD)",
+                      rentalEndDate
+                    )
+
+                    if (val !== null) {
+                      setRentalEndDate(val)
+                    }
+                  }}
+                />
+              </>
+            )}
+
+          
 
           {/* 備考 */}
           <InfoRow
@@ -227,7 +318,9 @@ export default function RoomDeviceInfoModal({
                 serialNumber,
                 note,
                 patientName,
-                roomId: device.roomId
+                roomId: device.roomId,
+                rentalStartDate:rentalStartDate|| undefined,
+                rentalEndDate:rentalEndDate|| undefined
               })
             }}
             className="bg-blue-500 text-white px-3 py-1 rounded"

@@ -154,8 +154,11 @@ return (
               assetType={assetType}
               managementNumber={d.managementNumber}
               serialNumber={d.serialNumber}
+              rentalEndDate={d.rentalEndDate}
               mAlert={getMAlert(d.id)}
               cellSize={cellSize}
+              isUnderMaintenance={d.isUnderMaintenance
+    }
 
              />
           </div>

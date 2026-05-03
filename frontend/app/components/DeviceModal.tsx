@@ -22,6 +22,12 @@ export default function DeviceModal({
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
   const [selectedModelID, setSelectedModelID] = useState<number | "">("")
   const [selectedAssetType, setSelectedAssetType] = useState<typeof AssetTypes[number]>("資産")
+  //本日の日付を取得
+  const today = new Date().toISOString().split("T")[0]
+    //レンタル開始日と終了日を管理するstateを追加
+  const [rentalStartDate, setRentalStartDate] = useState(today)
+  const [rentalEndDate, setRentalEndDate] = useState("")
+
 
   const modelsForType = selectedTypeID === ""
     ? []
@@ -32,12 +38,24 @@ export default function DeviceModal({
     if (selectedTypeID === "" || selectedModelID === "") return
 
   const newDevice: Device = {
-    //id: null, 
     type: selectedTypeID,
     model: selectedModelID,
     assetType: selectedAssetType,
+
+    rentalStartDate:
+      selectedAssetType === "レンタル" ||
+      selectedAssetType === "代替機"
+        ? rentalStartDate
+        : undefined,
+
+    rentalEndDate:
+      selectedAssetType === "レンタル" ||
+      selectedAssetType === "代替機"
+        ? rentalEndDate
+        : undefined,
+
     status: "stock",
-    stockAreaID: 1, //初期値はCE室
+    stockAreaID: 1,
     row: 0,
     col: 0
   }
@@ -105,6 +123,39 @@ return createPortal(
           登録
         </button>
       </div>
+          {(selectedAssetType === "レンタル" ||
+            selectedAssetType === "代替機") && (
+
+            <div className="space-y-3 border-t pt-4 mt-4">
+
+              <div>
+                <div className="text-sm mb-1">開始日</div>
+
+                <input
+                  type="date"
+                  value={rentalStartDate}
+                  onChange={(e) => setRentalStartDate(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 w-full"
+                />
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-500 mb-1">
+                  返却日（未設定可）
+                </div>
+                <input
+                  type="date"
+                  value={rentalEndDate}
+                  onChange={(e) => setRentalEndDate(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 w-full"
+                />
+    </div>
+
+  </div>
+)}
+
+
+
 
     </div>
 

@@ -117,7 +117,9 @@ export default function Page() {
       ...toDBDevice(device),
       status: "stock",
       stock_area_id: 1,
-      room_id: null
+      room_id: null,
+      rental_start_date: device.rentalStartDate || null,
+      rental_end_date: device.rentalEndDate || null,
     }
 
     // デバッグ（必要なら）
@@ -337,7 +339,13 @@ export default function Page() {
     device: Device,
     wardId: number
   ) => {
-
+    //保守中はWardAreAへのdrag禁止
+    if (device.isUnderMaintenance) {
+      alert(
+        "保守中機器は病棟へ配置できません"
+      )
+      return
+    }
     // 共通
     setPendingDevice(device)
     setTargetWardId(wardId)
@@ -1072,23 +1080,38 @@ export default function Page() {
     }
   //StockInfoModalの保存ボタンを押したときの処理
   const handleStockInfoSubmit = async (data: {
-    //StockInfoModalから受け取るデータの型定義
     id: number
     managementNumber: string
     serialNumber: string
     note: string
+    rentalStartDate?: string
+    rentalEndDate?: string
+    isUnderMaintenance?: boolean
+    maintenanceStartedAt?: string
+    maintenanceFinishedAt?: string
   }) => {
-
+    //修理完了入力時は保守中解除
+    const completed =!!data.maintenanceFinishedAt
+    const finalMaintenance =
+            completed
+              ? false
+              : data.isUnderMaintenance
     // ① DB更新（devicesテーブル）
     const { error } = await supabase
       .from('devices')
       .update({
-        //statusや配置場所は変えず、機器情報のみ更新
+        // statusや配置場所は変えず、機器情報のみ更新
         management_number: data.managementNumber,
         serial_number: data.serialNumber,
-        note: data.note
+        note: data.note,
+        rental_start_date:data.rentalStartDate || null,
+        rental_end_date:data.rentalEndDate || null,
+        is_under_maintenance:finalMaintenance,
+        maintenance_started_at:data.maintenanceStartedAt || null,
+        maintenance_finished_at:data.maintenanceFinishedAt || null,
       })
-      //idで更新対象を特定
+
+      // idで更新対象を特定
       .eq('id', data.id)
 
     if (error) {
@@ -1096,20 +1119,84 @@ export default function Page() {
       return
     }
 
-    // ② UI更新（今まで通り）
+    // ② UI更新
     setDeviceList(prev =>
       prev.map(d =>
         d.id === data.id
           ? {
               ...d,
-              managementNumber: data.managementNumber,
-              serialNumber: data.serialNumber,
-              note: data.note
+              managementNumber:data.managementNumber,
+              serialNumber:data.serialNumber,
+              note:data.note,
+              rentalStartDate:data.rentalStartDate,
+              rentalEndDate:data.rentalEndDate,
+              isUnderMaintenance:finalMaintenance,
+              maintenanceStartedAt:data.maintenanceStartedAt,
+              maintenanceFinishedAt:data.maintenanceFinishedAt,
             }
           : d
       )
     )
+    //履歴追加
+  if (completed) {
 
+    const target = deviceList.find(
+      d => d.id === data.id
+    )
+
+    const type = deviceTypes.find(
+      t => t.id === target?.type
+    )
+
+    const model = deviceModels.find(
+      m => m.id === target?.model
+    )
+
+    const { error: historyError } =
+      await supabase
+        .from("device_histories")
+        .insert({
+          device_id: data.id,
+
+          action_type: "fix",
+
+          device_type_name:
+            type?.name ?? null,
+
+          device_model_name:
+            model?.name ?? null,
+
+          status:
+            target?.status ?? null,
+
+          room_id:
+            target?.roomId ?? null,
+
+          stock_area_id:
+            target?.stockAreaID ?? null,
+
+          management_number:
+            target?.managementNumber ?? null,
+
+          serial_number:
+            target?.serialNumber ?? null,
+
+          note:
+            target?.note ?? null,
+
+          message:
+            `${type?.name ?? "不明"} : ` +
+            `${model?.name ?? "不明"} 修理完了`
+        })
+
+    if (historyError) {
+      console.error(
+        "fix history error:",
+        historyError
+      )
+    }
+  }  
+    await fetchHistories()
     setStockInfoModalOpen(false)
   }
 

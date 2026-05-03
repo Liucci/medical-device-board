@@ -46,9 +46,10 @@ export default function DragLayer({
           assetType={assetType}
           managementNumber={draggingDevice.managementNumber}
           serialNumber={draggingDevice.serialNumber}
+          rentalEndDate={draggingDevice.rentalEndDate}
           mAlert={getMAlert(draggingDevice.id)}
           cellSize={80} //ドラッグ中はアイコンを大きく表示
-          //isDragging={true}
+          isUnderMaintenance={draggingDevice.isUnderMaintenance}          //isDragging={true}
         />
       </div>
   )
