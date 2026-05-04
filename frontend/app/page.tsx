@@ -1084,122 +1084,332 @@ export default function Page() {
     managementNumber: string
     serialNumber: string
     note: string
+
     rentalStartDate?: string
     rentalEndDate?: string
+
     isUnderMaintenance?: boolean
+
     maintenanceStartedAt?: string
     maintenanceFinishedAt?: string
   }) => {
-    //修理完了入力時は保守中解除
-    const completed =!!data.maintenanceFinishedAt
+
+    // ===== 現在device =====
+
+    const target =
+      deviceList.find(
+        d => d.id === data.id
+      )
+
+    if (!target) return
+
+    // ===== 保守判定 =====
+
+    // 保守開始
+    const becameMaintenance =
+
+      !target.isUnderMaintenance
+      &&
+      !!data.isUnderMaintenance
+
+    // 保守終了
+    const completedMaintenance =
+
+      target.isUnderMaintenance
+      &&
+      !!data.maintenanceFinishedAt
+
+    // ===== 修理完了時は保守解除 =====
+
     const finalMaintenance =
-            completed
-              ? false
-              : data.isUnderMaintenance
-    // ① DB更新（devicesテーブル）
+
+      completedMaintenance
+        ? false
+        : data.isUnderMaintenance
+
+    // ===== DB更新 =====
+
     const { error } = await supabase
-      .from('devices')
+
+      .from("devices")
+
       .update({
-        // statusや配置場所は変えず、機器情報のみ更新
-        management_number: data.managementNumber,
-        serial_number: data.serialNumber,
-        note: data.note,
-        rental_start_date:data.rentalStartDate || null,
-        rental_end_date:data.rentalEndDate || null,
-        is_under_maintenance:finalMaintenance,
-        maintenance_started_at:data.maintenanceStartedAt || null,
-        maintenance_finished_at:data.maintenanceFinishedAt || null,
+
+        management_number:
+          data.managementNumber,
+
+        serial_number:
+          data.serialNumber,
+
+        note:
+          data.note,
+
+        rental_start_date:
+          data.rentalStartDate || null,
+
+        rental_end_date:
+          data.rentalEndDate || null,
+
+        is_under_maintenance:
+          finalMaintenance,
+
+        maintenance_started_at:
+          data.maintenanceStartedAt
+            || null,
+
+        maintenance_finished_at:
+          data.maintenanceFinishedAt
+            || null,
       })
 
-      // idで更新対象を特定
-      .eq('id', data.id)
+      .eq("id", data.id)
 
     if (error) {
-      console.error("stock update error:", error)
+
+      console.error(
+        "stock update error:",
+        error
+      )
+
       return
     }
 
-    // ② UI更新
+    // ===== UI更新 =====
+
     setDeviceList(prev =>
+
       prev.map(d =>
+
         d.id === data.id
+
           ? {
+
               ...d,
-              managementNumber:data.managementNumber,
-              serialNumber:data.serialNumber,
-              note:data.note,
-              rentalStartDate:data.rentalStartDate,
-              rentalEndDate:data.rentalEndDate,
-              isUnderMaintenance:finalMaintenance,
-              maintenanceStartedAt:data.maintenanceStartedAt,
-              maintenanceFinishedAt:data.maintenanceFinishedAt,
+
+              managementNumber:
+                data.managementNumber,
+
+              serialNumber:
+                data.serialNumber,
+
+              note:
+                data.note,
+
+              rentalStartDate:
+                data.rentalStartDate,
+
+              rentalEndDate:
+                data.rentalEndDate,
+
+              isUnderMaintenance:
+                finalMaintenance,
+
+              maintenanceStartedAt:
+                data.maintenanceStartedAt,
+
+              maintenanceFinishedAt:
+                data.maintenanceFinishedAt,
             }
+
           : d
       )
     )
-    //履歴追加
-  if (completed) {
 
-    const target = deviceList.find(
-      d => d.id === data.id
-    )
+    // ===== 履歴用 =====
 
-    const type = deviceTypes.find(
-      t => t.id === target?.type
-    )
-
-    const model = deviceModels.find(
-      m => m.id === target?.model
-    )
-
-    const { error: historyError } =
-      await supabase
-        .from("device_histories")
-        .insert({
-          device_id: data.id,
-
-          action_type: "fix",
-
-          device_type_name:
-            type?.name ?? null,
-
-          device_model_name:
-            model?.name ?? null,
-
-          status:
-            target?.status ?? null,
-
-          room_id:
-            target?.roomId ?? null,
-
-          stock_area_id:
-            target?.stockAreaID ?? null,
-
-          management_number:
-            target?.managementNumber ?? null,
-
-          serial_number:
-            target?.serialNumber ?? null,
-
-          note:
-            target?.note ?? null,
-
-          message:
-            `${type?.name ?? "不明"} : ` +
-            `${model?.name ?? "不明"} 修理完了`
-        })
-
-    if (historyError) {
-      console.error(
-        "fix history error:",
-        historyError
+    const type =
+      deviceTypes.find(
+        t => t.id === target.type
       )
+
+    const model =
+      deviceModels.find(
+        m => m.id === target.model
+      )
+
+    const room =
+      rooms.find(
+        r =>
+          Number(r.id)
+          === Number(target.roomId)
+      )
+
+    const stockArea =
+      stockAreas.find(
+        a =>
+          Number(a.id)
+          === Number(target.stockAreaID)
+      )
+
+    // =====================================================
+    // 保守開始履歴
+    // =====================================================
+
+    if (becameMaintenance) {
+
+      const { error: historyError } =
+
+        await supabase
+
+          .from("device_histories")
+
+          .insert({
+
+            device_id:
+              data.id,
+
+            action_type:
+              "fix_start",
+
+            device_type_name:
+              type?.name ?? null,
+
+            device_model_name:
+              model?.name ?? null,
+
+            status:
+              target.status ?? null,
+
+            room_id:
+              target.roomId ?? null,
+
+            room_name:
+              room?.roomName ?? null,
+
+            stock_area_id:
+              target.stockAreaID ?? null,
+
+            stock_area_name:
+              stockArea?.name ?? null,
+
+            patient_name:
+              room?.patientName ?? null,
+
+            management_number:
+              data.managementNumber
+              ?? null,
+
+            serial_number:
+              data.serialNumber
+              ?? null,
+
+            note:
+              data.note ?? null,
+
+            maintenance_started_at:
+              data.maintenanceStartedAt
+              ?? null,
+
+            maintenance_finished_at:
+              null,
+
+            message:
+
+              `${type?.name ?? "不明"} : ` +
+
+              `${model?.name ?? "不明"} ` +
+
+              `保守開始`
+          })
+
+      if (historyError) {
+
+        console.error(
+          "fix start history error:",
+          historyError
+        )
+      }
     }
-  }  
+
+    // =====================================================
+    // 保守終了履歴
+    // =====================================================
+
+    if (completedMaintenance) {
+
+      const { error: historyError } =
+
+        await supabase
+
+          .from("device_histories")
+
+          .insert({
+
+            device_id:
+              data.id,
+
+            action_type:
+              "fix_end",
+
+            device_type_name:
+              type?.name ?? null,
+
+            device_model_name:
+              model?.name ?? null,
+
+            status:
+              target.status ?? null,
+
+            room_id:
+              target.roomId ?? null,
+
+            room_name:
+              room?.roomName ?? null,
+
+            stock_area_id:
+              target.stockAreaID ?? null,
+
+            stock_area_name:
+              stockArea?.name ?? null,
+
+            patient_name:
+              room?.patientName ?? null,
+
+            management_number:
+              data.managementNumber
+              ?? null,
+
+            serial_number:
+              data.serialNumber
+              ?? null,
+
+            note:
+              data.note ?? null,
+
+            maintenance_started_at:
+              data.maintenanceStartedAt
+              ?? null,
+
+            maintenance_finished_at:
+              data.maintenanceFinishedAt
+              ?? null,
+
+            message:
+
+              `${type?.name ?? "不明"} : ` +
+
+              `${model?.name ?? "不明"} ` +
+
+              `保守終了`
+          })
+
+      if (historyError) {
+
+        console.error(
+          "fix end history error:",
+          historyError
+        )
+      }
+    }
+
+    // ===== 履歴再取得 =====
+
     await fetchHistories()
+
+    // ===== modal close =====
+
     setStockInfoModalOpen(false)
   }
-
   const handleStockInfoCancel = () => {
     setStockInfoModalOpen(false)
   }

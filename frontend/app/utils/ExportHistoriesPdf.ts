@@ -41,6 +41,8 @@ autoTable(doc, {
     "機種",
     "型式",
     "状態",
+    "保守開始日",
+    "保守終了日",
     "配置",
     "患者",
     "内容"
@@ -57,9 +59,21 @@ autoTable(doc, {
 
     h.device_model_name ?? "-",
 
-    h.status ?? "-",
+    h.status,
 
-    h.room_name ??
+    h.maintenance_started_at
+      ? new Date(
+          h.maintenance_started_at
+        ).toLocaleDateString("ja-JP")
+      : "",
+
+    h.maintenance_finished_at
+      ? new Date(
+          h.maintenance_finished_at
+        ).toLocaleDateString("ja-JP")
+      : "",
+
+    h.room_name,
     h.stock_area_name ??
     "-",
 

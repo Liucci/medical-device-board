@@ -21,6 +21,9 @@ type History = {
 
   message: string
 
+  maintenance_started_at?: string | null
+  maintenance_finished_at?: string | null
+
   created_at: string
 }
 
@@ -36,19 +39,84 @@ export default function HistoryModal({
   histories
 }: Props) {
 
-  // ===== search state =====
+  // ===== search =====
 
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [selectedDeviceType, setSelectedDeviceType]= useState("")
-  const [selectedDeviceModel, setSelectedDeviceModel]= useState("")
-  const [deviceIdKeyword, setDeviceIdKeyword]= useState("")
-  const [patientKeyword, setPatientKeyword]= useState("")
-  const [actionTypeKeyword, setActionTypeKeyword]= useState("")  
-  const [messageKeyword, setMessageKeyword]= useState("")
-  const [statusKeyword, setStatusKeyword]= useState("")
+  const [startDate, setStartDate]
+    = useState("")
 
-  // ===== dropdown master =====
+  const [endDate, setEndDate]
+    = useState("")
+
+  const [
+    selectedDeviceTypes,
+    setSelectedDeviceTypes
+  ] = useState<string[]>([])
+
+  const [
+    selectedDeviceModels,
+    setSelectedDeviceModels
+  ] = useState<string[]>([])
+
+  const [
+    selectedActionTypes,
+    setSelectedActionTypes
+  ] = useState<string[]>([])
+
+  const [
+    selectedStatuses,
+    setSelectedStatuses
+  ] = useState<string[]>([])
+
+  const [
+    deviceIdKeyword,
+    setDeviceIdKeyword
+  ] = useState("")
+
+  const [
+    patientKeyword,
+    setPatientKeyword
+  ] = useState("")
+
+  // ===== action label =====
+
+  const actionLabelMap:
+    Record<string, string> = {
+
+    create: "新規",
+    move: "移動",
+    delete: "削除",
+
+    fix_start: "保守開始",
+    fix_end: "保守終了"
+
+  }
+
+  // ===== helper =====
+
+  const toggleSelection = (
+    value: string,
+    list: string[],
+    setList: (v: string[]) => void
+  ) => {
+
+    if (list.includes(value)) {
+
+      setList(
+        list.filter(v => v !== value)
+      )
+
+    } else {
+
+      setList([
+        ...list,
+        value
+      ])
+
+    }
+
+  }
+
+  // ===== master =====
 
   const deviceTypes = useMemo(() => {
 
@@ -66,23 +134,35 @@ export default function HistoryModal({
 
     return Array.from(
       new Set(
-        histories
-          .filter(h => {
-            if (!selectedDeviceType) return true
 
-            return (
-              h.device_type_name
-              === selectedDeviceType
+        histories
+
+          .filter(h => {
+
+            if (
+              selectedDeviceTypes.length === 0
+            ) {
+
+              return true
+
+            }
+
+            return selectedDeviceTypes.includes(
+              h.device_type_name ?? ""
             )
+
           })
+
           .map(h => h.device_model_name)
+
           .filter(Boolean)
+
       )
     )
 
   }, [
     histories,
-    selectedDeviceType
+    selectedDeviceTypes
   ])
 
   // ===== filter =====
@@ -93,20 +173,26 @@ export default function HistoryModal({
 
       // ===== date =====
 
-      const created = new Date(history.created_at)
+      const created =
+        new Date(history.created_at)
 
       if (startDate) {
 
-        const start = new Date(startDate)
+        const start =
+          new Date(startDate)
 
         if (created < start) {
+
           return false
+
         }
+
       }
 
       if (endDate) {
 
-        const end = new Date(endDate)
+        const end =
+          new Date(endDate)
 
         end.setHours(
           23,
@@ -116,81 +202,96 @@ export default function HistoryModal({
         )
 
         if (created > end) {
+
           return false
+
         }
+
       }
 
       // ===== device type =====
 
       if (
-        selectedDeviceType &&
-        history.device_type_name
-          !== selectedDeviceType
+        selectedDeviceTypes.length > 0
+        &&
+        !selectedDeviceTypes.includes(
+          history.device_type_name ?? ""
+        )
       ) {
+
         return false
+
       }
 
       // ===== device model =====
 
       if (
-        selectedDeviceModel &&
-        history.device_model_name
-          !== selectedDeviceModel
+        selectedDeviceModels.length > 0
+        &&
+        !selectedDeviceModels.includes(
+          history.device_model_name ?? ""
+        )
       ) {
+
         return false
+
+      }
+
+      // ===== action =====
+
+      if (
+        selectedActionTypes.length > 0
+        &&
+        !selectedActionTypes.includes(
+          history.action_type
+        )
+      ) {
+
+        return false
+
+      }
+
+      // ===== status =====
+
+      if (
+        selectedStatuses.length > 0
+        &&
+        !selectedStatuses.includes(
+          history.status
+        )
+      ) {
+
+        return false
+
       }
 
       // ===== device id =====
 
       if (
-        deviceIdKeyword &&
+        deviceIdKeyword
+        &&
         !String(history.device_id)
           .includes(deviceIdKeyword)
       ) {
+
         return false
+
       }
 
       // ===== patient =====
 
       if (
-        patientKeyword &&
+        patientKeyword
+        &&
         !history.patient_name
           ?.toLowerCase()
           .includes(
             patientKeyword.toLowerCase()
           )
       ) {
+
         return false
-      }
 
-      // ===== message =====
-
-      if (
-        messageKeyword &&
-        !history.message
-          .toLowerCase()
-          .includes(
-            messageKeyword.toLowerCase()
-          )
-      ) {
-        return false
-      }
-        // ===== action type =====
-
-        if (
-          actionTypeKeyword &&
-          history.action_type
-            !== actionTypeKeyword
-        ) {
-          return false
-        }
-      // ===== status =====
-
-      if (
-        statusKeyword &&
-        history.status !== statusKeyword
-      ) {
-        return false
       }
 
       return true
@@ -198,65 +299,91 @@ export default function HistoryModal({
     })
 
   }, [
+
     histories,
+
     startDate,
     endDate,
-    selectedDeviceType,
-    selectedDeviceModel,
+
+    selectedDeviceTypes,
+    selectedDeviceModels,
+
+    selectedActionTypes,
+    selectedStatuses,
+
     deviceIdKeyword,
-    patientKeyword,
-    actionTypeKeyword,
-    messageKeyword,
-    statusKeyword
+    patientKeyword
+
   ])
-  // ===== export CSV =====
-  const actionLabelMap: Record<string, string> = {
-    create: "新規",
-    move: "移動",
-    delete: "削除",
-    fix:"修理"
-  }
+
+  // ===== CSV =====
+
   const exportCsv = () => {
 
     const headers = [
+
       "日時",
       "機器ID",
+
       "機種",
       "型式",
+
       "操作",
       "状態",
+
+      "保守開始日",
+      "保守終了日",
+
       "配置",
       "患者",
+
       "内容"
+
     ]
 
-    const rows = filteredHistories.map(h => [
+    const rows =
+      filteredHistories.map(h => [
 
-      new Date(h.created_at)
-        .toLocaleString("ja-JP"),
+        new Date(
+          h.created_at
+        ).toLocaleString("ja-JP"),
 
-      h.device_id,
+        h.device_id,
 
-      h.device_type_name ?? "",
+        h.device_type_name ?? "",
+        h.device_model_name ?? "",
 
-      h.device_model_name ?? "",
+        actionLabelMap[
+          h.action_type
+        ] ?? h.action_type,
 
-      actionLabelMap[h.action_type]
-        ?? h.action_type,
+        h.status,
 
-      h.status,
+        h.maintenance_started_at
+          ? new Date(
+              h.maintenance_started_at
+            ).toLocaleDateString(
+              "ja-JP"
+            )
+          : "",
 
-      h.room_name
-        ?? h.stock_area_name
-        ?? "",
+        h.maintenance_finished_at
+          ? new Date(
+              h.maintenance_finished_at
+            ).toLocaleDateString(
+              "ja-JP"
+            )
+          : "",
 
-      h.patient_name ?? "",
+        h.room_name
+          ?? h.stock_area_name
+          ?? "",
 
-      h.message
+        h.patient_name ?? "",
 
-    ])
+        h.message
 
-    // ===== CSV文字列生成 =====
+      ])
 
     const csvContent = [
       headers,
@@ -272,12 +399,8 @@ export default function HistoryModal({
       )
       .join("\n")
 
-    // ===== BOM付きUTF-8 =====
-
-    const bom = "\uFEFF"
-
     const blob = new Blob(
-      [bom + csvContent],
+      ["\uFEFF" + csvContent],
       {
         type:
           "text/csv;charset=utf-8;"
@@ -287,23 +410,19 @@ export default function HistoryModal({
     const url =
       URL.createObjectURL(blob)
 
-    // ===== download =====
-
     const link =
       document.createElement("a")
 
     const now = new Date()
 
-    const fileName =
-      `履歴_${now
-        .toLocaleDateString("ja-JP")
-        .replace(/\//g, "-")}.csv`
-
     link.href = url
-    link.setAttribute(
-      "download",
-      fileName
-    )
+
+    link.download =
+      `履歴_${
+        now
+          .toLocaleDateString("ja-JP")
+          .replace(/\//g, "-")
+      }.csv`
 
     document.body.appendChild(link)
 
@@ -312,10 +431,13 @@ export default function HistoryModal({
     document.body.removeChild(link)
 
     URL.revokeObjectURL(url)
+
   }
+
   if (!isOpen) return null
 
   return (
+
     <div
       className="
         fixed inset-0
@@ -324,6 +446,7 @@ export default function HistoryModal({
         z-50
       "
     >
+
       <div
         className="
           bg-white
@@ -335,7 +458,7 @@ export default function HistoryModal({
         "
       >
 
-        {/* header */}
+        {/* ===== header ===== */}
 
         <div className="
           flex
@@ -343,25 +466,24 @@ export default function HistoryModal({
           items-center
           mb-4
         ">
+
           <h2 className="text-xl font-bold">
             履歴
           </h2>
 
           <div className="flex gap-2">
-              <button
-                onClick={exportCsv}
-                className="
-                  px-3 py-1
-                  bg-green-600
-                  text-white
-                  rounded
-                "
-              >
-                CSV出力
-              </button>
 
-
-
+            <button
+              onClick={exportCsv}
+              className="
+                px-3 py-1
+                bg-green-600
+                text-white
+                rounded
+              "
+            >
+              CSV出力
+            </button>
 
             <button
               onClick={() =>
@@ -391,21 +513,23 @@ export default function HistoryModal({
             </button>
 
           </div>
+
         </div>
 
-        {/* search */}
+        {/* ===== search ===== */}
 
         <div className="
           grid
-          grid-cols-4
-          gap-2
+          grid-cols-6
+          gap-4
           mb-4
           text-sm
         ">
 
-          {/* 開始日 */}
+          {/* ===== start ===== */}
 
           <div className="flex flex-col">
+
             <label className="
               text-xs
               text-gray-600
@@ -428,11 +552,13 @@ export default function HistoryModal({
                 rounded
               "
             />
+
           </div>
 
-          {/* 終了日 */}
+          {/* ===== end ===== */}
 
           <div className="flex flex-col">
+
             <label className="
               text-xs
               text-gray-600
@@ -455,99 +581,246 @@ export default function HistoryModal({
                 rounded
               "
             />
+
           </div>
 
-          {/* 機種 */}
+          {/* ===== type ===== */}
 
-          <div className="flex flex-col">
+          <div>
+
             <label className="
               text-xs
               text-gray-600
               mb-1
+              block
             ">
               機種
             </label>
 
-            <select
-              value={selectedDeviceType}
-              onChange={e => {
-
-                setSelectedDeviceType(
-                  e.target.value
-                )
-
-                // 機種変更時は型式リセット
-                setSelectedDeviceModel("")
-              }}
-              className="
-                border
-                p-2
-                rounded
-              "
-            >
-              <option value="">
-                全機種
-              </option>
+            <div className="
+              border
+              rounded
+              p-2
+              max-h-32
+              overflow-auto
+            ">
 
               {deviceTypes.map(type => (
 
-                <option
+                <label
                   key={type}
-                  value={type ?? ""}
+                  className="block"
                 >
-                  {type}
-                </option>
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedDeviceTypes.includes(
+                        type ?? ""
+                      )
+                    }
+                    onChange={() =>
+                      toggleSelection(
+                        type ?? "",
+                        selectedDeviceTypes,
+                        setSelectedDeviceTypes
+                      )
+                    }
+                  />
+
+                  <span className="ml-1">
+                    {type}
+                  </span>
+
+                </label>
 
               ))}
 
-            </select>
+            </div>
+
           </div>
 
-          {/* 型式 */}
+          {/* ===== model ===== */}
 
-          <div className="flex flex-col">
+          <div>
+
             <label className="
               text-xs
               text-gray-600
               mb-1
+              block
             ">
               型式
             </label>
 
-            <select
-              value={selectedDeviceModel}
-              onChange={e =>
-                setSelectedDeviceModel(
-                  e.target.value
-                )
-              }
-              className="
-                border
-                p-2
-                rounded
-              "
-            >
-              <option value="">
-                全型式
-              </option>
+            <div className="
+              border
+              rounded
+              p-2
+              max-h-32
+              overflow-auto
+            ">
 
               {deviceModels.map(model => (
 
-                <option
+                <label
                   key={model}
-                  value={model ?? ""}
+                  className="block"
                 >
-                  {model}
-                </option>
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedDeviceModels.includes(
+                        model ?? ""
+                      )
+                    }
+                    onChange={() =>
+                      toggleSelection(
+                        model ?? "",
+                        selectedDeviceModels,
+                        setSelectedDeviceModels
+                      )
+                    }
+                  />
+
+                  <span className="ml-1">
+                    {model}
+                  </span>
+
+                </label>
 
               ))}
 
-            </select>
+            </div>
+
           </div>
 
-          {/* 機器ID */}
+          {/* ===== action ===== */}
+
+          <div>
+
+            <label className="
+              text-xs
+              text-gray-600
+              mb-1
+              block
+            ">
+              操作
+            </label>
+
+            <div className="
+              border
+              rounded
+              p-2
+              max-h-32
+              overflow-auto
+            ">
+
+              {[
+                ["create", "新規"],
+                ["move", "移動"],
+                ["delete", "削除"],
+                ["fix_start", "保守開始"],
+                ["fix_end", "保守終了"]
+              ].map(([value, label]) => (
+
+                <label
+                  key={value}
+                  className="block"
+                >
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedActionTypes.includes(
+                        value
+                      )
+                    }
+                    onChange={() =>
+                      toggleSelection(
+                        value,
+                        selectedActionTypes,
+                        setSelectedActionTypes
+                      )
+                    }
+                  />
+
+                  <span className="ml-1">
+                    {label}
+                  </span>
+
+                </label>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* ===== status ===== */}
+
+          <div>
+
+            <label className="
+              text-xs
+              text-gray-600
+              mb-1
+              block
+            ">
+              状態
+            </label>
+
+            <div className="
+              border
+              rounded
+              p-2
+              max-h-32
+              overflow-auto
+            ">
+
+              {[
+                "stock",
+                "room"
+              ].map(status => (
+
+                <label
+                  key={status}
+                  className="block"
+                >
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedStatuses.includes(
+                        status
+                      )
+                    }
+                    onChange={() =>
+                      toggleSelection(
+                        status,
+                        selectedStatuses,
+                        setSelectedStatuses
+                      )
+                    }
+                  />
+
+                  <span className="ml-1">
+                    {status}
+                  </span>
+
+                </label>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* ===== device id ===== */}
 
           <div className="flex flex-col">
+
             <label className="
               text-xs
               text-gray-600
@@ -570,11 +843,13 @@ export default function HistoryModal({
                 rounded
               "
             />
+
           </div>
 
-          {/* 患者名 */}
+          {/* ===== patient ===== */}
 
           <div className="flex flex-col">
+
             <label className="
               text-xs
               text-gray-600
@@ -597,119 +872,12 @@ export default function HistoryModal({
                 rounded
               "
             />
-          </div>
 
-          {/* 内容 */}
-{/* 
-          <div className="flex flex-col">
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-            ">
-              内容
-            </label>
-
-            <input
-              placeholder="内容"
-              value={messageKeyword}
-              onChange={e =>
-                setMessageKeyword(
-                  e.target.value
-                )
-              }
-              className="
-                border
-                p-2
-                rounded
-              "
-            />
-          </div>
- */}
-
-          {/* 操作 */}
-
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-600 mb-1">
-              操作
-            </label>
-
-            <select
-              value={actionTypeKeyword}
-              onChange={e =>
-                setActionTypeKeyword(
-                  e.target.value
-                )
-              }
-              className="
-                border
-                p-2
-                rounded
-              "
-            >
-              <option value="">
-                全操作
-              </option>
-
-              <option value="create">
-                新規
-              </option>
-
-              <option value="move">
-                移動
-              </option>
-
-              <option value="delete">
-                削除
-              </option>
-              <option value="fix">
-                修理
-              </option>
-
-            </select>
-          </div>
-          {/* 状態 */}
-
-          <div className="flex flex-col">
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-            ">
-              状態
-            </label>
-
-            <select
-              value={statusKeyword}
-              onChange={e =>
-                setStatusKeyword(
-                  e.target.value
-                )
-              }
-              className="
-                border
-                p-2
-                rounded
-              "
-            >
-              <option value="">
-                全状態
-              </option>
-
-              <option value="stock">
-                stock
-              </option>
-
-              <option value="room">
-                room
-              </option>
-
-            </select>
           </div>
 
         </div>
 
-        {/* count */}
+        {/* ===== count ===== */}
 
         <div className="
           mb-2
@@ -720,7 +888,7 @@ export default function HistoryModal({
           {filteredHistories.length}件
         </div>
 
-        {/* table */}
+        {/* ===== table ===== */}
 
         <div className="
           flex-1
@@ -740,6 +908,7 @@ export default function HistoryModal({
               bg-gray-100
               z-10
             ">
+
               <tr>
 
                 <th className="border p-2">
@@ -757,11 +926,21 @@ export default function HistoryModal({
                 <th className="border p-2">
                   型式
                 </th>
+
                 <th className="border p-2">
                   操作
                 </th>
+
                 <th className="border p-2">
                   状態
+                </th>
+
+                <th className="border p-2">
+                  保守開始日
+                </th>
+
+                <th className="border p-2">
+                  保守終了日
                 </th>
 
                 <th className="border p-2">
@@ -777,14 +956,17 @@ export default function HistoryModal({
                 </th>
 
               </tr>
+
             </thead>
 
             <tbody>
 
               {filteredHistories.length === 0 && (
+
                 <tr>
+
                   <td
-                    colSpan={8}
+                    colSpan={11}
                     className="
                       border
                       p-8
@@ -794,16 +976,32 @@ export default function HistoryModal({
                   >
                     履歴がありません
                   </td>
+
                 </tr>
+
               )}
 
               {filteredHistories.map(history => (
 
                 <tr
                   key={history.id}
-                  className="
+                  className={`
                     hover:bg-gray-50
-                  "
+
+                    ${
+                      history.action_type
+                      === "fix_start"
+                        ? "bg-red-50"
+                        : ""
+                    }
+
+                    ${
+                      history.action_type
+                      === "fix_end"
+                        ? "bg-green-50"
+                        : ""
+                    }
+                  `}
                 >
 
                   <td className="
@@ -811,11 +1009,13 @@ export default function HistoryModal({
                     p-2
                     whitespace-nowrap
                   ">
+
                     {
                       new Date(
                         history.created_at
                       ).toLocaleString("ja-JP")
                     }
+
                   </td>
 
                   <td className="
@@ -845,12 +1045,19 @@ export default function HistoryModal({
                       ?? "-"
                     }
                   </td>
+
                   <td className="
                     border
                     p-2
                     text-center
                   ">
-                    {history.action_type}
+
+                    {
+                      actionLabelMap[
+                        history.action_type
+                      ] ?? history.action_type
+                    }
+
                   </td>
 
                   <td className="
@@ -864,7 +1071,48 @@ export default function HistoryModal({
                   <td className="
                     border
                     p-2
+                    text-center
+                    whitespace-nowrap
                   ">
+
+                    {
+                      history.maintenance_started_at
+                        ? new Date(
+                            history
+                              .maintenance_started_at
+                          ).toLocaleDateString(
+                            "ja-JP"
+                          )
+                        : "-"
+                    }
+
+                  </td>
+
+                  <td className="
+                    border
+                    p-2
+                    text-center
+                    whitespace-nowrap
+                  ">
+
+                    {
+                      history.maintenance_finished_at
+                        ? new Date(
+                            history
+                              .maintenance_finished_at
+                          ).toLocaleDateString(
+                            "ja-JP"
+                          )
+                        : "-"
+                    }
+
+                  </td>
+
+                  <td className="
+                    border
+                    p-2
+                  ">
+
                     {
                       history.room_name
                       ??
@@ -872,16 +1120,19 @@ export default function HistoryModal({
                       ??
                       "-"
                     }
+
                   </td>
 
                   <td className="
                     border
                     p-2
                   ">
+
                     {
                       history.patient_name
                       ?? "-"
                     }
+
                   </td>
 
                   <td className="
@@ -889,7 +1140,9 @@ export default function HistoryModal({
                     p-2
                     whitespace-pre-wrap
                   ">
+
                     {history.message}
+
                   </td>
 
                 </tr>
@@ -903,6 +1156,9 @@ export default function HistoryModal({
         </div>
 
       </div>
+
     </div>
+
   )
+
 }

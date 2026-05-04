@@ -14,6 +14,9 @@ type Device = {
   stockAreaID?: number
 
   status: string
+
+  // ===== 保守 =====
+  isUnderMaintenance?: boolean
 }
 
 type Room = {
@@ -22,6 +25,7 @@ type Room = {
   roomName: string
   patientName?: string
 }
+
 type Ward = {
   wardId: number
   wardName: string
@@ -76,34 +80,65 @@ export default function DeviceListModal({
 }: Props) {
 
   // ===== search =====
-  const [selectedStatus, setSelectedStatus]= useState("room")
-  const [selectedWards, setSelectedWards]= useState<string[]>([])
-  const [selectedTypes, setSelectedTypes]= useState<string[]>([])
+
+  const [
+    selectedStatuses,
+    setSelectedStatuses
+  ] = useState<string[]>([
+    "room"
+  ])
+
+  const [
+    selectedWards,
+    setSelectedWards
+  ] = useState<string[]>([])
+
+  const [
+    selectedTypes,
+    setSelectedTypes
+  ] = useState<string[]>([])
+
+  const [
+    maintenanceOnly,
+    setMaintenanceOnly
+  ] = useState(false)
 
   // ===== helper =====
+
   const getRoom = (
     roomId?: number
   ) => {
+
     return rooms.find(
       r =>
         Number(r.id)
         === Number(roomId)
     )
+
   }
+
   const getWardName = (
     roomId?: number
   ) => {
-    const room = getRoom(roomId)
-    const ward = wards.find(
-      w =>
-        Number(w.wardId)
-        === Number(room?.wardId)
-    )
+
+    const room =
+      getRoom(roomId)
+
+    const ward =
+      wards.find(
+        w =>
+          Number(w.wardId)
+          === Number(room?.wardId)
+      )
+
     return ward?.wardName ?? ""
+
   }
+
   const getStockAreaName = (
     stockAreaID?: number
   ) => {
+
     return (
       stockAreas.find(
         s =>
@@ -111,10 +146,13 @@ export default function DeviceListModal({
           === Number(stockAreaID)
       )?.name ?? ""
     )
+
   }
+
   const getTypeName = (
     typeId?: number
   ) => {
+
     return (
       deviceTypes.find(
         t =>
@@ -122,10 +160,13 @@ export default function DeviceListModal({
           === Number(typeId)
       )?.name ?? ""
     )
+
   }
+
   const getModelName = (
     modelId?: number
   ) => {
+
     return (
       deviceModels.find(
         m =>
@@ -133,18 +174,25 @@ export default function DeviceListModal({
           === Number(modelId)
       )?.name ?? ""
     )
+
   }
-  // ===== checkbox =====
+
+  // ===== checkbox helper =====
+
   const toggleSelection = (
     value: string,
     list: string[],
     setList: (v: string[]) => void
   ) => {
+
     if (list.includes(value)) {
+
       setList(
         list.filter(v => v !== value)
       )
+
     } else {
+
       setList([
         ...list,
         value
@@ -155,6 +203,7 @@ export default function DeviceListModal({
   }
 
   // ===== options =====
+
   const locationOptions = useMemo(() => {
 
     const wardNames =
@@ -215,47 +264,66 @@ export default function DeviceListModal({
   const filteredList = useMemo(() => {
 
     return (deviceList ?? [])
+
       .filter(device => {
 
-        // status
+        // ===== status =====
 
         if (
-          selectedStatus !== "all"
+          selectedStatuses.length > 0
           &&
-          device.status !== selectedStatus
+          !selectedStatuses.includes(
+            device.status
+          )
         ) {
+
           return false
+
         }
 
-        // ward
+        // ===== maintenance =====
 
         if (
-          
+          maintenanceOnly
+          &&
+          !device.isUnderMaintenance
+        ) {
+
+          return false
+
+        }
+
+        // ===== ward =====
+
+        if (
           selectedWards.length > 0
         ) {
 
-        const locationName =
+          const locationName =
 
-          device.status === "room"
+            device.status === "room"
 
-            ? getWardName(
-                device.roomId
-              )
+              ? getWardName(
+                  device.roomId
+                )
 
-            : getStockAreaName(
-                device.stockAreaID
-              )
+              : getStockAreaName(
+                  device.stockAreaID
+                )
+
           if (
             !selectedWards.includes(
               locationName
             )
           ) {
+
             return false
+
           }
 
         }
 
-        // type
+        // ===== type =====
 
         if (
           selectedTypes.length > 0
@@ -271,7 +339,9 @@ export default function DeviceListModal({
               typeName
             )
           ) {
+
             return false
+
           }
 
         }
@@ -279,11 +349,34 @@ export default function DeviceListModal({
         return true
 
       })
+
       // ===== sort =====
 
       .sort((a, b) => {
 
-        // ① 状態
+        // ===== 保守中優先 =====
+
+        if (
+          a.isUnderMaintenance
+          &&
+          !b.isUnderMaintenance
+        ) {
+
+          return -1
+
+        }
+
+        if (
+          !a.isUnderMaintenance
+          &&
+          b.isUnderMaintenance
+        ) {
+
+          return 1
+
+        }
+
+        // ===== 状態 =====
 
         const statusCompare =
           (a.status ?? "")
@@ -294,10 +387,12 @@ export default function DeviceListModal({
             )
 
         if (statusCompare !== 0) {
+
           return statusCompare
+
         }
 
-        // ② 病棟
+        // ===== 病棟 =====
 
         const wardCompare =
           getWardName(a.roomId)
@@ -308,10 +403,12 @@ export default function DeviceListModal({
             )
 
         if (wardCompare !== 0) {
+
           return wardCompare
+
         }
 
-        // ③ 病室
+        // ===== 病室 =====
 
         const roomA =
           getRoom(a.roomId)
@@ -331,9 +428,10 @@ export default function DeviceListModal({
 
   }, [
     deviceList,
-    selectedStatus,
+    selectedStatuses,
     selectedWards,
     selectedTypes,
+    maintenanceOnly,
     rooms,
     wards,
     deviceTypes
@@ -344,13 +442,16 @@ export default function DeviceListModal({
   const exportCsv = () => {
 
     const headers = [
+
       "状態",
+      "保守",
       "病棟",
       "病室/保管場所",
       "患者名",
       "機種名",
       "型式",
       "直近期限メンテナンス"
+
     ]
 
     const rows = filteredList.map(device => {
@@ -366,6 +467,10 @@ export default function DeviceListModal({
       return [
 
         device.status,
+
+        device.isUnderMaintenance
+          ? "保守中"
+          : "",
 
         device.status === "room"
           ? getWardName(device.roomId)
@@ -459,29 +564,43 @@ export default function DeviceListModal({
         )
 
       return {
-        status: device.status,
+
+        status:
+          device.status,
+
+        maintenanceStatus:
+          device.isUnderMaintenance
+            ? "保守中"
+            : "",
+
         wardName:
           device.status === "room"
             ? getWardName(
                 device.roomId
               )
             : "",
+
         roomName:
           device.status === "room"
             ? room?.roomName ?? ""
             : getStockAreaName(
                 device.stockAreaID
               ),
+
         patientName:
           device.status === "room"
             ? room?.patientName ?? ""
             : "",
+
         typeName:
           getTypeName(device.type),
+
         modelName:
           getModelName(device.model),
+
         maintenanceName:
           task?.name ?? "",
+
         maintenanceDue:
           task?.due_at
             ? new Date(
@@ -490,14 +609,19 @@ export default function DeviceListModal({
                 "ja-JP"
               )
             : ""
+
       }
+
     })
+
     ExportDeviceListPdf(rows)
+
   }
 
   if (!isOpen) return null
 
   return (
+
     <div
       className="
         fixed inset-0
@@ -576,7 +700,7 @@ export default function DeviceListModal({
 
         <div className="
           grid
-          grid-cols-3
+          grid-cols-4
           gap-4
           mb-4
           text-sm
@@ -595,35 +719,103 @@ export default function DeviceListModal({
               状態
             </label>
 
-            <select
-              value={selectedStatus}
-              onChange={e =>
-                setSelectedStatus(
-                  e.target.value
-                )
-              }
-              className="
-                border
-                rounded
-                px-2
-                py-2
-                w-full
-              "
-            >
+            <div className="
+              border
+              rounded
+              p-2
+              space-y-1
+            ">
 
-              <option value="room">
-                病室
-              </option>
+              <label className="block">
 
-              <option value="stock">
-                在庫
-              </option>
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedStatuses.includes(
+                      "room"
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      "room",
+                      selectedStatuses,
+                      setSelectedStatuses
+                    )
+                  }
+                />
 
-              <option value="all">
-                全て
-              </option>
+                <span className="ml-1">
+                  病室
+                </span>
 
-            </select>
+              </label>
+
+              <label className="block">
+
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedStatuses.includes(
+                      "stock"
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      "stock",
+                      selectedStatuses,
+                      setSelectedStatuses
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  在庫
+                </span>
+
+              </label>
+
+            </div>
+
+          </div>
+
+          {/* ===== maintenance ===== */}
+
+          <div>
+
+            <label className="
+              text-xs
+              text-gray-600
+              mb-1
+              block
+            ">
+              保守
+            </label>
+
+            <div className="
+              border
+              rounded
+              p-2
+            ">
+
+              <label className="block">
+
+                <input
+                  type="checkbox"
+                  checked={maintenanceOnly}
+                  onChange={e =>
+                    setMaintenanceOnly(
+                      e.target.checked
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  保守中のみ
+                </span>
+
+              </label>
+
+            </div>
 
           </div>
 
@@ -637,7 +829,7 @@ export default function DeviceListModal({
               mb-1
               block
             ">
-              病棟
+              病棟/保管場所
             </label>
 
             <div className="
@@ -780,6 +972,10 @@ export default function DeviceListModal({
                 </th>
 
                 <th className="border p-2">
+                  保守
+                </th>
+
+                <th className="border p-2">
                   病棟
                 </th>
 
@@ -814,7 +1010,7 @@ export default function DeviceListModal({
                 <tr>
 
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="
                       border
                       p-8
@@ -843,14 +1039,81 @@ export default function DeviceListModal({
 
                   <tr
                     key={device.id}
-                    className="
+                    className={`
                       hover:bg-gray-50
-                    "
+
+                      ${
+                        device.isUnderMaintenance
+                          ? "bg-red-50"
+                          : ""
+                      }
+                    `}
                   >
 
-                    <td className="border p-2">
+                    {/* ===== status ===== */}
+
+                    <td
+                      className={`
+                        border
+                        p-2
+                        font-bold
+
+                        ${
+                          device.isUnderMaintenance
+                            ? "text-red-600"
+                            : ""
+                        }
+                      `}
+                    >
                       {device.status}
                     </td>
+
+                    {/* ===== maintenance ===== */}
+
+                    <td className="
+                      border
+                      p-2
+                      text-center
+                    ">
+
+                      {device.isUnderMaintenance ? (
+
+                        <span
+                          className="
+                            inline-flex
+                            items-center
+                            justify-center
+
+                            min-w-[72px]
+
+                            px-2
+                            py-1
+
+                            rounded-full
+
+                            bg-red-600
+                            text-white
+
+                            text-xs
+                            font-bold
+
+                            animate-pulse
+                          "
+                        >
+                          保守中
+                        </span>
+
+                      ) : (
+
+                        <span className="text-gray-400">
+                          -
+                        </span>
+
+                      )}
+
+                    </td>
+
+                    {/* ===== ward ===== */}
 
                     <td className="border p-2">
 
@@ -864,11 +1127,13 @@ export default function DeviceListModal({
 
                     </td>
 
+                    {/* ===== room ===== */}
+
                     <td className="border p-2">
 
                       {
                         device.status === "room"
-                          ? room?.roomName
+                          ? room?.roomName ?? ""
                           : getStockAreaName(
                               device.stockAreaID
                             )
@@ -876,35 +1141,31 @@ export default function DeviceListModal({
 
                     </td>
 
+                    {/* ===== patient ===== */}
+
                     <td className="border p-2">
 
                       {
                         device.status === "room"
-                          ? room?.patientName
+                          ? room?.patientName ?? ""
                           : ""
                       }
 
                     </td>
 
-                    <td className="border p-2">
-
-                      {
-                        getTypeName(
-                          device.type
-                        )
-                      }
-
-                    </td>
+                    {/* ===== type ===== */}
 
                     <td className="border p-2">
-
-                      {
-                        getModelName(
-                          device.model
-                        )
-                      }
-
+                      {getTypeName(device.type)}
                     </td>
+
+                    {/* ===== model ===== */}
+
+                    <td className="border p-2">
+                      {getModelName(device.model)}
+                    </td>
+
+                    {/* ===== task ===== */}
 
                     <td className="border p-2">
 
@@ -935,5 +1196,7 @@ export default function DeviceListModal({
       </div>
 
     </div>
+
   )
+
 }
