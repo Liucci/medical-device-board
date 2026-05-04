@@ -1,6 +1,6 @@
 "use client"
 
-import { Device } from "../types/deviceTypes"
+import { Device } from "../../types/deviceTypes"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 

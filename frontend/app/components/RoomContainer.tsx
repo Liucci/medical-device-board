@@ -191,6 +191,8 @@ return (
               cellSize={cellSize}
               isUnderMaintenance={d.isUnderMaintenance
     }
+              standby={d.standby}
+              standbyStartedAt={d.standbyStartedAt}
 
              />
           </div>

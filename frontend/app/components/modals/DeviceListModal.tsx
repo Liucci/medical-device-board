@@ -1,8 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ExportDeviceListPdf }
-from "../utils/ExportDeviceListPdf"
+import { ExportDeviceListPdf } from "../../utils/ExportDeviceListPdf"
 
 type Device = {
   id: number

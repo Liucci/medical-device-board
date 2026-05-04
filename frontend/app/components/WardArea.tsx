@@ -47,7 +47,38 @@ export default function WardArea({
 
                                 }: Props) {
   
-                                  
+             // 病棟ごとの配置中機器数を数える関数
+  // wardId に紐づく病室を探し、その病室に配置されている機器数を合計する
+  const getWardDeviceCount = (wardId: number) => {
+    const roomIds = rooms
+      .filter(room => room.wardId === wardId)
+      .map(room => room.id)
+
+    return deviceList.filter(
+      device =>
+        device.status === "room" &&
+        roomIds.includes(device.roomId)
+    ).length
+  }
+
+  // 病棟コンテナの表示順を作る
+  // 1. 機器が多く配置されている病棟を上に並べる
+  // 2. 機器数が同じ場合は病棟名の自然順で並べる
+  const sortedWards = [...wards].sort((a, b) => {
+    const aCount = getWardDeviceCount(a.wardId)
+    const bCount = getWardDeviceCount(b.wardId)
+
+    if (aCount !== bCount) {
+      return bCount - aCount
+    }
+
+    return a.wardName.localeCompare(
+      b.wardName,
+      "ja",
+      { numeric: true }
+    )
+  })
+                     
 
 return (
   <div
@@ -147,7 +178,7 @@ return (
         gap: "12px"
       }}
     >       
-         {wards.map((ward) => (
+    {sortedWards.map((ward) => (
           <div
             key={ward.wardId}
             style={{
@@ -214,10 +245,7 @@ return (
                         { numeric: true }
                       )
                     })
-                    .sort((a, b) =>
-                          a.roomName.localeCompare(b.roomName, undefined, { numeric: true })
-                        ) 
-                  .map(room => (
+                    .map(room => (
                     <RoomContainer
                       key={room.id}
                       deviceList={deviceList}

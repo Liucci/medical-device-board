@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 
 import { ExportHistoriesPdf }
-  from "../utils/ExportHistoriesPdf"
+  from "../../utils/ExportHistoriesPdf"
 
 type History = {
   id: number

@@ -1,8 +1,8 @@
 "use client"
-import DeviceModal from "./DeviceModal"
-import SettingsModal from "./SettingsModal"
-import HistoryModal from "./HistoryModal"
-import DeviceListModal from "./DeviceListModal"
+import DeviceModal from "./modals/DeviceModal"
+import SettingsModal from "./modals/SettingsModal"
+import HistoryModal from "./modals/HistoryModal"
+import DeviceListModal from "./modals/DeviceListModal"
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 import {
@@ -20,8 +20,8 @@ type Props = {
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
   stockAreas: { id: number; name: string }[]
-  wards: { id: number; name: string }[]
-  rooms: { id: number; ward_id: number; name: string }[]
+  wards: { wardId: number; wardName: string }[]
+  rooms: { id: number; wardId: number; roomName: string ;patientName:string}[]
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<void>
   deleteStockAreas: (ids: number[]) => Promise<void>

@@ -50,6 +50,8 @@ export default function DragLayer({
           mAlert={getMAlert(draggingDevice.id)}
           cellSize={80} //ドラッグ中はアイコンを大きく表示
           isUnderMaintenance={draggingDevice.isUnderMaintenance}          //isDragging={true}
+          standby={draggingDevice.standby}
+          standbyStartedAt={draggingDevice.standbyStartedAt}
         />
       </div>
   )

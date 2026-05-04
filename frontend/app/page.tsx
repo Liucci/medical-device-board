@@ -5,10 +5,10 @@ import StockAreas from "./components/StockArea"
 import WardArea from "./components/WardArea"
 import ButtonPanel from "./components/ButtonPanel"
 import DragLayer from "./components/DragLayer"
-import RoomModal from "./components/RoomModal"
-import RoomToRoomModal from "./components/RoomToRoom"
-import StockInfoModal from "./components/StockInfoModal"
-import RoomDeviceInfoModal from "./components/RoomDeviceInfoModal"
+import RoomModal from "./components/modals/RoomModal"
+import RoomToRoomModal from "./components/modals/RoomToRoomModal"
+import StockInfoModal from "./components/modals/StockInfoModal"
+import RoomDeviceInfoModal from "./components/modals/RoomDeviceInfoModal"
 import { Device} from "./types/deviceTypes"
 import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "./utils/deviceMapper"
@@ -1428,6 +1428,13 @@ export default function Page() {
     note: string
     patientName: string
     roomId: number
+    rentalStartDate?: string
+    rentalEndDate?: string
+
+    standby: boolean
+    standbyStartedAt?: string
+    standbyFinishedAt?: string
+
   }) => {
 
     // ① devices更新（機器情報）
@@ -1436,7 +1443,11 @@ export default function Page() {
       .update({
         management_number: data.managementNumber,
         serial_number: data.serialNumber,
-        note: data.note
+        note: data.note,
+        standby: data.standby,
+        standby_started_at: data.standbyStartedAt || null,
+        standby_finished_at: data.standbyFinishedAt || null,
+
       })
       .eq('id', data.id)
 
@@ -1466,7 +1477,11 @@ export default function Page() {
               ...d,
               managementNumber: data.managementNumber,
               serialNumber: data.serialNumber,
-              note: data.note
+              note: data.note,
+              standby: data.standby,
+              standbyStartedAt: data.standbyStartedAt,
+              standbyFinishedAt: data.standbyFinishedAt,
+
             }
           : d
       )

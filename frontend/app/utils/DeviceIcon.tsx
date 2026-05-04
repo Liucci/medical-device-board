@@ -17,6 +17,8 @@ type Props = {
 
   cellSize: number
   isUnderMaintenance?: boolean
+  standby?: boolean
+  standbyStartedAt?: string
 }
 
 export default function DeviceIcon({
@@ -28,7 +30,9 @@ export default function DeviceIcon({
   rentalEndDate,
   mAlert,
   cellSize,
-  isUnderMaintenance
+  isUnderMaintenance,
+  standby,
+  standbyStartedAt
 }: Props) {
 
   // ===== 表示レベル =====
@@ -136,6 +140,19 @@ export default function DeviceIcon({
       assetType,
       rentalEndDate
     )
+  const isStandbyOverOneMonth = (() => {
+    if (!standby || !standbyStartedAt) return false
+
+    const start = new Date(standbyStartedAt)
+    const limit = new Date(start)
+    limit.setMonth(limit.getMonth() + 1)
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    limit.setHours(0, 0, 0, 0)
+
+    return today >= limit
+  })()
 
   return (
     <div
@@ -145,6 +162,33 @@ export default function DeviceIcon({
         ${isBlink ? "blink" : ""}
       `}
     >
+
+      {showIndicator && standby && (
+        <div
+          className={`
+            absolute
+            z-40
+            rounded
+            px-1
+            font-bold
+            shadow-sm
+
+            ${
+              isStandbyOverOneMonth
+                ? "bg-red-600 text-white animate-pulse"
+                : "bg-yellow-300 text-black"
+            }
+          `}
+          style={{
+            right: 2,
+            bottom: 2,
+            fontSize: cellSize >= 88 ? 10 : 8,
+            lineHeight: 1.2
+          }}
+        >
+          待機中
+        </div>
+      )}
 
       {/* ===== メンテインジケータ ===== */}
       {showIndicator && mAlert && (

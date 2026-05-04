@@ -46,6 +46,10 @@ export type Device = {
   isUnderMaintenance?: boolean
   maintenanceStartedAt?: string
   maintenanceFinishedAt?: string
+  standby?: boolean
+  standbyStartedAt?: string
+  standbyFinishedAt?: string
+
 }
 export type DeviceDB = {
   id: number
@@ -63,4 +67,8 @@ export type DeviceDB = {
   is_under_maintenance:boolean
   maintenance_started_at?:string | null
   maintenance_finished_at?:string | null
+  standby: boolean
+  standby_started_at?: string | null
+  standby_finished_at?: string | null
+
 }

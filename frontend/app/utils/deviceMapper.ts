@@ -16,6 +16,10 @@ export const normalizeDevice = (d: DeviceDB): Device => ({
   isUnderMaintenance: d.is_under_maintenance ?? false,
   maintenanceStartedAt:d.maintenance_started_at ?? undefined,
   maintenanceFinishedAt:d.maintenance_finished_at ?? undefined,
+  standby: d.standby ?? false,
+  standbyStartedAt: d.standby_started_at ?? undefined,
+  standbyFinishedAt: d.standby_finished_at ?? undefined,
+
   // UI専用
   row: 0,
   col: 0,
@@ -37,4 +41,8 @@ export const toDBDevice = (d: Device) => ({
   is_under_maintenance:d.isUnderMaintenance ?? false,
   maintenance_started_at:d.maintenanceStartedAt ?? null,
   maintenance_finished_at:d.maintenanceFinishedAt ?? null,
+  standby: d.standby ?? false,
+  standby_started_at: d.standbyStartedAt ?? null,
+  standby_finished_at: d.standbyFinishedAt ?? null,
+
 })

@@ -1,6 +1,6 @@
 "use client"
 
-import { Device } from "../types/deviceTypes"
+import { Device } from "../../types/deviceTypes"
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
@@ -19,6 +19,10 @@ type Props = {
     roomId: number
     rentalStartDate?: string
     rentalEndDate?: string
+    standby: boolean
+    standbyStartedAt?: string
+    standbyFinishedAt?: string
+
   }) => void
   onCancel: () => void
   wards: any[]
@@ -40,6 +44,7 @@ export default function RoomDeviceInfoModal({
   tasks,
   maintenanceTypes,
   onCompleteTask
+
 }: Props) {
   const [managementNumber, setManagementNumber] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
@@ -47,6 +52,9 @@ export default function RoomDeviceInfoModal({
   const [patientName, setPatientName] = useState("")
   const [rentalStartDate, setRentalStartDate] = useState("")
   const [rentalEndDate, setRentalEndDate] = useState("")
+  const [standby, setStandby] = useState(false)
+  const [standbyStartedAt, setStandbyStartedAt] = useState("")
+  const [standbyFinishedAt, setStandbyFinishedAt] = useState("")
 
   useEffect(() => {
     if (!isOpen || !device) return
@@ -56,6 +64,10 @@ export default function RoomDeviceInfoModal({
     setNote(device.note ?? "")
     setRentalStartDate(device.rentalStartDate || "")
     setRentalEndDate(device.rentalEndDate || "")
+    setStandby(device.standby ?? false)
+    setStandbyStartedAt(device.standbyStartedAt || "")
+    setStandbyFinishedAt(device.standbyFinishedAt || "")
+
 
     const room = rooms.find(r => r.id === device.roomId)
     setPatientName(room?.patientName ?? "")
@@ -109,7 +121,34 @@ export default function RoomDeviceInfoModal({
     if (days <= 2) return { label: `残り${days}日`, color: "yellow" }
     return { label: `残り${days}日`, color: "green" }
   }
-                          
+  const isStandbyOverOneMonth = (() => {
+    if (!standby || !standbyStartedAt) return false
+
+    const start = new Date(standbyStartedAt)
+    const limit = new Date(start)
+    limit.setMonth(limit.getMonth() + 1)
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    limit.setHours(0, 0, 0, 0)
+
+    return today >= limit
+  })()
+  const handleToggleStandby = () => {
+    const today = new Date().toISOString().split("T")[0]
+
+    if (standby) {
+      setStandby(false)
+      setStandbyFinishedAt(today)
+      return
+    }
+
+    setStandby(true)
+    setStandbyStartedAt(standbyStartedAt || today)
+    setStandbyFinishedAt("")
+  }
+
+  
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
@@ -243,7 +282,23 @@ export default function RoomDeviceInfoModal({
                   }}
                 />
               </>
+              
             )}
+          {false && standby && (
+            <div>
+              <label>待機開始日</label>
+              <input
+                type="date"
+                value={standbyStartedAt}
+                onChange={e => setStandbyStartedAt(e.target.value)}
+              />
+            </div>
+          )}
+          {false && isStandbyOverOneMonth && (
+            <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
+              スタンバイ開始から1か月経過しています。返却を検討してください。
+            </div>
+          )}
 
           
 
@@ -257,6 +312,53 @@ export default function RoomDeviceInfoModal({
             }}
           />
         </div>
+        <div className="border-t pt-4 mt-2 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">スタンバイ</div>
+              <div className="text-xs text-gray-500">
+                使用待機中の機器として管理します
+              </div>
+            </div>
+
+            <button
+              onClick={handleToggleStandby}
+              className={`
+                px-3 py-1 rounded text-sm font-bold
+                ${
+                  standby
+                    ? "bg-yellow-300 text-black hover:bg-yellow-400"
+                    : "bg-gray-200 text-black hover:bg-gray-300"
+                }
+              `}
+            >
+              {standby ? "スタンバイ解除" : "スタンバイ"}
+            </button>
+          </div>
+
+          {standby && (
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">
+                待機開始日
+              </label>
+
+              <input
+                type="date"
+                value={standbyStartedAt}
+                onChange={e => setStandbyStartedAt(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2 w-full"
+              />
+            </div>
+          )}
+
+          {isStandbyOverOneMonth && (
+            <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
+              スタンバイ開始から1か月経過しています。返却を検討してください。
+            </div>
+          )}
+        </div>
+
+
             {/* 🔽 メンテナンス */}
           <div className="border-t pt-4 mt-2">
             <div className="font-bold mb-2">メンテナンス</div>
@@ -320,7 +422,11 @@ export default function RoomDeviceInfoModal({
                 patientName,
                 roomId: device.roomId,
                 rentalStartDate:rentalStartDate|| undefined,
-                rentalEndDate:rentalEndDate|| undefined
+                rentalEndDate:rentalEndDate|| undefined,
+                standby,
+                standbyStartedAt: standbyStartedAt || undefined,
+                standbyFinishedAt: standbyFinishedAt || undefined
+
               })
             }}
             className="bg-blue-500 text-white px-3 py-1 rounded"
