@@ -132,15 +132,22 @@ return (
         overflow: "auto"
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          gap: "12px"
-        }}
-      >
-        {wards.map((ward) => (
+    <div
+      style={{
+        display: "flex",
+
+        // ★ 横並び化
+        flexDirection: "row",
+
+        // ★ 横いっぱいで折返し
+        flexWrap: "wrap",
+
+        alignItems: "flex-start",
+
+        gap: "12px"
+      }}
+    >       
+         {wards.map((ward) => (
           <div
             key={ward.wardId}
             style={{
@@ -163,9 +170,10 @@ return (
             <WardGrid
               title={ward.wardName}
               minWidth={Math.max(
-                200,
-                wardCellSize * 1
-              )}
+                                  90,
+                                  wardCellSize * 1
+                                )}
+              cellSize={wardCellSize}
             >
               <div
                 style={{
@@ -174,9 +182,39 @@ return (
                   gap: "12px"
                 }}
               >
-                {rooms
-                  .filter(r => r.wardId === ward.wardId)
-                  .sort((a, b) =>
+                {
+                  rooms
+                    .filter(r => r.wardId === ward.wardId)
+
+                    .sort((a, b) => {
+
+                      const aCount =
+                        deviceList.filter(
+                          d =>
+                            d.status === "room" &&
+                            d.roomId === a.id
+                        ).length
+
+                      const bCount =
+                        deviceList.filter(
+                          d =>
+                            d.status === "room" &&
+                            d.roomId === b.id
+                        ).length
+
+                      // ===== 機器数多い順 =====
+                      if (aCount !== bCount) {
+                        return bCount - aCount
+                      }
+
+                      // ===== 同数なら部屋番号順 =====
+                      return a.roomName.localeCompare(
+                        b.roomName,
+                        undefined,
+                        { numeric: true }
+                      )
+                    })
+                    .sort((a, b) =>
                           a.roomName.localeCompare(b.roomName, undefined, { numeric: true })
                         ) 
                   .map(room => (
@@ -209,7 +247,8 @@ return (
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
                     />
-                  ))}
+                  ))
+                }
               </div>
             </WardGrid>
           </div>

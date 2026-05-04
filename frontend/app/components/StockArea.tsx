@@ -124,18 +124,49 @@ return (
         overflow: "auto"
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          gap: "12px"
-        }}
-      >
+    <div
+      style={{
+        display: "flex",
 
+        // ★ 横並び
+        flexDirection: "row",
 
-    {stockAreas.map((area) => (
-      <div
+        // ★ 自動折返し
+        flexWrap: "wrap",
+
+        alignItems: "flex-start",
+
+        gap: "12px"
+      }}
+    >
+
+  {[...stockAreas]
+    .sort((a, b) => {
+
+      const aCount =
+        deviceList.filter(
+          d =>
+            d.status === "stock" &&
+            d.stockAreaID === a.id
+        ).length
+
+      const bCount =
+        deviceList.filter(
+          d =>
+            d.status === "stock" &&
+            d.stockAreaID === b.id
+        ).length
+
+      // 機器ありを上へ
+      if (aCount > 0 && bCount === 0) return -1
+      if (aCount === 0 && bCount > 0) return 1
+
+      // 同条件ならid順
+      return a.id - b.id
+    })
+
+  .map((area) => (
+     <div
         key={area.id}
         style={{
           gridColumn: area.id === 1 ? "span 3" : undefined
@@ -147,9 +178,11 @@ return (
           //onDropにdraggingDeviceとarea.idを渡す
           onDrop(draggingDevice, area.id)
         }}
-  >            {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
+      >           
+   {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
           <StockGrid
               title={area.name}
+              cellSize={stockCellSize}
             >             
               {/* Stockは機器アイコン作成ファイル */}
                 <Stock

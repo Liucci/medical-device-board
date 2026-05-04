@@ -516,14 +516,24 @@ export default function HistoryModal({
 
         </div>
 
-        {/* ===== search ===== */}
+      {/* ===== search ===== */}
+
+      <div className="
+        grid
+        grid-cols-6
+        gap-4
+        mb-4
+        text-sm
+      ">
+
+        {/* =======================================
+            日付
+        ======================================= */}
 
         <div className="
-          grid
-          grid-cols-6
-          gap-4
-          mb-4
-          text-sm
+          flex
+          flex-col
+          gap-2
         ">
 
           {/* ===== start ===== */}
@@ -584,238 +594,17 @@ export default function HistoryModal({
 
           </div>
 
-          {/* ===== type ===== */}
+        </div>
 
-          <div>
+        {/* =======================================
+            keyword
+        ======================================= */}
 
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-              block
-            ">
-              機種
-            </label>
-
-            <div className="
-              border
-              rounded
-              p-2
-              max-h-32
-              overflow-auto
-            ">
-
-              {deviceTypes.map(type => (
-
-                <label
-                  key={type}
-                  className="block"
-                >
-
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedDeviceTypes.includes(
-                        type ?? ""
-                      )
-                    }
-                    onChange={() =>
-                      toggleSelection(
-                        type ?? "",
-                        selectedDeviceTypes,
-                        setSelectedDeviceTypes
-                      )
-                    }
-                  />
-
-                  <span className="ml-1">
-                    {type}
-                  </span>
-
-                </label>
-
-              ))}
-
-            </div>
-
-          </div>
-
-          {/* ===== model ===== */}
-
-          <div>
-
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-              block
-            ">
-              型式
-            </label>
-
-            <div className="
-              border
-              rounded
-              p-2
-              max-h-32
-              overflow-auto
-            ">
-
-              {deviceModels.map(model => (
-
-                <label
-                  key={model}
-                  className="block"
-                >
-
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedDeviceModels.includes(
-                        model ?? ""
-                      )
-                    }
-                    onChange={() =>
-                      toggleSelection(
-                        model ?? "",
-                        selectedDeviceModels,
-                        setSelectedDeviceModels
-                      )
-                    }
-                  />
-
-                  <span className="ml-1">
-                    {model}
-                  </span>
-
-                </label>
-
-              ))}
-
-            </div>
-
-          </div>
-
-          {/* ===== action ===== */}
-
-          <div>
-
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-              block
-            ">
-              操作
-            </label>
-
-            <div className="
-              border
-              rounded
-              p-2
-              max-h-32
-              overflow-auto
-            ">
-
-              {[
-                ["create", "新規"],
-                ["move", "移動"],
-                ["delete", "削除"],
-                ["fix_start", "保守開始"],
-                ["fix_end", "保守終了"]
-              ].map(([value, label]) => (
-
-                <label
-                  key={value}
-                  className="block"
-                >
-
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedActionTypes.includes(
-                        value
-                      )
-                    }
-                    onChange={() =>
-                      toggleSelection(
-                        value,
-                        selectedActionTypes,
-                        setSelectedActionTypes
-                      )
-                    }
-                  />
-
-                  <span className="ml-1">
-                    {label}
-                  </span>
-
-                </label>
-
-              ))}
-
-            </div>
-
-          </div>
-
-          {/* ===== status ===== */}
-
-          <div>
-
-            <label className="
-              text-xs
-              text-gray-600
-              mb-1
-              block
-            ">
-              状態
-            </label>
-
-            <div className="
-              border
-              rounded
-              p-2
-              max-h-32
-              overflow-auto
-            ">
-
-              {[
-                "stock",
-                "room"
-              ].map(status => (
-
-                <label
-                  key={status}
-                  className="block"
-                >
-
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedStatuses.includes(
-                        status
-                      )
-                    }
-                    onChange={() =>
-                      toggleSelection(
-                        status,
-                        selectedStatuses,
-                        setSelectedStatuses
-                      )
-                    }
-                  />
-
-                  <span className="ml-1">
-                    {status}
-                  </span>
-
-                </label>
-
-              ))}
-
-            </div>
-
-          </div>
+        <div className="
+          flex
+          flex-col
+          gap-2
+        ">
 
           {/* ===== device id ===== */}
 
@@ -877,6 +666,248 @@ export default function HistoryModal({
 
         </div>
 
+        {/* =======================================
+            type
+        ======================================= */}
+
+        <div>
+
+          <label className="
+            text-xs
+            text-gray-600
+            mb-1
+            block
+          ">
+            機種
+          </label>
+
+          <div className="
+            border
+            rounded
+            p-2
+            max-h-32
+            overflow-auto
+          ">
+
+            {deviceTypes.map(type => (
+
+              <label
+                key={type}
+                className="block"
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedDeviceTypes.includes(
+                      type ?? ""
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      type ?? "",
+                      selectedDeviceTypes,
+                      setSelectedDeviceTypes
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  {type}
+                </span>
+
+              </label>
+
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* =======================================
+            model
+        ======================================= */}
+
+        <div>
+
+          <label className="
+            text-xs
+            text-gray-600
+            mb-1
+            block
+          ">
+            型式
+          </label>
+
+          <div className="
+            border
+            rounded
+            p-2
+            max-h-32
+            overflow-auto
+          ">
+
+            {deviceModels.map(model => (
+
+              <label
+                key={model}
+                className="block"
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedDeviceModels.includes(
+                      model ?? ""
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      model ?? "",
+                      selectedDeviceModels,
+                      setSelectedDeviceModels
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  {model}
+                </span>
+
+              </label>
+
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* =======================================
+            action
+        ======================================= */}
+
+        <div>
+
+          <label className="
+            text-xs
+            text-gray-600
+            mb-1
+            block
+          ">
+            操作
+          </label>
+
+          <div className="
+            border
+            rounded
+            p-2
+            max-h-32
+            overflow-auto
+          ">
+
+            {[
+              ["create", "新規"],
+              ["move", "移動"],
+              ["delete", "削除"],
+              ["fix_start", "保守開始"],
+              ["fix_end", "保守終了"]
+            ].map(([value, label]) => (
+
+              <label
+                key={value}
+                className="block"
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedActionTypes.includes(
+                      value
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      value,
+                      selectedActionTypes,
+                      setSelectedActionTypes
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  {label}
+                </span>
+
+              </label>
+
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* =======================================
+            status
+        ======================================= */}
+
+        <div>
+
+          <label className="
+            text-xs
+            text-gray-600
+            mb-1
+            block
+          ">
+            状態
+          </label>
+
+          <div className="
+            border
+            rounded
+            p-2
+            max-h-32
+            overflow-auto
+          ">
+
+            {[
+              "stock",
+              "room"
+            ].map(status => (
+
+              <label
+                key={status}
+                className="block"
+              >
+
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedStatuses.includes(
+                      status
+                    )
+                  }
+                  onChange={() =>
+                    toggleSelection(
+                      status,
+                      selectedStatuses,
+                      setSelectedStatuses
+                    )
+                  }
+                />
+
+                <span className="ml-1">
+                  {status}
+                </span>
+
+              </label>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      </div>
         {/* ===== count ===== */}
 
         <div className="

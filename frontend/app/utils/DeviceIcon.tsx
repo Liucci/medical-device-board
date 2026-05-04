@@ -272,18 +272,39 @@ export default function DeviceIcon({
               {typeName}
             </div>
 
-            <div className="truncate w-full">
+            <div 
+              className="w-full break-words text-center"
+              style={{
+                wordBreak: "break-word",
+                overflowWrap: "anywhere",
+                lineHeight: 1.0
+              }}
+            >
               {modelName}
             </div>
 
             {managementNumber && (
-              <div className="truncate w-full">
+              <div 
+                className="w-full break-words text-center"
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
+                  lineHeight: 1.0
+                }}
+              >
                 {managementNumber}
               </div>
             )}
 
             {serialNumber && (
-              <div className="truncate w-full">
+              <div 
+                className="w-full break-words text-center"
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
+                  lineHeight: 1.0
+                }}
+              >
                 {serialNumber}
               </div>
             )}
@@ -294,6 +315,7 @@ export default function DeviceIcon({
                   px-1
                   rounded
                   bg-red-600
+                  animate-pulse
                   text-white
                   text-[10px]
                   font-bold
@@ -312,12 +334,26 @@ export default function DeviceIcon({
               {typeName}
             </div>
 
-            <div className="truncate w-full">
+            <div 
+              className="w-full break-words text-center"
+              style={{
+                wordBreak: "break-word",
+                overflowWrap: "anywhere",
+                lineHeight: 1.0
+              }}
+            >
               {modelName}
             </div>
 
             {managementNumber && (
-              <div className="truncate w-full">
+              <div 
+                className="w-full break-words text-center"
+                style={{
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
+                  lineHeight: 1.0
+                }}
+              >
                 {managementNumber}
               </div>
             )}
@@ -328,6 +364,7 @@ export default function DeviceIcon({
                   px-1
                   rounded
                   bg-red-600
+                  animate-pulse
                   text-white
                   text-[10px]
                   font-bold
@@ -346,7 +383,14 @@ export default function DeviceIcon({
               {typeName}
             </div>
 
-            <div className="truncate w-full">
+            <div
+              className="w-full break-words text-center"
+              style={{
+                wordBreak: "break-word",
+                overflowWrap: "anywhere",
+                lineHeight: 1.0
+              }}
+            >
               {modelName}
             </div>
             {isUnderMaintenance && (
@@ -356,6 +400,7 @@ export default function DeviceIcon({
                   px-1
                   rounded
                   bg-red-600
+                  animate-pulse
                   text-white
                   text-[10px]
                   font-bold
@@ -376,7 +421,14 @@ export default function DeviceIcon({
 
         {/* ===== SMALL ===== */}
         {displayLevel === "small" && (
-          <div className="truncate w-full">
+          <div 
+            className="w-full break-words text-center"
+            style={{
+              wordBreak: "break-word",
+              overflowWrap: "anywhere",
+              lineHeight: 1.0
+            }}
+          >
             {modelName}
           </div>
         )}

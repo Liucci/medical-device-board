@@ -71,12 +71,44 @@ return (
         borderRadius: "8px",
         padding: "8px",
         background: "#f9fafb",
-        width: `${cellSize * 2 + 40}px` }}//病室の幅はアイコン2個分＋余白
+        minWidth: `${Math.max(cellSize + 24, 64)}px`,
+        width: "fit-content"
+        }}
     >      
-      <div className="text-sm font-bold mb-1">{roomName}</div>
+    <div
+      className="font-bold mb-1"
+      style={{
+        fontSize:
+          cellSize >= 88
+            ? "14px"
+            : cellSize >= 64
+            ? "12px"
+            : cellSize >= 40
+            ? "10px"
+            : "8px",
+
+        lineHeight: 1.1
+      }}
+    >
+      {roomName}
+    </div>
 
         {/* 🔥 患者名 */}
-    <div className="text-xs text-gray-600 mb-1">
+    <div
+      className="text-gray-600 mb-1"
+      style={{
+        fontSize:
+          cellSize >= 88
+            ? "12px"
+            : cellSize >= 64
+            ? "11px"
+            : cellSize >= 40
+            ? "9px"
+            : "7px",
+
+        lineHeight: 1.1
+      }}
+    >
       {patientName ? `患者: ${patientName}` : "患者なし"}
     </div>
           {/* 👇 flex配置 */}
