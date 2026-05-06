@@ -168,9 +168,14 @@ export default function DeviceIcon({
           className={`
             absolute
             z-40
+            inline-flex
+            items-center
+            justify-center
             rounded
             px-1
             font-bold
+            text-center
+            whitespace-nowrap
             shadow-sm
 
             ${
@@ -180,10 +185,13 @@ export default function DeviceIcon({
             }
           `}
           style={{
-            right: 2,
-            bottom: 2,
+            left: "50%",
+            bottom: 4,
+            transform: "translateX(-50%)",
+            minWidth: cellSize >= 88 ? 36 : 30,
+            height: cellSize >= 88 ? 16 : 14,
             fontSize: cellSize >= 88 ? 10 : 8,
-            lineHeight: 1.2
+            lineHeight: 1
           }}
         >
           待機中

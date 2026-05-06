@@ -23,6 +23,8 @@ import { createClient } from '@supabase/supabase-js'
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+const ROOMLESS_ROOM_NAME = "部屋無し"
+
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
@@ -335,7 +337,7 @@ export default function Page() {
   }
 
 
-  const handleDropToWard = (
+  const handleDropToWard = async (
     device: Device,
     wardId: number
   ) => {
@@ -354,9 +356,10 @@ export default function Page() {
 
     // stock → room
     if (device.status === "stock") {
+
+      // RoomModalを開く
       setRoomModalOpen(true)
     }
-
     // room → room
     else if (device.status === "room") {
       setRoomToRoomModalOpen(true)

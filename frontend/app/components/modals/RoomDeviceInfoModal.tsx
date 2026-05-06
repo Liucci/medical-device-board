@@ -312,52 +312,39 @@ export default function RoomDeviceInfoModal({
             }}
           />
         </div>
-        <div className="border-t pt-4 mt-2 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-bold">スタンバイ</div>
-              <div className="text-xs text-gray-500">
-                使用待機中の機器として管理します
+          <div className="border-t pt-4 mt-2 space-y-3">
+
+            {standby && (
+              <>
+                <div>
+                  <div className="font-bold">スタンバイ</div>
+
+                  <div className="text-xs text-gray-500">
+                    使用待機中の機器として管理します
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">
+                    待機開始日
+                  </label>
+
+                  <input
+                    type="date"
+                    value={standbyStartedAt}
+                    onChange={e => setStandbyStartedAt(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 w-full"
+                  />
+                </div>
+              </>
+            )}
+
+            {isStandbyOverOneMonth && (
+              <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
+                スタンバイ開始から1か月経過しています。返却を検討してください。
               </div>
-            </div>
-
-            <button
-              onClick={handleToggleStandby}
-              className={`
-                px-3 py-1 rounded text-sm font-bold
-                ${
-                  standby
-                    ? "bg-yellow-300 text-black hover:bg-yellow-400"
-                    : "bg-gray-200 text-black hover:bg-gray-300"
-                }
-              `}
-            >
-              {standby ? "スタンバイ解除" : "スタンバイ"}
-            </button>
+            )}
           </div>
-
-          {standby && (
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">
-                待機開始日
-              </label>
-
-              <input
-                type="date"
-                value={standbyStartedAt}
-                onChange={e => setStandbyStartedAt(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2 w-full"
-              />
-            </div>
-          )}
-
-          {isStandbyOverOneMonth && (
-            <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
-              スタンバイ開始から1か月経過しています。返却を検討してください。
-            </div>
-          )}
-        </div>
-
 
             {/* 🔽 メンテナンス */}
           <div className="border-t pt-4 mt-2">
@@ -408,7 +395,24 @@ export default function RoomDeviceInfoModal({
 
         {/* 🔽 ボタン */}
         <div className="flex justify-end gap-2 pt-4 border-t">
-          <button onClick={onCancel}>キャンセル</button>
+
+          <button onClick={onCancel}>
+            キャンセル
+          </button>
+
+          <button
+            onClick={handleToggleStandby}
+            className={`
+              px-3 py-1 rounded text-sm font-bold
+              ${
+                standby
+                  ? "bg-yellow-300 text-black hover:bg-yellow-400"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }
+            `}
+          >
+            {standby ? "スタンバイ解除" : "スタンバイ"}
+          </button>
 
           <button
             onClick={() => {
@@ -426,15 +430,13 @@ export default function RoomDeviceInfoModal({
                 standby,
                 standbyStartedAt: standbyStartedAt || undefined,
                 standbyFinishedAt: standbyFinishedAt || undefined
-
               })
             }}
             className="bg-blue-500 text-white px-3 py-1 rounded"
           >
             保存
           </button>
-        </div>
-
+        </div>      
       </div>
     </div>,
     document.body
