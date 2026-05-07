@@ -9,6 +9,7 @@ import RoomModal from "./components/modals/RoomModal"
 import RoomToRoomModal from "./components/modals/RoomToRoomModal"
 import StockInfoModal from "./components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "./components/modals/RoomDeviceInfoModal"
+import LowStockPanel from "./components/LowStockPanel"
 import { Device} from "./types/deviceTypes"
 import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "./utils/deviceMapper"
@@ -2349,6 +2350,33 @@ export default function Page() {
                 latest.due_at
             }
           }
+  //機種ごとの残数をカウントする
+  const lowStockDevices = deviceList.map(device => {
+
+  const typeName =
+    deviceTypes.find(
+      t => Number(t.id) === Number(device.type)
+    )?.name ?? "不明"
+
+  const modelName =
+    deviceModels.find(
+      m => Number(m.id) === Number(device.model)
+    )?.name ?? "不明"
+
+  return {
+    id: device.id,
+
+    typeName,
+
+    modelName,
+
+    isUnderMaintenance:
+      device.isUnderMaintenance,
+
+    currentWardId:
+      device.roomId ?? null,
+  }
+  })
   //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
@@ -2575,8 +2603,14 @@ export default function Page() {
         
         />
       </div>
+      {/*機器残数表示パネル */}
+      <LowStockPanel
+        devices={lowStockDevices}
+        isDragging={!!draggingDevice}
+      />
 
-            {/* drag layer */}
+
+      {/* drag layer */}
       <div className={styles.dragLayer}>
         <DragLayer
           deviceTypes={deviceTypes}
@@ -2631,7 +2665,6 @@ export default function Page() {
         maintenanceTypes={maintenanceTypes} // ← 渡す
         onCompleteTask={handleCompleteTask} // ← 渡す
       />
-      
 
 
     </div>
