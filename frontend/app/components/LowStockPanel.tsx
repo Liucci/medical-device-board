@@ -23,6 +23,7 @@ type SummaryItem = {
   stockCount: number
   usingCount: number
   maintenanceCount: number
+  totalCount: number
 }
 
 export default function LowStockPanel({
@@ -45,6 +46,7 @@ export default function LowStockPanel({
           stockCount: 0,
           usingCount: 0,
           maintenanceCount: 0,
+          totalCount: 0,
         })
       }
 
@@ -53,21 +55,42 @@ export default function LowStockPanel({
       // 保守中
       if (device.isUnderMaintenance) {
         item.maintenanceCount += 1
+        item.totalCount += 1
       }
       // 使用中（病棟配置）
       else if (device.currentWardId) {
         item.usingCount += 1
+        item.totalCount += 1
       }
       // 在庫
       else {
         item.stockCount += 1
+        item.totalCount += 1
       }
     })
 
     return Array.from(map.values())
-      .filter((item) => item.stockCount <= 2)
-      .sort((a, b) => a.stockCount - b.stockCount)
-  }, [devices])
+    .filter((item) => {
+
+    // 総数3以上
+    if (item.totalCount >= 3) {
+        return item.stockCount <= 2
+    }
+
+    // 総数2
+    if (item.totalCount === 2) {
+        return item.stockCount <= 1
+    }
+
+    // 総数1
+    if (item.totalCount === 1) {
+        return item.stockCount === 0
+    }
+
+    return false
+    })
+    .sort((a, b) => a.stockCount - b.stockCount)
+    }, [devices])
 
   if (summaries.length === 0) return null
 
@@ -117,13 +140,6 @@ className={`
             機器残数
             </span>
 
-            <span className="
-                            text-[10px]
-                            text-gray-500 
-                            font-normal"
-                            >
-            残数2台以下の機種を表示
-            </span>          
             <button
             onClick={() => setCollapsed(!collapsed)}
             className="
