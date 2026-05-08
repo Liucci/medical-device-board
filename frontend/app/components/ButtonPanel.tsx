@@ -9,7 +9,8 @@ import {
   Plus,
   History,
   Settings,
-  FileText
+  FileText,
+  LogOut
 } from "lucide-react"
 //import { Device } from "../types/deviceTypes"
 
@@ -39,26 +40,26 @@ type Props = {
   deleteDeviceModels: (ids: number[]) => Promise<void>
   maintenanceTypes: { id: number; name: string; device_type_id: number; device_model_id: number | null; interval_days: number }[]
   addMaintenanceType: (data: {
-    name: string
-    deviceTypeId: number
-    deviceModelId: number | null
-    intervalDays: number
-  }) => Promise<void>
+                              name: string
+                              deviceTypeId: number
+                              deviceModelId: number | null
+                              intervalDays: number
+                            }) => Promise<void>
   renameMaintenanceType: (
-    id: number,
-    data: {
-      name: string
-      intervalDays: number
-    }
-  ) => Promise<void>
+                          id: number,
+                          data: {
+                            name: string
+                            intervalDays: number
+                          }
+                        ) => Promise<void>
   deleteMaintenanceTypes: (ids: number[]) => Promise<void>
   histories: any[]
   getWardDeviceList: () => any[]
-  getLatestMaintenanceTask:
-                          (deviceId?: number) => {
-                            name: string
-                            due_at: string
-                          } | null
+  getLatestMaintenanceTask:(deviceId?: number) => {
+                                                    name: string
+                                                    due_at: string
+                                                  } | null
+  handleLogout: () => Promise<void>
 }
 
 export default function ButtonPanel({
@@ -90,7 +91,8 @@ export default function ButtonPanel({
   deleteMaintenanceTypes,
   histories,
   getWardDeviceList,
-  getLatestMaintenanceTask
+  getLatestMaintenanceTask,
+  handleLogout
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
@@ -148,6 +150,15 @@ export default function ButtonPanel({
   titleSize="text-xs"
   icon={<FileText size={38} />}
 />
+<div className="h-4" />
+
+<ButtonGrid
+  onAdd={handleLogout}
+  title={"終了"}
+  titleSize="text-xs"
+  icon={<LogOut size={38} />}
+/>
+
       {openDeviceModal &&
         <DeviceModal
           onCreate={addDevice}
