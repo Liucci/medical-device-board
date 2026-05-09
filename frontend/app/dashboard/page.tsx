@@ -2388,6 +2388,18 @@ export default function Page() {
     router.push("/login")
   }
 
+  //未login時はlogin画面に遷移
+  useEffect(() => {
+    // session確認中
+    if (currentUser === undefined) {
+      return
+    }
+    // 未login
+    if (!currentUser) {
+      router.push("/login")
+    }
+  }, [currentUser, router])
+
   //draggingDeviceの状態が変わるたびにコンソールに出力する
   useEffect(() => {
     console.log("selected draggingDevice", draggingDevice)
@@ -2513,7 +2525,9 @@ export default function Page() {
     fetchHistories()
   }, [])
 
-  
+  if (!currentUser) {
+  return null
+  }
 
     return (
       <div

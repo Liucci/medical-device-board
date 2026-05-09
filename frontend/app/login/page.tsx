@@ -103,6 +103,7 @@ export default function LoginPage() {
     console.log("login user:", userData)
     
     setCurrentUser(userData)
+    console.log("push dashboard")
     router.push("/dashboard")
   }
   return (

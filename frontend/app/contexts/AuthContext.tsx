@@ -3,8 +3,10 @@
 import {
   createContext,
   useContext,
-  useState
+  useState, 
+  useEffect
 } from "react"
+import { supabase }from "../lib/supabase"
 
 type CurrentUser = {
 
@@ -21,13 +23,15 @@ type CurrentUser = {
 
 type AuthContextType = {
 
-  currentUser: CurrentUser | null
+  currentUser:
+    CurrentUser | null | undefined
 
   setCurrentUser:
     React.Dispatch<
-      React.SetStateAction<CurrentUser | null>
-    >
-}
+      React.SetStateAction<
+        CurrentUser | null | undefined
+      >
+  >}
 // ログイン中ユーザー情報をアプリ全体で共有するContext。
 // hospital_id や role 判定、権限制御などに使用する。
 const AuthContext =
@@ -42,19 +46,58 @@ export function AuthProvider({
 }) {
 
   const [currentUser, setCurrentUser] =
-    useState<CurrentUser | null>(null)
+    useState<
+      CurrentUser | null | undefined
+    >(undefined)
+  useEffect(() => {
+    const restoreSession = async () => {
+
+      // 現在session取得
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+
+      // 未login
+  if (!user) {
+
+    setCurrentUser(null)
+
+    return
+}
+      // public.users取得
+      const {
+        data: userData,
+        error
+      } = await supabase
+        .from("users")
+        .select(`
+          id,
+          hospital_id,
+          display_name,
+          role,
+          is_active
+        `)
+        .eq("id", user.id)
+        .single()
+
+      if (error || !userData) {
+        console.error(error)
+        return
+      }
+      // currentUser復元
+      setCurrentUser(userData)
+    }
+    restoreSession()
+}, [])
 
   return (
-
     <AuthContext.Provider
       value={{
         currentUser,
         setCurrentUser
       }}
     >
-
       {children}
-
     </AuthContext.Provider>
   )
 }
@@ -62,15 +105,11 @@ export function AuthProvider({
 // currentUser を取得するためのhook。
 // app内の各componentで使用する。
 export function useAuth() {
-
   const context = useContext(AuthContext)
-
   if (!context) {
-
     throw new Error(
       "useAuth must be used within AuthProvider"
     )
   }
-
   return context
 }
