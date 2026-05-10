@@ -52,7 +52,7 @@ export default function WardArea({
   const getWardDeviceCount = (wardId: number) => {
     const roomIds = rooms
       .filter(room => room.wardId === wardId)
-      .map(room => room.id)
+      .map(room => room.roomId)
 
     return deviceList.filter(
       device =>
@@ -247,12 +247,12 @@ return (
                     })
                     .map(room => (
                     <RoomContainer
-                      key={room.id}
+                      key={room.roomId}
                       deviceList={deviceList}
                       deviceTypes={deviceTypes}
                       deviceModels={deviceModels}
                       rooms={rooms}
-                      roomId={room.id}
+                      roomId={room.roomId}
                       roomName={room.roomName}
                       patientName={
               

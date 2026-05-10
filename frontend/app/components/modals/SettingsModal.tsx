@@ -19,7 +19,7 @@ type Props = {
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
   wards: { wardId: number; wardName: string }[]
-  rooms: { id: number; wardId: number; roomName: string; patientName: string }[]
+  rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<void>
   deleteStockAreas: (ids: number[]) => Promise<void>

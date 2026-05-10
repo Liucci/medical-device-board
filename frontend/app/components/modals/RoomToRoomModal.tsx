@@ -44,7 +44,7 @@ export default function RoomToRoomModal({
 
   const currentRoom =
     rooms.find(
-      r => r.id === pendingDevice?.roomId
+      r => r.roomId === pendingDevice?.roomId
     )
 
   // ===== 現在ward =====
@@ -119,7 +119,7 @@ export default function RoomToRoomModal({
 
     const room =
       rooms.find(
-        r => r.id === selectedRoomId
+        r => r.roomId === selectedRoomId
       )
 
     // 初回患者名表示
@@ -384,8 +384,8 @@ export default function RoomToRoomModal({
                   {filteredRooms.map(r => (
 
                     <option
-                      key={r.id}
-                      value={r.id}
+                      key={r.roomId}
+                      value={r.roomId}
                     >
                       {r.roomName}
                     </option>

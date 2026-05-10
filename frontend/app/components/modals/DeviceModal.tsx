@@ -9,14 +9,15 @@ import { createPortal } from "react-dom"
   onCreate: (device: Device) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; device_type_id: number; name: string }[]
-
+  hospitalId:string
 }
 
 export default function DeviceModal({
                                       onClose,
                                       onCreate,
                                       deviceTypes,
-                                      deviceModels
+                                      deviceModels,
+                                      hospitalId
                                     }: Props) 
   {
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
@@ -38,6 +39,7 @@ export default function DeviceModal({
     if (selectedTypeID === "" || selectedModelID === "") return
 
   const newDevice: Device = {
+    hospitalId: hospitalId,
     type: selectedTypeID,
     model: selectedModelID,
     assetType: selectedAssetType,

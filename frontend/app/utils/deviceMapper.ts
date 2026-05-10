@@ -2,6 +2,7 @@ import { DeviceDB,Device } from "../types/deviceTypes"
 // DBのDeviceと、フロントエンドで扱うDeviceの相互変換関数
 export const normalizeDevice = (d: DeviceDB): Device => ({
   id: d.id,
+  hospitalId:d.hospital_id,
   type: d.type,
   model: d.model,
   assetType: d.asset_type as Device["assetType"], // ←ここだけ改善余地
@@ -19,6 +20,8 @@ export const normalizeDevice = (d: DeviceDB): Device => ({
   standby: d.standby ?? false,
   standbyStartedAt: d.standby_started_at ?? undefined,
   standbyFinishedAt: d.standby_finished_at ?? undefined,
+  createdBy:d.created_by?? undefined,
+  updatedBy:d.updated_by?? undefined,
 
   // UI専用
   row: 0,
@@ -27,6 +30,7 @@ export const normalizeDevice = (d: DeviceDB): Device => ({
 // フロントエンドのDeviceをDB用のDeviceDBに変換する関数
 export const toDBDevice = (d: Device) => ({
   //id: d.id,
+  hospital_id:d.hospitalId,
   type: d.type,
   model: d.model,
   asset_type: d.assetType,
@@ -44,5 +48,6 @@ export const toDBDevice = (d: Device) => ({
   standby: d.standby ?? false,
   standby_started_at: d.standbyStartedAt ?? null,
   standby_finished_at: d.standbyFinishedAt ?? null,
-
+  created_by:d.createdBy??null,
+  updated_by:d.updatedBy??null
 })

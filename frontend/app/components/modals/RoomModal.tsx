@@ -35,7 +35,7 @@ export default function RoomModal({
         pendingDevice.roomId
       )
       const room = rooms.find(
-        r => r.id === pendingDevice.roomId
+        r => r.roomId === pendingDevice.roomId
       )
       setPatientName(
         room?.patientName ?? ""
@@ -56,7 +56,7 @@ export default function RoomModal({
   useEffect(() => {
     if (!selectedRoomId) return
 
-    const selectedRoom = rooms.find(r => r.id === selectedRoomId)
+    const selectedRoom = rooms.find(r => r.roomId === selectedRoomId)
 
     if (selectedRoom) {
       setPatientName(selectedRoom.patientName ?? "")
@@ -93,7 +93,7 @@ export default function RoomModal({
           >
             <option value="">選択してください</option>
             {filteredRooms.map(r => (
-              <option key={r.id} value={r.id}>
+              <option key={r.roomId} value={r.roomId}>
                 {r.roomName}
               </option>
             ))}

@@ -22,7 +22,7 @@ type Props = {
   deviceModels: { id: number; device_type_id: number; name: string }[]
   stockAreas: { id: number; name: string }[]
   wards: { wardId: number; wardName: string }[]
-  rooms: { id: number; wardId: number; roomName: string ;patientName:string}[]
+  rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<void>
   deleteStockAreas: (ids: number[]) => Promise<void>
@@ -60,6 +60,7 @@ type Props = {
                                                     due_at: string
                                                   } | null
   handleLogout: () => Promise<void>
+  hospitalId:string
 }
 
 export default function ButtonPanel({
@@ -92,7 +93,8 @@ export default function ButtonPanel({
   histories,
   getWardDeviceList,
   getLatestMaintenanceTask,
-  handleLogout
+  handleLogout,
+  hospitalId
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
@@ -165,6 +167,7 @@ export default function ButtonPanel({
           onClose={() => setOpenDeviceModal(false)}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
+          hospitalId={hospitalId}
         />
       }
 

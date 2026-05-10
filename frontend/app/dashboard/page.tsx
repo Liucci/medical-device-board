@@ -15,6 +15,7 @@ import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
 import { normalizeRoom } from "../utils/roomsMapper"
 import { normalizeWard } from "../utils/wardsMapper"
+import { normalizeStockArea } from "../utils/stockAreaMapper"
 
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
@@ -79,27 +80,78 @@ export default function Page() {
 
   //device tableのデータをDBから取得する関数
   const fetchDevices = async () => {
+    if (!currentUser) {return}
     const { data, error } = await supabase
-      .from('devices')
-      .select('*')
-
+    .from("devices")
+    .select("*")
+    .eq(
+      "hospital_id",
+      currentUser?.hospital_id
+    )
     if (error) {
       console.error("fetchDevices error:", error)
+      console.error(JSON.stringify(error, null, 2))
       return
     }
+
     //DBから取得したデータをnormalizeDevice関数でDevice型に変換してからstateに格納する
     if (data) {
       setDeviceList(data.map(normalizeDevice))
     }
 
   }
+  //DBのstock_areas tableを読み込む
+  const fetchStockAreas = async () => {
+    if (!currentUser) {return}
+    const { data, error } = await supabase
+      .from('stock_areas')
+      .select('*')
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    if (data) {
+      setStockAreas(data)
+    }
+  }
+  //DBのwards tableを読み込む
+  const fetchWards = async () => {
+    if (!currentUser) {return}  
+    const { data, error } = await supabase
+      .from('wards')
+      .select('*')
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    if (data) {
+      setWards(
+        data.map(normalizeWard)
+      )      
+    }
+  }
   //DBのrooms tableから病室の情報を取得し、roomsに格納する関数
   const fetchRooms = async () => {
-
+    if (!currentUser) {return}
     const { data, error } =
       await supabase
         .from("rooms")
         .select("*")
+        .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+        )
 
     if (error) {
       console.error(
@@ -114,22 +166,88 @@ export default function Page() {
         data.map(normalizeRoom)
       )
     }
-  }  
+  } 
+  //DBのtypes tableとmodels tableを読み込む
+  const fetchMaster = async () => {
+    if (!currentUser) {return}
+    const { data: types } = await supabase
+      .from('device_types')
+      .select('*')
+      .eq(
+      "hospital_id",
+      currentUser?.hospital_id
+      )
+    const { data: models } = await supabase
+      .from('device_models')
+      .select('*')
+      .eq(
+      "hospital_id",
+      currentUser?.hospital_id
+      )
+    if (types) setDeviceTypes(types)
+    if (models) setDeviceModels(models)
+  }
+  //DBからdevice_maintenance_tasks tableを取得しtasksに格納する関数
+  const fetchTasks = async () => {
+    if (!currentUser) {return}
+    const { data, error } = await supabase
+      .from("device_maintenance_tasks")
+      .select("*")
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+    setTasks(data || [])
+  }
+  //DBからmaintenance_types tableを取得しmaintenanceTypesに格納する関数
+  const fetchMaintenanceTypes = async () => {
+    if (!currentUser) {return}
+    const { data, error } = await supabase
+      .from("maintenance_types")
+      .select("*")
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
+      if (error) {
+        console.error(error)
+        return
+      }
+
+    setMaintenanceTypes(data || [])
+  }
+
   //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
   const addDevice = async (device: Omit<Device, 'id'>) => {
-    
+    if (!currentUser) {return} 
+      // hospital_id付与
+    const deviceWithHospital = {
+      ...device,
+      hospitalId:
+        currentUser.hospital_id
+    }
     // ① DB用データ作成（idなし）
     const dbData = {
-      ...toDBDevice(device),
+      ...toDBDevice(deviceWithHospital),
       status: "stock",
       stock_area_id: 1,
       room_id: null,
       rental_start_date: device.rentalStartDate || null,
       rental_end_date: device.rentalEndDate || null,
+
     }
 
     // デバッグ（必要なら）
     console.log("insert data:", dbData)
+
 
     // ② DBに追加してidを取得
     const { data, error } = await supabase
@@ -140,7 +258,14 @@ export default function Page() {
 
     if (error) {
       console.error("addDevice error:", error)
-      return
+      console.error(
+                    JSON.stringify(
+                      error,
+                      null,
+                      2
+      )
+    )
+          return
     }
     if (!data) return
     // ===== 履歴追加 =====
@@ -154,6 +279,7 @@ export default function Page() {
     const { error: historyError } = await supabase
           .from("device_histories")
           .insert({
+            hospital_id:currentUser?.hospital_id,
             device_id: data.id,
             action_type: "create",
             status: "stock",
@@ -272,6 +398,7 @@ export default function Page() {
   }
 
   const handleDropToStock = async (device: Device, stockAreaId: number) => {
+    if (!currentUser) {return}  
     // ① UI即更新（UX）
     setDeviceList(prev =>
       prev.map(d =>
@@ -301,6 +428,11 @@ export default function Page() {
         note: null               // ←追加
       })
       .eq('id', device.id)
+      .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+      )
+
 
     if (error) {
       console.error(error)
@@ -318,6 +450,7 @@ export default function Page() {
     const { error: historyError } = await supabase
       .from("device_histories")
       .insert({
+        hospital_id:currentUser?.hospital_id,
         device_id: device.id,
         action_type: "move",
         device_type_name: type?.name ?? null,
@@ -339,12 +472,11 @@ export default function Page() {
     // DBから再取得
     await fetchHistories()
   }
-
-
   const handleDropToWard = async (
     device: Device,
     wardId: number
   ) => {
+    if (!currentUser) {return}  
     //保守中はWardAreAへのdrag禁止
     if (device.isUnderMaintenance) {
       alert(
@@ -381,7 +513,7 @@ export default function Page() {
     roomID: number,
     patientName: string
   ) => {
-
+    if (!currentUser) {return}  
     if (
       !pendingDevice ||
       pendingDevice.id === undefined
@@ -402,7 +534,7 @@ export default function Page() {
 
     const prevRoom =
       rooms.find(
-        r => r.id === prevRoomId
+        r => r.roomId === prevRoomId
       )
 
     // 患者名はroom由来
@@ -419,12 +551,14 @@ export default function Page() {
           patient_name: patientName
         })
         .eq("id", roomID)
-
+        .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+        )
     if (roomError) {
       console.error(roomError)
       return
     }
-
     // device更新
     const { error: deviceError } =
       await supabase
@@ -434,7 +568,10 @@ export default function Page() {
           room_id: roomID,
         })
         .eq("id", pendingDevice.id)
-
+        .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+        )
     if (deviceError) {
       console.error(deviceError)
       return
@@ -549,63 +686,32 @@ export default function Page() {
       await supabase
         .from("device_histories")
         .insert({
-
-          device_id:
-            pendingDevice.id,
-
-          action_type:
-            actionType,
-
-          device_type_name:
-            type?.name ?? null,
-
-          device_model_name:
-            model?.name ?? null,
-
-          status:
-            "room",
-
-          room_id:
-            roomID,
-
-          room_name:
-            room?.roomName ?? null,
-
-          stock_area_id:
-            null,
-
-          stock_area_name:
-            null,
-
-          patient_name:
-            patientName || null,
-
-          management_number:
-            pendingDevice.managementNumber ?? null,
-
-          serial_number:
-            pendingDevice.serialNumber ?? null,
-
-          note:
-            pendingDevice.note ?? null,
-
+          hospital_id:currentUser?.hospital_id,
+          device_id:pendingDevice.id,
+          action_type:actionType,
+          device_type_name:type?.name ?? null,
+          device_model_name:model?.name ?? null,
+          status:"room",
+          room_id:roomID,
+          room_name:room?.roomName ?? null,
+          stock_area_id:null,
+          stock_area_name:null,
+          patient_name:patientName || null,
+          management_number:pendingDevice.managementNumber ?? null,
+          serial_number:pendingDevice.serialNumber ?? null,
+          note:pendingDevice.note ?? null,
           message
         })
 
     if (historyError) {
-
       console.error(
         "history insert error:",
         historyError
       )
     }
-
     // ===== 履歴再取得 =====
-
     await fetchHistories()
-
     // ===== UI更新 =====
-
     setDeviceList(prev =>
       prev.map(d =>
         d.id === pendingDevice.id
@@ -718,6 +824,7 @@ export default function Page() {
     setTargetWardId(null)
   }
   const handleRoomCancel = () => {
+    if (!currentUser) {return}  
     setRoomModalOpen(false)
     setPendingDevice(null)
     setTargetWardId(null)
@@ -727,7 +834,7 @@ export default function Page() {
     patientName: string,
     samePatient: boolean
   ) => {
-
+    if (!currentUser) {return}  
     if (
       !pendingDevice ||
       pendingDevice.id === undefined
@@ -745,7 +852,7 @@ export default function Page() {
 
     const prevRoom =
       rooms.find(
-        r => r.id === prevRoomId
+        r => r.roomId === prevRoomId
       )
 
     const prevPatient =
@@ -760,6 +867,10 @@ export default function Page() {
           patient_name: patientName
         })
         .eq("id", roomID)
+        .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+        )
 
     if (roomError) {
       console.error(roomError)
@@ -774,6 +885,10 @@ export default function Page() {
           room_id: roomID
         })
         .eq("id", pendingDevice.id)
+        .eq(
+          "hospital_id",
+          currentUser?.hospital_id
+        )
 
     if (deviceError) {
       console.error(deviceError)
@@ -784,7 +899,7 @@ export default function Page() {
 
     const room =
       rooms.find(
-        r => Number(r.id) === Number(roomID)
+        r => Number(r.roomId) === Number(roomID)
       )
 
     const type =
@@ -867,6 +982,7 @@ export default function Page() {
       await supabase
         .from("device_histories")
         .insert({
+          hospital_id:currentUser?.hospital_id,
           device_id:
             pendingDevice.id,
 
@@ -995,6 +1111,7 @@ export default function Page() {
     setTargetWardId(null)
   }
   const handleRoomToRoomCancel = () => {
+    if (!currentUser) {return}  
     setRoomToRoomModalOpen(false)
     setPendingDevice(null)
     setTargetWardId(null)
@@ -1002,6 +1119,7 @@ export default function Page() {
 
     // Device削除関数
   const deleteDevice = async (id: number) => {
+    if (!currentUser) {return}  
     // 🔽 事前準備：削除対象のdevice情報を先に取得（履歴のため）
     const target = deviceList.find(d => d.id === id)
     if (!target) return
@@ -1020,7 +1138,10 @@ export default function Page() {
       .from("device_maintenance_tasks")
       .delete()
       .eq("device_id", id)
-
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
     if (taskError) {
       console.error("task delete error:", taskError)
       return
@@ -1031,7 +1152,10 @@ export default function Page() {
       .from('devices')
       .delete()
       .eq('id', id)
-
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
     if (error) {
       console.error("device delete error:", error)
       return
@@ -1040,6 +1164,7 @@ export default function Page() {
     const { error: historyError } = await supabase
       .from("device_histories")
       .insert({
+        hospital_id:currentUser?.hospital_id,
         device_id: id,
         action_type: "delete",
         device_type_name: type?.name ?? null,
@@ -1100,9 +1225,8 @@ export default function Page() {
     maintenanceStartedAt?: string
     maintenanceFinishedAt?: string
   }) => {
-
+    if (!currentUser) {return}  
     // ===== 現在device =====
-
     const target =
       deviceList.find(
         d => d.id === data.id
@@ -1141,10 +1265,7 @@ export default function Page() {
       .from("devices")
 
       .update({
-
-        management_number:
-          data.managementNumber,
-
+        management_number:data.managementNumber,
         serial_number:
           data.serialNumber,
 
@@ -1168,9 +1289,11 @@ export default function Page() {
           data.maintenanceFinishedAt
             || null,
       })
-
       .eq("id", data.id)
-
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
     if (error) {
 
       console.error(
@@ -1261,7 +1384,7 @@ export default function Page() {
           .from("device_histories")
 
           .insert({
-
+            hospital_id:currentUser?.hospital_id,
             device_id:
               data.id,
 
@@ -1341,7 +1464,7 @@ export default function Page() {
           .from("device_histories")
 
           .insert({
-
+            hospital_id:currentUser?.hospital_id,
             device_id:
               data.id,
 
@@ -1418,10 +1541,12 @@ export default function Page() {
     setStockInfoModalOpen(false)
   }
   const handleStockInfoCancel = () => {
+    if (!currentUser) {return}  
     setStockInfoModalOpen(false)
   }
   //RoomDeviceModalを開くコンポーネント
   const openRoomDeviceInfoModal = (device: Device) => {
+    if (!currentUser) {return}  
     if  (device.roomId === undefined) return    
         setSelectedRoomDevice(device)
         setRoomDeviceInfoModalOpen(true)
@@ -1443,7 +1568,7 @@ export default function Page() {
     standbyFinishedAt?: string
 
   }) => {
-
+    if (!currentUser) {return}  
     // ① devices更新（機器情報）
     const { error: deviceError } = await supabase
       .from('devices')
@@ -1454,9 +1579,13 @@ export default function Page() {
         standby: data.standby,
         standby_started_at: data.standbyStartedAt || null,
         standby_finished_at: data.standbyFinishedAt || null,
-
       })
       .eq('id', data.id)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
 
     if (deviceError) {
       console.error("device update error:", deviceError)
@@ -1470,6 +1599,11 @@ export default function Page() {
         patient_name: data.patientName
       })
       .eq('id', data.roomId)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
 
     if (roomError) {
       console.error("room update error:", roomError)
@@ -1506,10 +1640,12 @@ export default function Page() {
   }
 
   const handleRoomDeviceInfoCancel = () => {
+    if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
   }
   //DBのstock_areas tableに新しいストックエリアを追加する関数
   const addStockArea = async (name: string) => {
+    if (!currentUser) {return}
     // 前処理: 余分な空白を削除し、空文字を弾く
     const trimmed = name.trim()
     // 空文字チェック
@@ -1526,7 +1662,10 @@ export default function Page() {
     //DBのstock_areas tableに新しいストックエリアを追加する
     const { data, error } = await supabase
       .from("stock_areas")
-      .insert([{ name: trimmed }])
+      .insert([{
+                hospital_id:currentUser?.hospital_id, 
+                name: trimmed 
+              }])
       .select()
       .single()
     if (error) {
@@ -1534,10 +1673,11 @@ export default function Page() {
       alert("追加に失敗しました")
       return
     }
-    setStockAreas(prev => [...prev, data])
+    setStockAreas(prev => [...prev, normalizeStockArea(data)])
   }
   //DBのstock_areas tableからストックエリア名を変更する関数
   const renameStockArea = async (id: number, newName: string) => {
+    if (!currentUser) {return}  
     const trimmed = newName.trim()
 
     if (!trimmed) return
@@ -1558,6 +1698,10 @@ export default function Page() {
       .from("stock_areas")
       .update({ name: trimmed })
       .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (error) {
       console.error(error.message)
@@ -1574,6 +1718,7 @@ export default function Page() {
   }
   //DBのstock_areas tableからストックエリアを削除する関数
   const deleteStockAreas = async (ids: number[]) => {
+    if (!currentUser) {return}
     //削除するstockAreaに機器が存在したら削除できないようにする
     // deviceListの"stock"状態のdeviceのstockAreaIDがidsに含まれているかチェック
     const usedIds = new Set(
@@ -1593,7 +1738,10 @@ export default function Page() {
       .from("stock_areas")
       .delete()
       .in("id", ids)
-
+      .eq(
+            "hospital_id",
+            currentUser?.hospital_id
+      )
     if (error) {
       console.error(error.message)
       alert("削除に失敗しました")
@@ -1604,6 +1752,7 @@ export default function Page() {
   }
   //DBのwards tableに新しい病棟を追加する関数
   const addWard = async (name: string) => {
+    if (!currentUser) {return}
     const trimmed = name.trim()
 
     if (!trimmed) return
@@ -1620,7 +1769,10 @@ export default function Page() {
 
     const { data, error } = await supabase
       .from("wards")
-      .insert([{ name: trimmed }])
+      .insert([{
+                hospital_id:currentUser?.hospital_id, 
+                name: trimmed 
+              }])
       .select()
       .single()
 
@@ -1630,12 +1782,16 @@ export default function Page() {
       return
     }
 
-    setWards(prev => [...prev, data])
+    setWards(prev => [
+      ...prev,
+      normalizeWard(data)
+    ])  
   }
   //DBのwards tableから病棟名を変更する関数
   const renameWard = async (id: number, newName: string) => {
+    
     const trimmed = newName.trim()
-
+    if (!currentUser) {return}  
     if (!trimmed) return
 
     // 🔥 重複チェック（自分は除外）
@@ -1654,7 +1810,10 @@ export default function Page() {
       .from("wards")
       .update({ name: trimmed })
       .eq("id", id)
-
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
     if (error) {
       console.error(error.message)
       alert("病棟名の変更に失敗しました")
@@ -1670,10 +1829,10 @@ export default function Page() {
   }
   //DBのwards tableから病棟を削除する関数
   const deleteWards = async (ids: number[]) => {
-
+    if (!currentUser) {return}
     // 🔥 対象Wardに属するRoom取得
     const targetRooms = rooms.filter(r => ids.includes(r.wardId))
-    const roomIds = targetRooms.map(r => r.id)
+    const roomIds = targetRooms.map(r => r.roomId)
 
     // 🔥 機器存在チェック（最重要）
     const hasDevice = deviceList.some(
@@ -1692,7 +1851,11 @@ export default function Page() {
       const { error: roomError } = await supabase
         .from("rooms")
         .delete()
-        .in("id", roomIds)
+        .in("id", roomIds)//複数同時削除できる
+        .eq(
+            "hospital_id",
+            currentUser?.hospital_id
+        )
 
       if (roomError) {
         console.error(roomError.message)
@@ -1706,6 +1869,11 @@ export default function Page() {
       .from("wards")
       .delete()
       .in("id", ids)
+      .eq(
+      "hospital_id",
+      currentUser?.hospital_id
+      )
+
 
     if (wardError) {
       console.error(wardError.message)
@@ -1714,86 +1882,58 @@ export default function Page() {
     }
 
     // ===== UI更新 =====
-    setRooms(prev => prev.filter(r => !roomIds.includes(r.id)))
+    setRooms(prev => prev.filter(r => !roomIds.includes(r.roomId)))
     setWards(prev => prev.filter(w => !ids.includes(w.wardId)))
   }
   //DBのrooms tableに新しい病室を追加する関数
   const addRoom = async (wardId: number,roomName: string) => {
-      const trimmed =roomName.trim()
+    if (!currentUser) {return}  
+    const trimmed =roomName.trim()
       if (!trimmed) return
 
       // ===== 重複チェック =====
-
-      const exists = rooms.some(
-        r =>
-          r.wardId === wardId &&
-          r.roomName.toLowerCase()
-            === trimmed.toLowerCase()
+    const exists = rooms.some(
+      r =>
+        r.wardId === wardId &&
+        r.roomName.toLowerCase()
+          === trimmed.toLowerCase()
+    )
+    if (exists) {
+      alert(
+        "同じ名前の部屋がこの病棟内に既に存在します"
       )
-
-      if (exists) {
-
-        alert(
-          "同じ名前の部屋がこの病棟内に既に存在します"
-        )
-
-        return
-      }
-
+      return
+    }
       // ===== DB insert =====
-
       const { data, error } =
         await supabase
           .from("rooms")
           .insert([{
-
-            // DB列名
-            name: trimmed,
-
-            ward_id: wardId
-
+                    hospital_id:currentUser?.hospital_id,
+                    name: trimmed,
+                    ward_id: wardId
           }])
           .select()
           .single()
 
       if (error) {
-
         console.error(error.message)
-
         alert("部屋の追加に失敗しました")
 
         return
       }
-
-      // ===== normalize =====
-
-      const normalizedRoom = {
-
-        id: data.id,
-
-        wardId:
-          data.ward_id,
-
-        roomName:
-          data.name,
-
-        patientName:
-          data.patient_name ?? ""
-      }
-
       setRooms(prev => [
         ...prev,
-        normalizedRoom
+        normalizeRoom(data)
       ])
   }  //DBのrooms tableから病室名を変更する関数
   const renameRoom = async (id: number, newName: string) => {
+    if (!currentUser) {return}  
     const trimmed = newName.trim()
-
     if (!trimmed) return
-
     const exists = rooms.some(
       r =>
-        r.id !== id &&
+        r.roomId !== id &&
         (
           r.roomName ?? ""
         ).toLowerCase()
@@ -1809,6 +1949,10 @@ export default function Page() {
       .from("rooms")
       .update({ name: trimmed })
       .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (error) {
       console.error(error.message)
@@ -1818,38 +1962,39 @@ export default function Page() {
 
     setRooms(prev =>
       prev.map(r =>
-        r.id === id ? { ...r, roomName: trimmed } : r
+        r.roomId === id ? { ...r, roomName: trimmed } : r
       )
     )
   }
   //DBのrooms tableから病室を削除する関数
   const deleteRooms = async (ids: number[]) => {
-
+    if (!currentUser) {return}
     // 🔥 機器存在チェック
     const hasDevice = deviceList.some(
       d => d.roomId && ids.includes(d.roomId)
     )
-
     if (hasDevice) {
       alert("機器が存在する部屋は削除できません")
       return
     }
-
     const { error } = await supabase
       .from("rooms")
       .delete()
       .in("id", ids)
-
+      .eq(
+      "hospital_id",
+      currentUser?.hospital_id
+      )
     if (error) {
       console.error(error.message)
       alert("削除に失敗しました")
       return
     }
-
-    setRooms(prev => prev.filter(r => !ids.includes(r.id)))
+    setRooms(prev => prev.filter(r => !ids.includes(r.roomId)))
   }
   //DBのdevice_types tableに新しい機種を追加する関数
   const addDeviceType = async (name: string) => {
+    if (!currentUser) {return}
     const trimmed = name.trim()
     if (!trimmed) return
 
@@ -1865,7 +2010,10 @@ export default function Page() {
 
     const { data, error } = await supabase
       .from("device_types")
-      .insert([{ name: trimmed }])
+      .insert([{ 
+                hospital_id:currentUser?.hospital_id,
+                name: trimmed 
+      }])
       .select()
       .single()
 
@@ -1879,13 +2027,12 @@ export default function Page() {
   }
   //DBのdevice_types tableの機種名を変更する関数
   const renameDeviceType = async (id: number, newName: string) => {
+    if (!currentUser) {return}  
     const trimmed = newName.trim()
-
     if (!trimmed) {
       alert("名前を入力してください")
       return
     }
-
     // 🔥 重複チェック（自分以外）
     const exists = deviceTypes.some(
       t =>
@@ -1902,6 +2049,11 @@ export default function Page() {
       .from("device_types")
       .update({ name: trimmed })
       .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
 
     if (error) {
       console.error(error.message)
@@ -1918,6 +2070,7 @@ export default function Page() {
   }
   //DBのdevice_types tableから機種を削除する関数
   const deleteDeviceTypes = async (ids: number[]) => {
+    if (!currentUser) {return}
     // 🔥 紐づくモデル取得
     const relatedModels = deviceModels.filter(m =>
       ids.includes(m.device_type_id)
@@ -1932,6 +2085,10 @@ export default function Page() {
       .from("device_types")
       .delete()
       .in("id", ids)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (error) {
       console.error(error.message)
@@ -1946,6 +2103,7 @@ export default function Page() {
   }
   //DBのdevice_models tableに新しい型式を追加する関数
   const addDeviceModel = async (deviceTypeId: number, name: string) => {
+    if (!currentUser) {return}
     const trimmed = name.trim()
     if (!trimmed) return
 
@@ -1964,6 +2122,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from("device_models")
       .insert([{
+        hospital_id:currentUser?.hospital_id,
         name: trimmed,
         device_type_id: deviceTypeId
       }])
@@ -1981,7 +2140,7 @@ export default function Page() {
   //DBのdevice_models tableから型式名を変更する関数
   const renameDeviceModel = async (id: number, newName: string) => {
     const trimmed = newName.trim()
-
+    if (!currentUser) {return}  
     if (!trimmed) {
       alert("名前を入力してください")
       return
@@ -2008,6 +2167,11 @@ export default function Page() {
       .from("device_models")
       .update({ name: trimmed })
       .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
 
     if (error) {
       console.error(error.message)
@@ -2024,6 +2188,7 @@ export default function Page() {
   }
   //DBのdevice_models tableから型式を削除する関数
   const deleteDeviceModels = async (ids: number[]) => {
+    if (!currentUser) {return}
     // 🔥 device使用チェック（最重要）
     const used = deviceList.filter(d =>
       ids.includes(d.model)
@@ -2038,6 +2203,10 @@ export default function Page() {
       .from("device_models")
       .delete()
       .in("id", ids)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (error) {
       console.error(error.message)
@@ -2057,14 +2226,13 @@ export default function Page() {
                                             deviceModelId: number | null
                                             intervalDays: number
                                           }) => {
-
+    if (!currentUser) {return}
     const trimmed = data.name.trim()
-
     if (!trimmed) return
-
     const { data: inserted, error } = await supabase
       .from("maintenance_types")
       .insert([{
+        hospital_id:currentUser?.hospital_id,
         name: trimmed,
         device_type_id: data.deviceTypeId,
         device_model_id: data.deviceModelId,
@@ -2089,11 +2257,9 @@ export default function Page() {
       intervalDays: number
     }
   ) => {
-
+    if (!currentUser) {return}  
     const trimmed = data.name.trim()
-
     if (!trimmed) return
-
     const { error } = await supabase
       .from("maintenance_types")
       .update({
@@ -2101,7 +2267,10 @@ export default function Page() {
         interval_days: data.intervalDays
       })
       .eq("id", id)
-
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
     if (error) {
       console.error(error)
       alert("変更失敗")
@@ -2122,6 +2291,7 @@ export default function Page() {
   }
   //DBのmaintenance_types tableからメンテナンス種別を削除する関数
   const deleteMaintenanceTypes = async (ids: number[]) => {
+    if (!currentUser) {return}
     const used = tasks.some(t =>
       ids.includes(t.maintenance_type_id)
     )
@@ -2135,6 +2305,10 @@ export default function Page() {
       .from("maintenance_types")
       .delete()
       .in("id", ids)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (error) {
       console.error(error)
@@ -2145,67 +2319,50 @@ export default function Page() {
       prev.filter(t => !ids.includes(t.id))
     )
   }
-  //DBからdevice_maintenance_tasks tableを取得しtasksに格納する関数
-  const fetchTasks = async () => {
-    const { data, error } = await supabase
-      .from("device_maintenance_tasks")
-      .select("*")
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-    setTasks(data || [])
-  }
-  //DBからmaintenance_types tableを取得しmaintenanceTypesに格納する関数
-  const fetchMaintenanceTypes = async () => {
-    const { data, error } = await supabase
-      .from("maintenance_types")
-      .select("*")
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-    setMaintenanceTypes(data || [])
-  }
   //device_idに紐づくタスクをキャンセルする関数
   const cancelTasks = async (deviceId: number) => {
+    if (!currentUser) {return}  
     await supabase
       .from("device_maintenance_tasks")
       .update({ status: "canceled" })
       .eq("device_id", deviceId)
       .eq("status", "pending")
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
+
   }
   //新しいタスクを作成する関数
   const createTasks = async (device: Device, types: any[]) => {
+    if (!currentUser) {return}  
     const now = new Date()
-
     const inserts = types.map(type => {
       const due = new Date(now)
       due.setDate(due.getDate() + type.interval_days)
 
       return {
+        hospital_id:currentUser.hospital_id,
         device_id: device.id,
         maintenance_type_id: type.id,
         due_at: due.toISOString(),
         status: "pending"
       }
     })
-
-    await supabase
-      .from("device_maintenance_tasks")
-      .insert(inserts)
+    const { error } =
+      await supabase
+        .from("device_maintenance_tasks")
+        .insert(inserts)//inserts関数にhosoital_id含んでいる
+    if (error) {
+      console.error(error)
+    }
 }
   //タスク完了ボタンを押したときの処理
   const handleCompleteTask = async (taskId: number) => {
+    if (!currentUser) {return}  
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
-
     const now = new Date().toISOString()
-
     // ① task完了
     const { error: updateError } = await supabase
       .from("device_maintenance_tasks")
@@ -2214,6 +2371,10 @@ export default function Page() {
         completed_at: now
       })
       .eq("id", taskId)
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
 
     if (updateError) {
       console.error(updateError)
@@ -2221,32 +2382,57 @@ export default function Page() {
     }
 
     // ② log作成
+  const { error: logError } =
     await supabase
       .from("device_maintenance_logs")
       .insert({
-        device_id: task.device_id,
-        maintenance_type_id: task.maintenance_type_id,
-        performed_at: now,
-        task_id: task.id
+        hospital_id:
+          currentUser?.hospital_id,
+        device_id:
+          task.device_id,
+        maintenance_type_id:
+          task.maintenance_type_id,
+        performed_at:
+          now,
+        task_id:
+          task.id
       })
-
+  if (logError) {
+    console.error(
+      "maintenance log insert error:",
+      logError
+    )
+    return
+  }
     // ③ 次タスク生成
     const type = maintenanceTypes.find(
       t => t.id === task.maintenance_type_id
     )
-
     if (type?.interval_days) {
       const due = new Date()
       due.setDate(due.getDate() + type.interval_days)
-
-      await supabase
-        .from("device_maintenance_tasks")
-        .insert({
-          device_id: task.device_id,
-          maintenance_type_id: task.maintenance_type_id,
-          due_at: due.toISOString(),
-          status: "pending"
-        })
+      const { error: nextTaskError } =
+        await supabase
+          .from("device_maintenance_tasks")
+          .insert({
+            hospital_id:
+              currentUser?.hospital_id,
+            device_id:
+              task.device_id,
+            maintenance_type_id:
+              task.maintenance_type_id,
+            due_at:
+              due.toISOString(),
+            status:
+              "pending"
+          })
+      if (nextTaskError) {
+        console.error(
+          "next maintenance task insert error:",
+          nextTaskError
+        )
+        return
+      }
     }
 
     // ④ 再取得（これ重要）
@@ -2255,7 +2441,6 @@ export default function Page() {
   //device_idに紐づくタスクを取得する関数
   const getDeviceTasks = (deviceId?: number) => {
     if (!deviceId) return []
-
     return tasks.filter(
       t =>
         Number(t.device_id) === Number(deviceId) &&
@@ -2265,7 +2450,6 @@ export default function Page() {
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
   const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     if (!deviceId) return "green"
-
     // 対象デバイスのタスクだけ取得
     const deviceTasks = tasks.filter(
       t =>
@@ -2291,7 +2475,7 @@ export default function Page() {
 
       // 🟡 2日以内なら警告
       if (days <= 2) hasWarning = true
-    }
+      }
 
     // 🟡があれば黄色
     if (hasWarning) return "yellow"
@@ -2301,9 +2485,14 @@ export default function Page() {
   }
   //DBからdevice_histories tableを取得しhistoriesに格納する関数
   const fetchHistories = async () => {
+    if (!currentUser) {return}  
     const { data, error } = await supabase
       .from("device_histories")
       .select("*")
+      .eq(
+        "hospital_id",
+        currentUser?.hospital_id
+      )
       .order("created_at", { ascending: false })
       .limit(300)
 
@@ -2324,8 +2513,7 @@ export default function Page() {
   }
   //getDeviceTasksを使って、device_idに紐づくタスクの中で最も期限が近いものを返す関数
   // ===== 直近期限task取得 =====
-  const getLatestMaintenanceTask = (deviceId?: number
-      ) => {
+  const getLatestMaintenanceTask = (deviceId?: number) => {
         if (!deviceId) return null
             const deviceTasks =getDeviceTasks(deviceId)
               if (deviceTasks.length === 0) {
@@ -2352,33 +2540,24 @@ export default function Page() {
               due_at:
                 latest.due_at
             }
-          }
+  }
   //機種ごとの残数をカウントする
   const lowStockDevices = deviceList.map(device => {
-
-  const typeName =
-    deviceTypes.find(
-      t => Number(t.id) === Number(device.type)
-    )?.name ?? "不明"
-
-  const modelName =
-    deviceModels.find(
-      m => Number(m.id) === Number(device.model)
-    )?.name ?? "不明"
-
-  return {
-    id: device.id,
-
-    typeName,
-
-    modelName,
-
-    isUnderMaintenance:
-      device.isUnderMaintenance,
-
-    currentWardId:
-      device.roomId ?? null,
-  }
+    const typeName =
+      deviceTypes.find(
+        t => Number(t.id) === Number(device.type)
+      )?.name ?? "不明"
+    const modelName =
+      deviceModels.find(
+        m => Number(m.id) === Number(device.model)
+      )?.name ?? "不明"
+    return {
+      id: device.id,
+      typeName,
+      modelName,
+      isUnderMaintenance:device.isUnderMaintenance,
+      currentWardId:device.roomId ?? null,
+    }
   })
 
   //logout関数
@@ -2411,15 +2590,18 @@ export default function Page() {
   useEffect(() => {
     const updateRooms = async () => {
       for (const room of rooms) {
-        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
+        const devicesInRoom = deviceList.filter(d => d.roomId === room.roomId)
 
         if (devicesInRoom.length === 0 && room.patientName) {
           // ① DB更新
           const { error } = await supabase
             .from('rooms')
             .update({ patient_name: null }) // or ""
-            .eq('id', room.id)
-
+            .eq('id', room.roomId)
+            .eq(
+              "hospital_id",
+              currentUser?.hospital_id
+            )
           if (error) {
             console.error("patient clear error:", error)
             continue
@@ -2428,7 +2610,7 @@ export default function Page() {
           // ② UI更新
           setRooms(prev =>
             prev.map(r =>
-              r.id === room.id
+              r.id === room.roomId
                 ? { ...r, patientName: "" }
                 : r
             )
@@ -2461,70 +2643,23 @@ export default function Page() {
     prevDeviceListRef.current = deviceList
   }, [deviceList])
 
-  //DBからstock_area tableを取得しstockAreaに格納
-  //stock_areas tableの内容をstockAreaに表示するためのuseEffect
-  useEffect(() => {
-    const fetchStockAreas = async () => {
-      const { data, error } = await supabase
-        .from('stock_areas')
-        .select('*')
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      if (data) {
-        setStockAreas(data)
-      }
-      }
-      fetchStockAreas()
-  }, [])
-  //DBからwards tableを取得しwardsに格納
-  //wards tableの内容をwardAreaに表示するためのuseEffect
-  useEffect(() => {
-    //DBからwards tableを取得しwardsに格納
-    const fetchWards = async () => {
-      const { data, error } = await supabase
-        .from('wards')
-        .select('*')
-
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      if (data) {
-        setWards(
-          data.map(normalizeWard)
-        )      
-      }
-    }
-
-      fetchWards()
-  }, [])
-  //rooms tableの内容をroomContainerに表示するためのuseEffect
-  //deviceTypesとdeviceModelsをDBから取得するためのuseEffect
-  useEffect(() => {
-    const fetchMaster = async () => {
-      const { data: types } = await supabase.from('device_types').select('*')
-      const { data: models } = await supabase.from('device_models').select('*')
-
-      if (types) setDeviceTypes(types)
-      if (models) setDeviceModels(models)
-    }
-
-  fetchMaster()
-  }, [])
   //最初のレンダリングでdeviceList, tasks, maintenanceTypesをDBから取得するためのuseEffect
   useEffect(() => {
+
+    if (!currentUser) {
+      return
+    }    
     fetchDevices()
+    fetchStockAreas()
+    fetchWards()
     fetchRooms()
+    fetchMaster()
     fetchTasks()
     fetchMaintenanceTypes()
     fetchHistories()
-  }, [])
+  }, [currentUser])
 
+  //login情報ない場合はnullを返す。結果login画面に遷移される。
   if (!currentUser) {
   return null
   }
@@ -2625,7 +2760,10 @@ export default function Page() {
           histories={histories}
           getWardDeviceList={getWardDeviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
-          handleLogout={handleLogout}
+          handleLogout={handleLogout} 
+          hospitalId={currentUser.hospital_id
+  }
+
         />
       </div>
       {/*機器残数表示パネル */}

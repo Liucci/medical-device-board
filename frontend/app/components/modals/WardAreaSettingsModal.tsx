@@ -2,14 +2,14 @@ import { useState } from "react"
 
 type Props = {
   wards: { wardId: number; wardName: string }[]
-  rooms: { id: number; roomName: string; wardId: number }[]
+  rooms: { roomId: number; roomName: string; wardId: number }[]
 
   addWard: (name: string) => Promise<void>
   renameWard: (id: number, newName: string) => Promise<void>
   deleteWards: (ids: number[]) => Promise<void>
 
   addRoom: (wardId: number, name: string) => Promise<void>
-  renameRoom: (id: number, newName: string) => Promise<void>
+  renameRoom: (roomId: number, newName: string) => Promise<void>
   deleteRooms: (ids: number[]) => Promise<void>
 }
 
@@ -63,11 +63,11 @@ export default function WardAreaSettingsModal({
     .filter(r => r.wardId === selectedWardId)
     .sort((a, b) => a.roomName.localeCompare(b.roomName, "ja"))
   // チェック切り替え
-  const toggleRoom = (id: number) => {
+  const toggleRoom = (roomId: number) => {
     setCheckedRoomIds(prev =>
-      prev.includes(id)
-        ? prev.filter(i => i !== id)
-        : [...prev, id]
+      prev.includes(roomId)
+        ? prev.filter(i => i !== roomId)
+        : [...prev, roomId]
     )
   }
   // 部屋追加
@@ -88,11 +88,11 @@ export default function WardAreaSettingsModal({
     setCheckedRoomIds([])
   }
   // 部屋名前変更（prompt使用の仮実装）
-  const handleRenameRoom = (room: { id: number; roomName: string }) => {
+  const handleRenameRoom = (room: { roomId: number; roomName: string }) => {
     const name = prompt("新しい部屋名", room.roomName)
     if (!name) return
 
-    renameRoom(room.id, name)
+    renameRoom(room.roomId, name)
   }
 
   return (
@@ -145,12 +145,12 @@ export default function WardAreaSettingsModal({
 
         <div className="border rounded p-2 max-h-60 overflow-y-auto">
           {filteredRooms.map(room => (
-            <div key={room.id} className="flex items-center gap-2 py-1">
+            <div key={room.roomId} className="flex items-center gap-2 py-1">
 
               <input
                 type="checkbox"
-                checked={checkedRoomIds.includes(room.id)}
-                onChange={() => toggleRoom(room.id)}
+                checked={checkedRoomIds.includes(room.roomId)}
+                onChange={() => toggleRoom(room.roomId)}
               />
 
               <span className="flex-1">{room.roomName}</span>

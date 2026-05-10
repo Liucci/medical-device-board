@@ -69,7 +69,7 @@ export default function RoomDeviceInfoModal({
     setStandbyFinishedAt(device.standbyFinishedAt || "")
 
 
-    const room = rooms.find(r => r.id === device.roomId)
+    const room = rooms.find(r => r.roomId === device.roomId)
     setPatientName(room?.patientName ?? "")
   }, [device, isOpen, rooms])
 
@@ -81,7 +81,7 @@ export default function RoomDeviceInfoModal({
   const modelName =
     deviceModels.find(m => m.id === device.model)?.name ?? "不明"
 
-  const room = rooms.find(r => r.id === device.roomId)
+  const room = rooms.find(r => r.roomId === device.roomId)
   const roomName = room?.roomName ?? "不明"
   const wardName =
     wards.find(w => w.wardId === room?.wardId)?.wardName ?? "不明"

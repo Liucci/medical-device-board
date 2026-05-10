@@ -19,7 +19,7 @@ type Device = {
 }
 
 type Room = {
-  id: number
+  roomId: number
   wardId: number
   roomName: string
   patientName?: string
@@ -110,7 +110,7 @@ export default function DeviceListModal({
 
     return rooms.find(
       r =>
-        Number(r.id)
+        Number(r.roomId)
         === Number(roomId)
     )
 

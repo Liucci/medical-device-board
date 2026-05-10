@@ -18,14 +18,11 @@ export const AssetTypes = [
 
 export type DeviceStatus = "stock" | "room"
 
-type stockArea = {
-  id: number
-  name: string
-}
 
 
 export type Device = {
   id?: number
+  hospitalId:string
   type: DeviceType["typeID"] 
   model: DeviceModel["modelID"]
   assetType: typeof AssetTypes[number]
@@ -49,10 +46,13 @@ export type Device = {
   standby?: boolean
   standbyStartedAt?: string
   standbyFinishedAt?: string
+  createdBy?: string
+  updatedBy?: string
 
 }
 export type DeviceDB = {
   id: number
+  hospital_id: string
   type: number
   model: number
   asset_type: string
@@ -70,5 +70,7 @@ export type DeviceDB = {
   standby: boolean
   standby_started_at?: string | null
   standby_finished_at?: string | null
+  created_by?: string
+  updated_by?: string
 
 }
