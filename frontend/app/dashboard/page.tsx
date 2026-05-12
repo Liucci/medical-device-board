@@ -86,7 +86,7 @@ export default function Page() {
     .select("*")
     .eq(
       "hospital_id",
-      currentUser?.hospital_id
+      currentUser?.hospitalId
     )
     if (error) {
       console.error("fetchDevices error:", error)
@@ -108,7 +108,7 @@ export default function Page() {
       .select('*')
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -128,7 +128,7 @@ export default function Page() {
       .select('*')
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (error) {
       console.error(error)
@@ -150,7 +150,7 @@ export default function Page() {
         .select("*")
         .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
         )
 
     if (error) {
@@ -175,14 +175,14 @@ export default function Page() {
       .select('*')
       .eq(
       "hospital_id",
-      currentUser?.hospital_id
+      currentUser?.hospitalId
       )
     const { data: models } = await supabase
       .from('device_models')
       .select('*')
       .eq(
       "hospital_id",
-      currentUser?.hospital_id
+      currentUser?.hospitalId
       )
     if (types) setDeviceTypes(types)
     if (models) setDeviceModels(models)
@@ -195,7 +195,7 @@ export default function Page() {
       .select("*")
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
 
@@ -214,7 +214,7 @@ export default function Page() {
       .select("*")
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
       if (error) {
@@ -232,7 +232,7 @@ export default function Page() {
     const deviceWithHospital = {
       ...device,
       hospitalId:
-        currentUser.hospital_id
+        currentUser.hospitalId
     }
     // ① DB用データ作成（idなし）
     const dbData = {
@@ -279,7 +279,7 @@ export default function Page() {
     const { error: historyError } = await supabase
           .from("device_histories")
           .insert({
-            hospital_id:currentUser?.hospital_id,
+            hospital_id:currentUser?.hospitalId,
             device_id: data.id,
             action_type: "create",
             status: "stock",
@@ -430,7 +430,7 @@ export default function Page() {
       .eq('id', device.id)
       .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
       )
 
 
@@ -450,7 +450,7 @@ export default function Page() {
     const { error: historyError } = await supabase
       .from("device_histories")
       .insert({
-        hospital_id:currentUser?.hospital_id,
+        hospital_id:currentUser?.hospitalId,
         device_id: device.id,
         action_type: "move",
         device_type_name: type?.name ?? null,
@@ -553,7 +553,7 @@ export default function Page() {
         .eq("id", roomID)
         .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
         )
     if (roomError) {
       console.error(roomError)
@@ -570,7 +570,7 @@ export default function Page() {
         .eq("id", pendingDevice.id)
         .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
         )
     if (deviceError) {
       console.error(deviceError)
@@ -686,7 +686,7 @@ export default function Page() {
       await supabase
         .from("device_histories")
         .insert({
-          hospital_id:currentUser?.hospital_id,
+          hospital_id:currentUser?.hospitalId,
           device_id:pendingDevice.id,
           action_type:actionType,
           device_type_name:type?.name ?? null,
@@ -869,7 +869,7 @@ export default function Page() {
         .eq("id", roomID)
         .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
         )
 
     if (roomError) {
@@ -887,7 +887,7 @@ export default function Page() {
         .eq("id", pendingDevice.id)
         .eq(
           "hospital_id",
-          currentUser?.hospital_id
+          currentUser?.hospitalId
         )
 
     if (deviceError) {
@@ -982,7 +982,7 @@ export default function Page() {
       await supabase
         .from("device_histories")
         .insert({
-          hospital_id:currentUser?.hospital_id,
+          hospital_id:currentUser?.hospitalId,
           device_id:
             pendingDevice.id,
 
@@ -1140,7 +1140,7 @@ export default function Page() {
       .eq("device_id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (taskError) {
       console.error("task delete error:", taskError)
@@ -1154,7 +1154,7 @@ export default function Page() {
       .eq('id', id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (error) {
       console.error("device delete error:", error)
@@ -1164,7 +1164,7 @@ export default function Page() {
     const { error: historyError } = await supabase
       .from("device_histories")
       .insert({
-        hospital_id:currentUser?.hospital_id,
+        hospital_id:currentUser?.hospitalId,
         device_id: id,
         action_type: "delete",
         device_type_name: type?.name ?? null,
@@ -1292,7 +1292,7 @@ export default function Page() {
       .eq("id", data.id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (error) {
 
@@ -1384,7 +1384,7 @@ export default function Page() {
           .from("device_histories")
 
           .insert({
-            hospital_id:currentUser?.hospital_id,
+            hospital_id:currentUser?.hospitalId,
             device_id:
               data.id,
 
@@ -1464,7 +1464,7 @@ export default function Page() {
           .from("device_histories")
 
           .insert({
-            hospital_id:currentUser?.hospital_id,
+            hospital_id:currentUser?.hospitalId,
             device_id:
               data.id,
 
@@ -1583,7 +1583,7 @@ export default function Page() {
       .eq('id', data.id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
 
@@ -1601,7 +1601,7 @@ export default function Page() {
       .eq('id', data.roomId)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
 
@@ -1663,7 +1663,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from("stock_areas")
       .insert([{
-                hospital_id:currentUser?.hospital_id, 
+                hospital_id:currentUser?.hospitalId, 
                 name: trimmed 
               }])
       .select()
@@ -1700,7 +1700,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -1740,7 +1740,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
             "hospital_id",
-            currentUser?.hospital_id
+            currentUser?.hospitalId
       )
     if (error) {
       console.error(error.message)
@@ -1770,7 +1770,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from("wards")
       .insert([{
-                hospital_id:currentUser?.hospital_id, 
+                hospital_id:currentUser?.hospitalId, 
                 name: trimmed 
               }])
       .select()
@@ -1812,7 +1812,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (error) {
       console.error(error.message)
@@ -1854,7 +1854,7 @@ export default function Page() {
         .in("id", roomIds)//複数同時削除できる
         .eq(
             "hospital_id",
-            currentUser?.hospital_id
+            currentUser?.hospitalId
         )
 
       if (roomError) {
@@ -1871,7 +1871,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
       "hospital_id",
-      currentUser?.hospital_id
+      currentUser?.hospitalId
       )
 
 
@@ -1909,7 +1909,7 @@ export default function Page() {
         await supabase
           .from("rooms")
           .insert([{
-                    hospital_id:currentUser?.hospital_id,
+                    hospital_id:currentUser?.hospitalId,
                     name: trimmed,
                     ward_id: wardId
           }])
@@ -1951,7 +1951,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -1983,7 +1983,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
       "hospital_id",
-      currentUser?.hospital_id
+      currentUser?.hospitalId
       )
     if (error) {
       console.error(error.message)
@@ -2011,7 +2011,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from("device_types")
       .insert([{ 
-                hospital_id:currentUser?.hospital_id,
+                hospital_id:currentUser?.hospitalId,
                 name: trimmed 
       }])
       .select()
@@ -2051,7 +2051,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
 
@@ -2087,7 +2087,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -2122,7 +2122,7 @@ export default function Page() {
     const { data, error } = await supabase
       .from("device_models")
       .insert([{
-        hospital_id:currentUser?.hospital_id,
+        hospital_id:currentUser?.hospitalId,
         name: trimmed,
         device_type_id: deviceTypeId
       }])
@@ -2169,7 +2169,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
 
@@ -2205,7 +2205,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -2232,7 +2232,7 @@ export default function Page() {
     const { data: inserted, error } = await supabase
       .from("maintenance_types")
       .insert([{
-        hospital_id:currentUser?.hospital_id,
+        hospital_id:currentUser?.hospitalId,
         name: trimmed,
         device_type_id: data.deviceTypeId,
         device_model_id: data.deviceModelId,
@@ -2269,7 +2269,7 @@ export default function Page() {
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
     if (error) {
       console.error(error)
@@ -2307,7 +2307,7 @@ export default function Page() {
       .in("id", ids)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (error) {
@@ -2329,7 +2329,7 @@ export default function Page() {
       .eq("status", "pending")
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
   }
@@ -2342,7 +2342,7 @@ export default function Page() {
       due.setDate(due.getDate() + type.interval_days)
 
       return {
-        hospital_id:currentUser.hospital_id,
+        hospital_id:currentUser.hospitalId,
         device_id: device.id,
         maintenance_type_id: type.id,
         due_at: due.toISOString(),
@@ -2373,7 +2373,7 @@ export default function Page() {
       .eq("id", taskId)
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
 
     if (updateError) {
@@ -2387,7 +2387,7 @@ export default function Page() {
       .from("device_maintenance_logs")
       .insert({
         hospital_id:
-          currentUser?.hospital_id,
+          currentUser?.hospitalId,
         device_id:
           task.device_id,
         maintenance_type_id:
@@ -2416,7 +2416,7 @@ export default function Page() {
           .from("device_maintenance_tasks")
           .insert({
             hospital_id:
-              currentUser?.hospital_id,
+              currentUser?.hospitalId,
             device_id:
               task.device_id,
             maintenance_type_id:
@@ -2491,7 +2491,7 @@ export default function Page() {
       .select("*")
       .eq(
         "hospital_id",
-        currentUser?.hospital_id
+        currentUser?.hospitalId
       )
       .order("created_at", { ascending: false })
       .limit(300)
@@ -2600,7 +2600,7 @@ export default function Page() {
             .eq('id', room.roomId)
             .eq(
               "hospital_id",
-              currentUser?.hospital_id
+              currentUser?.hospitalId
             )
           if (error) {
             console.error("patient clear error:", error)
@@ -2761,8 +2761,10 @@ export default function Page() {
           getWardDeviceList={getWardDeviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
           handleLogout={handleLogout} 
-          hospitalId={currentUser.hospital_id
-  }
+          hospitalId={currentUser.hospitalId}
+          userName={currentUser.displayName}
+          role={currentUser.role}
+    
 
         />
       </div>

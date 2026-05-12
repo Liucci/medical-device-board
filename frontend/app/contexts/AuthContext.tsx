@@ -1,25 +1,14 @@
 "use client"
-//
+import { CurrentUser }from "../types/userTypes"
+import { normalizeUser }from "../utils/userMapper"
 import {
-  createContext,
-  useContext,
-  useState, 
-  useEffect
-} from "react"
+          createContext,
+          useContext,
+          useState, 
+          useEffect
+        } from "react"
 import { supabase }from "../lib/supabase"
 
-type CurrentUser = {
-
-  id: string
-
-  hospital_id: string
-
-  display_name: string
-
-  role: "admin" | "user"
-
-  is_active: boolean
-}
 
 type AuthContextType = {
 
@@ -85,8 +74,7 @@ export function AuthProvider({
         return
       }
       // currentUser復元
-      setCurrentUser(userData)
-    }
+      setCurrentUser(normalizeUser(userData))}
     restoreSession()
 }, [])
 

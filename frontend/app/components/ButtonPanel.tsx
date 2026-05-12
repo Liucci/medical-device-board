@@ -61,6 +61,8 @@ type Props = {
                                                   } | null
   handleLogout: () => Promise<void>
   hospitalId:string
+  userName: string
+  role: string
 }
 
 export default function ButtonPanel({
@@ -94,7 +96,9 @@ export default function ButtonPanel({
   getWardDeviceList,
   getLatestMaintenanceTask,
   handleLogout,
-  hospitalId
+  hospitalId,
+  userName,
+  role
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
@@ -117,49 +121,57 @@ export default function ButtonPanel({
   }
 
   return (
-    <>
-<ButtonGrid
-  onAdd={OpenModal}
-  title={"新規"}
-  titleSize="text-xs"
-  icon={<Plus size={38} />}
-/>
+  <div className="flex flex-col h-full">
+    <div>
+      <ButtonGrid
+        onAdd={OpenModal}
+        title={"新規"}
+        titleSize="text-xs"
+        icon={<Plus size={38} />}
+      />
 
-<div className="h-4" />
+      <div className="h-4" />
 
-<ButtonGrid
-  onAdd={openHistory}
-  title={"履歴"}
-  titleSize="text-xs"
-  icon={<History size={38} />}
+      <ButtonGrid
+        onAdd={openHistory}
+        title={"履歴"}
+        titleSize="text-xs"
+        icon={<History size={38} />}
+      />
 
-/>
+      <div className="h-4" />
 
-<div className="h-4" />
+      <ButtonGrid
+        onAdd={openSettings}
+        title={"設定"}
+        titleSize="text-xs"
+        icon={<Settings size={38} />}
+      />
 
-<ButtonGrid
-  onAdd={openSettings}
-  title={"設定"}
-  titleSize="text-xs"
-  icon={<Settings size={38} />}
-/>
+      <div className="h-4" />
 
-<div className="h-4" />
+      <ButtonGrid
+        onAdd={openDeviceList}
+        title={"一覧"}
+        titleSize="text-xs"
+        icon={<FileText size={38} />}
+      />
 
-<ButtonGrid
-  onAdd={openDeviceList}
-  title={"一覧"}
-  titleSize="text-xs"
-  icon={<FileText size={38} />}
-/>
-<div className="h-4" />
+      <div className="h-4" />
 
-<ButtonGrid
-  onAdd={handleLogout}
-  title={"終了"}
-  titleSize="text-xs"
-  icon={<LogOut size={38} />}
-/>
+      <ButtonGrid
+        onAdd={handleLogout}
+        title={"終了"}
+        titleSize="text-xs"
+        icon={<LogOut size={38} />}
+      />
+    </div>
+
+    {/* 下部固定エリア */}
+    <div className="mt-auto pt-4 text-xs text-gray-600 border-t">
+      <div>{userName}</div>
+      <div>{role}</div>
+    </div>
 
       {openDeviceModal &&
         <DeviceModal
@@ -220,6 +232,6 @@ export default function ButtonPanel({
           getLatestMaintenanceTask={getLatestMaintenanceTask}
         />
       }
-    </>
+  </div>
   )
 }

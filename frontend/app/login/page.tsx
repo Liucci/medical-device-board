@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "../lib/supabase"
 import { useAuth }from "../contexts/AuthContext"
-
+import { normalizeUser} from "../utils/userMapper"
 export default function LoginPage() {
 
   const router = useRouter()
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const { setCurrentUser } = useAuth()
+
   const handleLogin = async () => {
 
     setLoading(true)
@@ -101,8 +102,7 @@ export default function LoginPage() {
     }
 
     console.log("login user:", userData)
-    
-    setCurrentUser(userData)
+    setCurrentUser(normalizeUser(userData))
     console.log("push dashboard")
     router.push("/dashboard")
   }
