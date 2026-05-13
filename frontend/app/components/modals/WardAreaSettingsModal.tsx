@@ -5,8 +5,8 @@ type Props = {
   rooms: { roomId: number; roomName: string; wardId: number }[]
 
   addWard: (name: string) => Promise<void>
-  renameWard: (id: number, newName: string) => Promise<void>
-  deleteWards: (ids: number[]) => Promise<void>
+  renameWard: (id: number, newName: string) => Promise<boolean>
+  deleteWards: (ids: number[]) => Promise<boolean>
 
   addRoom: (wardId: number, name: string) => Promise<void>
   renameRoom: (roomId: number, newName: string) => Promise<boolean>
@@ -31,13 +31,13 @@ export default function WardAreaSettingsModal({
 
   // ===== Ward =====
   //ward追加
-  const handleAddWard = () => {
+  const handleAddWard = async() => {
     if (!newWardName.trim()) return
-    addWard(newWardName)
+    await addWard(newWardName)
     setNewWardName("")
   }
   // ward名前変更（prompt使用の仮実装）
-  const handleRenameWard = () => {
+  const handleRenameWard = async() => {
     // selectedWardIdがnullのときは何もしない
     if (!selectedWardId) return
     // selectedWardIdに対応する病棟を見つける
@@ -47,14 +47,14 @@ export default function WardAreaSettingsModal({
     const name = prompt("新しい病棟名", ward.wardName)
     if (!name) return
     // renameWard関数を呼び出す
-    renameWard(selectedWardId, name)
+    await renameWard(selectedWardId, name)
   }
   // ward削除
-  const handleDeleteWard = () => {
+  const handleDeleteWard = async() => {
     if (!selectedWardId) return
     if (!confirm("病棟を削除すると部屋も削除されます。よろしいですか？")) return
     // deleteWards関数を呼び出す
-    deleteWards([selectedWardId])
+    await deleteWards([selectedWardId])
   }
 
   // ===== Room =====
@@ -71,19 +71,19 @@ export default function WardAreaSettingsModal({
     )
   }
   // 部屋追加
-const handleAddRoom = async () => {
-  if (!selectedWardId) {
-    alert("病棟を選択してください")
-    return
+  const handleAddRoom = async () => {
+    if (!selectedWardId) {
+      alert("病棟を選択してください")
+      return
+    }
+    if (!newRoomName.trim()) return
+    //DB更新成功後先に進む
+    await addRoom(
+      selectedWardId,
+      newRoomName
+    )
+    setNewRoomName("")
   }
-  if (!newRoomName.trim()) return
-  //DB更新成功後先に進む
-  await addRoom(
-    selectedWardId,
-    newRoomName
-  )
-  setNewRoomName("")
-}
   // 部屋削除
   const handleDeleteRooms = async () => {
 

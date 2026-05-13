@@ -1752,138 +1752,283 @@ export default function Page() {
   }
   //DBのwards tableに新しい病棟を追加する関数
   const addWard = async (name: string) => {
-    if (!currentUser) {return}
-    const trimmed = name.trim()
+    if (!currentUser) {
+      return
+    }
+    const trimmed =
+      name.trim()
 
     if (!trimmed) return
 
     // 🔥 重複チェック
     const exists = wards.some(
-      w => w.wardName.toLowerCase() === trimmed.toLowerCase()
+      w =>
+        w.wardName
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ名前の病棟が既に存在します")
+      alert(
+        "同じ名前の病棟が既に存在します"
+      )
       return
     }
-
-    const { data, error } = await supabase
-      .from("wards")
-      .insert([{
-                hospital_id:currentUser?.hospitalId, 
-                name: trimmed 
-              }])
-      .select()
-      .single()
-
+    const { data, error } =
+      await supabase
+        .from("wards")
+        .insert([{
+          hospital_id:
+            currentUser.hospitalId,
+          name: trimmed
+        }])
+        .select()
+        .single()
     if (error) {
-      console.error(error.message)
-      alert("病棟の追加に失敗しました")
+      console.error(error)
+      // 🔥 RLS権限系
+      if (
+        error.code === "42501"
+      ) {
+        alert(
+          "病棟追加権限がありません"
+        )
+      } else {
+        alert(
+          "病棟の追加に失敗しました"
+        )
+      }
       return
     }
-
     setWards(prev => [
       ...prev,
       normalizeWard(data)
-    ])  
-  }
+    ])
+  }  
   //DBのwards tableから病棟名を変更する関数
-  const renameWard = async (id: number, newName: string) => {
-    
-    const trimmed = newName.trim()
-    if (!currentUser) {return}  
-    if (!trimmed) return
+  const renameWard = async (
+    id: number,
+    newName: string
+  ): Promise<boolean> => {
 
-    // 🔥 重複チェック（自分は除外）
+    const trimmed =
+      newName.trim()
+
+    if (!currentUser) {
+      return false
+    }
+
+    if (!trimmed) {
+      return false
+    }
+
+    // 🔥 重複チェック
     const exists = wards.some(
       w =>
         w.wardId !== id &&
-        w.wardName.toLowerCase() === trimmed.toLowerCase()
+        w.wardName
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ名前の病棟が既に存在します")
-      return
+
+      alert(
+        "同じ名前の病棟が既に存在します"
+      )
+
+      return false
     }
 
-    const { error } = await supabase
-      .from("wards")
-      .update({ name: trimmed })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
+    const { data, error } =
+      await supabase
+        .from("wards")
+        .update({
+          name: trimmed
+        })
+        .eq("id", id)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
     if (error) {
-      console.error(error.message)
-      alert("病棟名の変更に失敗しました")
-      return
+
+      console.error(error)
+
+      alert(
+        "病棟名の変更に失敗しました"
+      )
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新
+    if (!data || data.length === 0) {
+
+      alert(
+        "病棟名変更権限がありません"
+      )
+
+      return false
     }
 
     // 🔥 UI更新
     setWards(prev =>
       prev.map(w =>
-        w.wardId === id ? { ...w, name: trimmed } : w
+        w.wardId === id
+          ? {
+              ...w,
+              wardName: trimmed
+            }
+          : w
       )
     )
-  }
+
+    return true
+  }  
   //DBのwards tableから病棟を削除する関数
-  const deleteWards = async (ids: number[]) => {
-    if (!currentUser) {return}
-    // 🔥 対象Wardに属するRoom取得
-    const targetRooms = rooms.filter(r => ids.includes(r.wardId))
-    const roomIds = targetRooms.map(r => r.roomId)
+  const deleteWards = async (
+    ids: number[]
+  ): Promise<boolean> => {
 
-    // 🔥 機器存在チェック（最重要）
-    const hasDevice = deviceList.some(
-      d => d.roomId && roomIds.includes(d.roomId)
-    )
-
-    if (hasDevice) {
-      alert("機器が存在する病棟は削除できません")
-      return
+    if (!currentUser) {
+      return false
     }
 
-    // ===== ここから削除 =====
+    // 🔥 対象Wardに属するRoom取得
+    const targetRooms =
+      rooms.filter(
+        r => ids.includes(r.wardId)
+      )
 
-    // ① Room削除（先）
+    const roomIds =
+      targetRooms.map(
+        r => r.roomId
+      )
+
+    // 🔥 機器存在チェック
+    const hasDevice =
+      deviceList.some(
+        d =>
+          d.roomId &&
+          roomIds.includes(d.roomId)
+      )
+
+    if (hasDevice) {
+
+      alert(
+        "機器が存在する病棟は削除できません"
+      )
+
+      return false
+    }
+
+    // ===== ① Room削除 =====
+
     if (roomIds.length > 0) {
-      const { error: roomError } = await supabase
+
+      const {
+        data: roomData,
+        error: roomError
+      } = await supabase
         .from("rooms")
         .delete()
-        .in("id", roomIds)//複数同時削除できる
+        .in("id", roomIds)
         .eq(
-            "hospital_id",
-            currentUser?.hospitalId
+          "hospital_id",
+          currentUser.hospitalId
         )
+        .select()
 
       if (roomError) {
-        console.error(roomError.message)
-        alert("部屋削除に失敗しました")
-        return
+
+        console.error(roomError)
+
+        alert(
+          "部屋削除に失敗しました"
+        )
+
+        return false
+      }
+
+      // 🔥 RLSで0件削除対策
+      if (
+        !roomData ||
+        roomData.length !== roomIds.length
+      ) {
+
+        alert(
+          "部屋削除権限がありません"
+        )
+
+        return false
       }
     }
 
-    // ② Ward削除
-    const { error: wardError } = await supabase
+    // ===== ② Ward削除 =====
+
+    const {
+      data: wardData,
+      error: wardError
+    } = await supabase
       .from("wards")
       .delete()
       .in("id", ids)
       .eq(
-      "hospital_id",
-      currentUser?.hospitalId
+        "hospital_id",
+        currentUser.hospitalId
       )
-
+      .select()
 
     if (wardError) {
-      console.error(wardError.message)
-      alert("病棟削除に失敗しました")
-      return
+
+      console.error(wardError)
+
+      alert(
+        "病棟削除に失敗しました"
+      )
+
+      return false
+    }
+
+    // 🔥 RLSで0件削除対策
+    if (
+      !wardData ||
+      wardData.length !== ids.length
+    ) {
+
+      alert(
+        "病棟削除権限がありません"
+      )
+
+      return false
     }
 
     // ===== UI更新 =====
-    setRooms(prev => prev.filter(r => !roomIds.includes(r.roomId)))
-    setWards(prev => prev.filter(w => !ids.includes(w.wardId)))
+
+    setRooms(prev =>
+      prev.filter(
+        r =>
+          !roomIds.includes(
+            r.roomId
+          )
+      )
+    )
+
+    setWards(prev =>
+      prev.filter(
+        w =>
+          !ids.includes(
+            w.wardId
+          )
+      )
+    )
+
+    return true
   }
   //DBのrooms tableに新しい病室を追加する関数
   const addRoom = async (wardId: number,roomName: string) => {
