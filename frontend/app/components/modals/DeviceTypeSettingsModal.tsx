@@ -48,18 +48,26 @@ export default function DeviceTypeSettingsModal({
     await renameDeviceType(selectedTypeId, name)
   }
 
-  const handleDeleteType = async() => {
-    if (!selectedTypeId) return
-    if (!confirm("機種を削除しますか？（型式がある場合は削除できません）")) return
-
-   await deleteDeviceTypes([selectedTypeId])
+  const handleDeleteType =async () => {
+    if (!selectedTypeId) {
+      return
+    }
+    if (
+      !confirm(
+        "機種を削除しますか？（型式がある場合は削除できません）"
+      )
+    ) return
+    const success =
+      await deleteDeviceTypes([
+        selectedTypeId
+      ])
+    if (!success) return
+    setSelectedTypeId(null)
   }
-
   // ===== deviceModel =====
   const filteredModels = deviceModels
     .filter(m => m.device_type_id === selectedTypeId)
     .sort((a, b) => a.name.localeCompare(b.name, "ja"))
-
   const toggleModel = (id: number) => {
     setCheckedModelIds(prev =>
       prev.includes(id)
@@ -81,10 +89,14 @@ export default function DeviceTypeSettingsModal({
   }
 
   const handleDeleteModels =async () => {
-    await deleteDeviceModels(checkedModelIds)
+    const success =
+      await deleteDeviceModels(
+        checkedModelIds
+      )
+    if (!success) return
     setCheckedModelIds([])
   }
-
+  
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) return

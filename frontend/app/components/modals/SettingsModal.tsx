@@ -54,8 +54,8 @@ type Props = {
       name: string
       intervalDays: number
     }
-  ) => Promise<void>
-  deleteMaintenanceTypes: (ids: number[]) => Promise<void>
+  ) => Promise<boolean>
+  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
 }
 
 type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance"

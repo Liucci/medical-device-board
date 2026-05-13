@@ -20,9 +20,9 @@ type Props = {
                             name: string
                             intervalDays: number
                           }
-                        ) => Promise<void>
+                        ) => Promise<boolean>
 
-  deleteMaintenanceTypes: (ids: number[]) => Promise<void>
+  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
 }
 
 export default function MaintenanceTypeSettingsModal({
@@ -85,16 +85,18 @@ export default function MaintenanceTypeSettingsModal({
 
   // 🔽 削除
   const handleDelete = async () => {
-    if (selectedIds.length === 0) return
-
+    if (selectedIds.length === 0) {
+      return
+    }
     const ok = window.confirm(
       "選択したメンテ種別を削除しますか？"
     )
-
     if (!ok) return
-
-    await deleteMaintenanceTypes(selectedIds)
-
+    const success =
+      await deleteMaintenanceTypes(
+        selectedIds
+      )
+    if (!success) return
     setSelectedIds([])
   }
 

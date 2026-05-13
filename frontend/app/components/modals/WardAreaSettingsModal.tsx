@@ -50,13 +50,27 @@ export default function WardAreaSettingsModal({
     await renameWard(selectedWardId, name)
   }
   // ward削除
-  const handleDeleteWard = async() => {
-    if (!selectedWardId) return
-    if (!confirm("病棟を削除すると部屋も削除されます。よろしいですか？")) return
-    // deleteWards関数を呼び出す
-    await deleteWards([selectedWardId])
-  }
+  const handleDeleteWard = async () => {
+    if (!selectedWardId) {
+      return
+    }
 
+    if (
+      !confirm(
+        "病棟を削除すると部屋も削除されます。よろしいですか？"
+      )
+    ) return
+
+    const success =
+      await deleteWards([
+        selectedWardId
+      ])
+
+    if (!success) return
+
+    // 必要なら選択解除
+    setSelectedWardId(null)
+  }
   // ===== Room =====
   // 選択中の病棟に属する部屋だけ表示
   const filteredRooms = rooms

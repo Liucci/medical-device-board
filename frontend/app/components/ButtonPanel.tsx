@@ -51,8 +51,8 @@ type Props = {
                             name: string
                             intervalDays: number
                           }
-                        ) => Promise<void>
-  deleteMaintenanceTypes: (ids: number[]) => Promise<void>
+                        ) => Promise<boolean>
+  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
   histories: any[]
   getWardDeviceList: () => any[]
   getLatestMaintenanceTask:(deviceId?: number) => {

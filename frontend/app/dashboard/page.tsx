@@ -410,7 +410,9 @@ export default function Page() {
               roomId: undefined,
               managementNumber: undefined, // ←追加
               serialNumber: undefined,     // ←追加
-              note: undefined              // ←追加
+              note: undefined,              // ←追加
+              standby: false,
+              standbyStartedAt: undefined
             }
           : d
       )
@@ -2753,62 +2755,145 @@ export default function Page() {
     return true
   }
   //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
-  const addMaintenanceType = async (data: {
-                                            name: string
-                                            deviceTypeId: number
-                                            deviceModelId: number | null
-                                            intervalDays: number
-                                          }) => {
-    if (!currentUser) {return}
-    const trimmed = data.name.trim()
+  const addMaintenanceType = async (
+                                    data: {
+                                      name: string
+                                      deviceTypeId: number
+                                      deviceModelId: number | null
+                                      intervalDays: number
+                                    }
+  ) => {
+
+    if (!currentUser) {
+      return
+    }
+
+    const trimmed =
+      data.name.trim()
+
     if (!trimmed) return
-    const { data: inserted, error } = await supabase
+
+    const {
+      data: inserted,
+      error
+    } = await supabase
       .from("maintenance_types")
       .insert([{
-        hospital_id:currentUser?.hospitalId,
+        hospital_id:
+          currentUser.hospitalId,
         name: trimmed,
-        device_type_id: data.deviceTypeId,
-        device_model_id: data.deviceModelId,
-        interval_days: data.intervalDays
+        device_type_id:
+          data.deviceTypeId,
+        device_model_id:
+          data.deviceModelId,
+        interval_days:
+          data.intervalDays
       }])
       .select()
       .single()
 
     if (error) {
+
       console.error(error)
-      alert("追加失敗")
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "メンテナンス項目追加権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "追加に失敗しました"
+        )
+      }
+
       return
     }
 
-  setMaintenanceTypes(prev => [...prev, inserted])
-  }
+    setMaintenanceTypes(prev => [
+      ...prev,
+      inserted
+    ])
+  }  
   //DBのmaintenance_types tableからメンテナンス種別名を変更する関数
   const renameMaintenanceType = async (
-    id: number,
-    data: {
-      name: string
-      intervalDays: number
+                                id: number,
+                                data: {
+                                  name: string
+                                  intervalDays: number
+                                }
+                              ): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
     }
-  ) => {
-    if (!currentUser) {return}  
-    const trimmed = data.name.trim()
-    if (!trimmed) return
-    const { error } = await supabase
+
+    const trimmed =
+      data.name.trim()
+
+    if (!trimmed) {
+      return false
+    }
+
+    const {
+      data: updated,
+      error
+    } = await supabase
       .from("maintenance_types")
       .update({
         name: trimmed,
-        interval_days: data.intervalDays
+        interval_days:
+          data.intervalDays
       })
       .eq("id", id)
       .eq(
         "hospital_id",
-        currentUser?.hospitalId
+        currentUser.hospitalId
       )
+      .select()
+
     if (error) {
+
       console.error(error)
-      alert("変更失敗")
-      return
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "メンテナンス項目変更権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "変更に失敗しました"
+        )
+      }
+
+      return false
     }
+
+    // 🔥 RLSで0件更新対策
+    if (
+      !updated ||
+      updated.length === 0
+    ) {
+
+      alert(
+        "メンテナンス項目変更権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
 
     setMaintenanceTypes(prev =>
       prev.map(t =>
@@ -2816,41 +2901,96 @@ export default function Page() {
           ? {
               ...t,
               name: trimmed,
-              interval_days: data.intervalDays
+              interval_days:
+                data.intervalDays
             }
           : t
       )
     )
+
+    return true
   }
-  //DBのmaintenance_types tableからメンテナンス種別を削除する関数
-  const deleteMaintenanceTypes = async (ids: number[]) => {
-    if (!currentUser) {return}
-    const used = tasks.some(t =>
-      ids.includes(t.maintenance_type_id)
+    //DBのmaintenance_types tableからメンテナンス種別を削除する関数
+  const deleteMaintenanceTypes = async (ids: number[]): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    // 🔥 使用中チェック
+    const used = tasks.some(
+      t =>
+        ids.includes(
+          t.maintenance_type_id
+        )
     )
 
     if (used) {
-      alert("使用中のメンテ種別は削除できません")
-      return
-    }
 
-    const { error } = await supabase
-      .from("maintenance_types")
-      .delete()
-      .in("id", ids)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+      alert(
+        "使用中のメンテ種別は削除できません"
       )
 
-    if (error) {
-      console.error(error)
-      return
+      return false
     }
 
+    const { data, error } =
+      await supabase
+        .from("maintenance_types")
+        .delete()
+        .in("id", ids)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
+    if (error) {
+
+      console.error(error)
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "メンテ種別削除権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "削除に失敗しました"
+        )
+      }
+
+      return false
+    }
+
+    // 🔥 RLSで0件削除対策
+    if (
+      !data ||
+      data.length !== ids.length
+    ) {
+
+      alert(
+        "メンテ種別削除権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
     setMaintenanceTypes(prev =>
-      prev.filter(t => !ids.includes(t.id))
+      prev.filter(
+        t =>
+          !ids.includes(t.id)
+      )
     )
+
+    return true
   }
   //device_idに紐づくタスクをキャンセルする関数
   const cancelTasks = async (deviceId: number) => {
