@@ -9,8 +9,8 @@ type Props = {
   deleteWards: (ids: number[]) => Promise<void>
 
   addRoom: (wardId: number, name: string) => Promise<void>
-  renameRoom: (roomId: number, newName: string) => Promise<void>
-  deleteRooms: (ids: number[]) => Promise<void>
+  renameRoom: (roomId: number, newName: string) => Promise<boolean>
+  deleteRooms: (ids: number[]) => Promise<boolean>
 }
 
 export default function WardAreaSettingsModal({
@@ -71,28 +71,35 @@ export default function WardAreaSettingsModal({
     )
   }
   // 部屋追加
-  const handleAddRoom = () => {
-    if (!selectedWardId) {
-      alert("病棟を選択してください")
-      return
-    }
-
-    if (!newRoomName.trim()) return
-
-    addRoom(selectedWardId, newRoomName)
-    setNewRoomName("")
+const handleAddRoom = async () => {
+  if (!selectedWardId) {
+    alert("病棟を選択してください")
+    return
   }
+  if (!newRoomName.trim()) return
+  //DB更新成功後先に進む
+  await addRoom(
+    selectedWardId,
+    newRoomName
+  )
+  setNewRoomName("")
+}
   // 部屋削除
-  const handleDeleteRooms = () => {
-    deleteRooms(checkedRoomIds)
+  const handleDeleteRooms = async () => {
+
+    const success =
+      await deleteRooms(
+        checkedRoomIds
+      )
+    if (!success) return
     setCheckedRoomIds([])
   }
   // 部屋名前変更（prompt使用の仮実装）
-  const handleRenameRoom = (room: { roomId: number; roomName: string }) => {
+  const handleRenameRoom = async(room: { roomId: number; roomName: string }) => {
     const name = prompt("新しい部屋名", room.roomName)
     if (!name) return
 
-    renameRoom(room.roomId, name)
+    await renameRoom(room.roomId, name)
   }
 
   return (

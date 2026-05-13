@@ -1926,11 +1926,22 @@ export default function Page() {
         ...prev,
         normalizeRoom(data)
       ])
-  }  //DBのrooms tableから病室名を変更する関数
-  const renameRoom = async (id: number, newName: string) => {
-    if (!currentUser) {return}  
-    const trimmed = newName.trim()
-    if (!trimmed) return
+  }  
+  //DBのrooms tableから病室名を変更する関数
+  //renameの成功判定の為ture,falseを返す
+  const renameRoom = async (
+    id: number,
+    newName: string
+  ) => {
+
+    if (!currentUser) {
+      return false
+    }
+    const trimmed =
+      newName.trim()
+    if (!trimmed) {
+      return false
+    }
     const exists = rooms.some(
       r =>
         r.roomId !== id &&
@@ -1939,60 +1950,101 @@ export default function Page() {
         ).toLowerCase()
           === trimmed.toLowerCase()
     )
-
     if (exists) {
-      alert("同じ名前の部屋がこの病棟内に存在します")
-      return
+      alert(
+        "同じ名前の部屋がこの病棟内に存在します"
+      )
+      return false
     }
 
-    const { error } = await supabase
-      .from("rooms")
-      .update({ name: trimmed })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
+    const { data, error } =
+      await supabase
+        .from("rooms")
+        .update({
+          name: trimmed
+        })
+        .eq("id", id)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
 
     if (error) {
-      console.error(error.message)
-      alert("部屋名の変更に失敗しました")
-      return
+      console.error(error)
+      alert(
+        "部屋名変更に失敗しました"
+      )
+      return false
+    }
+
+    // DBで０件更新ではfalse
+    if (!data || data.length === 0) {
+      alert(
+        "部屋名変更権限がありません"
+      )
+      return false
+    }
+    setRooms(prev =>
+      prev.map(r =>
+        r.roomId === id
+          ? {
+              ...r,
+              roomName: trimmed
+            }
+          : r
+      )
+    )
+    return true
+  }
+  //DBのrooms tableから病室を削除する関数
+//deleteの成功判定の為ture falseを返す関数
+  const deleteRooms = async (
+    ids: number[]
+  ) => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    const { data, error } =
+      await supabase
+        .from("rooms")
+        .delete()
+        .in("id", ids)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
+    if (error) {
+
+      console.error(error)
+
+      alert("削除に失敗しました")
+
+      return false
+    }
+
+    // DB内を実際に削除されたrow数をカウント
+    if (!data || data.length === 0) {
+
+      alert("削除権限がありません")
+
+      return false
     }
 
     setRooms(prev =>
-      prev.map(r =>
-        r.roomId === id ? { ...r, roomName: trimmed } : r
+      prev.filter(
+        r =>
+          !ids.includes(r.roomId)
       )
     )
-  }
-  //DBのrooms tableから病室を削除する関数
-  const deleteRooms = async (ids: number[]) => {
-    if (!currentUser) {return}
-    // 🔥 機器存在チェック
-    const hasDevice = deviceList.some(
-      d => d.roomId && ids.includes(d.roomId)
-    )
-    if (hasDevice) {
-      alert("機器が存在する部屋は削除できません")
-      return
-    }
-    const { error } = await supabase
-      .from("rooms")
-      .delete()
-      .in("id", ids)
-      .eq(
-      "hospital_id",
-      currentUser?.hospitalId
-      )
-    if (error) {
-      console.error(error.message)
-      alert("削除に失敗しました")
-      return
-    }
-    setRooms(prev => prev.filter(r => !ids.includes(r.roomId)))
-  }
-  //DBのdevice_types tableに新しい機種を追加する関数
+
+    return true
+  } 
+   //DBのdevice_types tableに新しい機種を追加する関数
   const addDeviceType = async (name: string) => {
     if (!currentUser) {return}
     const trimmed = name.trim()
