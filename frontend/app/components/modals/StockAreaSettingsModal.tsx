@@ -3,8 +3,8 @@ import { useState } from "react"
 type Props = {
   stockAreas: { id: number; name: string }[]
   addStockArea: (name: string) => Promise<void>
-  renameStockArea: (id: number, newName: string) => Promise<void>
-  deleteStockAreas: (ids: number[]) => Promise<void>
+  renameStockArea: (id: number, newName: string) => Promise<boolean>
+  deleteStockAreas: (ids: number[]) => Promise<boolean>
 
 }
 
@@ -28,12 +28,12 @@ export default function StockAreaSettingsModal({
   }
 
   // 削除（仮：console）
-  const handleDelete = () => {
+  const handleDelete = async() => {
     console.log("削除対象:", checkedIds)
-    deleteStockAreas(checkedIds)
+    await deleteStockAreas(checkedIds)
   }
   // 名前変更（仮：prompt）
-  const handleRename = (id: number, currentName: string) => {
+  const handleRename = async(id: number, currentName: string) => {
     const newName = prompt("新しい名前を入力", currentName)
     // キャンセルや空文字は無視
     if (!newName) return
@@ -42,15 +42,13 @@ export default function StockAreaSettingsModal({
     if (!trimmed) return
     // 既に同名がある場合も無視（必要ならここでAPI呼び出し前に重複チェックも）
     if (trimmed === currentName) return
-
-    renameStockArea(id, trimmed)
+    await renameStockArea(id, trimmed)
 }
-
   // 追加（仮：console）
-  const handleAdd = () => {
+  const handleAdd =async () => {
     if (!newName.trim()) return
     console.log("追加:", newName)
-    addStockArea(newName)
+    await addStockArea(newName)
     setNewName("")
   }
 

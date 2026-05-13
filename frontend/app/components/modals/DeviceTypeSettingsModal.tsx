@@ -5,12 +5,12 @@ type Props = {
   deviceModels: { id: number; device_type_id: number; name: string }[]
 
   addDeviceType: (name: string) => Promise<void>
-  renameDeviceType: (id: number, newName: string) => Promise<void>
-  deleteDeviceTypes: (ids: number[]) => Promise<void>
+  renameDeviceType: (id: number, newName: string) => Promise<boolean>
+  deleteDeviceTypes: (ids: number[]) => Promise<boolean>
 
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
-  renameDeviceModel: (id: number, newName: string) => Promise<void>
-  deleteDeviceModels: (ids: number[]) => Promise<void>
+  renameDeviceModel: (id: number, newName: string) => Promise<boolean>
+  deleteDeviceModels: (ids: number[]) => Promise<boolean>
 }
 
 export default function DeviceTypeSettingsModal({
@@ -30,13 +30,13 @@ export default function DeviceTypeSettingsModal({
   const [checkedModelIds, setCheckedModelIds] = useState<number[]>([])
 
   // ===== deviceType =====
-  const handleAddType = () => {
+  const handleAddType = async() => {
     if (!newTypeName.trim()) return
-    addDeviceType(newTypeName)
+    await addDeviceType(newTypeName)
     setNewTypeName("")
   }
 
-  const handleRenameType = () => {
+  const handleRenameType = async() => {
     if (!selectedTypeId) return
 
     const type = deviceTypes.find(t => t.id === selectedTypeId)
@@ -45,14 +45,14 @@ export default function DeviceTypeSettingsModal({
     const name = prompt("新しい機種名", type.name)
     if (!name) return
 
-    renameDeviceType(selectedTypeId, name)
+    await renameDeviceType(selectedTypeId, name)
   }
 
-  const handleDeleteType = () => {
+  const handleDeleteType = async() => {
     if (!selectedTypeId) return
     if (!confirm("機種を削除しますか？（型式がある場合は削除できません）")) return
 
-    deleteDeviceTypes([selectedTypeId])
+   await deleteDeviceTypes([selectedTypeId])
   }
 
   // ===== deviceModel =====
@@ -68,7 +68,7 @@ export default function DeviceTypeSettingsModal({
     )
   }
 
-  const handleAddModel = () => {
+  const handleAddModel = async() => {
     if (!selectedTypeId) {
       alert("機種を選択してください")
       return
@@ -76,20 +76,20 @@ export default function DeviceTypeSettingsModal({
 
     if (!newModelName.trim()) return
 
-    addDeviceModel(selectedTypeId, newModelName)
+    await addDeviceModel(selectedTypeId, newModelName)
     setNewModelName("")
   }
 
-  const handleDeleteModels = () => {
-    deleteDeviceModels(checkedModelIds)
+  const handleDeleteModels =async () => {
+    await deleteDeviceModels(checkedModelIds)
     setCheckedModelIds([])
   }
 
-  const handleRenameModel = (model: { id: number; name: string }) => {
+  const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) return
 
-    renameDeviceModel(model.id, name)
+   await renameDeviceModel(model.id, name)
   }
 
   return (

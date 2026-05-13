@@ -1645,110 +1645,219 @@ export default function Page() {
   }
   //DBのstock_areas tableに新しいストックエリアを追加する関数
   const addStockArea = async (name: string) => {
-    if (!currentUser) {return}
-    // 前処理: 余分な空白を削除し、空文字を弾く
+    if (!currentUser) {
+      return
+    }
+    // 前処理
     const trimmed = name.trim()
     // 空文字チェック
     if (!trimmed) return
-    // 🔥 同名チェック（ローカル）
-    //someで同じ名前が存在するかチェック（大文字小文字は区別しない）
+    // 🔥 同名チェック
     const exists = stockAreas.some(
-      a => a.name.toLowerCase() === trimmed.toLowerCase()
+      a =>
+        a.name.toLowerCase()
+        ===
+        trimmed.toLowerCase()
     )
     if (exists) {
-      alert("同じ名前のストックエリアが既に存在します")
+      alert(
+        "同じ名前のストックエリアが既に存在します"
+      )
       return
     }
-    //DBのstock_areas tableに新しいストックエリアを追加する
-    const { data, error } = await supabase
-      .from("stock_areas")
-      .insert([{
-                hospital_id:currentUser?.hospitalId, 
-                name: trimmed 
-              }])
-      .select()
-      .single()
+    // DB追加
+    const { data, error } =await supabase
+        .from("stock_areas")
+        .insert([{
+          hospital_id:
+            currentUser.hospitalId,
+          name: trimmed
+        }])
+        .select()
+        .single()
+
     if (error) {
-      console.error(error.message)
-      alert("追加に失敗しました")
+      console.error(error)
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+        alert(
+          "ストックエリア追加権限がありません"
+        )
+      } else {
+        alert(
+          "追加に失敗しました"
+        )
+      }
       return
     }
-    setStockAreas(prev => [...prev, normalizeStockArea(data)])
+
+    setStockAreas(prev => [
+      ...prev,
+      normalizeStockArea(data)
+    ])
   }
   //DBのstock_areas tableからストックエリア名を変更する関数
-  const renameStockArea = async (id: number, newName: string) => {
-    if (!currentUser) {return}  
-    const trimmed = newName.trim()
+  const renameStockArea = async (id: number,newName: string): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    const trimmed =
+      newName.trim()
+    if (!trimmed) {
+      return false
+    }
 
-    if (!trimmed) return
-
-    // 🔥 重複チェック（自分以外）
+    // 🔥 重複チェック
     const exists = stockAreas.some(
       a =>
         a.id !== id &&
-        a.name.toLowerCase() === trimmed.toLowerCase()
+        a.name
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ名前のストックエリアが既に存在します")
-      return
-    }
 
-    const { error } = await supabase
-      .from("stock_areas")
-      .update({ name: trimmed })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+      alert(
+        "同じ名前のストックエリアが既に存在します"
       )
 
+      return false
+    }
+
+    const { data, error } =
+      await supabase
+        .from("stock_areas")
+        .update({
+          name: trimmed
+        })
+        .eq("id", id)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
     if (error) {
-      console.error(error.message)
-      alert("ストックエリア名の変更に失敗しました")
-      return
+
+      console.error(error)
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "ストックエリア変更権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "ストックエリア名の変更に失敗しました"
+        )
+      }
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新対策
+    if (!data || data.length === 0) {
+
+      alert(
+        "ストックエリア変更権限がありません"
+      )
+
+      return false
     }
 
     // 🔥 UI更新
     setStockAreas(prev =>
       prev.map(a =>
-        a.id === id ? { ...a, name: trimmed } : a
+        a.id === id
+          ? {
+              ...a,
+              name: trimmed
+            }
+          : a
       )
     )
-  }
+
+    return true
+  }  
   //DBのstock_areas tableからストックエリアを削除する関数
-  const deleteStockAreas = async (ids: number[]) => {
-    if (!currentUser) {return}
-    //削除するstockAreaに機器が存在したら削除できないようにする
-    // deviceListの"stock"状態のdeviceのstockAreaIDがidsに含まれているかチェック
+  const deleteStockAreas = async (ids: number[]): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    // 🔥 使用中ストックエリア確認
     const usedIds = new Set(
       deviceList
-        .filter(d => d.status === "stock")
-        .map(d => d.stockAreaID)
+        .filter(
+          d => d.status === "stock"
+        )
+        .map(
+          d => d.stockAreaID
+        )
     )
-    //idsの中でusedIdsに含まれているものをblockedとして抽出
-    const blocked = ids.filter(id => usedIds.has(id))
-    //blockedが存在する場合はアラートを表示して処理を中断
+    // 🔥 使用中抽出
+    const blocked = ids.filter(
+      id => usedIds.has(id)
+    )
     if (blocked.length > 0) {
-      alert("機器が存在するストックエリアは削除できません")
-      return
-    }
-    //DBのstock_areas tableからストックエリアを削除する
-    const { error } = await supabase
-      .from("stock_areas")
-      .delete()
-      .in("id", ids)
-      .eq(
-            "hospital_id",
-            currentUser?.hospitalId
+      alert(
+        "機器が存在するストックエリアは削除できません"
       )
-    if (error) {
-      console.error(error.message)
-      alert("削除に失敗しました")
-      return
+      return false
     }
-
-    setStockAreas(prev => prev.filter(a => !ids.includes(a.id)))
+    // ===== DB削除 =====
+    const { data, error } =
+      await supabase
+        .from("stock_areas")
+        .delete()
+        .in("id", ids)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+    if (error) {
+      console.error(error)
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+        alert(
+          "ストックエリア削除権限がありません"
+        )
+      } else {
+        alert(
+          "削除に失敗しました"
+        )
+      }
+      return false
+    }
+    // 🔥 RLSで0件削除対策
+    if (
+      !data ||
+      data.length !== ids.length
+    ) {
+      alert(
+        "ストックエリア削除権限がありません"
+      )
+      return false
+    }
+    // ===== UI更新 =====
+    setStockAreas(prev =>
+      prev.filter(
+        a =>
+          !ids.includes(a.id)
+      )
+    )
+    return true
   }
   //DBのwards tableに新しい病棟を追加する関数
   const addWard = async (name: string) => {
@@ -2215,206 +2324,433 @@ export default function Page() {
       .single()
 
     if (error) {
-      console.error(error.message)
-      alert("機種の追加に失敗しました")
-      return
-    }
-
+        console.error(error)
+        // 🔥 RLS権限系
+        if (
+              error.code === "42501"
+            ) {
+                alert(
+                      "機種追加権限がありません"
+                      )
+              } else {
+                      alert(
+                            "機種の追加に失敗しました"
+                            )
+                      }
+        return
+      }
     setDeviceTypes(prev => [...prev, data])
   }
   //DBのdevice_types tableの機種名を変更する関数
-  const renameDeviceType = async (id: number, newName: string) => {
-    if (!currentUser) {return}  
-    const trimmed = newName.trim()
-    if (!trimmed) {
-      alert("名前を入力してください")
-      return
+  const renameDeviceType = async (id: number,newName: string): Promise<boolean> => {
+    if (!currentUser) {
+      return false
     }
-    // 🔥 重複チェック（自分以外）
+    const trimmed =
+      newName.trim()
+    if (!trimmed) {
+      alert(
+        "名前を入力してください"
+      )
+      return false
+    }
+
+    // 🔥 重複チェック
     const exists = deviceTypes.some(
       t =>
         t.id !== id &&
-        t.name.toLowerCase() === trimmed.toLowerCase()
+        t.name
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ機種が既に存在します")
-      return
-    }
 
-    const { error } = await supabase
-      .from("device_types")
-      .update({ name: trimmed })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+      alert(
+        "同じ機種が既に存在します"
       )
 
-
-    if (error) {
-      console.error(error.message)
-      alert("機種名の変更に失敗しました")
-      return
+      return false
     }
 
-    // UI更新
+    const { data, error } =
+      await supabase
+        .from("device_types")
+        .update({
+          name: trimmed
+        })
+        .eq("id", id)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
+    if (error) {
+
+      console.error(error)
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "機種変更権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "機種名の変更に失敗しました"
+        )
+      }
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "機種変更権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
     setDeviceTypes(prev =>
       prev.map(t =>
-        t.id === id ? { ...t, name: trimmed } : t
+        t.id === id
+          ? {
+              ...t,
+              name: trimmed
+            }
+          : t
       )
     )
+
+    return true
   }
   //DBのdevice_types tableから機種を削除する関数
-  const deleteDeviceTypes = async (ids: number[]) => {
-    if (!currentUser) {return}
+  const deleteDeviceTypes = async (ids: number[]): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
     // 🔥 紐づくモデル取得
-    const relatedModels = deviceModels.filter(m =>
-      ids.includes(m.device_type_id)
-    )
-
-    if (relatedModels.length > 0) {
-      alert("型式が存在する機種は削除できません")
-      return
-    }
-
-    const { error } = await supabase
-      .from("device_types")
-      .delete()
-      .in("id", ids)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+    const relatedModels =
+      deviceModels.filter(
+        m =>
+          ids.includes(
+            m.device_type_id
+          )
       )
-
-    if (error) {
-      console.error(error.message)
-      alert("削除に失敗しました")
-      return
+    if (relatedModels.length > 0) {
+      alert(
+        "型式が存在する機種は削除できません"
+      )
+      return false
     }
-
-    // UI更新
+    const { data, error } =
+      await supabase
+        .from("device_types")
+        .delete()
+        .in("id", ids)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+    if (error) {
+      console.error(error)
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+        alert(
+          "機種削除権限がありません"
+        )
+      } else {
+        alert(
+          "削除に失敗しました"
+        )
+      }
+      return false
+    }
+    // 🔥 RLSで0件削除対策
+    if (
+      !data ||
+      data.length !== ids.length
+    ) {
+      alert(
+        "機種削除権限がありません"
+      )
+      return false
+    }
+    // ===== UI更新 =====
     setDeviceTypes(prev =>
-      prev.filter(t => !ids.includes(t.id))
+      prev.filter(
+        t =>
+          !ids.includes(t.id)
+      )
     )
+    return true
   }
   //DBのdevice_models tableに新しい型式を追加する関数
-  const addDeviceModel = async (deviceTypeId: number, name: string) => {
-    if (!currentUser) {return}
-    const trimmed = name.trim()
+  const addDeviceModel = async (deviceTypeId: number,name: string) => {
+
+    if (!currentUser) {
+      return
+    }
+
+    const trimmed =
+      name.trim()
+
     if (!trimmed) return
 
-    // 🔥 type内で重複チェック
+    // 🔥 type内重複チェック
     const exists = deviceModels.some(
       m =>
-        m.device_type_id === deviceTypeId &&
-        m.name.toLowerCase() === trimmed.toLowerCase()
+        m.device_type_id
+          ===
+        deviceTypeId &&
+        m.name
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ型式がこの機種内に既に存在します")
+
+      alert(
+        "同じ型式がこの機種内に既に存在します"
+      )
+
       return
     }
 
-    const { data, error } = await supabase
-      .from("device_models")
-      .insert([{
-        hospital_id:currentUser?.hospitalId,
-        name: trimmed,
-        device_type_id: deviceTypeId
-      }])
-      .select()
-      .single()
+    const { data, error } =
+      await supabase
+        .from("device_models")
+        .insert([{
+          hospital_id:
+            currentUser.hospitalId,
+          name: trimmed,
+          device_type_id:
+            deviceTypeId
+        }])
+        .select()
+        .single()
 
     if (error) {
-      console.error(error.message)
-      alert("型式の追加に失敗しました")
+
+      console.error(error)
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "型式追加権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "型式の追加に失敗しました"
+        )
+      }
+
       return
     }
 
-    setDeviceModels(prev => [...prev, data])
+    setDeviceModels(prev => [
+      ...prev,
+      data
+    ])
   }
   //DBのdevice_models tableから型式名を変更する関数
-  const renameDeviceModel = async (id: number, newName: string) => {
-    const trimmed = newName.trim()
-    if (!currentUser) {return}  
-    if (!trimmed) {
-      alert("名前を入力してください")
-      return
+  const renameDeviceModel = async (id: number,newName: string): Promise<boolean> => {
+
+    const trimmed =
+      newName.trim()
+
+    if (!currentUser) {
+      return false
     }
 
-    // 🔥 対象model取得（ward_idの代わりにtype_idが必要）
-    const target = deviceModels.find(m => m.id === id)
-    if (!target) return
+    if (!trimmed) {
 
-    // 🔥 同一type内で重複チェック
+      alert(
+        "名前を入力してください"
+      )
+
+      return false
+    }
+
+    // 🔥 対象model取得
+    const target =
+      deviceModels.find(
+        m => m.id === id
+      )
+
+    if (!target) {
+      return false
+    }
+
+    // 🔥 同一type内重複チェック
     const exists = deviceModels.some(
       m =>
         m.id !== id &&
-        m.device_type_id === target.device_type_id &&
-        m.name.toLowerCase() === trimmed.toLowerCase()
+        m.device_type_id
+          ===
+        target.device_type_id &&
+        m.name
+          .toLowerCase()
+          ===
+        trimmed.toLowerCase()
     )
 
     if (exists) {
-      alert("同じ型式がこの機種内に既に存在します")
-      return
-    }
 
-    const { error } = await supabase
-      .from("device_models")
-      .update({ name: trimmed })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+      alert(
+        "同じ型式がこの機種内に既に存在します"
       )
 
-
-    if (error) {
-      console.error(error.message)
-      alert("型式名の変更に失敗しました")
-      return
+      return false
     }
 
-    // UI更新
+    const { data, error } =
+      await supabase
+        .from("device_models")
+        .update({
+          name: trimmed
+        })
+        .eq("id", id)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+
+    if (error) {
+
+      console.error(error)
+
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+
+        alert(
+          "型式変更権限がありません"
+        )
+
+      } else {
+
+        alert(
+          "型式名の変更に失敗しました"
+        )
+      }
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "型式変更権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
     setDeviceModels(prev =>
       prev.map(m =>
-        m.id === id ? { ...m, name: trimmed } : m
+        m.id === id
+          ? {
+              ...m,
+              name: trimmed
+            }
+          : m
       )
     )
-  }
+
+    return true
+  }  
   //DBのdevice_models tableから型式を削除する関数
-  const deleteDeviceModels = async (ids: number[]) => {
-    if (!currentUser) {return}
-    // 🔥 device使用チェック（最重要）
-    const used = deviceList.filter(d =>
-      ids.includes(d.model)
+  const deleteDeviceModels = async (ids: number[]): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    // 🔥 device使用チェック
+    const used = deviceList.filter(
+      d =>
+        ids.includes(d.model)
     )
-
     if (used.length > 0) {
-      alert("使用中の機器がある型式は削除できません")
-      return
-    }
-
-    const { error } = await supabase
-      .from("device_models")
-      .delete()
-      .in("id", ids)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
+      alert(
+        "使用中の機器がある型式は削除できません"
       )
-
-    if (error) {
-      console.error(error.message)
-      alert("削除に失敗しました")
-      return
+      return false
     }
-
-    // UI更新
+    const { data, error } =
+      await supabase
+        .from("device_models")
+        .delete()
+        .in("id", ids)
+        .eq(
+          "hospital_id",
+          currentUser.hospitalId
+        )
+        .select()
+    if (error) {
+      console.error(error)
+      // 🔥 権限エラー
+      if (
+        error.code === "42501"
+      ) {
+        alert(
+          "型式削除権限がありません"
+        )
+      } else {
+        alert(
+          "削除に失敗しました"
+        )
+      }
+      return false
+    }
+    // 🔥 RLSで0件削除対策
+    if (
+      !data ||
+      data.length !== ids.length
+    ) {
+      alert(
+        "型式削除権限がありません"
+      )
+      return false
+    }
+    // ===== UI更新 =====
     setDeviceModels(prev =>
-      prev.filter(m => !ids.includes(m.id))
+      prev.filter(
+        m =>
+          !ids.includes(m.id)
+      )
     )
+    return true
   }
   //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
   const addMaintenanceType = async (data: {

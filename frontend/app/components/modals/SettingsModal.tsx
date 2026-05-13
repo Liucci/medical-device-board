@@ -21,8 +21,8 @@ type Props = {
   wards: { wardId: number; wardName: string }[]
   rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
   addStockArea: (name: string) => Promise<void>
-  renameStockArea: (id: number, newName: string) => Promise<void>
-  deleteStockAreas: (ids: number[]) => Promise<void>
+  renameStockArea: (id: number, newName: string) => Promise<boolean>
+  deleteStockAreas: (ids: number[]) => Promise<boolean>
   addWard: (name: string) => Promise<void>
   renameWard: (id: number, newName: string) => Promise<boolean>
   deleteWards: (ids: number[]) => Promise<boolean>
@@ -30,11 +30,11 @@ type Props = {
   renameRoom: (id: number, newName: string) => Promise<boolean>
   deleteRooms: (ids: number[]) => Promise<boolean>
   addDeviceType: (name: string) => Promise<void>
-  renameDeviceType: (id: number, newName: string) => Promise<void>
-  deleteDeviceTypes: (ids: number[]) => Promise<void>
+  renameDeviceType: (id: number, newName: string) => Promise<boolean>
+  deleteDeviceTypes: (ids: number[]) => Promise<boolean>
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
-  renameDeviceModel: (id: number, newName: string) => Promise<void>
-  deleteDeviceModels: (ids: number[]) => Promise<void>
+  renameDeviceModel: (id: number, newName: string) => Promise<boolean>
+  deleteDeviceModels: (ids: number[]) => Promise<boolean>
   maintenanceTypes: {
     id: number
     name: string
