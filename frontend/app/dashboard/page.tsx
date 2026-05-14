@@ -1570,30 +1570,64 @@ export default function Page() {
     standbyFinishedAt?: string
 
   }) => {
+
     if (!currentUser) {return}  
     // ① devices更新（機器情報）
-    const { error: deviceError } = await supabase
-      .from('devices')
-      .update({
-        management_number: data.managementNumber,
-        serial_number: data.serialNumber,
-        note: data.note,
-        standby: data.standby,
-        standby_started_at: data.standbyStartedAt || null,
-        standby_finished_at: data.standbyFinishedAt || null,
-      })
-      .eq('id', data.id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
+  const {
+    data: updatedDevices,
+    error: deviceError
+  } = await supabase
+    .from("devices")
+    .update({
+      management_number:
+        data.managementNumber,
 
+      serial_number:
+        data.serialNumber,
+
+      note:
+        data.note,
+
+      standby:
+        data.standby,
+
+      standby_started_at:
+        data.standbyStartedAt || null,
+
+      standby_finished_at:
+        data.standbyFinishedAt || null,
+    })
+    .eq("id", data.id)
+    .eq(
+      "hospital_id",
+      currentUser.hospitalId
+    )
+    .select()
 
     if (deviceError) {
-      console.error("device update error:", deviceError)
+
+      console.error(
+        "device update error:",
+        deviceError
+      )
+
+      alert("更新に失敗しました")
+
       return
     }
 
+    // 🔥 RLSで0件更新
+    if (
+      !updatedDevices ||
+      updatedDevices.length === 0
+    ) {
+
+      alert(
+        "機器編集権限がありません"
+      )
+
+      return
+    }
     // ② rooms更新（患者名）
     const { error: roomError } = await supabase
       .from('rooms')
