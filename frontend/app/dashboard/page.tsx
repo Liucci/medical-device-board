@@ -1674,6 +1674,194 @@ export default function Page() {
 
     setRoomDeviceInfoModalOpen(false)
   }
+  //管理番号編集関数（boolean)
+  const renameManagementNumber =async (
+      id: number,
+      value: string
+    ): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        management_number: value
+      })
+      .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+
+    if (error) {
+
+      console.error(error)
+
+      alert(
+        "編集権限がありません"
+      )
+
+      return false
+    }
+
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "編集権限がありません"
+      )
+
+      return false
+    }
+
+    // UI更新
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === id
+          ? {
+              ...d,
+              managementNumber:
+                value
+            }
+          : d
+      )
+    )
+
+    return true
+  }
+  //シリアル編集関数(boolean)
+  const renameSerialNumber = async (id: number,value: string): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    const trimmed =
+      value.trim()
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        serial_number:
+          trimmed
+      })
+      .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+
+    if (error) {
+
+      console.error(error)
+
+      alert(
+        "シリアル番号編集権限がありません"
+      )
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "シリアル番号編集権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === id
+          ? {
+              ...d,
+              serialNumber:
+                trimmed
+            }
+          : d
+      )
+    )
+
+    return true
+  } 
+  //備考欄編集関数(boolean)
+  const renameNote = async (id: number,value: string): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    const trimmed =
+      value.trim()
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        note: trimmed
+      })
+      .eq("id", id)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+    if (error) {
+      console.error(error)
+
+      alert(
+        "備考編集権限がありません"
+      )
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "備考編集権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === id
+          ? {
+              ...d,
+              note: trimmed
+            }
+          : d
+      )
+    )
+
+    return true
+  }
 
   const handleRoomDeviceInfoCancel = () => {
     if (!currentUser) {return}  
@@ -3536,6 +3724,9 @@ export default function Page() {
         tasks={getDeviceTasks(selectedRoomDevice?.id)}                  // ← 渡す
         maintenanceTypes={maintenanceTypes} // ← 渡す
         onCompleteTask={handleCompleteTask} // ← 渡す
+        renameManagementNumber={renameManagementNumber}
+        renameSerialNumber={renameSerialNumber}
+        renameNote={renameNote}
       />
 
 

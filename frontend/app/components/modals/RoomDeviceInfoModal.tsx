@@ -30,6 +30,9 @@ type Props = {
   tasks: any[]                 // ← 追加
   maintenanceTypes: any[]      // ← 追加
   onCompleteTask: (taskId: number) => void  // ← 追加
+  renameManagementNumber:(id: number, value: string)=> Promise<boolean>
+  renameSerialNumber:(id: number, value: string)=> Promise<boolean>
+  renameNote:(id: number, value: string)=> Promise<boolean>
 }
 
 export default function RoomDeviceInfoModal({
@@ -43,7 +46,10 @@ export default function RoomDeviceInfoModal({
   rooms,
   tasks,
   maintenanceTypes,
-  onCompleteTask
+  onCompleteTask,
+  renameManagementNumber,
+  renameSerialNumber,
+  renameNote
 
 }: Props) {
   const [managementNumber, setManagementNumber] = useState("")
@@ -58,19 +64,16 @@ export default function RoomDeviceInfoModal({
 
   useEffect(() => {
     if (!isOpen || !device) return
-
-    setManagementNumber(device.managementNumber ?? "")
-    setSerialNumber(device.serialNumber ?? "")
-    setNote(device.note ?? "")
-    setRentalStartDate(device.rentalStartDate || "")
-    setRentalEndDate(device.rentalEndDate || "")
-    setStandby(device.standby ?? false)
-    setStandbyStartedAt(device.standbyStartedAt || "")
-    setStandbyFinishedAt(device.standbyFinishedAt || "")
-
-
-    const room = rooms.find(r => r.roomId === device.roomId)
-    setPatientName(room?.patientName ?? "")
+      setManagementNumber(device.managementNumber ?? "")
+      setSerialNumber(device.serialNumber ?? "")
+      setNote(device.note ?? "")
+      setRentalStartDate(device.rentalStartDate || "")
+      setRentalEndDate(device.rentalEndDate || "")
+      setStandby(device.standby ?? false)
+      setStandbyStartedAt(device.standbyStartedAt || "")
+      setStandbyFinishedAt(device.standbyFinishedAt || "")
+      const room = rooms.find(r => r.roomId === device.roomId)
+        setPatientName(room?.patientName ?? "")
   }, [device, isOpen, rooms])
 
   if (!isOpen || !device) return null
@@ -234,18 +237,40 @@ export default function RoomDeviceInfoModal({
           <InfoRow
             label="管理番号"
             value={managementNumber}
-            onEdit={() => {
-              const val = prompt("管理番号を入力", managementNumber)
-              if (val !== null) setManagementNumber(val)
+            onEdit={async () => {
+              if (!device.id) return
+              const val = prompt(
+                      "管理番号を入力",
+                      managementNumber
+                    )
+              if (val === null) return
+              const success =
+                    await renameManagementNumber(
+                      device.id,
+                      val
+                    )
+              if (!success) return
+              setManagementNumber(val)
             }}
           />
           {/* シリアル */}
           <InfoRow
             label="シリアル"
             value={serialNumber}
-            onEdit={() => {
-              const val = prompt("シリアル番号を入力", serialNumber)
-              if (val !== null) setSerialNumber(val)
+            onEdit={async () => {
+              if (!device.id) return
+              const val = prompt(
+                "シリアル番号を入力",
+                serialNumber
+              )
+              if (val === null) return
+              const success =
+                await renameSerialNumber(
+                  device.id,
+                  val
+                )
+              if (!success) return
+              setSerialNumber(val)
             }}
           />
             {(device.assetType === "レンタル" ||
@@ -306,10 +331,27 @@ export default function RoomDeviceInfoModal({
           <InfoRow
             label="備考"
             value={note}
-            onEdit={() => {
-              const val = prompt("備考を入力", note)
-              if (val !== null) setNote(val)
-            }}
+            onEdit={async () => {
+
+              if (!device.id) return
+
+              const val = prompt(
+                "備考を入力",
+                note
+              )
+
+              if (val === null) return
+
+              const success =
+                await renameNote(
+                  device.id,
+                  val
+                )
+
+              if (!success) return
+
+              setNote(val)
+            }} 
           />
         </div>
           <div className="border-t pt-4 mt-2 space-y-3">
