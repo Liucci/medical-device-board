@@ -1,38 +1,36 @@
 "use client"
 
 import { Device } from "../../types/deviceTypes"
-import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 
-//
+//page.tsxから
+//stateレス化
 type Props = {
   isOpen: boolean
   device: Device | null
   deviceTypes: any[]
   deviceModels: any[]
-  onSubmit: (data: {
-    id: number
-    managementNumber: string
-    serialNumber: string
-    note: string
-    patientName: string
-    roomId: number
-    rentalStartDate?: string
-    rentalEndDate?: string
-    standby: boolean
-    standbyStartedAt?: string
-    standbyFinishedAt?: string
-
-  }) => void
   onCancel: () => void
   wards: any[]
   rooms: any[]
   tasks: any[]                 // ← 追加
   maintenanceTypes: any[]      // ← 追加
-  onCompleteTask: (taskId: number) => void  // ← 追加
+  onCompleteTask: (taskId: number) => Promise<boolean>  // ← 追加
   renameManagementNumber:(id: number, value: string)=> Promise<boolean>
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>
   renameNote:(id: number, value: string)=> Promise<boolean>
+  renamePatientName:(roomId: number, value: string)=> Promise<boolean>
+  toggleDeviceStandby:(
+                        deviceId: number,
+                        standby: boolean,
+                        standbyStartedAt?: string,
+                        standbyFinishedAt?: string
+                      )=> Promise<boolean>
+  renameRentalDates : (
+                        deviceId: number,
+                        rentalStartDate: string,
+                        rentalEndDate: string
+                      )=>Promise<boolean>
 }
 
 export default function RoomDeviceInfoModal({
@@ -40,7 +38,6 @@ export default function RoomDeviceInfoModal({
   device,
   deviceTypes,
   deviceModels,
-  onSubmit,
   onCancel,
   wards,
   rooms,
@@ -49,46 +46,69 @@ export default function RoomDeviceInfoModal({
   onCompleteTask,
   renameManagementNumber,
   renameSerialNumber,
-  renameNote
-
+  renameNote,
+  renamePatientName,
+  toggleDeviceStandby,
+  renameRentalDates
 }: Props) {
-  const [managementNumber, setManagementNumber] = useState("")
-  const [serialNumber, setSerialNumber] = useState("")
-  const [note, setNote] = useState("")
-  const [patientName, setPatientName] = useState("")
-  const [rentalStartDate, setRentalStartDate] = useState("")
-  const [rentalEndDate, setRentalEndDate] = useState("")
-  const [standby, setStandby] = useState(false)
-  const [standbyStartedAt, setStandbyStartedAt] = useState("")
-  const [standbyFinishedAt, setStandbyFinishedAt] = useState("")
 
-  useEffect(() => {
-    if (!isOpen || !device) return
-      setManagementNumber(device.managementNumber ?? "")
-      setSerialNumber(device.serialNumber ?? "")
-      setNote(device.note ?? "")
-      setRentalStartDate(device.rentalStartDate || "")
-      setRentalEndDate(device.rentalEndDate || "")
-      setStandby(device.standby ?? false)
-      setStandbyStartedAt(device.standbyStartedAt || "")
-      setStandbyFinishedAt(device.standbyFinishedAt || "")
-      const room = rooms.find(r => r.roomId === device.roomId)
-        setPatientName(room?.patientName ?? "")
-  }, [device, isOpen, rooms])
+if (!isOpen || !device) return null
 
-  if (!isOpen || !device) return null
+// ===== deviceから直接取得 =====
 
-  const typeName =
-    deviceTypes.find(t => t.id === device.type)?.name ?? "不明"
+const managementNumber =
+  device.managementNumber ?? ""
 
-  const modelName =
-    deviceModels.find(m => m.id === device.model)?.name ?? "不明"
+const serialNumber =
+  device.serialNumber ?? ""
 
-  const room = rooms.find(r => r.roomId === device.roomId)
-  const roomName = room?.roomName ?? "不明"
-  const wardName =
-    wards.find(w => w.wardId === room?.wardId)?.wardName ?? "不明"
-  // 🔽 共通表示行
+const note =
+  device.note ?? ""
+
+const rentalStartDate =
+  device.rentalStartDate || ""
+
+const rentalEndDate =
+  device.rentalEndDate || ""
+
+const standby =
+  device.standby ?? false
+
+const standbyStartedAt =
+  device.standbyStartedAt || ""
+
+const standbyFinishedAt =
+  device.standbyFinishedAt || ""
+
+// ===== room =====
+
+const room = rooms.find(
+  r => r.roomId === device.roomId
+)
+
+const patientName =
+  room?.patientName ?? ""
+
+// ===== 名前 =====
+
+const typeName =
+  deviceTypes.find(
+    t => t.id === device.type
+  )?.name ?? "不明"
+
+const modelName =
+  deviceModels.find(
+    m => m.id === device.model
+  )?.name ?? "不明"
+
+const roomName =
+  room?.roomName ?? "不明"
+
+const wardName =
+  wards.find(
+    w => w.wardId === room?.wardId
+  )?.wardName ?? "不明"  
+    // 🔽 共通表示行
   const InfoRow = ({
                     label,
                     value,
@@ -137,25 +157,71 @@ export default function RoomDeviceInfoModal({
 
     return today >= limit
   })()
-  const handleToggleStandby = () => {
-    const today = new Date().toISOString().split("T")[0]
+  //スタンバイ開始解除の関数
+  const handleToggleStandby =async () => {
+
+    if (!device.id) return
+
+    // ===== 解除 =====
 
     if (standby) {
-      setStandby(false)
-      setStandbyFinishedAt(today)
+
+      const today =
+        new Date()
+          .toISOString()
+          .split("T")[0]
+
+      const success =
+        await toggleDeviceStandby(
+          device.id,
+          false,
+          standbyStartedAt,
+          today
+        )
+
+      if (!success) return
+
       return
     }
 
-    setStandby(true)
-    setStandbyStartedAt(standbyStartedAt || today)
-    setStandbyFinishedAt("")
-  }
+    // ===== 開始 =====
 
-  
+    const val = prompt(
+      "待機開始日を入力 (YYYY-MM-DD)",
+      new Date()
+        .toISOString()
+        .split("T")[0]
+    )
+
+    if (val === null) return
+
+    const success =
+      await toggleDeviceStandby(
+        device.id,
+        true,
+        val,
+        ""
+      )
+
+    if (!success) return
+  }  
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
-
+        <button
+          onClick={onCancel}
+          className="
+            relative
+            top-3
+            left-3
+            text-gray-500
+            hover:text-black
+            text-xl
+            font-bold
+          "
+        >
+          ✕
+        </button>
         {/* 🔽 タイトル */}
         <h2 className="text-xl font-bold text-center">
           病棟機器情報
@@ -228,11 +294,22 @@ export default function RoomDeviceInfoModal({
           <InfoRow
             label="患者"
             value={patientName}
-            onEdit={() => {
-              const val = prompt("患者名を入力", patientName)
-              if (val !== null) setPatientName(val)
+            onEdit={async () => {
+              if (!device.roomId) return
+              const val = prompt(
+                "患者名を入力",
+                patientName
+              )
+              if (val === null) return
+              const success =
+                await renamePatientName(
+                  device.roomId,
+                  val
+                )
+              if (!success) return
             }}
           />
+
           {/* 管理番号 */}
           <InfoRow
             label="管理番号"
@@ -250,7 +327,6 @@ export default function RoomDeviceInfoModal({
                       val
                     )
               if (!success) return
-              setManagementNumber(val)
             }}
           />
           {/* シリアル */}
@@ -270,55 +346,55 @@ export default function RoomDeviceInfoModal({
                   val
                 )
               if (!success) return
-              setSerialNumber(val)
             }}
           />
             {(device.assetType === "レンタル" ||
               device.assetType === "代替機") && (
               <>
-                {/* 貸与開始日 */}
-                <InfoRow
-                  label="貸与開始日"
-                  value={rentalStartDate}
-                  onEdit={() => {
-                    const val = prompt(
-                      "貸与開始日を入力 (YYYY-MM-DD)",
-                      rentalStartDate
-                    )
-
-                    if (val !== null) {
-                      setRentalStartDate(val)
-                    }
-                  }}
-                />
-                {/* 返却日 */}
-                <InfoRow
-                  label="返却日"
-                  value={rentalEndDate}
-                  onEdit={() => {
-                    const val = prompt(
-                      "返却日を入力 (YYYY-MM-DD)",
-                      rentalEndDate
-                    )
-
-                    if (val !== null) {
-                      setRentalEndDate(val)
-                    }
-                  }}
-                />
-              </>
+          {/* 貸与開始日 */}
+          <InfoRow
+            label="貸与開始日"
+            value={rentalStartDate}
+            onEdit={async () => {
+              if (!device.id) return
+              const val = prompt(
+                "貸与開始日を入力 (YYYY-MM-DD)",
+                rentalStartDate
+              )
+              if (val === null) return
+              const success =
+                await renameRentalDates(
+                  device.id,
+                  val,
+                  rentalEndDate
+                )
+              if (!success) return
+            }}
+          />
+          {/* 返却日 */}
+          <InfoRow
+            label="返却日"
+            value={rentalEndDate}
+            onEdit={async () => {
+              if (!device.id) return
+              const val = prompt(
+                "返却日を入力 (YYYY-MM-DD)",
+                rentalEndDate
+              )
+              if (val === null) return
+              const success =
+                await renameRentalDates(
+                  device.id,
+                  rentalStartDate,
+                  val
+                )
+              if (!success) return
+            }}
+          />
+        </>
               
-            )}
-          {false && standby && (
-            <div>
-              <label>待機開始日</label>
-              <input
-                type="date"
-                value={standbyStartedAt}
-                onChange={e => setStandbyStartedAt(e.target.value)}
-              />
-            </div>
-          )}
+      )}
+
           {false && isStandbyOverOneMonth && (
             <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
               スタンバイ開始から1か月経過しています。返却を検討してください。
@@ -350,7 +426,6 @@ export default function RoomDeviceInfoModal({
 
               if (!success) return
 
-              setNote(val)
             }} 
           />
         </div>
@@ -359,28 +434,16 @@ export default function RoomDeviceInfoModal({
             {standby && (
               <>
                 <div>
-                  <div className="font-bold">スタンバイ</div>
-
-                  <div className="text-xs text-gray-500">
-                    使用待機中の機器として管理します
+                  <div className="font-bold">
+                    スタンバイ
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">
-                    待機開始日
-                  </label>
-
-                  <input
-                    type="date"
-                    value={standbyStartedAt}
-                    onChange={e => setStandbyStartedAt(e.target.value)}
-                    className="border border-gray-300 rounded px-3 py-2 w-full"
-                  />
+                <div className="text-m text-gray-600">
+                  待機開始日：{standbyStartedAt || "未設定"}
                 </div>
               </>
             )}
-
             {isStandbyOverOneMonth && (
               <div className="rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
                 スタンバイ開始から1か月経過しています。返却を検討してください。
@@ -423,8 +486,14 @@ export default function RoomDeviceInfoModal({
                     </span>
 
                     <button
-                      onClick={() => onCompleteTask(task.id)}
                       className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+                      onClick={async () => {
+                        const success =
+                          await onCompleteTask(
+                            task.id
+                          )
+                        if (!success) return
+                      }}  
                     >
                       実施
                     </button>
@@ -437,10 +506,6 @@ export default function RoomDeviceInfoModal({
 
         {/* 🔽 ボタン */}
         <div className="flex justify-end gap-2 pt-4 border-t">
-
-          <button onClick={onCancel}>
-            キャンセル
-          </button>
 
           <button
             onClick={handleToggleStandby}
@@ -456,28 +521,6 @@ export default function RoomDeviceInfoModal({
             {standby ? "スタンバイ解除" : "スタンバイ"}
           </button>
 
-          <button
-            onClick={() => {
-              if (!device.id || !device.roomId) return
-
-              onSubmit({
-                id: device.id,
-                managementNumber,
-                serialNumber,
-                note,
-                patientName,
-                roomId: device.roomId,
-                rentalStartDate:rentalStartDate|| undefined,
-                rentalEndDate:rentalEndDate|| undefined,
-                standby,
-                standbyStartedAt: standbyStartedAt || undefined,
-                standbyFinishedAt: standbyFinishedAt || undefined
-              })
-            }}
-            className="bg-blue-500 text-white px-3 py-1 rounded"
-          >
-            保存
-          </button>
         </div>      
       </div>
     </div>,

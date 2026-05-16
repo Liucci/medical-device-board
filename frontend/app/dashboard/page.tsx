@@ -1674,16 +1674,76 @@ export default function Page() {
 
     setRoomDeviceInfoModalOpen(false)
   }
-  //管理番号編集関数（boolean)
-  const renameManagementNumber =async (
-      id: number,
-      value: string
-    ): Promise<boolean> => {
-
+  //患者名修正関数(boolean)
+  const renamePatientName = async (roomId: number,value: string): Promise<boolean> => {
     if (!currentUser) {
       return false
     }
 
+    const trimmed =
+      value.trim()
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("rooms")
+      .update({
+        patient_name:
+          trimmed
+      })
+      .eq("id", roomId)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+
+    if (error) {
+
+      console.error(error)
+
+      alert(
+        "患者名編集権限がありません"
+      )
+
+      return false
+    }
+
+    // 🔥 RLSで0件更新
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "患者名編集権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
+    setRooms(prev =>
+      prev.map(r =>
+        r.roomId === roomId
+          ? {
+              ...r,
+              patientName:
+                trimmed
+            }
+          : r
+      )
+    )
+
+    return true
+  }
+  //管理番号編集関数（boolean)
+  const renameManagementNumber =async (id: number,value: string): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
     const {
       data,
       error
@@ -1860,6 +1920,135 @@ export default function Page() {
       )
     )
 
+    return true
+  }
+
+  const toggleDeviceStandby = async (
+      deviceId: number,
+      standby: boolean,
+      standbyStartedAt?: string,
+      standbyFinishedAt?: string
+    ): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        standby,
+        standby_started_at:
+          standbyStartedAt || null,
+        standby_finished_at:
+          standbyFinishedAt || null,
+      })
+      .eq("id", deviceId)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+
+    if (error) {
+
+      console.error(error)
+
+      alert(
+        "スタンバイ変更権限がありません"
+      )
+
+      return false
+    }
+
+    // 🔥 RLS 0件対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "スタンバイ変更権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === deviceId
+          ? {
+              ...d,
+              standby,
+              standbyStartedAt,
+              standbyFinishedAt
+            }
+          : d
+      )
+    )
+
+    return true
+  }
+
+  const renameRentalDates = async (
+        deviceId: number,
+        rentalStartDate: string,
+        rentalEndDate: string
+      ): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        rental_start_date:
+          rentalStartDate || null,
+        rental_end_date:
+          rentalEndDate || null,
+      })
+      .eq("id", deviceId)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+    if (error) {
+      console.error(error)
+      alert(
+        "貸与日編集権限がありません"
+      )
+      return false
+    }
+    // 🔥 RLS対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+      alert(
+        "貸与日編集権限がありません"
+      )
+      return false
+    }
+    // ===== UI更新 =====
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === deviceId
+          ? {
+              ...d,
+              rentalStartDate,
+              rentalEndDate
+            }
+          : d
+      )
+    )
     return true
   }
 
@@ -3253,85 +3442,56 @@ export default function Page() {
     }
 }
   //タスク完了ボタンを押したときの処理
-  const handleCompleteTask = async (taskId: number) => {
-    if (!currentUser) {return}  
-    const task = tasks.find(t => t.id === taskId)
-    if (!task) return
-    const now = new Date().toISOString()
-    // ① task完了
-    const { error: updateError } = await supabase
-      .from("device_maintenance_tasks")
+  const handleCompleteTask =async (taskId: number): Promise<boolean> => {
+    if (!currentUser) {
+      return false
+    }
+    const today =
+      new Date()
+        .toISOString()
+    const {
+      data,
+      error
+    } = await supabase
+      .from("maintenance_tasks")
       .update({
-        status: "completed",
-        completed_at: now
+        completed_at: today
       })
       .eq("id", taskId)
       .eq(
         "hospital_id",
-        currentUser?.hospitalId
+        currentUser.hospitalId
       )
-
-    if (updateError) {
-      console.error(updateError)
-      return
-    }
-
-    // ② log作成
-  const { error: logError } =
-    await supabase
-      .from("device_maintenance_logs")
-      .insert({
-        hospital_id:
-          currentUser?.hospitalId,
-        device_id:
-          task.device_id,
-        maintenance_type_id:
-          task.maintenance_type_id,
-        performed_at:
-          now,
-        task_id:
-          task.id
-      })
-  if (logError) {
-    console.error(
-      "maintenance log insert error:",
-      logError
-    )
-    return
-  }
-    // ③ 次タスク生成
-    const type = maintenanceTypes.find(
-      t => t.id === task.maintenance_type_id
-    )
-    if (type?.interval_days) {
-      const due = new Date()
-      due.setDate(due.getDate() + type.interval_days)
-      const { error: nextTaskError } =
-        await supabase
-          .from("device_maintenance_tasks")
-          .insert({
-            hospital_id:
-              currentUser?.hospitalId,
-            device_id:
-              task.device_id,
-            maintenance_type_id:
-              task.maintenance_type_id,
-            due_at:
-              due.toISOString(),
-            status:
-              "pending"
-          })
-      if (nextTaskError) {
-        console.error(
-          "next maintenance task insert error:",
-          nextTaskError
+      .select()
+      if (error?.message) {
+        alert(
+          "メンテ実施権限がありません"
         )
-        return
+        return false
       }
+    // 🔥 RLS対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+      alert(
+        "メンテ実施権限がありません"
+      )
+      return false
     }
-
-    // ④ 再取得（これ重要）
-    fetchTasks()
+    // UI更新
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? {
+              ...t,
+              completed_at:
+                today
+            }
+          : t
+      )
+    )
+    return true
   }
   //device_idに紐づくタスクを取得する関数
   const getDeviceTasks = (deviceId?: number) => {
@@ -3717,7 +3877,6 @@ export default function Page() {
         device={selectedRoomDevice}
         deviceTypes={deviceTypes}
         deviceModels={deviceModels}
-        onSubmit={handleRoomDeviceInfoSubmit}
         onCancel={handleRoomDeviceInfoCancel}
         rooms={rooms}
         wards={wards}
@@ -3727,6 +3886,9 @@ export default function Page() {
         renameManagementNumber={renameManagementNumber}
         renameSerialNumber={renameSerialNumber}
         renameNote={renameNote}
+        renamePatientName={renamePatientName}
+        toggleDeviceStandby={toggleDeviceStandby}
+        renameRentalDates={renameRentalDates}
       />
 
 
