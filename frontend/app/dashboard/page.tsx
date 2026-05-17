@@ -1994,11 +1994,87 @@ export default function Page() {
 
     return true
   }
+  const toggleDeviceMaintenance = async (
+    deviceId: number,
+    nextMaintenance: boolean,
+    maintenanceStartedAt?: string,
+    maintenanceFinishedAt?: string
+  ): Promise<boolean> => {
+
+    if (!currentUser) {
+      return false
+    }
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("devices")
+      .update({
+        is_under_maintenance:
+          nextMaintenance,
+
+        maintenance_started_at:
+          maintenanceStartedAt || null,
+
+        maintenance_finished_at:
+          maintenanceFinishedAt || null,
+      })
+      .eq("id", deviceId)
+      .eq(
+        "hospital_id",
+        currentUser.hospitalId
+      )
+      .select()
+
+    // SQL失敗
+    if (error?.message) {
+
+      alert(
+        "保守変更権限がありません"
+      )
+
+      return false
+    }
+
+    // 🔥 RLS対策
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      alert(
+        "保守変更権限がありません"
+      )
+
+      return false
+    }
+
+    // ===== UI更新 =====
+
+    setDeviceList(prev =>
+      prev.map(d =>
+        d.id === deviceId
+          ? {
+              ...d,
+              isUnderMaintenance:
+                nextMaintenance,
+
+              maintenanceStartedAt,
+
+              maintenanceFinishedAt
+            }
+          : d
+      )
+    )
+
+    return true
+  }
 
   const renameRentalDates = async (
         deviceId: number,
-        rentalStartDate: string,
-        rentalEndDate: string
+        rentalStartDate?: string,
+        rentalEndDate?: string
       ): Promise<boolean> => {
     if (!currentUser) {
       return false
@@ -3868,8 +3944,12 @@ export default function Page() {
         deviceTypes={deviceTypes}
         deviceModels={deviceModels}
         stockAreas={stockAreas}
-        onSubmit={handleStockInfoSubmit}
         onCancel={handleStockInfoCancel}
+        renameManagementNumber={renameManagementNumber}
+        renameSerialNumber={renameSerialNumber}
+        renameNote={renameNote}
+        renameRentalDates={renameRentalDates}
+        toggleDeviceMaintenance={toggleDeviceMaintenance}
       />
        {/* 病室機器詳細モーダル表示 */}
       <RoomDeviceInfoModal
