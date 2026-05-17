@@ -21,6 +21,7 @@ type Props = {
   justDropped: boolean
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
+  currentUser: any
 }
 
 export default function RoomContainer({
@@ -40,7 +41,8 @@ export default function RoomContainer({
                             getMAlert,
                             cellSize,
                             managementNumber,
-                            serialNumber
+                            serialNumber,
+                            currentUser
 
                             }: Props) {
 
@@ -138,13 +140,17 @@ return (
                 if (e.button !== 0) return
 
                 isLongPress.current = false
-
                 // ✅ 必要な値を先に退避
                 const target = e.currentTarget as HTMLElement
                 const clientX = e.clientX
                 const clientY = e.clientY
 
                 longPressTimer.current = setTimeout(() => {
+                  // ===== viewer禁止 =====
+                  if (currentUser?.role === "viewer") {
+                    alert("閲覧者は機器移動できません")
+                    return
+                  }
                   console.log("長押し → drag開始")
                   isLongPress.current = true
 
@@ -152,22 +158,22 @@ return (
                 }, 300)
               }}
               onMouseUp={(e) => {
-                //機器アイコンdragでの発火は除外
-                if (justDropped) return
-                //左クリック以外排除
+                // 左クリック以外排除
                 if (e.button !== 0) return
-                if (longPressTimer.current) {
-                  clearTimeout(longPressTimer.current)
+                // ===== timer解除最優先 =====
+                if (longPressTimer.current) {clearTimeout(
+                        longPressTimer.current
+                  )
                   longPressTimer.current = null
                 }
+                // ===== drag直後除外 =====
+                if (justDropped) return
                 if (!isLongPress.current) {
                   console.log("シングルクリック")
                   console.log("roomDevice",d)
                   openRoomDeviceInfoModal(d)
                 }
               }}
-
-
               onContextMenu={(e) => {
                 console.log("右クリック検知")
                 e.preventDefault()
@@ -189,8 +195,7 @@ return (
               rentalEndDate={d.rentalEndDate}
               mAlert={getMAlert(d.id)}
               cellSize={cellSize}
-              isUnderMaintenance={d.isUnderMaintenance
-    }
+              isUnderMaintenance={d.isUnderMaintenance}
               standby={d.standby}
               standbyStartedAt={d.standbyStartedAt}
 

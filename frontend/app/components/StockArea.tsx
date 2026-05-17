@@ -21,6 +21,8 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   stockCellSize: number
   setStockCellSize: React.Dispatch<React.SetStateAction<number>>
+  currentUser: any
+
 }
 
 export default function StockAreas({ deviceList,
@@ -38,7 +40,8 @@ export default function StockAreas({ deviceList,
                                      openStockInfoModal,
                                     getMAlert,
                                     stockCellSize,
-                                    setStockCellSize
+                                    setStockCellSize,
+                                    currentUser
                                     }: Props) {
 
 return (
@@ -201,6 +204,7 @@ return (
                   cellSize={stockCellSize}
                   managementNumber={managementNumber}
                   serialNumber={serialNumber}
+                  currentUser={currentUser}
                 />
             </StockGrid>
           </div>

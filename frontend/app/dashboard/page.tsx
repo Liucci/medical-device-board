@@ -307,6 +307,7 @@ export default function Page() {
                       clientY: number,
                       device: Device
                     ) => {
+    
     const rect = target.getBoundingClientRect()
 
     setDragOffset({
@@ -321,7 +322,7 @@ export default function Page() {
     
     setDraggingDevice(device)
     //Dragイベント発生のフラグ
-    setJustDropped(true)
+    //setJustDropped(true)
   }
   //auto scroll関連
   const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
@@ -481,9 +482,7 @@ export default function Page() {
     if (!currentUser) {return}  
     //保守中はWardAreAへのdrag禁止
     if (device.isUnderMaintenance) {
-      alert(
-        "保守中機器は病棟へ配置できません"
-      )
+      alert("保守中機器は病棟へ配置できません")
       return
     }
     // 共通
@@ -3824,6 +3823,7 @@ export default function Page() {
           getMAlert={getMAlert}
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
+          currentUser={currentUser}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -3856,6 +3856,7 @@ export default function Page() {
           getMAlert={getMAlert}
           stockCellSize={stockCellSize}
           setStockCellSize={setStockCellSize}
+          currentUser={currentUser}
         />
       </div>      
 

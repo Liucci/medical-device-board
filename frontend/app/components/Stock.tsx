@@ -20,6 +20,7 @@ type Props = {
   openStockInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
+  currentUser: any
 }
 
 
@@ -37,7 +38,8 @@ export default function Stock({
                                 getMAlert,
                                 cellSize,
                                 managementNumber,
-                                serialNumber
+                                serialNumber,
+                                currentUser
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -87,7 +89,6 @@ return (
               onMouseDown={(e) => {
                 //左クリック以外排除
                 if (e.button !== 0) return
-
                 isLongPress.current = false
 
                 // ✅ 必要な値を先に退避
@@ -96,6 +97,11 @@ return (
                 const clientY = e.clientY
 
                 longPressTimer.current = setTimeout(() => {
+                   // ===== viewer禁止 =====
+                  if (currentUser?.role === "viewer") {
+                    alert("閲覧者は機器移動できません")
+                    return
+                  }
                   console.log("長押し → drag開始")
                   isLongPress.current = true
 

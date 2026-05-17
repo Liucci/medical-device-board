@@ -21,6 +21,7 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
+  currentUser: any
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -43,7 +44,8 @@ export default function WardArea({
                                   wardCellSize,
                                   managementNumber,
                                   serialNumber,
-                                  setWardCellSize
+                                  setWardCellSize,
+                                  currentUser
 
                                 }: Props) {
   
@@ -274,6 +276,7 @@ return (
                       cellSize={wardCellSize}
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
+                      currentUser={currentUser}
                     />
                   ))
                 }
