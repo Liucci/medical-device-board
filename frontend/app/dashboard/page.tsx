@@ -1794,6 +1794,14 @@ export default function Page() {
       )
     )
 
+    updateSelectedRoomDevice(d =>
+      d.id === id
+        ? {
+            ...d,
+            managementNumber: value
+          }
+        : d
+  )
     return true
   }
   //シリアル編集関数(boolean)
@@ -1847,7 +1855,7 @@ export default function Page() {
     }
 
     // ===== UI更新 =====
-
+    // deviceListのserialNumber更新
     setDeviceList(prev =>
       prev.map(d =>
         d.id === id
@@ -1859,7 +1867,16 @@ export default function Page() {
           : d
       )
     )
-
+    // RoomDeviceInfoModalのserialNumberも更新
+    updateSelectedRoomDevice(d =>
+      d.id === id
+        ? {
+            ...d,
+            serialNumber: trimmed
+          }
+        : d
+  )
+  
     return true
   } 
   //備考欄編集関数(boolean)
@@ -1918,10 +1935,17 @@ export default function Page() {
           : d
       )
     )
+    updateSelectedRoomDevice(d =>
+      d.id === id
+        ? {
+            ...d,
+            note: trimmed
+          }
+        : d
+  )
 
     return true
   }
-
   const toggleDeviceStandby = async (
       deviceId: number,
       standby: boolean,
@@ -1990,7 +2014,16 @@ export default function Page() {
           : d
       )
     )
-
+    updateSelectedRoomDevice(d =>
+      d.id === deviceId
+        ? {
+            ...d,
+            standby,
+            standbyStartedAt,
+            standbyFinishedAt
+          }
+        : d
+    )
     return true
   }
   const toggleDeviceMaintenance = async (
@@ -2058,18 +2091,28 @@ export default function Page() {
               ...d,
               isUnderMaintenance:
                 nextMaintenance,
-
               maintenanceStartedAt,
-
               maintenanceFinishedAt
             }
           : d
       )
     )
-
+    updateSelectedRoomDevice(d =>
+      d.id === deviceId
+        ? {
+            ...d,
+            isUnderMaintenance:
+              nextMaintenance,
+            maintenanceStartedAt,
+            maintenanceFinishedAt
+          }
+        : d
+    )
+    console.log("currentUser", currentUser)
+    console.log("data", data)
+    console.log("error", error)
     return true
   }
-
   const renameRentalDates = async (
         deviceId: number,
         rentalStartDate?: string,
@@ -2124,13 +2167,21 @@ export default function Page() {
           : d
       )
     )
+    
     return true
   }
-
   const handleRoomDeviceInfoCancel = () => {
     if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
   }
+  //RoomDeviceInfoModal
+  const updateSelectedRoomDevice = (updater: (d: Device) => Device
+    ) => {
+      setSelectedRoomDevice(prev =>
+        prev ? updater(prev) : prev
+      )
+  }
+
   //DBのstock_areas tableに新しいストックエリアを追加する関数
   const addStockArea = async (name: string) => {
     if (!currentUser) {
@@ -3517,55 +3568,56 @@ export default function Page() {
     }
 }
   //タスク完了ボタンを押したときの処理
-  const handleCompleteTask =async (taskId: number): Promise<boolean> => {
-    if (!currentUser) {
+  const handleCompleteTask = async (taskId: number): Promise<boolean> => {
+    if (!currentUser) {return false}
+    const today =new Date().toISOString()
+    // ① task completed化
+    const {data,error} = await supabase
+                          .from("device_maintenance_tasks")
+                          .update({
+                                    completed_at: today,
+                                    status: "completed"
+                                  })
+                          .eq("id", taskId)
+                          .eq(
+                            "hospital_id",currentUser.hospitalId
+                          )
+                          .select()
+    // SQL失敗
+    if (error?.message) {alert("メンテ実施権限がありません")
       return false
     }
-    const today =
-      new Date()
-        .toISOString()
-    const {
-      data,
-      error
-    } = await supabase
-      .from("maintenance_tasks")
-      .update({
-        completed_at: today
-      })
-      .eq("id", taskId)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-      if (error?.message) {
-        alert(
-          "メンテ実施権限がありません"
-        )
-        return false
-      }
-    // 🔥 RLS対策
-    if (
-      !data ||
-      data.length === 0
-    ) {
-      alert(
-        "メンテ実施権限がありません"
-      )
-      return false
-    }
-    // UI更新
+    // RLS対策
+    if ( !data ||data.length === 0)
+       {alert("メンテ実施権限がありません")
+          return false
+       }
+    // ② completed task取得
+    const completedTask =data[0]
+    // ③ maintenanceType取得
+    const type =maintenanceTypes.find(t =>
+          t.id ===completedTask.maintenance_type_id)
+    // ④ device取得
+    const device =deviceList.find( d =>
+          d.id ===completedTask.device_id)
+    // ⑤ 次回task生成
+    if (type &&device){
+                        await createTasks(device,[type])
+                      }
+    // ⑥ UI更新
     setTasks(prev =>
       prev.map(t =>
         t.id === taskId
           ? {
               ...t,
-              completed_at:
-                today
+              completed_at: today,
+              status: "completed"
             }
           : t
       )
     )
+    // ⑦ DBから最新task再取得
+    await fetchTasks()
     return true
   }
   //device_idに紐づくタスクを取得する関数
