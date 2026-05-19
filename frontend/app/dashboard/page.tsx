@@ -3948,7 +3948,7 @@ export default function Page() {
           hospitalId={currentUser.hospitalId}
           userName={currentUser.displayName}
           role={currentUser.role}
-    
+          userId={currentUser.id}
 
         />
       </div>

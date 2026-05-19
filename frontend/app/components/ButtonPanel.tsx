@@ -4,13 +4,15 @@ import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
 import DeviceListModal from "./modals/DeviceListModal"
 import ButtonGrid from "./ButtonGrid"
+import InviteCreateModal from "./modals/InviteCreateModal"
 import { useState } from "react"
 import {
   Plus,
   History,
   Settings,
   FileText,
-  LogOut
+  LogOut,
+  UserPlus
 } from "lucide-react"
 //import { Device } from "../types/deviceTypes"
 
@@ -61,6 +63,7 @@ type Props = {
                                                   } | null
   handleLogout: () => Promise<void>
   hospitalId:string
+  userId:string
   userName: string
   role: string
 }
@@ -97,6 +100,7 @@ export default function ButtonPanel({
   getLatestMaintenanceTask,
   handleLogout,
   hospitalId,
+  userId,
   userName,
   role
 }: Props) {
@@ -104,7 +108,7 @@ export default function ButtonPanel({
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
   const [openHistoryModal, setOpenHistoryModal] = useState(false)
   const [openDeviceListModal, setOpenDeviceListModal] = useState(false)
-
+  const [openInviteModal,setOpenInviteModal] = useState(false)
 
   const OpenModal = () => {
     setOpenDeviceModal(true)
@@ -119,7 +123,9 @@ export default function ButtonPanel({
     //機器一覧表のモーダルを開く処理
     setOpenDeviceListModal(true)
   }
-
+  const openInvite = () => {
+    setOpenInviteModal(true)
+  }
   return (
   <div className="flex flex-col h-full">
     <div>
@@ -156,7 +162,14 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<FileText size={38} />}
       />
+      <div className="h-4" />
 
+      <ButtonGrid
+        onAdd={openInvite}
+        title={"招待"}
+        titleSize="text-xs"
+        icon={<UserPlus size={38} />}
+      />
       <div className="h-4" />
 
       <ButtonGrid
@@ -232,6 +245,16 @@ export default function ButtonPanel({
           getLatestMaintenanceTask={getLatestMaintenanceTask}
         />
       }
+      {openInviteModal &&
+        <InviteCreateModal
+          currentUser={{
+                        id: userId,
+                        hospital_id: hospitalId
+                      }}
+          onClose={() =>setOpenInviteModal(false)}
+        />
+      }
+            
   </div>
   )
 }
