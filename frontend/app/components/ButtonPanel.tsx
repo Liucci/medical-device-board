@@ -3,8 +3,8 @@ import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
 import DeviceListModal from "./modals/DeviceListModal"
-import ButtonGrid from "./ButtonGrid"
 import InviteCreateModal from "./modals/InviteCreateModal"
+import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 import {
   Plus,
@@ -14,7 +14,9 @@ import {
   LogOut,
   UserPlus
 } from "lucide-react"
-//import { Device } from "../types/deviceTypes"
+
+//supabase
+import { supabase } from "../lib/supabase"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
@@ -126,6 +128,23 @@ export default function ButtonPanel({
   const openInvite = () => {
     setOpenInviteModal(true)
   }
+  //supabaseのsend-email関数呼び出しテスト
+  const testEmail = async () => {
+     const { data, error } =
+      await supabase.functions.invoke(
+        "resend-email",
+        {
+          body: {
+            to: "naoyochism@icloud.com",
+            subject: "テスト",
+            html: "<h1>送信成功</h1>"
+          }
+        }
+      )
+    console.log(data)
+    console.log(error)
+  }
+
   return (
   <div className="flex flex-col h-full">
     <div>
@@ -162,7 +181,7 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<FileText size={38} />}
       />
-      <div className="h-4" />
+       <div className="h-4" />
 
       <ButtonGrid
         onAdd={openInvite}
@@ -170,8 +189,8 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<UserPlus size={38} />}
       />
-      <div className="h-4" />
-
+      
+    <div className="h-4" />
       <ButtonGrid
         onAdd={handleLogout}
         title={"終了"}
@@ -245,16 +264,17 @@ export default function ButtonPanel({
           getLatestMaintenanceTask={getLatestMaintenanceTask}
         />
       }
+
       {openInviteModal &&
         <InviteCreateModal
           currentUser={{
                         id: userId,
                         hospital_id: hospitalId
                       }}
-          onClose={() =>setOpenInviteModal(false)}
+          onClose={() => setOpenInviteModal(false)}
         />
       }
-            
+
   </div>
   )
 }

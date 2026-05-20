@@ -113,7 +113,7 @@ export default function SettingsModal({
   ]
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 z-[9999]">
       <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-8 shadow-xl">
         <div className="sticky top-0 z-10 bg-white pb-2">
           <button onClick={onClose}>

@@ -21,7 +21,7 @@ import { normalizeStockArea } from "../utils/stockAreaMapper"
 import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
 
-//supabasek
+//supabase
 import { supabase } from "../lib/supabase"
 
 const ROOMLESS_ROOM_NAME = "部屋無し"

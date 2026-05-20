@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { ExportDeviceListPdf } from "../../utils/ExportDeviceListPdf"
+import { createPortal } from "react-dom"
 
 type Device = {
   id: number
@@ -619,14 +620,14 @@ export default function DeviceListModal({
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
 
     <div
       className="
         fixed inset-0
         bg-black/40
         flex items-center justify-center
-        z-50
+        z-9999
       "
     >
 
@@ -1194,7 +1195,8 @@ export default function DeviceListModal({
 
       </div>
 
-    </div>
+    </div>,
+    document.body
 
   )
 

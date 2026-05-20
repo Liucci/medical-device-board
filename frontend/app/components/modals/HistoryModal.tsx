@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-
+import { createPortal } from "react-dom"
 import { ExportHistoriesPdf }
   from "../../utils/ExportHistoriesPdf"
 
@@ -436,14 +436,14 @@ export default function HistoryModal({
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
 
     <div
       className="
         fixed inset-0
         bg-black/40
         flex items-center justify-center
-        z-50
+        z-9999
       "
     >
 
@@ -1188,7 +1188,8 @@ export default function HistoryModal({
 
       </div>
 
-    </div>
+    </div>,
+    document.body
 
   )
 

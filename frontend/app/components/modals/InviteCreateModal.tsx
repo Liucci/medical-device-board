@@ -1,11 +1,10 @@
-"use client"
+ "use client"
 
 import { useState } from "react"
-
-import {
-  createInviteCode
-} from "@/app/auth/services/inviteService"
-
+import { createPortal } from "react-dom"
+import {createInviteCode}from "@/app/auth/services/inviteService"
+//supabase
+import { supabase } from "../../lib/supabase"
 type Props = {
   currentUser: {
     id: string
@@ -19,13 +18,9 @@ export default function InviteCreateModal({
                         onClose
                         }: Props) {
 
-  const [inviteCode,
-    setInviteCode] =
-    useState("")
-
-  const [loading,
-    setLoading] =
-    useState(false)
+  const [inviteCode,setInviteCode] =useState("")
+  const [loading,setLoading] =useState(false)
+  const [email, setEmail]= useState("")
 
   const handleCreate =
     async () => {
@@ -34,18 +29,63 @@ export default function InviteCreateModal({
 
         setLoading(true)
 
+        // 招待コード作成
         const data =
           await createInviteCode(
             currentUser.hospital_id,
-            currentUser.id
+            currentUser.id,
+            email
           )
 
         setInviteCode(data.code)
 
+        // 招待URL生成
+        const inviteUrl =
+          `${window.location.origin}
+          /register?code=${data.code}`
+
+        // メール送信
+        const { error } =
+          await supabase.functions.invoke(
+            "resend-email",
+            {
+              body: {
+                to: email,
+
+                subject:
+                  "医療機器管理システム招待",
+
+                html: `
+                  <h2>
+                    招待メール
+                  </h2>
+
+                  <p>
+                    以下のリンクから
+                    登録してください
+                  </p>
+
+                  <a href="${inviteUrl}">
+                    登録する
+                  </a>
+                `
+              }
+            }
+          )
+
+        if (error) {
+          throw error
+        }
+
+        alert("招待送信完了")
+
       } catch (err) {
 
-        console.error(err)
-        alert("作成失敗")
+console.error(
+  "invite error:",
+  JSON.stringify(err, null, 2)
+)
+        alert("招待失敗")
 
       } finally {
 
@@ -53,8 +93,55 @@ export default function InviteCreateModal({
       }
     }
 
-  return (
-    <div className="p-4">
+return createPortal(
+
+  <div
+    className="
+      fixed inset-0
+      bg-black/40
+      flex
+      items-center
+      justify-center
+      z-[9999]
+    "
+  >
+
+    <div
+      className="
+        bg-white
+        rounded-xl
+        p-6
+        w-[400px]
+        shadow-xl
+      "
+    >
+
+      <h2
+        className="
+          text-xl
+          font-bold
+          mb-4
+        "
+      >
+        ユーザー招待
+      </h2>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          placeholder="
+            メールアドレス
+          "
+          className="
+            w-full
+            border
+            rounded
+            px-3 py-2
+            mb-4
+          "
+        />
 
       <button
         onClick={handleCreate}
@@ -88,6 +175,21 @@ export default function InviteCreateModal({
         </div>
       )}
 
+      <button
+        onClick={onClose}
+        className="
+          mt-6
+          px-4 py-2
+          bg-gray-300
+          rounded
+        "
+      >
+        閉じる
+      </button>
+
     </div>
-  )
-}
+
+  </div>,
+
+  document.body
+)}
