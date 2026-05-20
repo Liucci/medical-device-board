@@ -45,52 +45,48 @@ export default function InviteCreateModal({
           /register?code=${data.code}`
 
         // メール送信
-        const { error } =
-          await supabase.functions.invoke(
-            "resend-email",
-            {
-              body: {
-                to: email,
+        const {data: emailData,error}=
+            await supabase.functions.invoke(
+              "resend-email",
+              {
+                body: {
+                  to: email,
+                  subject:
+                    "医療機器管理システム招待",
 
-                subject:
-                  "医療機器管理システム招待",
+                  html: `
+                    <h2>
+                      招待メール
+                    </h2>
 
-                html: `
-                  <h2>
-                    招待メール
-                  </h2>
-
-                  <p>
-                    以下のリンクから
-                    登録してください
-                  </p>
-
-                  <a href="${inviteUrl}">
-                    登録する
-                  </a>
-                `
+                    <a href="${inviteUrl}">
+                      登録する
+                    </a>
+                  `
+                }
               }
-            }
-          )
+            )
 
-        if (error) {
-          throw error
-        }
+            console.log(emailData)
+            console.log(error)
+                if (error) {
+                  throw error
+                }
 
-        alert("招待送信完了")
+                alert("招待送信完了")
 
-      } catch (err) {
+              } catch (err) {
 
-console.error(
-  "invite error:",
-  JSON.stringify(err, null, 2)
-)
-        alert("招待失敗")
+            console.error(
+              "invite error:",
+              JSON.stringify(err, null, 2)
+            )
+                alert("招待失敗")
 
-      } finally {
+              } finally {
 
-        setLoading(false)
-      }
+                setLoading(false)
+              }
     }
 
 return createPortal(
