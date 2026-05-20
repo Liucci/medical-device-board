@@ -21,7 +21,7 @@ export default function InviteCreateModal({
   const [inviteCode,setInviteCode] =useState("")
   const [loading,setLoading] =useState(false)
   const [email, setEmail]= useState("")
-
+  const [role,setRole]=useState("normal")
   const handleCreate =
     async () => {
 
@@ -34,15 +34,14 @@ export default function InviteCreateModal({
           await createInviteCode(
             currentUser.hospital_id,
             currentUser.id,
-            email
+            email,
+            role
           )
 
         setInviteCode(data.code)
 
         // 招待URL生成
-        const inviteUrl =
-          `${window.location.origin}
-          /register?code=${data.code}`
+        const inviteUrl =`${window.location.origin}/register?code=${data.code}`
 
         // メール送信
         const {data: emailData,error}=
@@ -53,17 +52,27 @@ export default function InviteCreateModal({
                   to: email,
                   subject:
                     "医療機器管理システム招待",
+                html: `
+                  <h2>
+                    招待メール
+                  </h2>
 
-                  html: `
-                    <h2>
-                      招待メール
-                    </h2>
+                  <p>
+                    以下のリンクから
+                    登録してください
+                  </p>
 
+                  <p>
                     <a href="${inviteUrl}">
                       登録する
                     </a>
-                  `
-                }
+                  </p>
+
+                  <p>
+                    ${inviteUrl}
+                  </p>
+                `                
+              }
               }
             )
 
@@ -121,41 +130,108 @@ return createPortal(
       >
         ユーザー招待
       </h2>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          placeholder="
-            メールアドレス
-          "
-          className="
-            w-full
-            border
-            rounded
-            px-3 py-2
-            mb-4
-          "
-        />
 
-      <button
-        onClick={handleCreate}
+      <input
+        type="email"
+
+        value={email}
+
+        onChange={(e) =>
+          setEmail(
+            e.target.value
+          )
+        }
+
+        placeholder="メールアドレス"
+
         className="
-          px-4 py-2
-          bg-blue-500
-          text-white
+          w-full
+          border
           rounded
+          px-3 py-2
+          mb-4
+        "
+      />
+
+      <select
+
+        value={role}
+
+        onChange={(e) =>
+          setRole(
+            e.target.value
+          )
+        }
+
+        className="
+          w-full
+          border
+          rounded
+          px-3 py-2
+          mb-4
         "
       >
-        紹介コード作成
-      </button>
+
+        <option value="normal">
+          normal
+        </option>
+
+        <option value="admin">
+          admin
+        </option>
+
+      </select>
+
+      <div
+        className="
+          flex
+          justify-end
+          gap-4
+          mt-6
+        "
+      >
+
+        <button
+
+          onClick={handleCreate}
+
+          disabled={loading}
+
+          className="
+            px-4 py-2
+            bg-blue-500
+            text-white
+            rounded
+            disabled:opacity-50
+          "
+        >
+          {
+            loading
+              ? "送信中..."
+              : "紹介コード送信"
+          }
+        </button>
+
+        <button
+
+          onClick={onClose}
+
+          className="
+            px-4 py-2
+            bg-gray-300
+            rounded
+          "
+        >
+          閉じる
+        </button>
+
+      </div>
 
       {inviteCode && (
 
-        <div className="mt-4">
+        <div className="mt-6">
 
-          <p>
+          <p className="mb-2">
             紹介コード:
           </p>
 
@@ -163,6 +239,7 @@ return createPortal(
             className="
               text-xl
               font-bold
+              break-all
             "
           >
             {inviteCode}
@@ -171,21 +248,10 @@ return createPortal(
         </div>
       )}
 
-      <button
-        onClick={onClose}
-        className="
-          mt-6
-          px-4 py-2
-          bg-gray-300
-          rounded
-        "
-      >
-        閉じる
-      </button>
-
     </div>
 
   </div>,
 
   document.body
-)}
+)
+}

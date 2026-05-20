@@ -5,7 +5,8 @@ export const createInviteCode =
 async (
   hospitalId: string,
   createdBy: string,
-  email: string
+  email: string,
+  role: string
 ) => {
 
   // 招待コード生成
@@ -25,18 +26,11 @@ async (
       .from("invite_codes")
       .insert({
         code,
-        hospital_id:
-          hospitalId,
-
-        created_by:
-          createdBy,
-
+        hospital_id: hospitalId,
+        created_by:createdBy,
         email,
-
-        role: "staff",
-
+        role: role,
         used: false,
-
         expires_at:
           expiresAt
       })
