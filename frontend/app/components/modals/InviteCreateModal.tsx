@@ -21,7 +21,9 @@ export default function InviteCreateModal({
   const [inviteCode,setInviteCode] =useState("")
   const [loading,setLoading] =useState(false)
   const [email, setEmail]= useState("")
-  const [role,setRole]=useState("normal")
+  const [role,setRole]=useState<"normal" | "admin">("normal")
+  const [isSuccess, setIsSuccess] = useState(false)
+
   const handleCreate =
     async () => {
 
@@ -50,6 +52,7 @@ export default function InviteCreateModal({
               {
                 body: {
                   to: email,
+                  from: "Devix <invite@devix.jp>",
                   subject:
                     "医療機器管理システム招待",
                 html: `
@@ -81,8 +84,9 @@ export default function InviteCreateModal({
                 if (error) {
                   throw error
                 }
-
-                alert("招待送信完了")
+                
+                setIsSuccess(true)
+                //alert("招待送信完了")
 
               } catch (err) {
 
@@ -121,132 +125,197 @@ return createPortal(
       "
     >
 
-      <h2
-        className="
-          text-xl
-          font-bold
-          mb-4
-        "
-      >
-        ユーザー招待
-      </h2>
+      {
+        isSuccess ? (
 
-      <input
-        type="email"
+          <div className="text-center">
 
-        value={email}
+            <div
+              className="
+                text-5xl
+                mb-4
+              "
+            >
+              ✅
+            </div>
 
-        onChange={(e) =>
-          setEmail(
-            e.target.value
-          )
-        }
+            <h2
+              className="
+                text-2xl
+                font-bold
+                mb-4
+              "
+            >
+              招待送信完了
+            </h2>
 
-        placeholder="メールアドレス"
+            <p
+              className="
+                mb-2
+                break-all
+              "
+            >
+              {email}
+            </p>
 
-        className="
-          w-full
-          border
-          rounded
-          px-3 py-2
-          mb-4
-        "
-      />
+            <p
+              className="
+                text-gray-500
+                text-sm
+                mb-6
+              "
+            >
+              に招待メールを送信しました
+            </p>
 
-      <select
+            <div className="mb-6">
 
-        value={role}
+              <p className="mb-2">
+                紹介コード:
+              </p>
 
-        onChange={(e) =>
-          setRole(
-            e.target.value
-          )
-        }
+              <div
+                className="
+                  text-xl
+                  font-bold
+                  break-all
+                "
+              >
+                {inviteCode}
+              </div>
 
-        className="
-          w-full
-          border
-          rounded
-          px-3 py-2
-          mb-4
-        "
-      >
+            </div>
 
-        <option value="normal">
-          normal
-        </option>
+            <button
 
-        <option value="admin">
-          admin
-        </option>
+              onClick={onClose}
 
-      </select>
+              className="
+                px-4 py-2
+                bg-blue-500
+                text-white
+                rounded
+              "
+            >
+              閉じる
+            </button>
 
-      <div
-        className="
-          flex
-          justify-end
-          gap-4
-          mt-6
-        "
-      >
-
-        <button
-
-          onClick={handleCreate}
-
-          disabled={loading}
-
-          className="
-            px-4 py-2
-            bg-blue-500
-            text-white
-            rounded
-            disabled:opacity-50
-          "
-        >
-          {
-            loading
-              ? "送信中..."
-              : "紹介コード送信"
-          }
-        </button>
-
-        <button
-
-          onClick={onClose}
-
-          className="
-            px-4 py-2
-            bg-gray-300
-            rounded
-          "
-        >
-          閉じる
-        </button>
-
-      </div>
-
-      {inviteCode && (
-
-        <div className="mt-6">
-
-          <p className="mb-2">
-            紹介コード:
-          </p>
-
-          <div
-            className="
-              text-xl
-              font-bold
-              break-all
-            "
-          >
-            {inviteCode}
           </div>
 
-        </div>
-      )}
+        ) : (
+
+          <>
+
+            <h2
+              className="
+                text-xl
+                font-bold
+                mb-4
+              "
+            >
+              ユーザー招待
+            </h2>
+
+            <input
+              type="email"
+
+              value={email}
+
+              onChange={(e) =>
+                setEmail(
+                  e.target.value
+                )
+              }
+
+              placeholder="メールアドレス"
+
+              className="
+                w-full
+                border
+                rounded
+                px-3 py-2
+                mb-4
+              "
+            />
+
+            <select
+
+              value={role}
+
+              onChange={(e) =>
+                setRole(
+                  e.target.value as "normal" | "admin"
+                )
+              }
+
+              className="
+                w-full
+                border
+                rounded
+                px-3 py-2
+                mb-4
+              "
+            >
+
+              <option value="normal">
+                normal
+              </option>
+
+              <option value="admin">
+                admin
+              </option>
+
+            </select>
+
+            <div
+              className="
+                flex
+                justify-end
+                gap-4
+                mt-6
+              "
+            >
+
+              <button
+
+                onClick={handleCreate}
+
+                disabled={loading}
+
+                className="
+                  px-4 py-2
+                  bg-blue-500
+                  text-white
+                  rounded
+                  disabled:opacity-50
+                "
+              >
+                {
+                  loading
+                    ? "送信中..."
+                    : "紹介コード送信"
+                }
+              </button>
+
+              <button
+
+                onClick={onClose}
+
+                className="
+                  px-4 py-2
+                  bg-gray-300
+                  rounded
+                "
+              >
+                閉じる
+              </button>
+
+            </div>
+
+          </>
+
+        )
+      }
 
     </div>
 

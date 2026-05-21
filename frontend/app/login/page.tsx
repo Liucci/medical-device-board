@@ -101,10 +101,18 @@ export default function LoginPage() {
         return
     }
 
-    console.log("login user:", userData)
-    setCurrentUser(normalizeUser(userData))
-    console.log("push dashboard")
-    router.push("/dashboard")
+  console.log("login user:", userData)
+  setCurrentUser(normalizeUser(userData))
+  //system adminは/adminに遷移、それ以外は/dashboardに遷移
+  if (userData.role === "system_admin") {
+    console.log("push admin")
+    router.push("/admin")
+    return
+  }
+
+  console.log("push dashboard")
+
+  router.push("/dashboard")
   }
   return (
     <div
