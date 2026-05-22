@@ -73,6 +73,18 @@ devices,22,updated_by,uuid,,users.id,YES
 hospitals,1,id,uuid,YES,,NO
 hospitals,2,hospital_name,text,,,NO
 hospitals,3,created_at,timestamp with time zone,,,NO
+hospitals,4,is_active,boolean,,,NO
+hospitals,5,updated_at,timestamp with time zone,,,YES
+hospitals,6,price_plan,text,,,YES
+invite_codes,1,id,uuid,YES,,NO
+invite_codes,2,code,text,,,NO
+invite_codes,3,hospital_id,uuid,,,NO
+invite_codes,4,role,text,,,NO
+invite_codes,5,created_by,uuid,,users.id,YES
+invite_codes,6,used,boolean,,,YES
+invite_codes,7,expires_at,timestamp with time zone,,,YES
+invite_codes,8,created_at,timestamp with time zone,,,YES
+invite_codes,9,email,text,,,YES
 maintenance_types,1,id,bigint,YES,,NO
 maintenance_types,2,name,text,,,NO
 maintenance_types,3,device_type_id,bigint,,device_types.id,NO
