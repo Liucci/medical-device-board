@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "../lib/supabase"
 import { useAuth }from "../contexts/AuthContext"
 import { normalizeUser} from "../utils/userMapper"
+import { login } from "../api/auth/login"
 export default function LoginPage() {
 
   const router = useRouter()
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { setCurrentUser } = useAuth()
 
-  const handleLogin = async () => {
+/*   const handleLogin = async () => {
 
     setLoading(true)
     setError("")
@@ -114,6 +115,50 @@ export default function LoginPage() {
 
   router.push("/dashboard")
   }
+ */
+
+  //backendの/loginを呼び出す
+  const handleLogin = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const data = await login(
+          email,
+          password
+        )
+      console.log(data)
+      if (!data.success) {
+        setError(data.error)
+        setLoading(false)
+        return
+      }
+      const currentUser =
+      data.current_user
+      setCurrentUser(
+        normalizeUser(currentUser)
+      )
+      // token保存
+      localStorage.setItem(
+        "access_token",
+        data.access_token
+      )
+
+      if (
+        currentUser.role
+        === "system_admin"
+      ) {
+        router.push("/admin")
+        return
+      }
+      router.push("/dashboard")
+    } catch (err) {
+      console.error(err)
+      setError("ログイン失敗")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div
       className="

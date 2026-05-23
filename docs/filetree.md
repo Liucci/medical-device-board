@@ -5,6 +5,8 @@
 ```text
 .
 ├─ backend/
+│    ├─ main.py
+│    └─ requirements.txt
 ├─ database/
 ├─ frontend/
 │
@@ -55,7 +57,7 @@
    │
    ├─ lib/
    │  ├─ supabase.ts
-   │  └─ supabaseServer.ts
+   │  └─ 
    │
    ├─ login/
    │  └─ page.tsx
