@@ -24,7 +24,17 @@ import { useAuth }from "../contexts/AuthContext"
 //supabase
 import { supabase } from "../lib/supabase"
 
-const ROOMLESS_ROOM_NAME = "部屋無し"
+//FASTAPI移行用
+import {getDevicesFromApi} from "../api/devices/fetchDevices"
+import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
+import {getWardsFromApi} from "../api/wards/fetchWards"
+import {getRoomsFromApi} from "../api/rooms/fetchRooms"
+import {getMasterFromApi} from "../api/master/fetchMaster"
+import {getTasksFromApi} from "../api/tasks/fetchTasks"
+import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenanceTypes"
+import {getHistoriesFromApi} from "../api/histories/fetchHistories"
+
+
 
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -3845,6 +3855,25 @@ export default function Page() {
   if (!currentUser) {
   return null
   }
+
+  //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
+useEffect(() => {
+
+  if (!currentUser) {
+    return
+  }
+
+  getDevicesFromApi(setDeviceList)
+  getStockAreasFromApi(setStockAreas)
+  getWardsFromApi(setWards)
+  getRoomsFromApi(setRooms)
+  getMasterFromApi(setDeviceTypes, setDeviceModels)
+  getTasksFromApi(setTasks)
+  getMaintenanceTypesFromApi(setMaintenanceTypes)
+  getHistoriesFromApi(setHistories)
+
+
+}, [currentUser])
 
     return (
       <div

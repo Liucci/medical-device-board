@@ -1,10 +1,18 @@
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import (CORSMiddleware)
 from devices.fetch_devices import (fetch_devices)
+from stock_areas.fetch_stock_areas import (fetch_stock_areas)
+from wards.fetch_wards import (fetch_wards)
+from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
+from master.fetch_master import (fetch_master)
+from tasks.fetch_tasks import (fetch_tasks)
+from histories.fetch_histories import (fetch_histories)
+from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
 from pydantic import BaseModel
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
+from auth.get_auth_user_id import (get_auth_user_id)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -22,11 +30,10 @@ app.add_middleware(
 class LoginRequest(BaseModel):
     email: str
     password: str
-
+#frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
+#emailと紐づいているauth_user_idからuser情報を取得する
 @app.post("/login")
-def login(
-    body: LoginRequest
-):
+def login(body: LoginRequest):
     response = login_user(
         email=body.email,
         password=body.password
@@ -52,6 +59,7 @@ def login(
         "current_user":
         current_user
     }
+
 @app.get("/")
 def root():
 
@@ -64,15 +72,14 @@ def root():
 def get_users():
     response = fetch_users()
     print("===== users =====")
-
     print(response)
     return response
 
 @app.get("/devices")
-def get_devices():
+def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
     current_user = (
         fetch_current_user(
-            auth_user_id= "b0c9d03a-59c3-490d-b5b3-5b7cf6fc66dc"
+            auth_user_id
         )
     )
     if (
@@ -92,9 +99,312 @@ def get_devices():
             ]
         )
     )
-
     return {
         "success": True,
         "devices":
         devices
     }
+
+@app.get("/stock-areas")
+def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    stock_areas = (
+        fetch_stock_areas(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "stock_areas":
+        stock_areas
+    }
+
+@app.get("/wards")
+def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    wards = (
+        fetch_wards(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "wards":
+        wards
+    }
+
+@app.get("/rooms")
+def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    rooms = (
+        fetch_rooms(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "rooms":
+        rooms
+    }
+
+@app.get("/master")
+def get_master(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    master = (
+        fetch_master(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "device_types":
+        master[
+            "device_types"
+        ],
+
+        "device_models":
+        master[
+            "device_models"
+        ]
+    }
+
+@app.get("/tasks")
+def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    tasks = (
+        fetch_tasks(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "tasks":
+        tasks
+    }
+
+@app.get("/maintenance-types")
+def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    maintenance_types = (
+        fetch_maintenance_types(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "maintenance_types":
+        maintenance_types
+    }
+
+@app.get("/histories")
+def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+
+            "success": False,
+
+            "error":
+            "権限がありません"
+        }
+
+    histories = (
+        fetch_histories(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    return {
+
+        "success": True,
+
+        "histories":
+        histories
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

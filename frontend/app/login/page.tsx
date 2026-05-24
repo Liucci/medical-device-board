@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState ,useEffect} from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "../lib/supabase"
 import { useAuth }from "../contexts/AuthContext"
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { setCurrentUser } = useAuth()
+  const { currentUser, setCurrentUser } = useAuth()
 
 /*   const handleLogin = async () => {
 
@@ -122,18 +122,28 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
     try {
+      //backendの/login
       const data = await login(
           email,
           password
         )
+        /*
+        //ここをコメントアウトすればfrontにauth.uid()がnullになる
+                //frontendのlogin
+                //最終的には削除する予定
+              await supabase.auth.signInWithPassword({
+                  email,
+                  password
+                })
+        */      
       console.log(data)
       if (!data.success) {
         setError(data.error)
         setLoading(false)
         return
       }
-      const currentUser =
-      data.current_user
+      //backendからのcurrentUser情報をsetCurrentUserに格納
+      const currentUser =data.current_user
       setCurrentUser(
         normalizeUser(currentUser)
       )
@@ -158,6 +168,17 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
+    //normalizeしたcurrentUserの内容を確認するため
+  useEffect(() => {
+
+    console.log(
+      "dashboard currentUser:",
+      currentUser
+    )
+
+  }, [currentUser])
+
+
 
   return (
     <div
