@@ -1,6 +1,8 @@
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import (CORSMiddleware)
+
 from devices.fetch_devices import (fetch_devices)
+from devices.add_devices import (add_device)
 from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
@@ -13,6 +15,8 @@ from pydantic import BaseModel
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
+
+from schemas.device_schemas import (AddDeviceRequest)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -30,6 +34,7 @@ app.add_middleware(
 class LoginRequest(BaseModel):
     email: str
     password: str
+
 #frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
 #emailと紐づいているauth_user_idからuser情報を取得する
 @app.post("/login")
@@ -104,6 +109,57 @@ def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
         "devices":
         devices
     }
+
+@app.post("/devices")
+def create_device(
+                  body: AddDeviceRequest,
+                  auth_user_id: str = Depends(
+                      get_auth_user_id
+                  )
+                  ):
+
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    print("current_user")
+
+    for key, value in current_user.items():
+        print(f"・{key}: {value}")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+                "success": False,
+                "error":
+                "権限がありません"
+                }
+
+    if (
+        current_user["hospital_id"]
+        != body.hospital_id
+    ):
+
+        return {
+                "success": False,
+                "error":
+                "hospital_id mismatch"
+                }
+
+    response = add_device(body)
+
+    print("add device response")
+
+    for key, value in response.items():
+        print(f"・{key}: {value}")
+
+    return response
+
 
 @app.get("/stock-areas")
 def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):

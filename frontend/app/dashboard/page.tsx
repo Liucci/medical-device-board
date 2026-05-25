@@ -3836,7 +3836,7 @@ export default function Page() {
   }, [deviceList])
 
   //最初のレンダリングでdeviceList, tasks, maintenanceTypesをDBから取得するためのuseEffect
-  useEffect(() => {
+/*   useEffect(() => {
 
     if (!currentUser) {
       return
@@ -3851,11 +3851,7 @@ export default function Page() {
     fetchHistories()
   }, [currentUser])
 
-  //login情報ない場合はnullを返す。結果login画面に遷移される。
-  if (!currentUser) {
-  return null
-  }
-
+ */
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
 useEffect(() => {
 
@@ -3874,6 +3870,13 @@ useEffect(() => {
 
 
 }, [currentUser])
+
+  //login情報ない場合はnullを返す。結果login画面に遷移される。
+  //一番最後に記述しないとエラーになる
+  if (!currentUser) {
+  return null
+  }
+
 
     return (
       <div

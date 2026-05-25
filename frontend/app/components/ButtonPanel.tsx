@@ -1,4 +1,5 @@
 "use client"
+import { Device } from "../types/deviceTypes"
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
@@ -12,8 +13,12 @@ import {
   Settings,
   FileText,
   LogOut,
-  UserPlus
+  UserPlus,
+  TestTube
 } from "lucide-react"
+//テストボタン用
+import { addDeviceFromApi } from "../api/devices/addDevices"
+
 
 //supabase
 import { supabase } from "../lib/supabase"
@@ -144,6 +149,35 @@ export default function ButtonPanel({
     console.log(data)
     console.log(error)
   }
+  const testAddDevice = async () => {
+
+    const device: Omit<
+                              Device,
+                              "id"
+                              > = {
+                                  hospitalId: hospitalId,
+                                  type: 1,
+                                  model: 1,
+                                  assetType: "資産",
+                                  status: "stock"
+                                  }
+
+    const response = await addDeviceFromApi(device)
+
+    console.log(`response exists: ${!!response}`)
+
+    if (!response) {
+      console.error("add device failed")
+      return
+    }
+
+    console.log("response")
+
+    for (const [key, value] of Object.entries(response)) {
+      console.log(`・${key}: ${value}`)
+    }
+  }
+
 
   return (
   <div className="flex flex-col h-full">
@@ -197,6 +231,15 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<LogOut size={38} />}
       />
+
+      <div className="h-4" />
+    {/* test用 */}
+    <ButtonGrid
+      onAdd={testAddDevice}
+      title={"TEST"}
+      titleSize="text-xs"
+      icon={<TestTube size={38} />}
+    />
     </div>
 
     {/* 下部固定エリア */}

@@ -31,8 +31,8 @@ export type Device = {
   wardId?: number      // 配置されている場合のみ
   roomId?: number
   //roomName?: string  // 配置されている場合のみ
-  row: number
-  col: number
+  row?: number
+  col?: number
   x?: number // ドラッグ中の一時的なx座標
   y?: number // ドラッグ中の一時的なy座標
   managementNumber?: string
