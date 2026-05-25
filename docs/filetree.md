@@ -6,6 +6,32 @@
 .
 ├─ backend/
 │    ├─ main.py
+│    ├─ .env
+│    ├─ requirements.txt
+│    ├─ auth/
+│    │   ├─ fetch_current_user.py
+│    │   ├─ get_auth_user_id/py
+│    │   └─ login.py
+│    ├─ common/
+│    │   └─ supabase_client.py
+│    ├─ devices/
+│    │   └─ fetch_devices.py
+│    ├─ histories/
+│    │   └─ fetch_histories.py
+│    ├─ maintenance_types/
+│    │   └─ fetch_maintenance_types.py
+│    ├─ rooms/
+│    │   └─ fetch_rooms.py
+│    ├─ stock_areas/
+│    │   └─ fetch_stock_areas.py
+│    ├─ tasks/
+│    │   └─ fetch_tasks.py
+│    ├─ users/
+│    │   └─ fetch_users.py
+│    ├─ wards/
+│    │   └─ fetch_wards.py
+│    ├─ master/
+│    │   └─ fetch_master.py
 │    └─ requirements.txt
 ├─ database/
 ├─ frontend/
@@ -15,9 +41,28 @@
    │  └─ page.tsx
    │
    ├─ api/
-   │  └─ admin/
-   │     └─ create-hospital/
-   │        └─ route.ts
+   │  ├─client.ts
+   │  ├─ admin/
+   │  │   └─ create-hospital/
+   │  │         └─ route.ts
+   │  ├─ auth/
+   │  │   └─ login.ts
+   │  ├─ devices/
+   │  │   └─ fetchDevices.ts
+   │  ├─ histories/
+   │  │   └─ fetchHistories.ts
+   │  ├─ maintenanceTypes/
+   │  │   └─ fetchMaintenanceTypes.ts
+   │  ├─ master/
+   │  │   └─ fetchMaster.ts
+   │  ├─ rooms/
+   │  │   └─ fetchRooms.ts
+   │  ├─ stocAreas/
+   │  │   └─ fetchStockAreas.ts
+   │  ├─ tasks/
+   │  │   └─ fetchTasks.ts
+   │  └─ wards/
+   │     └─ fetchWards.ts
    │
    ├─ auth/
    │  └─ services/
@@ -56,8 +101,7 @@
    │  └─ page.tsx
    │
    ├─ lib/
-   │  ├─ supabase.ts
-   │  └─ 
+   │  └─ supabase.ts
    │
    ├─ login/
    │  └─ page.tsx
@@ -72,20 +116,27 @@
    │  ├─ stockTypes.ts
    │  └─ userTypes.ts
    │
-   └─ utils/
-      ├─ deviceColors.ts
-      ├─ DeviceIcon.tsx
-      ├─ deviceMapper.ts
-      ├─ ExportDeviceListPdf.ts
-      ├─ ExportHistoriesPdf.ts
-      ├─ roomsMapper.ts
-      ├─ stockAreaMapper.ts
-      ├─ userMapper.ts
-      ├─ wardsMapper.ts
-      │
-      └─ pdf/
-         └─ createPdfDoc.ts
-```
+   ├─ utils/
+   │   ├─ deviceColors.ts
+   │   ├─ DeviceIcon.tsx
+   │   ├─ deviceMapper.ts
+   │   ├─ ExportDeviceListPdf.ts
+   │   ├─ ExportHistoriesPdf.ts
+   │   ├─ roomsMapper.ts
+   │   ├─ stockAreaMapper.ts
+   │   ├─ userMapper.ts
+   │   ├─ wardsMapper.ts
+   │   │
+   │   └─ pdf/
+   │       └─ createPdfDoc.ts
+   │
+   ├─ global.css
+   ├─ layout.tsx
+   ├─ page.module.css
+   └─ page.tsx
+
+
+   
 
 ---
 
