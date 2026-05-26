@@ -8,7 +8,7 @@ from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
 from master.fetch_master import (fetch_master)
-from tasks.fetch_tasks import (fetch_tasks)
+from backend.tasks.fetch_maintenance_tasks import (fetch_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
 from pydantic import BaseModel
