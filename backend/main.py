@@ -8,7 +8,7 @@ from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
 from master.fetch_master import (fetch_master)
-from backend.tasks.fetch_maintenance_tasks import (fetch_tasks)
+from tasks.fetch_maintenance_tasks import (fetch_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
 from pydantic import BaseModel
@@ -17,6 +17,8 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
 from schemas.device_schemas import (AddDeviceRequest)
+from device_transactions.create_device_transaction import (create_device_transaction)
+
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -441,6 +443,57 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
         histories
     }
 
+#機器アイコンの新規登録用のAPI
+@app.post("/create-device-transaction")
+def create_device_transaction_route(body: AddDeviceRequest,
+                                    auth_user_id: str = Depends(
+                                        get_auth_user_id)
+                                    ):
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+    print("current_user")
+    for key, value in current_user.items():
+        print(f"・{key}: {value}")
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+
+        return {
+                "success": False,
+                "error":
+                "権限がありません"
+                }
+
+    # backend側で自動付与
+    body.hospital_id = (
+        current_user["hospital_id"]
+    )
+    body.created_by = (
+        current_user["id"]
+    )
+
+    response = (
+        create_device_transaction(
+            device=body,
+
+            device_type_name=
+                body.device_type_name,
+
+            device_model_name=
+                body.device_model_name
+        )
+    )
+
+    print("create_device_transaction response")
+
+    for key, value in response.items():
+        print(f"・{key}: {value}")
+
+    return response
 
 
 

@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { Device,  AssetTypes } from "../../types/deviceTypes"
 import { createPortal } from "react-dom"
-
- type Props = {
+import { createDeviceTransaction }from "../../api/transactions/createDeviceTransaction"
+ 
+type Props = {
   onClose: () => void
   onCreate: (device: Device) => void
   deviceTypes: { id: number; name: string }[]
@@ -35,37 +36,87 @@ export default function DeviceModal({
     : deviceModels.filter(m => m.device_type_id === selectedTypeID)
 
 
-  const handleSubmit = () => {
-    if (selectedTypeID === "" || selectedModelID === "") return
+  const handleSubmit = async () => {
 
-  const newDevice: Device = {
-    hospitalId: hospitalId,
-    type: selectedTypeID,
-    model: selectedModelID,
-    assetType: selectedAssetType,
+    if (
+        selectedTypeID === "" ||
+        selectedModelID === ""
+      ) {
+        return
+    }
 
-    rentalStartDate:
-      selectedAssetType === "レンタル" ||
-      selectedAssetType === "代替機"
-        ? rentalStartDate
-        : undefined,
+    const selectedType =
+      deviceTypes.find(
+        t => t.id === selectedTypeID
+      )
 
-    rentalEndDate:
-      selectedAssetType === "レンタル" ||
-      selectedAssetType === "代替機"
-        ? rentalEndDate
-        : undefined,
+    const selectedModel =
+      deviceModels.find(
+        m => m.id === selectedModelID
+      )
 
-    status: "stock",
-    stockAreaID: 1,
-    row: 0,
-    col: 0
+    const response =
+      await createDeviceTransaction({
+
+        type:
+          selectedTypeID,
+
+        model:
+          selectedModelID,
+
+        assetType:
+          selectedAssetType,
+
+        rentalStartDate:
+          selectedAssetType === "レンタル" ||
+          selectedAssetType === "代替機"
+            ? rentalStartDate
+            : undefined,
+
+        rentalEndDate:
+          selectedAssetType === "レンタル" ||
+          selectedAssetType === "代替機"
+            ? rentalEndDate
+            : undefined,
+      })
+
+    console.log("create device response")
+    console.log(response)
+
+    onClose()
   }
 
-  onCreate(newDevice)
-  onClose()
-}
+/*   const handleSubmit = () => {
+    if (selectedTypeID === "" || selectedModelID === "") return
 
+    const newDevice: Device = {
+      hospitalId: hospitalId,
+      type: selectedTypeID,
+      model: selectedModelID,
+      assetType: selectedAssetType,
+
+      rentalStartDate:
+        selectedAssetType === "レンタル" ||
+        selectedAssetType === "代替機"
+          ? rentalStartDate
+          : undefined,
+
+      rentalEndDate:
+        selectedAssetType === "レンタル" ||
+        selectedAssetType === "代替機"
+          ? rentalEndDate
+          : undefined,
+
+      status: "stock",
+      stockAreaID: 1,
+      row: 0,
+      col: 0
+    }
+
+    onCreate(newDevice)
+    onClose()
+}
+ */
 
 return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">

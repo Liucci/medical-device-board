@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 
 class AddDeviceRequest(BaseModel):
-    hospital_id: str
+    hospital_id: str | None = None
     type: int
     model: int
     asset_type: str
-    status: str
+    status: str | None = None
     stock_area_id: int | None = None
     room_id: int | None = None
     management_number: str | None = None
@@ -13,10 +13,10 @@ class AddDeviceRequest(BaseModel):
     note: str | None = None
     rental_start_date: str | None = None
     rental_end_date: str | None = None
-    is_under_maintenance: bool
+    is_under_maintenance: bool= False
     maintenance_started_at: str | None = None
     maintenance_finished_at: str | None = None
-    standby: bool
+    standby: bool= False
     standby_started_at: str | None = None
     standby_finished_at: str | None = None
     created_by: str | None = None

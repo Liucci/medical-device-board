@@ -16,8 +16,6 @@ from schemas.history_schemas import (
 
 def create_device_transaction(
                               device: AddDeviceRequest,
-                              device_type_name: str,
-                              device_model_name: str
                               ):
 
     print("create_device_transaction")
@@ -61,8 +59,6 @@ def create_device_transaction(
 
         note=
             (
-                f"{device_type_name} : "
-                f"{device_model_name} "
                 "新規登録"
             )
     )

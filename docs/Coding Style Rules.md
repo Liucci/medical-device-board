@@ -51,6 +51,11 @@ type AddDeviceParams = {
 # Debug Output Rules
 
 ## 単一値は1行で表示する
+NG
+      type:
+        selectedTypeID,
+OK
+      type:selectedTypeID,
 
 ### Python
 
@@ -105,3 +110,8 @@ print("device_list")
 for device in device_list:
     print(f"・{device}")
 ```
+## 汎用性の高いDB操作系関数と専用性の高いTransaction関数に分ける
+transacion関数はDB操作系関数を用いて構築すること
+
+## frontendはUIで取得した情報をbackendに送る、backendから受け取った情報を表示するだけ
+
