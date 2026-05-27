@@ -40,10 +40,10 @@ export type Device = {
   note?: string
   rentalStartDate?: string
   rentalEndDate?: string
-  isUnderMaintenance?: boolean
+  isUnderMaintenance?: boolean |false
   maintenanceStartedAt?: string
   maintenanceFinishedAt?: string
-  standby?: boolean
+  standby?: boolean |false
   standbyStartedAt?: string
   standbyFinishedAt?: string
   createdBy?: string

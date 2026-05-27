@@ -17,8 +17,8 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
 from schemas.device_schemas import (AddDeviceRequest)
-from device_transactions.create_device_transaction import (create_device_transaction)
-
+from transactions.create_device_transaction import (create_device_transaction)
+from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -142,26 +142,27 @@ def create_device(
                 "権限がありません"
                 }
 
-    if (
+    # backend側で自動付与
+    body.hospital_id = (
         current_user["hospital_id"]
-        != body.hospital_id
-    ):
+    )
 
-        return {
-                "success": False,
-                "error":
-                "hospital_id mismatch"
-                }
+    body.created_by = (
+        current_user["id"]
+    )
 
-    response = add_device(body)
+    response = (
+        create_device_transaction(
+            device=body
+        )
+    )
 
-    print("add device response")
+    print("create device transaction response")
 
     for key, value in response.items():
         print(f"・{key}: {value}")
 
     return response
-
 
 @app.get("/stock-areas")
 def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
@@ -478,13 +479,7 @@ def create_device_transaction_route(body: AddDeviceRequest,
 
     response = (
         create_device_transaction(
-            device=body,
-
-            device_type_name=
-                body.device_type_name,
-
-            device_model_name=
-                body.device_model_name
+            device=body
         )
     )
 
@@ -495,7 +490,57 @@ def create_device_transaction_route(body: AddDeviceRequest,
 
     return response
 
+#リロードの際に必要なデータをDBからまとめて取得するAPI
+@app.get("/init-dashboard")
+def init_dashboard(
+                   auth_user_id: str = Depends(
+                       get_auth_user_id
+                   )
+                   ):
 
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    print("current_user")
+
+    for key, value in current_user.items():
+        print(f"・{key}: {value}")
+
+    response = (
+        fetch_init_dashboard(
+            hospital_id=
+                current_user[
+                    "hospital_id"
+                ]
+        )
+    )
+
+    print(
+        "init_dashboard response"
+    )
+
+    for key, value in response.items():
+
+        if isinstance(
+                      value,
+                      list
+                      ):
+
+            print(
+                f"・{key}: "
+                f"{len(value)} items"
+            )
+
+        else:
+
+            print(
+                f"・{key}: {value}"
+            )
+
+    return response
 
 
 

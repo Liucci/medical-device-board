@@ -54,10 +54,13 @@ def create_device_transaction(
         user_id=
             device.created_by,
 
-        action=
+        action_type=
             "create",
+        stock_area_id=1,
+        stock_area_name=
+        "CE室",
 
-        note=
+        message=
             (
                 "新規登録"
             )

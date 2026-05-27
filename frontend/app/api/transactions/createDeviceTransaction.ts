@@ -1,5 +1,7 @@
 import { Device } from "../../types/deviceTypes"
+import {API_BASE_URL} from "../client"
 
+//deviceModalで取得で切る項目だけbackendに送るための型定義
 type CreateDeviceTransactionParams = {
   type: Device["type"]
   model: Device["model"]
@@ -23,8 +25,8 @@ export const createDeviceTransaction = async (
   }
 
   const response = await fetch(
-    "http://127.0.0.1:8000/create-device-transaction",
-    {
+    `${API_BASE_URL}/create-device-transaction`,
+      {
       method: "POST",
 
       headers: {
@@ -34,7 +36,7 @@ export const createDeviceTransaction = async (
         "Authorization":
           `Bearer ${token}`
       },
-
+      //送る際はDB側のsnake_caseに変換して送る
       body: JSON.stringify({
         type:
           params.type,
@@ -46,10 +48,10 @@ export const createDeviceTransaction = async (
           params.assetType,
 
         rental_start_date:
-          params.rentalStartDate,
+          params.rentalStartDate|| null,
 
         rental_end_date:
-          params.rentalEndDate
+          params.rentalEndDate|| null
       })
     }
   )

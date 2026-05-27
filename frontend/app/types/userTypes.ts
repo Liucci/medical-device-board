@@ -11,7 +11,7 @@ export type CurrentUserDB = {
   hospital_id: string
   display_name: string
   role: UserRole
-  is_active: boolean
+  is_active: boolean |true
 }
 
 // UI型
@@ -20,5 +20,5 @@ export type CurrentUser = {
   hospitalId: string
   displayName: string
   role: UserRole
-  isActive: boolean
+  isActive: boolean  |true
 }

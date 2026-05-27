@@ -33,6 +33,7 @@ import {getMasterFromApi} from "../api/master/fetchMaster"
 import {getTasksFromApi} from "../api/tasks/fetchTasks"
 import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenanceTypes"
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
+import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
 
 
 
@@ -3855,22 +3856,59 @@ export default function Page() {
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
 useEffect(() => {
 
-  if (!currentUser) {
-    return
+  const fetchData = async () => {
+
+    if (!currentUser) {
+      return
+    }
+
+    const data =
+      await fetchInitDashboard()
+
+    if (!data) {
+      return
+    }
+
+    setDeviceList(
+      data.devices
+    )
+
+    setStockAreas(
+      data.stock_areas
+    )
+
+    setWards(
+      data.wards
+    )
+
+    setRooms(
+      data.rooms
+    )
+
+    setDeviceTypes(
+      data.device_types
+    )
+
+    setDeviceModels(
+      data.device_models
+    )
+
+    setTasks(
+      data.tasks
+    )
+
+    setMaintenanceTypes(
+      data.maintenance_types
+    )
+
+    setHistories(
+      data.histories
+    )
   }
 
-  getDevicesFromApi(setDeviceList)
-  getStockAreasFromApi(setStockAreas)
-  getWardsFromApi(setWards)
-  getRoomsFromApi(setRooms)
-  getMasterFromApi(setDeviceTypes, setDeviceModels)
-  getTasksFromApi(setTasks)
-  getMaintenanceTypesFromApi(setMaintenanceTypes)
-  getHistoriesFromApi(setHistories)
-
+  fetchData()
 
 }, [currentUser])
-
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
   if (!currentUser) {
