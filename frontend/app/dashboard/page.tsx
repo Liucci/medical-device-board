@@ -3840,23 +3840,8 @@ export default function Page() {
     prevDeviceListRef.current = deviceList
   }, [deviceList])
 
-  //最初のレンダリングでdeviceList, tasks, maintenanceTypesをDBから取得するためのuseEffect
-/*   useEffect(() => {
 
-    if (!currentUser) {
-      return
-    }    
-    fetchDevices()
-    fetchStockAreas()
-    fetchWards()
-    fetchRooms()
-    fetchMaster()
-    fetchTasks()
-    fetchMaintenanceTypes()
-    fetchHistories()
-  }, [currentUser])
-
- */
+ 
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
 useEffect(() => {
 

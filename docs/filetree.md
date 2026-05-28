@@ -15,23 +15,63 @@
 │    ├─ common/
 │    │   └─ supabase_client.py
 │    ├─ devices/
-│    │   └─ fetch_devices.py
+│    │   ├─ add_devices.py
+│    │   ├─ delete_devices.py
+│    │   ├─ fetch_devices.py
+│    │   └─ rename_devices.py
 │    ├─ histories/
-│    │   └─ fetch_histories.py
+│    │   ├─ fetch_histories.py
+│    │   └─ add_histories.py
 │    ├─ maintenance_types/
-│    │   └─ fetch_maintenance_types.py
+│    │   ├─ add_maintenance_types.py
+│    │   ├─ delete_maintenance_types.py
+│    │   ├─ fetch_maintenance_types.py
+│    │   └─ rename_maintenance_types.py
 │    ├─ rooms/
-│    │   └─ fetch_rooms.py
+│    │   ├─ add_room.py
+│    │   ├─ delete_room.py
+│    │   ├─ fetch_room.py
+│    │   └─ rename_room.py
 │    ├─ stock_areas/
-│    │   └─ fetch_stock_areas.py
+│    │   ├─ add_stock_area.py
+│    │   ├─ delete_stock_areas.py
+│    │   ├─ fetch_stock_areas.py
+│    │   └─ rename_stock_areas.py
 │    ├─ tasks/
-│    │   └─ fetch_tasks.py
+│    │   ├─ add_tasks.py
+│    │   ├─ delete_tasks.py
+│    │   ├─ fetch_tasks.py
+│    │   └─ rename_tasks.py
 │    ├─ users/
-│    │   └─ fetch_users.py
+│    │   ├─ add_users.py
+│    │   ├─ delete_users.py
+│    │   ├─ fetch_users.py
+│    │   └─ rename_users.py
 │    ├─ wards/
-│    │   └─ fetch_wards.py
+│    │   ├─ add_wards.py
+│    │   ├─ delete_wards.py
+│    │   ├─ fetch_wards.py
+│    │   └─ rename_wards.py
 │    ├─ master/
-│    │   └─ fetch_master.py
+│    │   ├─ add_master.py
+│    │   ├─ delete_master.py
+│    │   ├─ fetch_master.py
+│    │   └─ rename_master.py
+│    ├─ schemas/
+│    │   ├─ device_model_schemas.py
+│    │   ├─ device_schemas.py
+│    │   ├─ history_schemas.py
+│    │   ├─ maintenance_log_schemas.py
+│    │   ├─ maintenance_task_schemas.py
+│    │   ├─ maintenance_type_schemas.py
+│    │   ├─ master_schemas.py
+│    │   ├─ room_schemas.py
+│    │   ├─ stock_area_schemas.py
+│    │   ├─ user_schemas.py
+│    │   └─ ward_schemas.py
+│    ├─ transactions/
+│    │   ├─ create_device_transaction.py
+│    │   └─ fetch_init_dashboard.py
 │    └─ requirements.txt
 ├─ database/
 ├─ frontend/
@@ -61,12 +101,15 @@
    │  │   └─ fetchStockAreas.ts
    │  ├─ tasks/
    │  │   └─ fetchTasks.ts
-   │  └─ wards/
-   │     └─ fetchWards.ts
+   │  ├─ wards/
+   │  │   └─ fetchWards.ts
+   │  └─ transactions/
+   │      ├─ createDeviceTransaction.ts
+   │      └─ fetchInitDashboard.ts
    │
    ├─ auth/
    │  └─ services/
-   │     └─ inviteService.ts
+   │       └─ inviteService.ts
    │
    ├─ components/
    │  ├─ ButtonGrid.tsx
@@ -126,7 +169,10 @@
    │   ├─ stockAreaMapper.ts
    │   ├─ userMapper.ts
    │   ├─ wardsMapper.ts
-   │   │
+   │   ├─ maintenanceTypeMapper.ts
+   │   ├─ masterMapper.ts
+   │   ├─ taskMapper.ts
+   │   ├─ historyMapper.ts
    │   └─ pdf/
    │       └─ createPdfDoc.ts
    │
