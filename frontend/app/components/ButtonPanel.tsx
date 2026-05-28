@@ -26,9 +26,12 @@ import { supabase } from "../lib/supabase"
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
   deviceList: any[]
+ setDeviceList: React.Dispatch<
+                  React.SetStateAction<any[]>
+                >  
   addDevice: (device: any) => void
   deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; device_type_id: number; name: string }[]
+  deviceModels: { id: number; deviceTypeId: number; name: string }[]
   stockAreas: { id: number; name: string }[]
   wards: { wardId: number; wardName: string }[]
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
@@ -47,7 +50,7 @@ type Props = {
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
   renameDeviceModel: (id: number, newName: string) => Promise<boolean>
   deleteDeviceModels: (ids: number[]) => Promise<boolean>
-  maintenanceTypes: { id: number; name: string; device_type_id: number; device_model_id: number | null; interval_days: number }[]
+  maintenanceTypes: { id: number; name: string; deviceTypeId: number; deviceModelId: number | null; intervalDays: number }[]
   addMaintenanceType: (data: {
                               name: string
                               deviceTypeId: number
@@ -78,6 +81,7 @@ type Props = {
 export default function ButtonPanel({
   addDevice,
   deviceList,
+  setDeviceList,
   deviceTypes,
   deviceModels,
   stockAreas,
@@ -252,6 +256,8 @@ export default function ButtonPanel({
 
       {openDeviceModal &&
         <DeviceModal
+          deviceList={deviceList}
+          setDeviceList={setDeviceList}
           onCreate={addDevice}
           onClose={() => setOpenDeviceModal(false)}
           deviceTypes={deviceTypes}

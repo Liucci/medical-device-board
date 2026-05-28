@@ -115,3 +115,48 @@ transacion関数はDB操作系関数を用いて構築すること
 
 ## frontendはUIで取得した情報をbackendに送る、backendから受け取った情報を表示するだけ
 
+## ネスト構造はインデントで明確にする
+
+### OK
+
+```ts
+const response = await fetch(
+    `${API_BASE_URL}/create-device-transaction`,
+    {
+        method: "POST",
+
+        headers: {
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${token}`
+                  },
+
+        body: JSON.stringify({
+                                type:params.type,
+                                model:params.model
+                              })
+    }
+)
+
+OK
+
+type CreateDeviceTransactionParams = {
+                                      type: Device["type"]
+                                      model: Device["model"]
+                                      assetType: Device["assetType"]
+                                    }
+
+関数作成する際はprintなどは最小限にし、エラーハンドルも最小限にし
+関数の骨子が分かりやすい構造にする。
+
+1行でかけるパラメータは改行しないこと
+無駄な段落を開けないこと
+NG
+type:
+   Device["type"]
+
+model:
+   Device["model"]
+
+OK
+type: Device["type"]
+model: Device["model"]

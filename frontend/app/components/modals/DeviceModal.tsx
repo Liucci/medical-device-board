@@ -4,12 +4,17 @@ import { useState } from "react"
 import { Device,  AssetTypes } from "../../types/deviceTypes"
 import { createPortal } from "react-dom"
 import { createDeviceTransaction }from "../../api/transactions/createDeviceTransaction"
- 
+import {getDevicesFromApi} from "../../api/devices/fetchDevices"
+
 type Props = {
+  deviceList: any[]
+  setDeviceList: React.Dispatch<
+                  React.SetStateAction<any[]>
+                >
   onClose: () => void
   onCreate: (device: Device) => void
   deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; device_type_id: number; name: string }[]
+  deviceModels: { id: number; deviceTypeId: number; name: string }[]
   hospitalId:string
 }
 
@@ -18,7 +23,9 @@ export default function DeviceModal({
                                       onCreate,
                                       deviceTypes,
                                       deviceModels,
-                                      hospitalId
+                                      hospitalId,
+                                      deviceList,
+                                      setDeviceList
                                     }: Props) 
   {
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
@@ -33,7 +40,7 @@ export default function DeviceModal({
 
   const modelsForType = selectedTypeID === ""
     ? []
-    : deviceModels.filter(m => m.device_type_id === selectedTypeID)
+    : deviceModels.filter(m => m.deviceTypeId === selectedTypeID)
 
 
   const handleSubmit = async () => {
@@ -55,68 +62,28 @@ export default function DeviceModal({
         m => m.id === selectedModelID
       )
 
-    const response =
+    const createdDevice =
       await createDeviceTransaction({
 
-        type:
-          selectedTypeID,
-
-        model:
-          selectedModelID,
-
-        assetType:
-          selectedAssetType,
-
-        rentalStartDate:
-          selectedAssetType === "レンタル" ||
-          selectedAssetType === "代替機"
-            ? rentalStartDate
-            : undefined,
-
-        rentalEndDate:
-          selectedAssetType === "レンタル" ||
-          selectedAssetType === "代替機"
-            ? rentalEndDate
-            : undefined,
-      })
-
-    console.log("create device response")
-    console.log(response)
-
-    onClose()
+                              type:selectedTypeID,
+                              model:selectedModelID,
+                              assetType:selectedAssetType,
+                              rentalStartDate:
+                                              selectedAssetType === "レンタル" ||
+                                              selectedAssetType === "代替機"
+                                                ? rentalStartDate
+                                                : undefined,
+                              rentalEndDate:
+                                            selectedAssetType === "レンタル" ||
+                                            selectedAssetType === "代替機"
+                                              ? rentalEndDate
+                                              : undefined,
+                              })
+  if (!createdDevice) {return}
+  const devices = await getDevicesFromApi(setDeviceList)
+  onClose()
   }
 
-/*   const handleSubmit = () => {
-    if (selectedTypeID === "" || selectedModelID === "") return
-
-    const newDevice: Device = {
-      hospitalId: hospitalId,
-      type: selectedTypeID,
-      model: selectedModelID,
-      assetType: selectedAssetType,
-
-      rentalStartDate:
-        selectedAssetType === "レンタル" ||
-        selectedAssetType === "代替機"
-          ? rentalStartDate
-          : undefined,
-
-      rentalEndDate:
-        selectedAssetType === "レンタル" ||
-        selectedAssetType === "代替機"
-          ? rentalEndDate
-          : undefined,
-
-      status: "stock",
-      stockAreaID: 1,
-      row: 0,
-      col: 0
-    }
-
-    onCreate(newDevice)
-    onClose()
-}
- */
 
 return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">

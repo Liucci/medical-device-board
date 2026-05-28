@@ -398,8 +398,6 @@ def create_device_transaction_route(body: AddDeviceRequest,
 
     print("create_device_transaction response")
 
-    for key, value in response.items():
-        print(f"・{key}: {value}")
 
     return response
 

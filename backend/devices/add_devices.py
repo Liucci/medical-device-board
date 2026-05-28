@@ -10,7 +10,7 @@ def add_device(
                device: AddDeviceRequest
                ):
 
-    print("insert device")
+    print("add_device")
     try:
         response = (
             supabase
@@ -79,9 +79,6 @@ def add_device(
             .execute()
         )
 
-        print("insert response")
-        for row in response.data:
-            print(f"・{row}")
         return response.data[0]
     
     except Exception as e:

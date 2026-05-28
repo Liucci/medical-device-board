@@ -49,18 +49,8 @@ export async function getDevicesFromApi(
       "devices api response:",
       data
     )
-
-    if (!data.success) {
-
-      console.error(
-        data.error
-      )
-
-      return
-    }
-
     setDeviceList(
-      data.devices.map(normalizeDevice)
+      data.map(normalizeDevice)
     )
 
   } catch (err) {

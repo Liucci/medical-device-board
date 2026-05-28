@@ -26,58 +26,25 @@ def create_device_transaction(
     device.room_id = None
 
     # devices insert
+    #devices tableに追加
     device_response = add_device(device)
 
-    if not device_response["success"]:
 
-        print("device insert failed")
-
-        return {
-                "success": False
-                }
-
-    inserted_device = device_response["device"]
-
-    print("inserted_device")
-
-    for key, value in inserted_device.items():
-        print(f"・{key}: {value}")
-
-    # histories insert
     history = AddHistoryRequest(
-        hospital_id=
-            device.hospital_id,
-
-        device_id=
-            inserted_device["id"],
-
-        user_id=
-            device.created_by,
-
-        action_type=
-            "create",
-        stock_area_id=1,
-        stock_area_name=
-        "CE室",
-
-        message=
-            (
-                "新規登録"
-            )
-    )
-
+                        hospital_id=device.hospital_id,
+                        device_id=device_response["id"],
+                        user_id=device.created_by,
+                        action_type="create",
+                        stock_area_id=1,
+                        stock_area_name="CE室",
+                        message="新規登録"
+                    )
+    #device_histories tableに追加
     history_response = add_history(history)
 
-    if not history_response["success"]:
-
-        print("history insert failed")
-
-        return {
-                "success": False
-                }
-
+    #returnすることで、frontに情報を渡す
     return {
-            "success": True,
-            "device": inserted_device,
-            "history": history_response["history"]
-            }
+        "create_device_transaction success"
+        "device": device_response,
+        "history": history_response
+    }

@@ -38,10 +38,10 @@
 │    │   ├─ fetch_stock_areas.py
 │    │   └─ rename_stock_areas.py
 │    ├─ tasks/
-│    │   ├─ add_tasks.py
-│    │   ├─ delete_tasks.py
-│    │   ├─ fetch_tasks.py
-│    │   └─ rename_tasks.py
+│    │   ├─ add_maintenance_tasks.py
+│    │   ├─ delete_maintenance_tasks.py
+│    │   ├─ fetch_maintenance_tasks.py
+│    │   └─ rename_maintenance_tasks.py
 │    ├─ users/
 │    │   ├─ add_users.py
 │    │   ├─ delete_users.py

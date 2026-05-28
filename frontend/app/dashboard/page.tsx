@@ -3904,7 +3904,7 @@ setDeviceList(
 
   fetchData()
 
-}, [currentUser])
+  }, [currentUser])
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
   if (!currentUser) {
@@ -3982,6 +3982,7 @@ setDeviceList(
       <div className={styles.button}>
         <ButtonPanel 
           deviceList={deviceList}
+          setDeviceList={setDeviceList}
           addDevice={addDevice}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
