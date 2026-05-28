@@ -19,8 +19,6 @@ def add_user(
         supabase
         .table("users")
         .insert({
-            "id":
-                user.id,
 
             "hospital_id":
                 user.hospital_id,
@@ -33,12 +31,9 @@ def add_user(
 
             "role":
                 user.role,
+            "is_active":
+                user.is_active,
 
-            "created_by":
-                user.created_by,
-
-            "updated_by":
-                user.updated_by
         })
         .execute()
     )
@@ -48,7 +43,4 @@ def add_user(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "user": response.data[0]
-            }
+        return response.data[0]

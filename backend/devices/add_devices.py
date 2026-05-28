@@ -11,83 +11,82 @@ def add_device(
                ):
 
     print("insert device")
+    try:
+        response = (
+            supabase
+            .table("devices")
+            .insert({
+                "hospital_id":
+                    device.hospital_id,
 
-    for key, value in device.dict().items():
-        print(f"・{key}: {value}")
+                "type":
+                    device.type,
 
-    response = (
-        supabase
-        .table("devices")
-        .insert({
-            "hospital_id":
-                device.hospital_id,
+                "model":
+                    device.model,
 
-            "type":
-                device.type,
+                "asset_type":
+                    device.asset_type,
 
-            "model":
-                device.model,
+                "status":
+                    device.status,
 
-            "asset_type":
-                device.asset_type,
+                "stock_area_id":
+                    device.stock_area_id,
 
-            "status":
-                device.status,
+                "room_id":
+                    device.room_id,
 
-            "stock_area_id":
-                device.stock_area_id,
+                "management_number":
+                    device.management_number,
 
-            "room_id":
-                device.room_id,
+                "serial_number":
+                    device.serial_number,
 
-            "management_number":
-                device.management_number,
+                "note":
+                    device.note,
 
-            "serial_number":
-                device.serial_number,
+                "rental_start_date":
+                    device.rental_start_date,
 
-            "note":
-                device.note,
+                "rental_end_date":
+                    device.rental_end_date,
 
-            "rental_start_date":
-                device.rental_start_date,
+                "is_under_maintenance":
+                    device.is_under_maintenance,
 
-            "rental_end_date":
-                device.rental_end_date,
+                "maintenance_started_at":
+                    device.maintenance_started_at,
 
-            "is_under_maintenance":
-                device.is_under_maintenance,
+                "maintenance_finished_at":
+                    device.maintenance_finished_at,
 
-            "maintenance_started_at":
-                device.maintenance_started_at,
+                "standby":
+                    device.standby,
 
-            "maintenance_finished_at":
-                device.maintenance_finished_at,
+                "standby_started_at":
+                    device.standby_started_at,
 
-            "standby":
-                device.standby,
+                "standby_finished_at":
+                    device.standby_finished_at,
 
-            "standby_started_at":
-                device.standby_started_at,
+                "created_by":
+                    device.created_by,
 
-            "standby_finished_at":
-                device.standby_finished_at,
+                "updated_by":
+                    device.updated_by
+            })
+            .execute()
+        )
 
-            "created_by":
-                device.created_by,
-
-            "updated_by":
-                device.updated_by
-        })
-        .execute()
-    )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "device": response.data[0]
-            }
+        print("insert response")
+        for row in response.data:
+            print(f"・{row}")
+        return response.data[0]
+    
+    except Exception as e:
+        print(
+            f"add_device error: "
+            f"{e}"
+        )
+        return []

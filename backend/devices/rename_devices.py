@@ -28,7 +28,4 @@ def rename_device(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "device": response.data[0]
-            }
+    return response.data[0]

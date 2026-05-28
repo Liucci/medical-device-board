@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-class AddMaintenanceRecordRequest(BaseModel):
+class AddMaintenanceLogRequest(BaseModel):
     hospital_id: str
+    device_id:int
     task_id: int
-    completed_by: str
-    result: str
+    maintenance_type_id: int
     note: str | None = None

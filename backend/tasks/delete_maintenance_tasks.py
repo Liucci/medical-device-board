@@ -1,30 +1,35 @@
+# delete_maintenance_task.py
+
 from common.supabase_client import (
     supabase
 )
 
+
 def delete_maintenance_task(
-                            task_id: int
-                            ):
+    task_id: int
+):
+    try:
 
-    print(f"delete task_id: {task_id}")
-
-    response = (
-        supabase
-        .table("device_maintenance_tasks")
-        .delete()
-        .eq(
-            "id",
-            task_id
+        response = (
+            supabase
+            .table(
+                "device_maintenance_tasks"
+            )
+            .delete()
+            .eq(
+                "id",
+                task_id
+            )
+            .execute()
         )
-        .execute()
-    )
 
-    print("delete response")
+        return response.data[0]
 
-    for row in response.data:
-        print(f"・{row}")
+    except Exception as e:
 
-    return {
-            "success": True,
-            "task": response.data[0]
-            }
+        print(
+            f"delete_maintenance_task "
+            f"error: {e}"
+        )
+
+        return None

@@ -7,9 +7,7 @@ from schemas.master_schemas import (
     AddDeviceModelRequest
 )
 
-def add_device_type(
-                    device_type: AddDeviceTypeRequest
-                    ):
+def add_device_type(device_type: AddDeviceTypeRequest):
 
     print("insert device_type")
 
@@ -46,14 +44,9 @@ def add_device_type(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "device_type": response.data[0]
-            }
+        return response.data[0]
 
-def add_device_model(
-                     device_model: AddDeviceModelRequest
-                     ):
+def add_device_model(device_model: AddDeviceModelRequest):
 
     print("insert device_model")
 
@@ -90,7 +83,4 @@ def add_device_model(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "device_model": response.data[0]
-            }
+        return response.data[0]

@@ -16,6 +16,10 @@ import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
 import { normalizeRoom } from "../utils/roomsMapper"
 import { normalizeWard } from "../utils/wardsMapper"
 import { normalizeStockArea } from "../utils/stockAreaMapper"
+import { normalizeDeviceType ,normalizeDeviceModel} from "../utils/masterMapper"
+import { normalizeHistory } from "../utils/historyMapper"
+import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
+import { normalizeMaintenanceTask } from "../utils/taskMapper"
 
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
@@ -3869,40 +3873,47 @@ useEffect(() => {
       return
     }
 
-    setDeviceList(
-      data.devices
-    )
-
+setDeviceList(
+  data.devices.map(
+    normalizeDevice
+  )
+)
     setStockAreas(
-      data.stock_areas
+      data.stock_areas.map(
+        normalizeStockArea
+      )
     )
 
     setWards(
-      data.wards
+      data.wards.map(
+        normalizeWard
+      )
     )
 
     setRooms(
-      data.rooms
+      data.rooms.map(
+        normalizeRoom
+      )
     )
 
     setDeviceTypes(
-      data.device_types
+      data.device_types.map(normalizeDeviceType)
     )
 
     setDeviceModels(
-      data.device_models
+      data.device_models.map(normalizeDeviceModel)
     )
 
     setTasks(
-      data.tasks
+      data.tasks.map(normalizeMaintenanceTask)
     )
 
     setMaintenanceTypes(
-      data.maintenance_types
+      data.maintenance_types.map(normalizeMaintenanceType)
     )
 
     setHistories(
-      data.histories
+      data.histories.map(normalizeHistory)
     )
   }
 

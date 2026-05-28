@@ -9,43 +9,40 @@ from schemas.room_schemas import (
 def add_room(
              room: AddRoomRequest
              ):
-
     print("insert room")
+    try:
+        response = (
+            supabase
+            .table("rooms")
+            .insert({
+                "hospital_id":
+                    room.hospital_id,
 
-    for key, value in room.dict().items():
-        print(f"・{key}: {value}")
+                "ward_id":
+                    room.ward_id,
 
-    response = (
-        supabase
-        .table("rooms")
-        .insert({
-            "hospital_id":
-                room.hospital_id,
+                "name":
+                    room.name,
 
-            "ward_id":
-                room.ward_id,
+                "patient_name":
+                    room.patient_name,
 
-            "name":
-                room.name,
+                "created_by":
+                    room.created_by,
 
-            "patient_name":
-                room.patient_name,
-
-            "created_by":
-                room.created_by,
-
-            "updated_by":
-                room.updated_by
-        })
-        .execute()
-    )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "room": response.data[0]
-            }
+                "updated_by":
+                    room.updated_by
+            })
+            .execute()
+        )
+        print("insert response")
+        for row in response.data:
+            print(f"・{row}")
+        return response.data[0]
+        
+    except Exception as e:
+        print(
+            f"add_room error: "
+            f"{e}"
+        )
+        return []

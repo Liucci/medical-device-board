@@ -24,7 +24,4 @@ def delete_user(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "user": response.data[0]
-            }
+        return response.data[0]

@@ -24,7 +24,4 @@ def delete_stock_area(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "stock_area": response.data[0]
-            }
+        return response.data[0]

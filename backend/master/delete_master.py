@@ -24,10 +24,7 @@ def delete_device_type(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "device_type": response.data[0]
-            }
+        return response.data[0]
 
 def delete_device_model(
                         device_model_id: int
@@ -51,7 +48,4 @@ def delete_device_model(
     for row in response.data:
         print(f"・{row}")
 
-    return {
-            "success": True,
-            "device_model": response.data[0]
-            }
+        return response.data[0]

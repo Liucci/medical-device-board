@@ -38,6 +38,8 @@ export type Device = {
   managementNumber?: string
   serialNumber?: string
   note?: string
+  createAt?: string
+  updateAt?: string
   rentalStartDate?: string
   rentalEndDate?: string
   isUnderMaintenance?: boolean |false
@@ -62,6 +64,8 @@ export type DeviceDB = {
   management_number?: string | null
   serial_number?: string | null
   note?: string | null
+  created_at?: string | null
+  updated_at?: string | null
   rental_start_date?: string | null
   rental_end_date?: string | null
   is_under_maintenance:boolean

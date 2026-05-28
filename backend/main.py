@@ -7,8 +7,8 @@ from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
-from master.fetch_master import (fetch_master)
-from tasks.fetch_maintenance_tasks import (fetch_tasks)
+from master.fetch_master import (fetch_device_types,fetch_device_models )
+from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
 from pydantic import BaseModel
@@ -106,63 +106,8 @@ def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
             ]
         )
     )
-    return {
-        "success": True,
-        "devices":
-        devices
-    }
+    return devices
 
-@app.post("/devices")
-def create_device(
-                  body: AddDeviceRequest,
-                  auth_user_id: str = Depends(
-                      get_auth_user_id
-                  )
-                  ):
-
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-
-    print("current_user")
-
-    for key, value in current_user.items():
-        print(f"・{key}: {value}")
-
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-
-        return {
-                "success": False,
-                "error":
-                "権限がありません"
-                }
-
-    # backend側で自動付与
-    body.hospital_id = (
-        current_user["hospital_id"]
-    )
-
-    body.created_by = (
-        current_user["id"]
-    )
-
-    response = (
-        create_device_transaction(
-            device=body
-        )
-    )
-
-    print("create device transaction response")
-
-    for key, value in response.items():
-        print(f"・{key}: {value}")
-
-    return response
 
 @app.get("/stock-areas")
 def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
@@ -195,13 +140,7 @@ def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "stock_areas":
-        stock_areas
-    }
+    return stock_areas
 
 @app.get("/wards")
 def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
@@ -217,9 +156,7 @@ def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
     ):
 
         return {
-
             "success": False,
-
             "error":
             "権限がありません"
         }
@@ -234,13 +171,7 @@ def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "wards":
-        wards
-    }
+    return wards
 
 @app.get("/rooms")
 def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
@@ -273,13 +204,7 @@ def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "rooms":
-        rooms
-    }
+    return rooms
 
 @app.get("/master")
 def get_master(auth_user_id: str = Depends(get_auth_user_id)):
@@ -302,8 +227,18 @@ def get_master(auth_user_id: str = Depends(get_auth_user_id)):
             "権限がありません"
         }
 
-    master = (
-        fetch_master(
+    device_types = (
+        fetch_device_types(
+
+            hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+        )
+    )
+
+    device_models = (
+        fetch_device_models(
 
             hospital_id=
             current_user[
@@ -317,14 +252,10 @@ def get_master(auth_user_id: str = Depends(get_auth_user_id)):
         "success": True,
 
         "device_types":
-        master[
-            "device_types"
-        ],
+        device_types,
 
         "device_models":
-        master[
-            "device_models"
-        ]
+        device_models
     }
 
 @app.get("/tasks")
@@ -349,7 +280,7 @@ def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
         }
 
     tasks = (
-        fetch_tasks(
+        fetch_maintenance_tasks(
 
             hospital_id=
             current_user[
@@ -358,13 +289,7 @@ def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "tasks":
-        tasks
-    }
+    return  tasks
 
 @app.get("/maintenance-types")
 def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
@@ -397,13 +322,7 @@ def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "maintenance_types":
-        maintenance_types
-    }
+    return maintenance_types
 
 @app.get("/histories")
 def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
@@ -436,13 +355,7 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return {
-
-        "success": True,
-
-        "histories":
-        histories
-    }
+    return histories
 
 #機器アイコンの新規登録用のAPI
 @app.post("/create-device-transaction")
@@ -493,10 +406,10 @@ def create_device_transaction_route(body: AddDeviceRequest,
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
 def init_dashboard(
-                   auth_user_id: str = Depends(
-                       get_auth_user_id
-                   )
-                   ):
+    auth_user_id: str = Depends(
+        get_auth_user_id
+    )
+):
 
     current_user = (
         fetch_current_user(
@@ -504,44 +417,12 @@ def init_dashboard(
         )
     )
 
-    print("current_user")
-
-    for key, value in current_user.items():
-        print(f"・{key}: {value}")
-
-    response = (
-        fetch_init_dashboard(
-            hospital_id=
-                current_user[
-                    "hospital_id"
-                ]
-        )
+    return fetch_init_dashboard(
+        hospital_id=
+            current_user[
+                "hospital_id"
+            ]
     )
-
-    print(
-        "init_dashboard response"
-    )
-
-    for key, value in response.items():
-
-        if isinstance(
-                      value,
-                      list
-                      ):
-
-            print(
-                f"・{key}: "
-                f"{len(value)} items"
-            )
-
-        else:
-
-            print(
-                f"・{key}: {value}"
-            )
-
-    return response
-
 
 
 

@@ -7,31 +7,30 @@ def rename_room(
                 name: str,
                 patient_name: str | None = None
                 ):
-
-    print(f"rename room_id: {room_id}")
-    print(f"name: {name}")
-    print(f"patient_name: {patient_name}")
-
-    response = (
-        supabase
-        .table("rooms")
-        .update({
-            "name": name,
-            "patient_name": patient_name
-        })
-        .eq(
-            "id",
-            room_id
+    print("rename room")
+    try:
+        response = (
+            supabase
+            .table("rooms")
+            .update({
+                "name": name,
+                "patient_name": patient_name
+            })
+            .eq(
+                "id",
+                room_id
+            )
+            .execute()
         )
-        .execute()
-    )
+        print("rename response")
 
-    print("rename response")
+        for row in response.data:
+            print(f"・{row}")
 
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "room": response.data[0]
-            }
+            return response.data[0]
+    except Exception as e:
+        print(
+            f"rename_room error: "
+            f"{e}"
+        )
+        return []

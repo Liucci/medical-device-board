@@ -15,11 +15,12 @@ from rooms.fetch_rooms import (
 )
 
 from master.fetch_master import (
-    fetch_master
+    fetch_device_types,
+    fetch_device_models
 )
 
 from tasks.fetch_maintenance_tasks import (
-    fetch_tasks
+    fetch_maintenance_tasks
 )
 
 from maintenance_types.fetch_maintenance_types import (
@@ -35,102 +36,70 @@ def fetch_init_dashboard(
                          hospital_id: str
                          ):
 
-    print(
-        "fetch_init_dashboard"
-    )
-
-    print(
-        f"hospital_id: {hospital_id}"
-    )
-
-    # devices
-    devices_response = fetch_devices(
+    devices = fetch_devices(
         hospital_id
     )
 
-    # stock areas
-    stock_areas_response = fetch_stock_areas(
+    stock_areas = fetch_stock_areas(
         hospital_id
     )
 
-    # wards
-    wards_response = fetch_wards(
+    wards = fetch_wards(
         hospital_id
     )
 
-    # rooms
-    rooms_response = fetch_rooms(
+    rooms = fetch_rooms(
         hospital_id
     )
 
-    # master
-    master_response = fetch_master(
+    device_types = fetch_device_types(
         hospital_id
     )
 
-    # tasks
-    tasks_response = fetch_tasks(
+    device_models = fetch_device_models(
         hospital_id
     )
 
-    # maintenance types
-    maintenance_types_response = (
+    tasks = fetch_maintenance_tasks(
+        hospital_id
+    )
+
+    maintenance_types = (
         fetch_maintenance_types(
             hospital_id
         )
     )
 
-    # histories
-    histories_response = fetch_histories(
+    histories = fetch_histories(
         hospital_id
     )
 
     return {
 
-        "success": True,
-
         "devices":
-            devices_response[
-                "devices"
-            ],
+            devices,
 
         "stock_areas":
-            stock_areas_response[
-                "stock_areas"
-            ],
+            stock_areas,
 
         "wards":
-            wards_response[
-                "wards"
-            ],
+            wards,
 
         "rooms":
-            rooms_response[
-                "rooms"
-            ],
+            rooms,
 
         "device_types":
-            master_response[
-                "device_types"
-            ],
+            device_types,
 
         "device_models":
-            master_response[
-                "device_models"
-            ],
+            device_models,
 
         "tasks":
-            tasks_response[
-                "tasks"
-            ],
+            tasks,
 
         "maintenance_types":
-            maintenance_types_response[
-                "maintenance_types"
-            ],
+            maintenance_types,
 
         "histories":
-            histories_response[
-                "histories"
-            ]
+            histories
     }

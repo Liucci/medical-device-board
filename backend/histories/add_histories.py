@@ -6,101 +6,96 @@ from schemas.history_schemas import (
     AddHistoryRequest
 )
 
-def add_history(
-                history: AddHistoryRequest
-                ):
-
+def add_history(history: AddHistoryRequest):
     print("insert history")
+    try:
+        response = (
+            supabase
+            .table("device_histories")
+            .insert({
 
-    for key, value in history.model_dump().items():
-        print(f"・{key}: {value}")
+                "hospital_id":
+                    history.hospital_id,
 
-    response = (
-        supabase
-        .table("device_histories")
-        .insert({
+                "device_id":
+                    history.device_id,
 
-            "hospital_id":
-                history.hospital_id,
+                "user_id":
+                    history.user_id,
 
-            "device_id":
-                history.device_id,
+                "action_type":
+                    history.action_type,
 
-            "user_id":
-                history.user_id,
+                "message":
+                    history.message,
 
-            "action_type":
-                history.action_type,
+                "status":
+                    history.status,
 
-            "message":
-                history.message,
+                "stock_area_id":
+                    history.stock_area_id,
 
-            "status":
-                history.status,
+                "room_id":
+                    history.room_id,
 
-            "stock_area_id":
-                history.stock_area_id,
+                "management_number":
+                    history.management_number,
 
-            "room_id":
-                history.room_id,
+                "serial_number":
+                    history.serial_number,
 
-            "management_number":
-                history.management_number,
+                "note":
+                    history.note,
 
-            "serial_number":
-                history.serial_number,
+                "error_code":
+                    history.error_code,
 
-            "note":
-                history.note,
+                "error_level":
+                    history.error_level,
 
-            "error_code":
-                history.error_code,
+                "error_detail":
+                    history.error_detail,
 
-            "error_level":
-                history.error_level,
+                "patient_name":
+                    history.patient_name,
 
-            "error_detail":
-                history.error_detail,
+                "device_type_name":
+                    history.device_type_name,
 
-            "patient_name":
-                history.patient_name,
+                "device_model_name":
+                    history.device_model_name,
 
-            "device_type_name":
-                history.device_type_name,
+                "room_name":
+                    history.room_name,
 
-            "device_model_name":
-                history.device_model_name,
+                "stock_area_name":
+                    history.stock_area_name,
 
-            "room_name":
-                history.room_name,
+                "maintenance_started_at":
+                    history.maintenance_started_at,
 
-            "stock_area_name":
-                history.stock_area_name,
+                "maintenance_finished_at":
+                    history.maintenance_finished_at,
 
-            "maintenance_started_at":
-                history.maintenance_started_at,
+                "standby_started_at":
+                    history.standby_started_at,
 
-            "maintenance_finished_at":
-                history.maintenance_finished_at,
+                "standby_finished_at":
+                    history.standby_finished_at,
 
-            "standby_started_at":
-                history.standby_started_at,
-
-            "standby_finished_at":
-                history.standby_finished_at,
-
-            "action_by":
-                history.action_by
-        })
-        .execute()
-    )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "history": response.data[0]
-            }
+                "action_by":
+                    history.action_by
+            })
+            .execute()
+        )
+        print("insert response")
+        for row in response.data:
+            print(f"・{row}")
+        return response.data[0]
+    
+    except Exception as e:
+        print(
+            f"add_history error: "
+            f"{e}"
+        )
+        return []

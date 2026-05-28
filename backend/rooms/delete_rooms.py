@@ -6,25 +6,25 @@ def delete_room(
                 room_id: int
                 ):
 
-    print(f"delete room_id: {room_id}")
-
-    response = (
-        supabase
-        .table("rooms")
-        .delete()
-        .eq(
-            "id",
-            room_id
+    print("delete room")
+    try:
+        response = (
+            supabase
+            .table("rooms")
+            .delete()
+            .eq(
+                "id",
+                room_id
+            )
+            .execute()
         )
-        .execute()
-    )
-
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "room": response.data[0]
-            }
+        print("delete response")
+        for row in response.data:
+            print(f"・{row}")
+            return response.data[0]
+    except Exception as e:
+        print(
+            f"delete_room error: "
+            f"{e}"
+        )
+        return []

@@ -2,13 +2,11 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_device(
-                  device_id: int
-                  ):
+def delete_device(device_id: int):
 
     print(f"delete device_id: {device_id}")
-
-    response = (
+    try:
+        response = (
         supabase
         .table("devices")
         .delete()
@@ -19,12 +17,14 @@ def delete_device(
         .execute()
     )
 
-    print("delete response")
+        print("delete response")
 
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "device": response.data[0]
-            }
+        for row in response.data:
+            print(f"・{row}")
+        return response.data[0]
+    except Exception as e:
+        print(
+            f"delete_device error: "
+            f"{e}"
+        )
+        return []
