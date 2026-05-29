@@ -1,71 +1,25 @@
 import { API_BASE_URL } from "../client"
-import { normalizeWard} from "../../utils/wardsMapper"
+import { normalizeWard } from "../../utils/wardsMapper"
 
-export async function getWardsFromApi(
+export async function getWardsFromApi(setWards: any)
+{
+    console.log("fetchWards")
 
-  setWards: any
+    const token = localStorage.getItem("access_token")
+    if (!token) {return}
 
-) {
+    const response = await fetch(
+                        `${API_BASE_URL}/wards`,
+                        {
+                          method: "GET",
+                          headers: {
+                                      Authorization:
+                                        `Bearer ${token}`
+                                    }
+                        }
+                      )
 
-  try {
+    const data = await response.json()
 
-    const token =
-      localStorage.getItem(
-        "access_token"
-      )
-
-    if (!token) {
-
-      console.error(
-        "token not found"
-      )
-
-      return
-    }
-
-    const response =
-      await fetch(
-
-        `${API_BASE_URL}/wards`,
-
-        {
-
-          method: "GET",
-
-          headers: {
-
-            Authorization:
-              `Bearer ${token}`
-          }
-        }
-      )
-
-    const data =
-      await response.json()
-
-    console.log(
-      "wards response:",
-      data
-    )
-
-    if (!data.success) {
-
-      console.error(
-        data.error
-      )
-
-      return
-    }
-
-    setWards(
-      data.wards.map(normalizeWard)
-    )
-
-  } catch (err) {
-
-    console.error(
-      "fetch wards error:",
-      err
-    )
-  }
+    setWards(data.map(normalizeWard))
 }

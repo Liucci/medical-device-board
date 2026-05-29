@@ -1,16 +1,18 @@
 import { API_BASE_URL } from "../client"
 
-export async function getTasksFromApi(setTasks: any)
+export async function deleteDeviceFromApi(deviceId: number)
 {
-    console.log("fetchTasks")
+    console.log("deleteDevices")
 
     const token = localStorage.getItem("access_token")
+
     if (!token) {return}
 
     const response = await fetch(
-                        `${API_BASE_URL}/tasks`,
+                        `${API_BASE_URL}/devices/${deviceId}`,
                         {
-                          method: "GET",
+                          method: "DELETE",
+
                           headers: {
                                       Authorization:
                                         `Bearer ${token}`
@@ -18,7 +20,5 @@ export async function getTasksFromApi(setTasks: any)
                         }
                       )
 
-    const data = await response.json()
-
-    setTasks(data)
+    return await response.json()
 }

@@ -379,3 +379,329 @@ if (token) {
   }
 }
 ```
+## Frontend Fetch Function Rules
+
+frontend fetch関数は、
+token取得、
+API呼び出し、
+json取得、
+state更新
+だけに集中する。
+
+不要な責務を持たせない。
+
+---
+
+## 基本構造
+
+```ts
+export async function getDevicesFromApi(
+                                        setDeviceList: any
+                                        ) {
+
+    const token =
+      localStorage.getItem("access_token")
+
+    if (!token) {return}
+
+    const response = await fetch(
+                        `${API_BASE_URL}/devices`,
+                        {
+                          method: "GET",
+
+                          headers: {
+                                      Authorization:
+                                        `Bearer ${token}`
+                                    }
+                        }
+                      )
+
+    const data =
+      await response.json()
+
+    setDeviceList(data)
+}
+```
+
+---
+
+## add/update/delete系も同様
+
+```ts
+export async function addDeviceFromApi(
+                                       params: AddDeviceParams
+                                       ) {
+
+    const token =
+      localStorage.getItem("access_token")
+
+    if (!token) {return}
+
+    const response = await fetch(
+                        `${API_BASE_URL}/devices`,
+                        {
+                          method: "POST",
+
+                          headers: {
+                                      "Content-Type":"application/json",
+                                      Authorization:
+                                        `Bearer ${token}`
+                                    },
+
+                          body: JSON.stringify(
+                                  toDBDevice(params)
+                                )
+                        }
+                      )
+
+    return await response.json()
+}
+```
+
+---
+
+## 禁止事項
+
+### try/catch乱用禁止
+
+必要最小限のみ。
+
+### success判定禁止
+
+NG
+
+```ts
+if (!data.success) {
+  console.error(data.error)
+}
+```
+
+backendは純粋dataのみ返す。
+
+---
+
+### 過剰debug禁止
+
+NG
+
+```ts
+console.log(data)
+console.log("fetch success")
+console.log("normalized")
+```
+
+---
+
+### frontendに業務ロジックを書かない
+
+frontendは：
+
+* UI入力
+* API送信
+* state更新
+* 表示
+
+だけに集中する。
+
+---
+
+## backend returnルール
+
+fetch系：
+
+```python
+return response.data
+```
+
+単一操作系：
+
+```python
+return response.data[0]
+```
+
+success wrapperは禁止。
+
+NG
+
+```python
+return {
+  "success": True,
+  "data": response.data
+}
+```
+## 1行で終わる処理は1行で書く
+
+短い処理を無意味に改行しない。
+
+コードの骨子を見えやすくする。
+
+---
+
+## OK
+
+```ts id="wq82na"
+const token = localStorage.getItem("access_token")
+
+if (!token) {return}
+
+const data = await response.json()
+
+setHistories(data)
+```
+
+---
+
+## NG
+
+```ts id="6f31op"
+const token =
+  localStorage.getItem(
+    "access_token"
+  )
+
+const data =
+  await response.json()
+
+setHistories(
+  data
+)
+```
+
+---
+
+## fetch関数の推奨構造
+
+```ts id="s7f4md"
+export async function getHistoriesFromApi(setHistories: any)
+ {
+    console.log("fetchHistories")
+
+    const token = localStorage.getItem("access_token")
+
+    if (!token) {return}
+
+    const response = await fetch(
+                        `${API_BASE_URL}/histories`,
+                        {
+                          method: "GET",
+
+                          headers: {
+                                      Authorization:
+                                        `Bearer ${token}`
+                                    }
+                        }
+                      )
+
+    const data = await response.json()
+
+    setHistories(data)
+}
+```
+
+---
+
+## 基本思想
+
+* 短い処理は1行
+* 骨子を最優先
+* 無意味な改行禁止
+* 無意味な段落禁止
+* コードの縦幅を増やさない
+* 視線移動を減らす
+## fetch関数のdebugルール
+
+fetch関数の先頭には、
+現在どのfetchが動いているか分かるように、
+関数名debugを1行だけ入れる。
+
+---
+
+## OK
+
+```ts
+export async function getMasterFromApi(
+                                       setDeviceTypes: any,
+                                       setDeviceModels: any
+                                       ) 
+{
+    console.log("fetchMaster")
+
+    const token = localStorage.getItem("access_token")
+
+    if (!token) {return}
+
+    const response = await fetch(
+                        `${API_BASE_URL}/master`,
+                        {
+                          method: "GET",
+                          headers: {
+                                      Authorization:
+                                        `Bearer ${token}`
+                                    }
+                        }
+                      )
+
+    const data = await response.json()
+
+    setDeviceTypes(data.device_types)
+    setDeviceModels(data.device_models)
+}
+```
+
+---
+
+## debugは最小限
+
+許可されるdebug：
+
+```ts
+console.log("fetchMaster")
+```
+
+禁止：
+
+```ts
+console.log(data)
+console.log("success")
+console.log("normalized")
+console.log(response)
+```
+
+---
+
+## 空白段禁止
+
+無意味な空白行を入れない。
+
+---
+
+## OK
+
+```ts
+const token = localStorage.getItem("access_token")
+if (!token) {return}
+const data = await response.json()
+```
+
+---
+
+## NG
+
+```ts
+const token = localStorage.getItem("access_token")
+
+if (!token) {return}
+
+const data = await response.json()
+```
+
+---
+
+## 基本思想
+
+* 関数名debugのみ許可
+* 空白段禁止
+* 骨子を見せる
+* 視線移動を減らす
+* 縦幅を増やさない
+* frontendは取得とstate更新だけ
