@@ -8,8 +8,7 @@ def rename_room(
                 patient_name: str | None = None
                 ):
     print("rename room")
-    try:
-        response = (
+    response = (
             supabase
             .table("rooms")
             .update({
@@ -22,15 +21,4 @@ def rename_room(
             )
             .execute()
         )
-        print("rename response")
-
-        for row in response.data:
-            print(f"・{row}")
-
-            return response.data[0]
-    except Exception as e:
-        print(
-            f"rename_room error: "
-            f"{e}"
-        )
-        return []
+    return response.data[0]

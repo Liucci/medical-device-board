@@ -8,12 +8,7 @@ from schemas.master_schemas import (
 )
 
 def add_device_type(device_type: AddDeviceTypeRequest):
-
     print("insert device_type")
-
-    for key, value in device_type.dict().items():
-        print(f"・{key}: {value}")
-
     response = (
         supabase
         .table("device_types")
@@ -38,21 +33,10 @@ def add_device_type(device_type: AddDeviceTypeRequest):
         })
         .execute()
     )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]
 
 def add_device_model(device_model: AddDeviceModelRequest):
-
     print("insert device_model")
-
-    for key, value in device_model.dict().items():
-        print(f"・{key}: {value}")
-
     response = (
         supabase
         .table("device_models")
@@ -77,10 +61,4 @@ def add_device_model(device_model: AddDeviceModelRequest):
         })
         .execute()
     )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

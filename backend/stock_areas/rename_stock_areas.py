@@ -6,7 +6,7 @@ def rename_stock_area(
                       stock_area_id: int,
                       name: str,
                       ):
-
+    print("rename_stock_area")
     response = (
         supabase
         .table("stock_areas")
@@ -19,10 +19,4 @@ def rename_stock_area(
         )
         .execute()
     )
-
-    print("rename response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

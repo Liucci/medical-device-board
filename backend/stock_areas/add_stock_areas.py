@@ -11,10 +11,7 @@ def add_stock_area(
                    stock_area:
                    AddStockAreaRequest
                    ):
-
-    try:
-
-        response = (
+    response = (
             supabase
             .table("stock_areas")
             .insert({
@@ -25,14 +22,5 @@ def add_stock_area(
             })
             .execute()
         )
+    return response.data[0]
 
-        return response.data[0]
-
-    except Exception as e:
-
-        print(
-            f"add_stock_area error: "
-            f"{e}"
-        )
-
-        return None

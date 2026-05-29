@@ -2,11 +2,9 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_user(
-                user_id: str
-                ):
+def delete_user(user_id: str):
 
-    print(f"delete user_id: {user_id}")
+    print("delete user")
 
     response = (
         supabase
@@ -19,9 +17,4 @@ def delete_user(
         .execute()
     )
 
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

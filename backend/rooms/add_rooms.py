@@ -6,12 +6,9 @@ from schemas.room_schemas import (
     AddRoomRequest
 )
 
-def add_room(
-             room: AddRoomRequest
-             ):
+def add_room(room: AddRoomRequest):
     print("insert room")
-    try:
-        response = (
+    response = (
             supabase
             .table("rooms")
             .insert({
@@ -35,14 +32,5 @@ def add_room(
             })
             .execute()
         )
-        print("insert response")
-        for row in response.data:
-            print(f"・{row}")
-        return response.data[0]
+    return response.data[0]
         
-    except Exception as e:
-        print(
-            f"add_room error: "
-            f"{e}"
-        )
-        return []

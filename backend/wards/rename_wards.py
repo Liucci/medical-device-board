@@ -7,8 +7,7 @@ def rename_ward(
                 name: str,
                 ):
 
-    print(f"rename ward_id: {ward_id}")
-    print(f"name: {name}")
+    print(f"rename ward")
 
     response = (
         supabase
@@ -22,13 +21,4 @@ def rename_ward(
         )
         .execute()
     )
-
-    print("rename response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "ward": response.data[0]
-            }
+    return  response.data[0]

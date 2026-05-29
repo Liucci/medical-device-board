@@ -5,9 +5,7 @@ from common.supabase_client import (
 
 def fetch_device_types(hospital_id: str):
     print("fetch_device_types")
-    try:
-
-        response = (
+    response = (
             supabase
             .table("device_types")
             .select("*")
@@ -17,23 +15,11 @@ def fetch_device_types(hospital_id: str):
             )
             .execute()
         )
-
-        return response.data
-
-    except Exception as e:
-
-        print(
-            f"fetch_device_types error: "
-            f"{e}"
-        )
-
-        return []
+    return response.data
     
 def fetch_device_models(hospital_id: str):
     print("fetch_device_models")
-    try:
-
-        response = (
+    response = (
             supabase
             .table("device_models")
             .select("*")
@@ -43,14 +29,5 @@ def fetch_device_models(hospital_id: str):
             )
             .execute()
         )
+    return response.data
 
-        return response.data
-
-    except Exception as e:
-
-        print(
-            f"fetch_device_models error: "
-            f"{e}"
-        )
-
-        return []

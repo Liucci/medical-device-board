@@ -7,8 +7,7 @@ def rename_device(
                   name: str
                   ):
 
-    print(f"rename device_id: {device_id}")
-    print(f"name: {name}")
+    print("rename device")
 
     response = (
         supabase
@@ -22,10 +21,5 @@ def rename_device(
         )
         .execute()
     )
-
-    print("rename response")
-
-    for row in response.data:
-        print(f"・{row}")
 
     return response.data[0]

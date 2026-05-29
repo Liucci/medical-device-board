@@ -2,11 +2,8 @@ from common.supabase_client import (
     supabase
 )
 
-def fetch_wards(
-
-    hospital_id: str
-):
-
+def fetch_wards(hospital_id: str):
+    print("fetch_wards")
     response = (
         supabase
         .table("wards")
@@ -17,5 +14,4 @@ def fetch_wards(
         )
         .execute()
     )
-
     return response.data

@@ -9,7 +9,7 @@ def rename_user(
                 email: str | None = None
                 ):
 
-
+    print("rename_user")
     response = (
         supabase
         .table("users")
@@ -25,9 +25,4 @@ def rename_user(
         .execute()
     )
 
-    print("rename response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

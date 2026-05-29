@@ -3,7 +3,7 @@ from common.supabase_client import (
 )
 
 def fetch_users():
-
+    print("fetch_users")
     response = (
         supabase
         .table("users")

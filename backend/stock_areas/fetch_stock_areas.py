@@ -2,11 +2,8 @@ from common.supabase_client import (
     supabase
 )
 
-def fetch_stock_areas(
-
-    hospital_id: str
-):
-
+def fetch_stock_areas(hospital_id: str):
+    print("fetch_stock_areas")
     response = (
         supabase
         .table("stock_areas")
@@ -17,5 +14,4 @@ def fetch_stock_areas(
         )
         .execute()
     )
-
     return response.data

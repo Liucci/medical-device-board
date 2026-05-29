@@ -4,8 +4,7 @@ from common.supabase_client import (
 
 def fetch_rooms(hospital_id: str):
     print("fetch_rooms")
-    try:
-        response = (
+    response = (
             supabase
             .table("rooms")
             .select("*")
@@ -15,11 +14,4 @@ def fetch_rooms(hospital_id: str):
             )
             .execute()
         )
-
-        return response.data
-    except Exception as e:
-        print(
-            f"fetch_rooms error: "
-            f"{e}"
-        )
-        return []
+    return response.data

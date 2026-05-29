@@ -2,12 +2,8 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_ward(
-                ward_id: int
-                ):
-
-    print(f"delete ward_id: {ward_id}")
-
+def delete_ward(ward_id: int):
+    print("delete ward_id")
     response = (
         supabase
         .table("wards")
@@ -18,13 +14,4 @@ def delete_ward(
         )
         .execute()
     )
-
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-    return {
-            "success": True,
-            "ward": response.data[0]
-            }
+    return  response.data[0]

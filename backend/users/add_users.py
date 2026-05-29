@@ -6,15 +6,9 @@ from schemas.user_schemas import (
     AddUserRequest
 )
 
-def add_user(
-             user: AddUserRequest
-             ):
+def add_user(user: AddUserRequest):
 
     print("insert user")
-
-    for key, value in user.dict().items():
-        print(f"・{key}: {value}")
-
     response = (
         supabase
         .table("users")
@@ -37,10 +31,4 @@ def add_user(
         })
         .execute()
     )
-
-    print("insert response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

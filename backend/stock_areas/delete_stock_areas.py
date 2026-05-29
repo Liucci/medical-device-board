@@ -2,12 +2,8 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_stock_area(
-                      stock_area_id: int
-                      ):
-
+def delete_stock_area(stock_area_id: int ):
     print(f"delete stock_area_id: {stock_area_id}")
-
     response = (
         supabase
         .table("stock_areas")
@@ -18,10 +14,4 @@ def delete_stock_area(
         )
         .execute()
     )
-
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

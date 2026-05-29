@@ -7,28 +7,16 @@ def rename_maintenance_type(
                             name: str
                             ):
     print("rename_maintenance_type")
-    try:
-        response = (
-            supabase
-            .table("maintenance_types")
-            .update({
-                "name": name
-            })
-            .eq(
-                "id",
-                maintenance_type_id
-            )
-            .execute()
+    response = (
+        supabase
+        .table("maintenance_types")
+        .update({
+            "name": name
+        })
+        .eq(
+            "id",
+            maintenance_type_id
         )
-
-        print("rename response")
-        for row in response.data:
-            print(f"・{row}")
-
-        return response.data[0]
-    except Exception as e:
-        print(
-            f"rename_maintenance_types error: "
-            f"{e}"
-        )
-        return []
+        .execute()
+    )
+    return response.data[0]

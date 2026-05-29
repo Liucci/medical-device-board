@@ -2,12 +2,8 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_device_type(
-                       device_type_id: int
-                       ):
-
-    print(f"delete device_type_id: {device_type_id}")
-
+def delete_device_type(device_type_id: int):
+    print(f"delete device_type")
     response = (
         supabase
         .table("device_types")
@@ -18,20 +14,10 @@ def delete_device_type(
         )
         .execute()
     )
+    return response.data[0]
 
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
-
-def delete_device_model(
-                        device_model_id: int
-                        ):
-
-    print(f"delete device_model_id: {device_model_id}")
-
+def delete_device_model(device_model_id: int):
+    print(f"delete device_model")
     response = (
         supabase
         .table("device_models")
@@ -42,10 +28,4 @@ def delete_device_model(
         )
         .execute()
     )
-
-    print("delete response")
-
-    for row in response.data:
-        print(f"・{row}")
-
-        return response.data[0]
+    return response.data[0]

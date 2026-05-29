@@ -9,12 +9,9 @@ from schemas.maintenance_task_schemas import (
 )
 
 
-def add_maintenance_task(
-    task: AddMaintenanceTaskRequest
-):
-    try:
-
-        response = (
+def add_maintenance_task(task: AddMaintenanceTaskRequest):
+    print("add_maintenance_task")
+    response = (
             supabase
             .table(
                 "device_maintenance_tasks"
@@ -38,14 +35,6 @@ def add_maintenance_task(
             })
             .execute()
         )
+    return response.data[0]
 
-        return response.data[0]
 
-    except Exception as e:
-
-        print(
-            f"add_maintenance_task "
-            f"error: {e}"
-        )
-
-        return None

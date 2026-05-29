@@ -5,31 +5,19 @@ from common.supabase_client import (
 )
 
 
-def fetch_maintenance_tasks(
-    hospital_id: str
-):
-    try:
-
-        response = (
-            supabase
-            .table(
-                "device_maintenance_tasks"
-            )
-            .select("*")
-            .eq(
-                "hospital_id",
-                hospital_id
-            )
-            .execute()
+def fetch_maintenance_tasks(hospital_id: str):
+    print("fetch_maintenance_tasks")    
+    response = (
+        supabase
+        .table(
+            "device_maintenance_tasks"
         )
-
-        return response.data
-
-    except Exception as e:
-
-        print(
-            f"fetch_maintenance_tasks "
-            f"error: {e}"
+        .select("*")
+        .eq(
+            "hospital_id",
+            hospital_id
         )
+        .execute()
+    )
+    return response.data
 
-        return []
