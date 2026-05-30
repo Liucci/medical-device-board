@@ -26,13 +26,13 @@ import { supabase } from "../lib/supabase"
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
   deviceList: any[]
- setDeviceList: React.Dispatch<
+  setDeviceList: React.Dispatch<
                   React.SetStateAction<any[]>
                 >  
-  addDevice: (device: any) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   stockAreas: { id: number; name: string }[]
+  setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   wards: { wardId: number; wardName: string }[]
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   addStockArea: (name: string) => Promise<void>
@@ -79,12 +79,12 @@ type Props = {
 }
 
 export default function ButtonPanel({
-  addDevice,
   deviceList,
   setDeviceList,
   deviceTypes,
   deviceModels,
   stockAreas,
+  setStockAreas,
   wards,
   rooms,
   addStockArea,
@@ -155,34 +155,6 @@ export default function ButtonPanel({
     console.log(data)
     console.log(error)
   }
-  const testAddDevice = async () => {
-
-    const device: Omit<
-                              Device,
-                              "id"
-                              > = {
-                                  hospitalId: hospitalId,
-                                  type: 1,
-                                  model: 1,
-                                  assetType: "資産",
-                                  status: "stock"
-                                  }
-
-    const response = await addDeviceFromApi(device)
-
-    console.log(`response exists: ${!!response}`)
-
-    if (!response) {
-      console.error("add device failed")
-      return
-    }
-
-    console.log("response")
-
-    for (const [key, value] of Object.entries(response)) {
-      console.log(`・${key}: ${value}`)
-    }
-  }
 
 
   return (
@@ -238,15 +210,8 @@ export default function ButtonPanel({
         icon={<LogOut size={38} />}
       />
 
-      <div className="h-4" />
-    {/* test用 */}
-    <ButtonGrid
-      onAdd={testAddDevice}
-      title={"TEST"}
-      titleSize="text-xs"
-      icon={<TestTube size={38} />}
-    />
-    </div>
+  
+  </div>
 
     {/* 下部固定エリア */}
     <div className="mt-auto pt-4 text-xs text-gray-600 border-t">
@@ -258,7 +223,6 @@ export default function ButtonPanel({
         <DeviceModal
           deviceList={deviceList}
           setDeviceList={setDeviceList}
-          onCreate={addDevice}
           onClose={() => setOpenDeviceModal(false)}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
@@ -270,6 +234,7 @@ export default function ButtonPanel({
         <SettingsModal
           onClose={() => setOpenSettingsModal(false)}
           stockAreas={stockAreas}
+          setStockAreas={setStockAreas}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
           wards={wards}

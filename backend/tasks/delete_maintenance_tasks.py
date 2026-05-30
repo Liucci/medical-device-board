@@ -5,7 +5,7 @@ from common.supabase_client import (
 )
 
 
-def delete_maintenance_task(task_id: int):
+def delete_maintenance_tasks(device_id: int):
     print("delete_maintenance_task")
     response = (
         supabase
@@ -15,9 +15,9 @@ def delete_maintenance_task(task_id: int):
         .delete()
         .eq(
             "id",
-            task_id
+            device_id
         )
         .execute()
     )
-    return response.data[0]
+    return response
 

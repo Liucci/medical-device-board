@@ -1,5 +1,6 @@
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import (CORSMiddleware)
+from fastapi import Header
 
 from devices.fetch_devices import (fetch_devices)
 from devices.add_devices import (add_device)
@@ -17,8 +18,11 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
 from schemas.device_schemas import (AddDeviceRequest)
-from transactions.create_device_transaction import (create_device_transaction)
+from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
+from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
+from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
+from schemas.stock_area_schemas import AddStockAreaRequest
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -34,8 +38,11 @@ app.add_middleware(
 )
 
 class LoginRequest(BaseModel):
-    email: str
-    password: str
+                                email: str
+                                password: str
+                                
+class DeleteDeviceTransactionRequest(BaseModel): device_id: int
+
 
 #frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
 #emailと紐づいているauth_user_idからuser情報を取得する
@@ -392,7 +399,8 @@ def create_device_transaction_route(body: AddDeviceRequest,
 
     response = (
         create_device_transaction(
-            device=body
+            device=body,
+            current_user=current_user
         )
     )
 
@@ -421,6 +429,45 @@ def init_dashboard(
                 "hospital_id"
             ]
     )
+
+#機器アイコンを削除するAPI
+@app.post("/delete-device-transaction")
+def delete_device_transaction_route(
+                                      body: DeleteDeviceTransactionRequest,
+                                      auth_user_id: str = Depends(
+                                          get_auth_user_id
+                                      )
+                                    ):
+
+    current_user = (fetch_current_user(auth_user_id))
+
+    print("current_user")
+    if (current_user["role"]!= "admin"):
+        return {"error":"権限がありません"}
+
+    response = (delete_device_transaction(
+                                            device_id=body.device_id,
+                                            current_user=current_user
+                                        ))
+    return response
+
+#stock_area追加用API
+@app.post("/create-stock-area-transaction")
+def create_stock_area_transaction_route(
+                                          stock_area: AddStockAreaRequest,
+                                          auth_user_id: str = Depends(
+                                          get_auth_user_id
+                                        )
+                                        ):
+    current_user = (fetch_current_user(auth_user_id))
+    print("create_stock_area_transaction")
+
+    response = create_stock_area_transaction(
+                                                stock_area=stock_area,
+                                                current_user=current_user
+                                             )
+
+    return response
 
 
 

@@ -19,14 +19,15 @@ export const AssetTypes = [
 export type DeviceStatus = "stock" | "room"
 
 
-
+//front側の型情報
+//front側にid,hospitalId情報は必須ではない
 export type Device = {
   id?: number
-  hospitalId:string
+  hospitalId?:string
   type: DeviceType["typeID"] 
   model: DeviceModel["modelID"]
   assetType: typeof AssetTypes[number]
-  status: DeviceStatus // "stock" または "room"
+  status?: DeviceStatus // "stock" または "room"
   stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
   roomId?: number
@@ -52,6 +53,8 @@ export type Device = {
   updatedBy?: string
 
 }
+
+//back側の型情報
 export type DeviceDB = {
   id: number
   hospital_id: string

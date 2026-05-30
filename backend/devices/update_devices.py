@@ -2,7 +2,7 @@ from common.supabase_client import (
     supabase
 )
 
-def rename_device(
+def update_device(
                   device_id: int,
                   name: str
                   ):

@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../client"
 
-export async function getTasksFromApi(setTasks: any)
+export async function getTasksFromApi()
 {
     console.log("fetchTasks")
 
@@ -18,7 +18,6 @@ export async function getTasksFromApi(setTasks: any)
                         }
                       )
 
-    const data = await response.json()
+    return await response.json()
 
-    setTasks(data)
 }

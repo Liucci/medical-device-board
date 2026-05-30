@@ -5,9 +5,7 @@ import {
         normalizeDeviceModel
         } from "../../utils/masterMapper"
 
-export async function getDeviceTypesFromApi(
-                                       setDeviceTypes: any
-                                       )
+export async function getDeviceTypesFromApi()
 {
     console.log("fetchDeviceTypes")
 
@@ -24,17 +22,11 @@ export async function getDeviceTypesFromApi(
                                     }
                         }
                       )
+    return await response.json()
 
-    const data = await response.json()
-
-    setDeviceTypes(
-      data.device_types.map(normalizeDeviceType)
-    )
 }
 
-export async function getDeviceModelsFromApi(
-                                        setDeviceModels: any
-                                        )
+export async function getDeviceModelsFromApi()
 {
     console.log("fetchDeviceModels")
 
@@ -52,9 +44,7 @@ export async function getDeviceModelsFromApi(
                         }
                       )
 
-    const data = await response.json()
+    return await response.json()
 
-    setDeviceModels(
-      data.device_models.map(normalizeDeviceModel)
-    )
+    
 }

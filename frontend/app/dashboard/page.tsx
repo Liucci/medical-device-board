@@ -38,7 +38,7 @@ import {getTasksFromApi} from "../api/tasks/fetchTasks"
 import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenanceTypes"
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
-
+import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
 
 
 export default function Page() {
@@ -93,7 +93,7 @@ export default function Page() {
   const router = useRouter()
   const {currentUser,setCurrentUser} = useAuth()
 
-  //device tableのデータをDBから取得する関数
+/*   //device tableのデータをDBから取得する関数
   const fetchDevices = async () => {
     if (!currentUser) {return}
     const { data, error } = await supabase
@@ -239,9 +239,9 @@ export default function Page() {
 
     setMaintenanceTypes(data || [])
   }
-
+ */
   //新規登録時stockAreaIDは1のCE室に固定。ドラッグで移動させる前提。
-  const addDevice = async (device: Omit<Device, 'id'>) => {
+/*   const addDevice = async (device: Omit<Device, 'id'>) => {
     if (!currentUser) {return} 
       // hospital_id付与
     const deviceWithHospital = {
@@ -316,6 +316,8 @@ export default function Page() {
     // ④ UIに追加（DBのid付き）
     setDeviceList(prev => [...prev, newDevice])
   }
+ */
+
   const startDrag = (
                       target: HTMLElement,
                       clientX: number,
@@ -1134,93 +1136,16 @@ export default function Page() {
   }
 
     // Device削除関数
-  const deleteDevice = async (id: number) => {
-    if (!currentUser) {return}  
-    // 🔽 事前準備：削除対象のdevice情報を先に取得（履歴のため）
-    const target = deviceList.find(d => d.id === id)
-    if (!target) return
-    // 履歴用の情報を取得
-    const type = deviceTypes.find(
-      t => Number(t.id) === Number(target.type)
-    )
-    const model = deviceModels.find(
-      m => Number(m.id) === Number(target.model)
-    )
-    const room = rooms.find(r => Number(r.id) === Number(target.roomId))
-    const stockArea = stockAreas.find(a => Number(a.id) === Number(target.stockAreaID))
+const deleteDevice = async (id: number) => {
 
-    // 🔽 ① maintenance_taskを先に削除
-    const { error: taskError } = await supabase
-      .from("device_maintenance_tasks")
-      .delete()
-      .eq("device_id", id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
-    if (taskError) {
-      console.error("task delete error:", taskError)
-      return
-    }
+  await deleteDeviceTransaction({
+                                  deviceId:id,
+                                  setDeviceList,
+                                  setTasks,
+                                  setHistories
+                                })
+}
 
-    // 🔽 ② device削除
-    const { error } = await supabase
-      .from('devices')
-      .delete()
-      .eq('id', id)
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
-    if (error) {
-      console.error("device delete error:", error)
-      return
-    }
-        // ===== 履歴追加 =====
-    const { error: historyError } = await supabase
-      .from("device_histories")
-      .insert({
-        hospital_id:currentUser?.hospitalId,
-        device_id: id,
-        action_type: "delete",
-        device_type_name: type?.name ?? null,
-        device_model_name: model?.name ?? null,
-        status: target.status,
-        room_id: target.roomId ?? null,
-        room_name: room?.roomName ?? null,
-        stock_area_id: target.stockAreaID ?? null,
-        stock_area_name: stockArea?.name ?? null,
-        patient_name:
-          rooms.find(r => Number(r.id) === Number(target.roomId))
-            ?.patientName ?? null,
-
-        management_number:
-          target.managementNumber ?? null,
-
-        serial_number:
-          target.serialNumber ?? null,
-
-        note:
-          target.note ?? null,
-
-        message:
-          `${type?.name ?? "不明"} : ` +
-          `${model?.name ?? "不明"} 削除`
-      })
-
-    if (historyError) {
-      console.error(
-        "history insert error:",
-        historyError
-      )
-    }
-    // DBから再取得
-    await fetchHistories()
-
-    // 🔽 ③ UI更新（DB再取得）
-    await fetchDevices()
-    await fetchTasks()
-  }
   //StockInfoModal開くコンポーネント
   const openStockInfoModal = (device: Device) => {
     setSelectedDevice(device)
@@ -3983,10 +3908,10 @@ setDeviceList(
         <ButtonPanel 
           deviceList={deviceList}
           setDeviceList={setDeviceList}
-          addDevice={addDevice}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
           stockAreas={stockAreas}
+          setStockAreas={setStockAreas}
           wards={wards}
           rooms={rooms}
           addStockArea={addStockArea}

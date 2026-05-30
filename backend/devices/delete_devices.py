@@ -17,4 +17,4 @@ def delete_device(device_id: int):
     .execute()
     )
 
-    return response.data[0]
+    return response

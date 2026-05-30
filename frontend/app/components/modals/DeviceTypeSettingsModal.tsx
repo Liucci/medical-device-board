@@ -2,7 +2,7 @@ import { useState } from "react"
 
 type Props = {
   deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; device_type_id: number; name: string }[]
+  deviceModels: { id: number; deviceTypeId: number; name: string }[]
 
   addDeviceType: (name: string) => Promise<void>
   renameDeviceType: (id: number, newName: string) => Promise<boolean>
@@ -66,7 +66,7 @@ export default function DeviceTypeSettingsModal({
   }
   // ===== deviceModel =====
   const filteredModels = deviceModels
-    .filter(m => m.device_type_id === selectedTypeId)
+    .filter(m => m.deviceTypeId === selectedTypeId)
     .sort((a, b) => a.name.localeCompare(b.name, "ja"))
   const toggleModel = (id: number) => {
     setCheckedModelIds(prev =>

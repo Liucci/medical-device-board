@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../client"
-
-export async function getHistoriesFromApi(setHistories: any)
+import { normalizeHistory } from "@/app/utils/historyMapper"
+export async function getHistoriesFromApi()
  {
     console.log("fetchHistories")
     const token =localStorage.getItem("access_token")
@@ -15,8 +15,6 @@ export async function getHistoriesFromApi(setHistories: any)
                                     }
                         }
                       )
-
-    const data =
-      await response.json()
-    setHistories(data)
+    //backからうけ情報受け取る
+    return await response.json()
 }

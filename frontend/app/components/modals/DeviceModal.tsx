@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Device,  AssetTypes } from "../../types/deviceTypes"
 import { createPortal } from "react-dom"
-import { createDeviceTransaction }from "../../api/transactions/createDeviceTransaction"
-import {getDevicesFromApi} from "../../api/devices/fetchDevices"
+import {createDeviceTransaction} from "../../api/transactions/devices/createDeviceTransaction"
+
 
 type Props = {
   deviceList: any[]
@@ -12,7 +12,6 @@ type Props = {
                   React.SetStateAction<any[]>
                 >
   onClose: () => void
-  onCreate: (device: Device) => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   hospitalId:string
@@ -20,7 +19,7 @@ type Props = {
 
 export default function DeviceModal({
                                       onClose,
-                                      onCreate,
+                                   
                                       deviceTypes,
                                       deviceModels,
                                       hospitalId,
@@ -43,47 +42,38 @@ export default function DeviceModal({
     : deviceModels.filter(m => m.deviceTypeId === selectedTypeID)
 
 
+
   const handleSubmit = async () => {
 
-    if (
-        selectedTypeID === "" ||
-        selectedModelID === ""
-      ) {
-        return
-    }
+      if (
+          selectedTypeID === "" ||
+          selectedModelID === ""
+        ) {
+          return
+      }
 
-    const selectedType =
-      deviceTypes.find(
-        t => t.id === selectedTypeID
-      )
-
-    const selectedModel =
-      deviceModels.find(
-        m => m.id === selectedModelID
-      )
-
-    const createdDevice =
-      await createDeviceTransaction({
-
-                              type:selectedTypeID,
-                              model:selectedModelID,
-                              assetType:selectedAssetType,
-                              rentalStartDate:
-                                              selectedAssetType === "レンタル" ||
-                                              selectedAssetType === "代替機"
-                                                ? rentalStartDate
-                                                : undefined,
-                              rentalEndDate:
-                                            selectedAssetType === "レンタル" ||
-                                            selectedAssetType === "代替機"
-                                              ? rentalEndDate
-                                              : undefined,
-                              })
-  if (!createdDevice) {return}
-  const devices = await getDevicesFromApi(setDeviceList)
-  onClose()
+      await createDeviceTransaction(
+                                      {
+                                        params: {
+                                                  type: selectedTypeID,
+                                                  model: selectedModelID,
+                                                  assetType: selectedAssetType,
+                                                  rentalStartDate:
+                                                                    selectedAssetType === "レンタル" ||
+                                                                    selectedAssetType === "代替機"
+                                                                      ? rentalStartDate
+                                                                      : undefined,
+                                                  rentalEndDate:
+                                                                  selectedAssetType === "レンタル" ||
+                                                                  selectedAssetType === "代替機"
+                                                                    ? rentalEndDate
+                                                                    : undefined,
+                                                },
+                                        setDeviceList:setDeviceList,
+                                        onClose:onClose
+                                      }
+                                    )
   }
-
 
 return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">

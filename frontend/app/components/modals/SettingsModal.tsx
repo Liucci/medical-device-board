@@ -16,8 +16,9 @@ import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 type Props = {
   onClose: () => void
   stockAreas: { id: number; name: string }[]
+  setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; device_type_id: number; name: string }[]
+  deviceModels: { id: number; deviceTypeId: number; name: string }[]
   wards: { wardId: number; wardName: string }[]
   rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
   addStockArea: (name: string) => Promise<void>
@@ -38,9 +39,9 @@ type Props = {
   maintenanceTypes: {
     id: number
     name: string
-    device_type_id: number
-    device_model_id: number | null
-    interval_days: number
+    deviceTypeId: number
+    deviceModelId: number | null
+    intervalDays: number
   }[]
   addMaintenanceType: (data: {
     name: string
@@ -63,6 +64,7 @@ type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance"
 export default function SettingsModal({
   onClose,
   stockAreas,
+  setStockAreas,
   deviceTypes,
   deviceModels,
   wards,
@@ -157,6 +159,7 @@ export default function SettingsModal({
             </button>
             <StockAreaSettingsModal
               stockAreas={stockAreas}
+              setStockAreas={setStockAreas}
               addStockArea={addStockArea}
               renameStockArea={renameStockArea}
               deleteStockAreas={deleteStockAreas}

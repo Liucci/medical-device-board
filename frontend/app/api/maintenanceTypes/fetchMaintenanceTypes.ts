@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../client"
 
-export async function getMaintenanceTypesFromApi(setMaintenanceTypes: any)
+export async function getMaintenanceTypesFromApi()
  {
     console.log("fetchMiantenance")  
     const token =localStorage.getItem("access_token")
@@ -15,7 +15,5 @@ export async function getMaintenanceTypesFromApi(setMaintenanceTypes: any)
                                     }
                         }
                       )
-    const data =
-      await response.json()
-    setMaintenanceTypes(data)
+    return  await response.json()
 }

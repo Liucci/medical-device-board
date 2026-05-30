@@ -23,34 +23,15 @@ export const fetchInitDashboard =
       `${API_BASE_URL}/init-dashboard`,
       {
         method: "GET",
-
         headers: {
-          "Content-Type":
-            "application/json",
-
-          "Authorization":
-            `Bearer ${token}`
+          "Content-Type":"application/json",
+          "Authorization":`Bearer ${token}`
         }
       }
     )
 
   const data =
     await response.json()
-
-  console.log(
-    "fetchInitDashboard response"
-  )
-
-  for (
-       const [key, value]
-       of Object.entries(data)
-      ) {
-
-    console.log(
-      `・${key}:`,
-      value
-    )
-  }
 
   return data
 }

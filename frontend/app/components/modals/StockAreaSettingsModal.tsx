@@ -1,7 +1,9 @@
 import { useState } from "react"
+import {createStockAreaTransaction} from "../../api/transactions/stockAreas/createStockAreaTransaction"
 
 type Props = {
   stockAreas: { id: number; name: string }[]
+  setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<boolean>
   deleteStockAreas: (ids: number[]) => Promise<boolean>
@@ -10,6 +12,7 @@ type Props = {
 
 export default function StockAreaSettingsModal({ 
     stockAreas,
+    setStockAreas,
     addStockArea,
     renameStockArea,
     deleteStockAreas
@@ -45,12 +48,23 @@ export default function StockAreaSettingsModal({
     await renameStockArea(id, trimmed)
 }
   // 追加（仮：console）
-  const handleAdd =async () => {
+const handleAdd = async() => {
+  if (!newName.trim()) {return}
+
+  await createStockAreaTransaction({
+                                      params: {name: newName},
+                                      setStockAreas,
+                                    })
+
+  setNewName("")
+}
+
+/*   const handleAdd =async () => {
     if (!newName.trim()) return
     console.log("追加:", newName)
     await addStockArea(newName)
     setNewName("")
-  }
+  } */
 
   return (
     <div className="space-y-4">

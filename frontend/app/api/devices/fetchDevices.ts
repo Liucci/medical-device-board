@@ -1,8 +1,8 @@
 import { API_BASE_URL } from "../client"
 import { normalizeDevice} from "../../utils/deviceMapper"
 
-
-export async function getDevicesFromApi(setDeviceList: any)
+//fetch系関数はbackより情報を受け取るretrunが必要
+export async function getDevicesFromApi()
  {
     console.log("fetchDevices")
     const token =localStorage.getItem("access_token")
@@ -17,6 +17,5 @@ export async function getDevicesFromApi(setDeviceList: any)
                                     }
                         }
                       )
-    const data =await response.json()
-    setDeviceList(data.map(normalizeDevice))
+    return await response.json()
 }

@@ -1,10 +1,9 @@
-import { API_BASE_URL } from "../client"
-import { normalizeStockArea } from "../../utils/stockAreaMapper"
 
-export async function getStockAreasFromApi(setStockAreas: any)
+import { API_BASE_URL } from "../client"
+
+export async function getStockAreasFromApi()
 {
     console.log("fetchStockAreas")
-
     const token = localStorage.getItem("access_token")
     if (!token) {return}
 
@@ -19,7 +18,6 @@ export async function getStockAreasFromApi(setStockAreas: any)
                         }
                       )
 
-    const data = await response.json()
-
-    setStockAreas(data.map(normalizeStockArea))
+    return await response.json()
 }
+

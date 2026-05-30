@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../client"
 import { normalizeWard } from "../../utils/wardsMapper"
 
-export async function getWardsFromApi(setWards: any)
+export async function getWardsFromApi()
 {
     console.log("fetchWards")
 
@@ -18,8 +18,5 @@ export async function getWardsFromApi(setWards: any)
                                     }
                         }
                       )
-
-    const data = await response.json()
-
-    setWards(data.map(normalizeWard))
+    return await response.json()
 }
