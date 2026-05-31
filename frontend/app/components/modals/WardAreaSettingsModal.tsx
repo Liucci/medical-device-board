@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { createWardTransaction } from "../../api/transactions/wards/createWardTransaction"
 
 type Props = {
   wards: { wardId: number; wardName: string }[]
+  setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; roomName: string; wardId: number }[]
 
   addWard: (name: string) => Promise<void>
@@ -15,6 +17,7 @@ type Props = {
 
 export default function WardAreaSettingsModal({
   wards,
+  setWards,
   rooms,
   addWard,
   renameWard,
@@ -33,10 +36,19 @@ export default function WardAreaSettingsModal({
   //ward追加
   const handleAddWard = async() => {
     if (!newWardName.trim()) return
+    await createWardTransaction(newWardName,setWards)
+    setNewWardName("")
+  }
+
+/*   const handleAddWard = async() => {
+    if (!newWardName.trim()) return
     await addWard(newWardName)
     setNewWardName("")
   }
+ */
+
   // ward名前変更（prompt使用の仮実装）
+  
   const handleRenameWard = async() => {
     // selectedWardIdがnullのときは何もしない
     if (!selectedWardId) return
@@ -49,6 +61,7 @@ export default function WardAreaSettingsModal({
     // renameWard関数を呼び出す
     await renameWard(selectedWardId, name)
   }
+
   // ward削除
   const handleDeleteWard = async () => {
     if (!selectedWardId) {

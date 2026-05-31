@@ -20,7 +20,9 @@ type Props = {
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   wards: { wardId: number; wardName: string }[]
+  setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
+  
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<boolean>
   deleteStockAreas: (ids: number[]) => Promise<boolean>
@@ -68,6 +70,7 @@ export default function SettingsModal({
   deviceTypes,
   deviceModels,
   wards,
+  setWards,
   rooms,
   maintenanceTypes,
   addStockArea,
@@ -174,6 +177,7 @@ export default function SettingsModal({
             </button>
             <WardAreaSettingsModal
               wards={wards}
+              setWards={setWards}
               rooms={rooms}
               addWard={addWard}
               renameWard={renameWard}

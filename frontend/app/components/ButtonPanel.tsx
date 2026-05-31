@@ -34,6 +34,7 @@ type Props = {
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   wards: { wardId: number; wardName: string }[]
+  setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   addStockArea: (name: string) => Promise<void>
   renameStockArea: (id: number, newName: string) => Promise<boolean>
@@ -86,6 +87,7 @@ export default function ButtonPanel({
   stockAreas,
   setStockAreas,
   wards,
+  setWards,
   rooms,
   addStockArea,
   renameStockArea,
@@ -238,6 +240,7 @@ export default function ButtonPanel({
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
           wards={wards}
+          setWards={setWards}
           rooms={rooms}
           addStockArea={addStockArea}
           renameStockArea={renameStockArea}
