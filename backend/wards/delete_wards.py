@@ -2,16 +2,17 @@ from common.supabase_client import (
     supabase
 )
 
-def delete_ward(ward_id: int):
+def delete_ward(ids: list[int],
+                hospital_id:str
+                ):
     print("delete ward_id")
     response = (
         supabase
         .table("wards")
         .delete()
-        .eq(
-            "id",
-            ward_id
-        )
+        .in_("ids", ids)
+        .eq("hospital_id", hospital_id)
+        
         .execute()
     )
-    return  response.data[0]
+    return  response.data

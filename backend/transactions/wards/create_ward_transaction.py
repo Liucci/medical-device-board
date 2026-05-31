@@ -1,6 +1,6 @@
 # transactions/create_ward_transaction.py
 
-from wards.add_wards import add_ward
+from backend.wards.add_ward import add_ward
 
 def create_ward_transaction(
                                 ward,
