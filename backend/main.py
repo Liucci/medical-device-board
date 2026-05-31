@@ -22,7 +22,9 @@ from transactions.devices.create_device_transaction import (create_device_transa
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
-from schemas.stock_area_schemas import AddStockAreaRequest
+from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
+from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
+from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -460,7 +462,6 @@ def create_stock_area_transaction_route(
                                         )
                                         ):
     current_user = (fetch_current_user(auth_user_id))
-    print("create_stock_area_transaction")
 
     response = create_stock_area_transaction(
                                                 stock_area=stock_area,
@@ -469,7 +470,32 @@ def create_stock_area_transaction_route(
 
     return response
 
+@app.post("/delete-stock-area-transaction")
+def delete_stock_area_transaction_route(
+                                          stock_area: DeleteStockAreasRequest,
+                                          auth_user_id: str = Depends(
+                                          get_auth_user_id)
+                                        ):
+    current_user = (fetch_current_user(auth_user_id))
 
+    delete_stock_area_transaction(
+                                    stock_area=stock_area,
+                                    current_user=current_user
+                                 )
+
+@app.post("/update-stock-area-transaction")
+def update_stock_area_transaction_route(
+                                          stock_area: UpdateStockAreaRequest,
+                                          auth_user_id: str = Depends(
+                                          get_auth_user_id)
+                                        ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    update_stock_area_transaction(
+                                    stock_area=stock_area,
+                                    current_user=current_user
+                                    )
 
 
 

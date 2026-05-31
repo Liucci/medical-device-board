@@ -1,6 +1,7 @@
 import { useState } from "react"
 import {createStockAreaTransaction} from "../../api/transactions/stockAreas/createStockAreaTransaction"
-
+import { deleteStockAreaTransaction } from "../../api/transactions/stockAreas/deleteStockAreaTransaction"
+import { updateStockAreaTransaction } from "../../api/transactions/stockAreas/updateStockAreaTransaction"
 type Props = {
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
@@ -21,7 +22,7 @@ export default function StockAreaSettingsModal({
   const [checkedIds, setCheckedIds] = useState<number[]>([])
   const [newName, setNewName] = useState("")
 
-  // チェック切り替え
+  // チェック入れたstockAreaのIdをlist化
   const toggleCheck = (id: number) => {
     setCheckedIds(prev =>
       prev.includes(id)
@@ -30,41 +31,41 @@ export default function StockAreaSettingsModal({
     )
   }
 
-  // 削除（仮：console）
+  // 削除
   const handleDelete = async() => {
-    console.log("削除対象:", checkedIds)
-    await deleteStockAreas(checkedIds)
+    await deleteStockAreaTransaction({
+                                        stockAreaIds: checkedIds,
+                                        setStockAreas,
+                                      })
+    setCheckedIds([])
   }
   // 名前変更（仮：prompt）
   const handleRename = async(id: number, currentName: string) => {
-    const newName = prompt("新しい名前を入力", currentName)
-    // キャンセルや空文字は無視
-    if (!newName) return
-    const trimmed = newName.trim()
-    // 変更なしも無視
-    if (!trimmed) return
-    // 既に同名がある場合も無視（必要ならここでAPI呼び出し前に重複チェックも）
-    if (trimmed === currentName) return
-    await renameStockArea(id, trimmed)
-}
-  // 追加（仮：console）
-const handleAdd = async() => {
-  if (!newName.trim()) {return}
 
-  await createStockAreaTransaction({
-                                      params: {name: newName},
-                                      setStockAreas,
-                                    })
-
+      const newName = prompt("新しい名前を入力", currentName)
+      if (!newName) {return}
+      const trimmed = newName.trim()
+      if (!trimmed) {return}
+      if (trimmed === currentName) {return}
+      await updateStockAreaTransaction({
+                                          id,
+                                          name: trimmed,
+                                          setStockAreas,
+                                        })
   setNewName("")
-}
+                                      }
 
-/*   const handleAdd =async () => {
-    if (!newName.trim()) return
-    console.log("追加:", newName)
-    await addStockArea(newName)
+  // 追加
+  const handleAdd = async() => {
+    if (!newName.trim()) {return}
+
+    await createStockAreaTransaction({
+                                        params: {name: newName},
+                                        setStockAreas,
+                                      })
+
     setNewName("")
-  } */
+  }
 
   return (
     <div className="space-y-4">

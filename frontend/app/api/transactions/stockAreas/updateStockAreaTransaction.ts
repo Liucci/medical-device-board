@@ -3,24 +3,26 @@ import { API_BASE_URL } from "../../client"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
 import { normalizeStockArea } from "../../../utils/stockAreaMapper"
 
-type DeleteStockAreaTransactionParams = {
-                                          stockAreaIds: number[]
+type UpdateStockAreaTransactionParams = {
+                                          id: number
+                                          name: string
                                           setStockAreas: any
                                         }
 
-export async function deleteStockAreaTransaction({
-                                                    stockAreaIds,
+export async function updateStockAreaTransaction({
+                                                    id,
+                                                    name,
                                                     setStockAreas,
-                                                  }: DeleteStockAreaTransactionParams
+                                                  }: UpdateStockAreaTransactionParams
                                                 )
 {
-    console.log("deleteStockAreaTransaction")
+    console.log("updateStockAreaTransaction")
 
     const token = localStorage.getItem("access_token")
     if (!token) {return}
 
     await fetch(
-                  `${API_BASE_URL}/delete-stock-area-transaction`,
+                  `${API_BASE_URL}/update-stock-area-transaction`,
                   {
                     method: "POST",
                     headers: {
@@ -28,7 +30,8 @@ export async function deleteStockAreaTransaction({
                                 "Authorization":`Bearer ${token}`
                               },
                     body: JSON.stringify({
-                                            stock_area_ids: stockAreaIds
+                                            id: id,
+                                            name: name
                                           })
                   }
                 )
