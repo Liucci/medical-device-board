@@ -3915,6 +3915,7 @@ setDeviceList(
           wards={wards}
           setWards={setWards}
           rooms={rooms}
+          setRooms={setRooms}
           addStockArea={addStockArea}
           renameStockArea={renameStockArea}
           deleteStockAreas={deleteStockAreas}

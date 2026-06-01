@@ -1,11 +1,16 @@
 import { useState } from "react"
 import { createWardTransaction } from "../../api/transactions/wards/createWardTransaction"
+import { deleteWardsTransaction } from "../../api/transactions/wards/deleteWardsTransaction"
+import{getWardsFromApi} from  "../../api/wards/fetchWards"
+import{getRoomsFromApi} from  "../../api/rooms/fetchRooms"
+import {normalizeWard} from "../../utils/wardsMapper"
+import {normalizeRoom} from "../../utils/roomsMapper"
 
 type Props = {
   wards: { wardId: number; wardName: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; roomName: string; wardId: number }[]
-
+  setRooms:React.Dispatch<React.SetStateAction<any[]>>
   addWard: (name: string) => Promise<void>
   renameWard: (id: number, newName: string) => Promise<boolean>
   deleteWards: (ids: number[]) => Promise<boolean>
@@ -19,6 +24,7 @@ export default function WardAreaSettingsModal({
   wards,
   setWards,
   rooms,
+  setRooms,
   addWard,
   renameWard,
   deleteWards,
@@ -36,16 +42,14 @@ export default function WardAreaSettingsModal({
   //ward追加
   const handleAddWard = async() => {
     if (!newWardName.trim()) return
-    await createWardTransaction(newWardName,setWards)
+    await createWardTransaction(newWardName)
+    const wards = await getWardsFromApi()
+    setWards(wards.map(normalizeWard))
     setNewWardName("")
+
   }
 
-/*   const handleAddWard = async() => {
-    if (!newWardName.trim()) return
-    await addWard(newWardName)
-    setNewWardName("")
-  }
- */
+
 
   // ward名前変更（prompt使用の仮実装）
   
@@ -63,28 +67,29 @@ export default function WardAreaSettingsModal({
   }
 
   // ward削除
+// ward削除
   const handleDeleteWard = async () => {
-    if (!selectedWardId) {
-      return
-    }
 
-    if (
-      !confirm(
-        "病棟を削除すると部屋も削除されます。よろしいですか？"
-      )
-    ) return
+      if (!selectedWardId) {return}
 
-    const success =
-      await deleteWards([
-        selectedWardId
-      ])
+      if (
+          !confirm(
+                      "病棟を削除すると部屋も削除されます。よろしいですか？"
+                  )
+        ) {return}
 
-    if (!success) return
+      await deleteWardsTransaction([
+                                      selectedWardId
+                                    ])
 
-    // 必要なら選択解除
-    setSelectedWardId(null)
-  }
-  // ===== Room =====
+      const wards = await getWardsFromApi()
+      setWards(wards.map(normalizeWard))
+      const rooms = await getRoomsFromApi()
+      setRooms(rooms.map(normalizeRoom))
+
+      setSelectedWardId(null)
+  }  
+// ===== Room =====
   // 選択中の病棟に属する部屋だけ表示
   const filteredRooms = rooms
     .filter(r => r.wardId === selectedWardId)

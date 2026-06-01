@@ -25,8 +25,9 @@ from transactions.stock_areas.create_stock_area_transaction import create_stock_
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
-from schemas.ward_schemas import (AddWardRequest,WardResponse)
+from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardsRequest,UpdateWardRequest)
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
+from transactions.wards.delete_wards_transaction import (delete_wards_transaction)
 
 
 app = FastAPI()
@@ -500,30 +501,29 @@ def update_stock_area_transaction_route(
                                     current_user=current_user
                                     )
 
-@app.post(
-            "/wards",
-            response_model=WardResponse
-          )
-
+@app.post("/wards")
 def create_ward_route(
                         ward: AddWardRequest,
-                        auth_user_id: str = Depends(
-                            get_auth_user_id
-                        )
+                        auth_user_id: str = Depends(get_auth_user_id)
+                     ):
+    current_user = (fetch_current_user(auth_user_id))
+    create_ward_transaction(
+                            ward=ward,
+                            hospital_id=current_user["hospital_id"]
+                            )
+
+@app.post("/delete-ward")
+def delete_ward_route(
+                        ward: DeleteWardsRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
                      ):
 
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+    current_user = fetch_current_user(auth_user_id)
 
-    return create_ward_transaction(
-                                        ward=ward,
-                                        current_user=current_user
-                                   )
-
-
+    delete_wards_transaction(
+                                ward=ward,
+                                hospital_id=current_user["hospital_id"]
+                            )
 
 
 

@@ -1,15 +1,13 @@
 # transactions/create_ward_transaction.py
 
-from backend.wards.add_ward import add_ward
-
+from wards.add_ward import add_ward
+from schemas.ward_schemas import (AddWardRequest)
 def create_ward_transaction(
-                                ward,
-                                current_user
+                                ward:AddWardRequest,
+                                hospital_id
                             ):
+    add_ward(
+            hospital_id=hospital_id,
+            ward=ward
+            )
 
-    response = add_ward(
-                            hospital_id=current_user["hospital_id"],
-                            name=ward.name
-                        )
-
-    return response

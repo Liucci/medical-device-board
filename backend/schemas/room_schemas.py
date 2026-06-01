@@ -19,4 +19,7 @@ class DeleteRoomsRequest(BaseModel):
 class UpdateRoomRequest(BaseModel):
     id:int
     name: str
+
+class UpdateRoomPatientRequest(BaseModel):
+    id:int
     patient_name: str | None = None

@@ -4,14 +4,14 @@ import { normalizeWard } from "../../../utils/wardsMapper"
 
 export async function createWardTransaction(
                                               name: string,
-                                              setWards:any
+                                              
                                             )
 {
     console.log("createWardTransaction")
     const token = localStorage.getItem("access_token")
     if (!token) {return}
 
-    const response = await fetch(
+     await fetch(
                                     `${API_BASE_URL}/wards`,
                                     {
                                       method: "POST",
@@ -24,10 +24,6 @@ export async function createWardTransaction(
                                                             })
                                     }
                                   )
-    const wards =
-      await getWardsFromApi()
-
-    setWards(wards.map(normalizeWard))
 
 
 
