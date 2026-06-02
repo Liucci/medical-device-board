@@ -1,6 +1,21 @@
 from pydantic import BaseModel
 
+class DeviceModelsResponse(BaseModel):
+    id:int
+    device_type_id:int
+    hospital_id:str
+    name:str
+
+
 class AddDeviceModelRequest(BaseModel):
-    hospital_id: str
+    #idは自動付与
     device_type_id: int
-    name: str
+    name: str  #model名
+
+class DeleteDeviceModelsRequest(BaseModel):
+    ids:list[int]
+
+class UpdateDeviceModelRequest(BaseModel):
+    id:int
+    name: str  #model名
+    #device_type_idは不要

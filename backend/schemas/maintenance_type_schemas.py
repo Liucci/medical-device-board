@@ -1,22 +1,24 @@
 from pydantic import BaseModel
 
-
-class AddMaintenanceTypeRequest(
-    BaseModel
-):
-
+class MaintenanceTypeResponse(BaseModel):
+    id: int
     hospital_id: str
-
     name: str
-
     device_type_id: int
-
-    device_model_id:int | None = None
-
+    device_model_id: int | None = None
     interval_days: int
 
-    warning_days:int | None = None
+class AddMaintenanceTypeRequest(BaseModel):
+    name: str
+    device_type_id: int
+    device_model_id: int | None = None
+    interval_days: int
 
-    auto_create_on_drop:bool | None = None
+class DeleteMaintenanceTypesRequest(BaseModel):
+    ids: list[int]
 
-    is_active:bool | None = None
+class UpdateMaintenanceTypeRequest(BaseModel):
+    id: int
+    name: str
+    interval_days: int
+
