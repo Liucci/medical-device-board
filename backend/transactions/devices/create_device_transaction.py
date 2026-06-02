@@ -1,35 +1,41 @@
-
+from common.supabase_client import (supabase)
 from devices.add_devices import (add_device)
-from histories.add_histories import (add_history)
+from stock_areas.fetch_stock_areas import (fetch_stock_area)
 from schemas.device_schemas import (AddDeviceRequest)
-from schemas.history_schemas import (AddHistoryRequest)
 
 def create_device_transaction(
                                 device: AddDeviceRequest,
-                                current_user
+                                user_id,
+                                hospital_id,
+                                stock_area_id
                               ):
-    print("create_device_transaction")
-    device_response = add_device(AddDeviceRequest(
-                                                hospital_id=current_user["hospital_id"],
-                                                type=device.type,
-                                                model=device.model,
-                                                asset_type=device.asset_type,
-                                                status="stock",
-                                                stock_area_id=1,
-                                                room_id=None,
-                                                rental_start_date=device.rental_start_date,
-                                                rental_end_date=device.rental_end_date,
-                                                created_by=current_user["id"],
-                                                ))
-    add_history(AddHistoryRequest(
-                                    hospital_id=current_user["hospital_id"],
-                                    device_id=device_response["id"],
-                                    user_id=current_user["id"],
-                                    action_type="create",
-                                    stock_area_id=1,
-                                    stock_area_name="CE室",
-                                    message="新規登録"
-                                ))
 
-    return device_response
+    print("create_device_transaction")
+    #stock arera idに対応したstock_areaを取得
+    stock_area = fetch_stock_area(
+                                    stock_area_id,
+                                    hospital_id
+                                  )
+    device_response = add_device(
+                                    AddDeviceRequest(
+                                                        type=device.type,
+                                                        model=device.model,
+                                                        asset_type=device.asset_type,
+                                                        stock_area_id=stock_area_id,
+                                                        rental_start_date=device.rental_start_date,
+                                                        rental_end_date=device.rental_end_date
+                                                    ),
+                                    hospital_id=hospital_id,
+                                )
+
+    supabase.table("device_histories").insert({
+                                                "hospital_id": hospital_id,
+                                                "device_id": device_response["id"],
+                                                "user_id": user_id,
+                                                "action_type": "create",
+                                                "message": "新規登録",
+                                                "status": "stock",
+                                                "stock_area_id": stock_area["id"],
+                                                "stock_area_name": stock_area["name"]
+                                              }).execute()
 

@@ -3,18 +3,23 @@ from schemas.device_schemas import (AddDeviceRequest)
 
 def add_device(
                 device: AddDeviceRequest,
+                hospital_id
               ):
 
     print("add_device")
-    # for key, value in device.model_dump().items():
-    #     print(f"・{key}: {value}")
 
-    response = (
-        supabase
-        .table("devices")
-        .insert(device.model_dump())
-        .execute()
+    (
+    supabase
+    .table("devices")
+    .insert({
+                "hospital_id": hospital_id,
+                "type": device.type,
+                "model": device.model,
+                "asset_type": device.asset_type,
+                
+                "rental_start_date": device.rental_start_date,
+                "rental_end_date": device.rental_end_date
+                })
+    .execute()
     )
-    #insertしたdeviceのidを出力
-    inserted_device_id = response.data[0]
-    return inserted_device_id
+

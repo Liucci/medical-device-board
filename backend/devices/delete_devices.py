@@ -1,20 +1,18 @@
-from common.supabase_client import (
-    supabase
-)
+from common.supabase_client import supabase
+from schemas.device_schemas import DeleteDeviceRequest
 
-def delete_device(device_id: int):
+def delete_device(device: DeleteDeviceRequest,
+                  hospital_id:str
+                  ):
 
-    print(f"delete device_id: {device_id}")
-    
-    response = (
-    supabase
-    .table("devices")
-    .delete()
-    .eq(
-        "id",
-        device_id
+    print("delete device")
+
+    (
+        supabase
+        .table("devices")
+        .delete()
+        .eq("id",device.id)
+        .eq("hospital_id",hospital_id)
+        .execute()
     )
-    .execute()
-    )
 
-    return response

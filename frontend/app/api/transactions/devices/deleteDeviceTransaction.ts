@@ -26,7 +26,6 @@ export async function deleteDeviceTransaction({
     console.log("deleteDeviceTransaction")
     const token = localStorage.getItem("access_token")
     if (!token) {return}
-    console.log("deviceId:",deviceId)
 
     await fetch(
                   `${API_BASE_URL}/delete-device-transaction`,
@@ -37,7 +36,7 @@ export async function deleteDeviceTransaction({
                                 "Authorization":`Bearer ${token}`
                               },
                     body: JSON.stringify({
-                                            device_id:deviceId
+                                            id:deviceId
                                           })
                   }
                 )

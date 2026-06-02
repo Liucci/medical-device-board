@@ -39,6 +39,7 @@ class AddDeviceRequest(BaseModel):
     type: int
     model: int
     asset_type: str
+    stock_area_id: int
     rental_start_date: str | None = None
     rental_end_date: str | None = None
 
@@ -47,9 +48,8 @@ class AddDeviceRequest(BaseModel):
 # Delete
 # =========================
 
-class DeleteDevicesRequest(BaseModel):
-    ids: list[int]
-
+class DeleteDeviceRequest(BaseModel):
+    id:int
 
 # =========================
 # Basic Info Update

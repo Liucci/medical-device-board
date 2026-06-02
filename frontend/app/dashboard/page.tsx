@@ -1142,7 +1142,8 @@ const deleteDevice = async (id: number) => {
                                   deviceId:id,
                                   setDeviceList,
                                   setTasks,
-                                  setHistories
+                                  setHistories,
+                              
                                 })
 }
 

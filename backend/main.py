@@ -17,7 +17,7 @@ from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
-from schemas.device_schemas import (AddDeviceRequest)
+from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateDeviceInfoRequest)
 from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
@@ -372,48 +372,25 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
 
 #機器アイコンの新規登録用のAPI
 @app.post("/create-device-transaction")
-def create_device_transaction_route(body: AddDeviceRequest,
-                                    auth_user_id: str = Depends(
-                                        get_auth_user_id)
-                                    ):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-    print("current_user")
-    for key, value in current_user.items():
-        print(f"・{key}: {value}")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
+def create_device_transaction_route(
+                                    body: AddDeviceRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                   ):
 
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
         return {
-                "success": False,
-                "error":
-                "権限がありません"
-                }
+                    "success": False,
+                    "error": "権限がありません"
+               }
 
-    # backend側で自動付与
-    body.hospital_id = (
-        current_user["hospital_id"]
-    )
-    body.created_by = (
-        current_user["id"]
-    )
-
-    response = (
-        create_device_transaction(
-            device=body,
-            current_user=current_user
-        )
-    )
-
-    print("create_device_transaction response")
-
-
-    return response
+    create_device_transaction(
+                                device=body,
+                                hospital_id=current_user["hospital_id"],
+                                user_id=current_user["id"],
+                                stock_area_id=1
+                              )
 
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
@@ -439,24 +416,27 @@ def init_dashboard(
 #機器アイコンを削除するAPI
 @app.post("/delete-device-transaction")
 def delete_device_transaction_route(
-                                      body: DeleteDeviceTransactionRequest,
-                                      auth_user_id: str = Depends(
-                                          get_auth_user_id
-                                      )
-                                    ):
+                                        body: DeleteDeviceRequest,
+                                        auth_user_id: str = Depends(
+                                                                    get_auth_user_id
+                                                                  )
+                                   ):
 
-    current_user = (fetch_current_user(auth_user_id))
+    current_user = fetch_current_user(auth_user_id)
 
     print("current_user")
-    if (current_user["role"]!= "admin"):
-        return {"error":"権限がありません"}
 
-    response = (delete_device_transaction(
-                                            device_id=body.device_id,
-                                            current_user=current_user
-                                        ))
-    return response
+    if current_user["role"] != "admin":
 
+        return {
+                    "error": "権限がありません"
+               }
+
+    delete_device_transaction(
+                                device=body,
+                                hospital_id=current_user["hospital_id"],
+                                user_id=current_user["id"],
+                             )
 #stock_area追加用API
 @app.post("/create-stock-area-transaction")
 def create_stock_area_transaction_route(
