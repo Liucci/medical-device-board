@@ -5,8 +5,8 @@ import{getWardsFromApi} from  "../../api/wards/fetchWards"
 import{getRoomsFromApi} from  "../../api/rooms/fetchRooms"
 import {normalizeWard} from "../../utils/wardsMapper"
 import {normalizeRoom} from "../../utils/roomsMapper"
-import { updateWardTransaction } from "@/app/api/transactions/wards/updateWardTransaction"
-
+import { updateWardTransaction } from "../../../app/api/transactions/wards/updateWardTransaction"
+import { createRoomTransaction } from "../../../app/api/transactions/rooms/createRoomTransaction"
 type Props = {
   wards: { wardId: number; wardName: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
@@ -48,11 +48,7 @@ export default function WardAreaSettingsModal({
                                 setWards
                               )
   }
-
-
-
-  // ward名前変更（prompt使用の仮実装）
-  
+  // ward名前変更（prompt使用）
   const handleupdateWard = async() => {
     // selectedWardIdがnullのときは何もしない
     if (!selectedWardId) return
@@ -65,7 +61,6 @@ export default function WardAreaSettingsModal({
     // updateWard関数を呼び出し、nameとidを渡す
     await updateWardTransaction(selectedWardId, name,setWards)
   }
-
 // ward削除
   const handleDeleteWard = async () => {
       if (!selectedWardId) {return}
@@ -94,14 +89,16 @@ export default function WardAreaSettingsModal({
       alert("病棟を選択してください")
       return
     }
-    if (!newRoomName.trim()) return
-    //DB更新成功後先に進む
-    await addRoom(
-      selectedWardId,
-      newRoomName
-    )
-    setNewRoomName("")
-  }
+    await createRoomTransaction(
+                                  {
+                                    ward_id: selectedWardId,
+                                    name: newRoomName
+                                  },
+                                  setRooms,
+                                  setNewRoomName
+                                )
+
+    }
   // 部屋削除
   const handleDeleteRooms = async () => {
 

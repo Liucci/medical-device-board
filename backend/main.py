@@ -188,6 +188,30 @@ def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
 
     return wards
 
+@app.post("/wards")
+def create_ward_route(
+                        ward: AddWardRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
+                     ):
+    current_user = (fetch_current_user(auth_user_id))
+    create_ward_transaction(
+                            ward=ward,
+                            hospital_id=current_user["hospital_id"]
+                            )
+
+@app.post("/delete-ward")
+def delete_ward_route(
+                        ward: DeleteWardsRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
+                     ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    delete_wards_transaction(
+                                ward=ward,
+                                hospital_id=current_user["hospital_id"]
+                            )
+
 @app.post("/update-ward")
 def update_ward_route(
                         ward: UpdateWardRequest,
@@ -520,29 +544,6 @@ def update_stock_area_transaction_route(
                                     current_user=current_user
                                     )
 
-@app.post("/wards")
-def create_ward_route(
-                        ward: AddWardRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
-                     ):
-    current_user = (fetch_current_user(auth_user_id))
-    create_ward_transaction(
-                            ward=ward,
-                            hospital_id=current_user["hospital_id"]
-                            )
-
-@app.post("/delete-ward")
-def delete_ward_route(
-                        ward: DeleteWardsRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
-                     ):
-
-    current_user = fetch_current_user(auth_user_id)
-
-    delete_wards_transaction(
-                                ward=ward,
-                                hospital_id=current_user["hospital_id"]
-                            )
 
 
 
