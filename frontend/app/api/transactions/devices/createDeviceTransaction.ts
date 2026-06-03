@@ -34,6 +34,7 @@ export async function createDeviceTransaction({
                                           )
                   }
                 )
+    console.log(toDBDevice(params))
 
     const deviceList =
       await getDevicesFromApi()

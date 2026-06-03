@@ -39,7 +39,7 @@ class AddDeviceRequest(BaseModel):
     type: int
     model: int
     asset_type: str
-    stock_area_id: int
+    #stock_area_idは初期値は自動付与
     rental_start_date: str | None = None
     rental_end_date: str | None = None
 

@@ -39,7 +39,7 @@ import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenan
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
 import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
-
+import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -2390,96 +2390,49 @@ const deleteDevice = async (id: number) => {
       }
       return
     }
-    setWards(prev => [
-      ...prev,
-      normalizeWard(data)
-    ])
+    
   }  
   //DBのwards tableから病棟名を変更する関数
-  const renameWard = async (
-    id: number,
-    newName: string
-  ): Promise<boolean> => {
+  const updateWard = async (
+                              id: number,
+                              name: string
+                            ): Promise<boolean> =>
+  {
+      const trimmed = name.trim()
+      if (!trimmed) {return false}
 
-    const trimmed =
-      newName.trim()
+      const exists = wards.some(
+                                  w =>
+                                    w.wardId !== id &&
+                                    w.wardName.toLowerCase()
+                                    ===
+                                    trimmed.toLowerCase()
+                                )
 
-    if (!currentUser) {
-      return false
-    }
+      if (exists) {
+          alert("同じ名前の病棟が既に存在します")
+          return false
+      }
 
-    if (!trimmed) {
-      return false
-    }
+      await updateWardTransaction({
+                                      id,
+                                      name: trimmed
+                                    })
 
-    // 🔥 重複チェック
-    const exists = wards.some(
-      w =>
-        w.wardId !== id &&
-        w.wardName
-          .toLowerCase()
-          ===
-        trimmed.toLowerCase()
-    )
+      setWards(
+                wards.map(
+                            w =>
+                              w.wardId === id
+                              ? {
+                                  ...w,
+                                  wardName: trimmed
+                                }
+                              : w
+                          )
+              )
 
-    if (exists) {
-
-      alert(
-        "同じ名前の病棟が既に存在します"
-      )
-
-      return false
-    }
-
-    const { data, error } =
-      await supabase
-        .from("wards")
-        .update({
-          name: trimmed
-        })
-        .eq("id", id)
-        .eq(
-          "hospital_id",
-          currentUser.hospitalId
-        )
-        .select()
-
-    if (error) {
-
-      console.error(error)
-
-      alert(
-        "病棟名の変更に失敗しました"
-      )
-
-      return false
-    }
-
-    // 🔥 RLSで0件更新
-    if (!data || data.length === 0) {
-
-      alert(
-        "病棟名変更権限がありません"
-      )
-
-      return false
-    }
-
-    // 🔥 UI更新
-    setWards(prev =>
-      prev.map(w =>
-        w.wardId === id
-          ? {
-              ...w,
-              wardName: trimmed
-            }
-          : w
-      )
-    )
-
-    return true
-  }  
-  //DBのwards tableから病棟を削除する関数
+      return true
+  }  //DBのwards tableから病棟を削除する関数
   const deleteWards = async (
     ids: number[]
   ): Promise<boolean> => {
@@ -3921,7 +3874,7 @@ setDeviceList(
           renameStockArea={renameStockArea}
           deleteStockAreas={deleteStockAreas}
           addWard={addWard}
-          renameWard={renameWard}
+          updateWard={updateWard}
           deleteWards={deleteWards}
           addRoom={addRoom}
           renameRoom={renameRoom}

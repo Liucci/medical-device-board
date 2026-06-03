@@ -28,7 +28,7 @@ from transactions.stock_areas.update_stock_area_transaction import (update_stock
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardsRequest,UpdateWardRequest)
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
 from transactions.wards.delete_wards_transaction import (delete_wards_transaction)
-
+from transactions.wards.update_ward_transaction import (update_ward_transaction)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -47,7 +47,6 @@ class LoginRequest(BaseModel):
                                 email: str
                                 password: str
                                 
-class DeleteDeviceTransactionRequest(BaseModel): device_id: int
 
 
 #frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
@@ -185,6 +184,29 @@ def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
     )
 
     return wards
+
+@app.post("/update-ward")
+def update_ward_route(
+                        ward: UpdateWardRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
+                     ):
+
+    current_user = fetch_current_user(auth_user_id)
+    print(current_user)
+    print(current_user["role"])
+    print(type(current_user["role"]))
+    if (current_user["role"]
+        != "admin"):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    update_ward_transaction(
+                                ward=ward,
+                                hospital_id=current_user["hospital_id"]
+                            )
 
 @app.get("/rooms")
 def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
@@ -389,7 +411,8 @@ def create_device_transaction_route(
                                 device=body,
                                 hospital_id=current_user["hospital_id"],
                                 user_id=current_user["id"],
-                                stock_area_id=1
+                                stock_area_id=1,
+                                status="stock"
                               )
 
 #リロードの際に必要なデータをDBからまとめて取得するAPI

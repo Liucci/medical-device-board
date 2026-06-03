@@ -5,6 +5,7 @@ import{getWardsFromApi} from  "../../api/wards/fetchWards"
 import{getRoomsFromApi} from  "../../api/rooms/fetchRooms"
 import {normalizeWard} from "../../utils/wardsMapper"
 import {normalizeRoom} from "../../utils/roomsMapper"
+import { updateWardTransaction } from "@/app/api/transactions/wards/updateWardTransaction"
 
 type Props = {
   wards: { wardId: number; wardName: string }[]
@@ -12,7 +13,7 @@ type Props = {
   rooms: { roomId: number; roomName: string; wardId: number }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
   addWard: (name: string) => Promise<void>
-  renameWard: (id: number, newName: string) => Promise<boolean>
+  updateWard: (id: number, newName: string) => Promise<boolean>
   deleteWards: (ids: number[]) => Promise<boolean>
 
   addRoom: (wardId: number, name: string) => Promise<void>
@@ -26,7 +27,7 @@ export default function WardAreaSettingsModal({
   rooms,
   setRooms,
   addWard,
-  renameWard,
+  updateWard,
   deleteWards,
   addRoom,
   renameRoom,
@@ -41,19 +42,18 @@ export default function WardAreaSettingsModal({
   // ===== Ward =====
   //ward追加
   const handleAddWard = async() => {
-    if (!newWardName.trim()) return
-    await createWardTransaction(newWardName)
-    const wards = await getWardsFromApi()
-    setWards(wards.map(normalizeWard))
-    setNewWardName("")
-
+    await createWardTransaction( 
+                                newWardName,
+                                setNewWardName,
+                                setWards
+                              )
   }
 
 
 
   // ward名前変更（prompt使用の仮実装）
   
-  const handleRenameWard = async() => {
+  const handleupdateWard = async() => {
     // selectedWardIdがnullのときは何もしない
     if (!selectedWardId) return
     // selectedWardIdに対応する病棟を見つける
@@ -62,31 +62,17 @@ export default function WardAreaSettingsModal({
     // promptで新しい名前を入力してもらう
     const name = prompt("新しい病棟名", ward.wardName)
     if (!name) return
-    // renameWard関数を呼び出す
-    await renameWard(selectedWardId, name)
+    // updateWard関数を呼び出し、nameとidを渡す
+    await updateWardTransaction(selectedWardId, name,setWards)
   }
 
-  // ward削除
 // ward削除
   const handleDeleteWard = async () => {
-
       if (!selectedWardId) {return}
-
-      if (
-          !confirm(
-                      "病棟を削除すると部屋も削除されます。よろしいですか？"
-                  )
-        ) {return}
-
-      await deleteWardsTransaction([
-                                      selectedWardId
-                                    ])
-
-      const wards = await getWardsFromApi()
-      setWards(wards.map(normalizeWard))
-      const rooms = await getRoomsFromApi()
-      setRooms(rooms.map(normalizeRoom))
-
+      await deleteWardsTransaction([selectedWardId],
+                                    setWards,
+                                    setRooms
+                                  )
       setSelectedWardId(null)
   }  
 // ===== Room =====
@@ -156,7 +142,7 @@ export default function WardAreaSettingsModal({
                 ))}
             </select>
 
-            <button onClick={handleRenameWard} className="px-2 bg-gray-200 rounded">✏</button>
+            <button onClick={handleupdateWard} className="px-2 bg-gray-200 rounded">✏</button>
             <button onClick={handleDeleteWard} className="px-2 bg-red-500 text-white rounded">削除</button>
             </div>
 

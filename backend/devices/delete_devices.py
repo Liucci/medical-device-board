@@ -1,6 +1,7 @@
 from common.supabase_client import supabase
 from schemas.device_schemas import DeleteDeviceRequest
 
+
 def delete_device(device: DeleteDeviceRequest,
                   hospital_id:str
                   ):

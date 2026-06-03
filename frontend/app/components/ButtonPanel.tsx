@@ -41,7 +41,7 @@ type Props = {
   renameStockArea: (id: number, newName: string) => Promise<boolean>
   deleteStockAreas: (ids: number[]) => Promise<boolean>
   addWard: (name: string) => Promise<void>
-  renameWard: (id: number, newName: string) => Promise<boolean>
+  updateWard: (id: number, newName: string) => Promise<boolean>
   deleteWards: (ids: number[]) => Promise<boolean>
   addRoom: (wardId: number, name: string) => Promise<void>
   renameRoom: (id: number, newName: string) => Promise<boolean>
@@ -95,7 +95,7 @@ export default function ButtonPanel({
   renameStockArea,
   deleteStockAreas,
   addWard,
-  renameWard,
+  updateWard,
   deleteWards,
   addRoom,
   renameRoom,
@@ -249,7 +249,7 @@ export default function ButtonPanel({
           renameStockArea={renameStockArea}
           deleteStockAreas={deleteStockAreas}
           addWard={addWard}
-          renameWard={renameWard}
+          updateWard={updateWard}
           deleteWards={deleteWards}
           addRoom={addRoom}
           renameRoom={renameRoom}

@@ -1,13 +1,16 @@
+import { normalizeWard } from "@/app/utils/wardsMapper"
 import { API_BASE_URL } from "../../client"
-import { getWardsFromApi } from "../../wards/fetchWards"
-import { normalizeWard } from "../../../utils/wardsMapper"
+import { getWardsFromApi }from "../../wards/fetchWards"
 
 export async function createWardTransaction(
                                               name: string,
-                                              
+                                              setNewWardName:any,
+                                              setWards:any,
                                             )
 {
     console.log("createWardTransaction")
+    const trimmed = name.trim()
+    if (!trimmed) {return}
     const token = localStorage.getItem("access_token")
     if (!token) {return}
 
@@ -24,7 +27,7 @@ export async function createWardTransaction(
                                                             })
                                     }
                                   )
-
-
-
-                                }
+    const wards=await getWardsFromApi()
+    setWards(wards.map(normalizeWard))
+    setNewWardName("")
+}

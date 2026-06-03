@@ -9,7 +9,7 @@ def update_ward(
 
     print(f"rename ward")
 
-    response = (
+    (
                 supabase
                 .table("wards")
                 .update({"name": ward.name,})
