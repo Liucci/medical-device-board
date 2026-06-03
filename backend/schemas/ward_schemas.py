@@ -8,8 +8,8 @@ class WardResponse(BaseModel):
     hospital_id: str
     name: str
 
-class DeleteWardsRequest(BaseModel):
-    ids: list[int]
+class DeleteWardRequest(BaseModel):
+    id: int
 
 class UpdateWardRequest(BaseModel):
     id:int

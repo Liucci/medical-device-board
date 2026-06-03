@@ -214,6 +214,7 @@ await updateDevice({
 - backendはtransaction層とDB操作層を分離する
 - frontendはfetch層・update層・transaction層に分離する
 - transaction関数は処理の流れを明確に見せる
+-
 
 ---
 

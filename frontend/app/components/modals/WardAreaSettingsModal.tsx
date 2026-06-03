@@ -1,24 +1,20 @@
 import { useState } from "react"
 import { createWardTransaction } from "../../api/transactions/wards/createWardTransaction"
-import { deleteWardsTransaction } from "../../api/transactions/wards/deleteWardsTransaction"
+import { deleteWardTransaction } from "../../api/transactions/wards/deleteWardTransaction"
 import{getWardsFromApi} from  "../../api/wards/fetchWards"
 import{getRoomsFromApi} from  "../../api/rooms/fetchRooms"
 import {normalizeWard} from "../../utils/wardsMapper"
 import {normalizeRoom} from "../../utils/roomsMapper"
 import { updateWardTransaction } from "../../../app/api/transactions/wards/updateWardTransaction"
 import { createRoomTransaction } from "../../../app/api/transactions/rooms/createRoomTransaction"
+import { updateRoomTransaction } from "../../../app/api/transactions/rooms/updateRoomTransaction"
+
+
 type Props = {
   wards: { wardId: number; wardName: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; roomName: string; wardId: number }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  addWard: (name: string) => Promise<void>
-  updateWard: (id: number, newName: string) => Promise<boolean>
-  deleteWards: (ids: number[]) => Promise<boolean>
-
-  addRoom: (wardId: number, name: string) => Promise<void>
-  renameRoom: (roomId: number, newName: string) => Promise<boolean>
-  deleteRooms: (ids: number[]) => Promise<boolean>
 }
 
 export default function WardAreaSettingsModal({
@@ -26,12 +22,6 @@ export default function WardAreaSettingsModal({
   setWards,
   rooms,
   setRooms,
-  addWard,
-  updateWard,
-  deleteWards,
-  addRoom,
-  renameRoom,
-  deleteRooms
 }: Props) {
 
   const [selectedWardId, setSelectedWardId] = useState<number | null>(null)
@@ -64,13 +54,13 @@ export default function WardAreaSettingsModal({
 // ward削除
   const handleDeleteWard = async () => {
       if (!selectedWardId) {return}
-      await deleteWardsTransaction([selectedWardId],
+      await deleteWardTransaction(selectedWardId,
                                     setWards,
                                     setRooms
                                   )
       setSelectedWardId(null)
   }  
-// ===== Room =====
+  // ===== Room =====
   // 選択中の病棟に属する部屋だけ表示
   const filteredRooms = rooms
     .filter(r => r.wardId === selectedWardId)
@@ -109,12 +99,25 @@ export default function WardAreaSettingsModal({
     if (!success) return
     setCheckedRoomIds([])
   }
-  // 部屋名前変更（prompt使用の仮実装）
-  const handleRenameRoom = async(room: { roomId: number; roomName: string }) => {
-    const name = prompt("新しい部屋名", room.roomName)
-    if (!name) return
+// 部屋名前変更（prompt使用の仮実装）
+  const handleRenameRoom = async(
+                                  room:{
+                                    roomId:number
+                                    roomName:string
+                                  }
+                                ) => {
 
-    await renameRoom(room.roomId, name)
+      const name = prompt("新しい部屋名", room.roomName)
+
+      if (!name) {return}
+
+      await updateRoomTransaction(
+                                    {
+                                      id: room.roomId,
+                                      name: name
+                                    },
+                                    setRooms
+                                  )
   }
 
   return (

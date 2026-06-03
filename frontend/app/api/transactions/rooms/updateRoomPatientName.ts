@@ -1,29 +1,24 @@
-
 import { API_BASE_URL } from "../../client"
 import { getRoomsFromApi } from "../../../api/rooms/fetchRooms"
 import { normalizeRoom,toDBRoom } from "../../../utils/roomsMapper"
 
-export async function updateRoomTransaction(
+
+
+export async function updateRoomPatientname(
                                               room:{
                                                 id:number
-                                                name:string
+                                                patient_name:string | null
                                               },
                                               setRooms:any
                                             )
-
 {
-    console.log("update room")
+    console.log("update room patientname")
 
     const token = localStorage.getItem("access_token")
     if (!token) {return}
 
-
-    console.log(JSON.stringify({
-                              id:room.id,
-                              name:room.name
-                            }))
     const response = await fetch(
-                                    `${API_BASE_URL}/update-room`,
+                                    `${API_BASE_URL}/update-room-patientname`,
                                     {
                                       method:"POST",
                                       headers:{
@@ -32,14 +27,13 @@ export async function updateRoomTransaction(
                                                 },
                                       body:JSON.stringify({
                                                             id:room.id,
-                                                            name:room.name
+                                                            patient_name:room.patient_name
                                                           })
                                     }
                                   )
-    console.log(response.status)
-    const rooms = await getRoomsFromApi()
 
-    setRooms(rooms.map(normalizeRoom))
-    
+    const rooms = await getRoomsFromApi()
+    setRooms(rooms.map(normalizeRoom))                              
     return await response.json()
+
 }

@@ -25,14 +25,17 @@ from transactions.stock_areas.create_stock_area_transaction import create_stock_
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
-from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardsRequest,UpdateWardRequest)
-from schemas.room_schemas import (AddRoomRequest,RoomResponse,DeleteRoomsRequest,UpdateRoomRequest)
+from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
+from schemas.room_schemas import (AddRoomRequest,RoomResponse,DeleteRoomsRequest)
 
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
-from transactions.wards.delete_wards_transaction import (delete_wards_transaction)
+from transactions.wards.delete_ward_transaction import (delete_ward_transaction)
 from transactions.wards.update_ward_transaction import (update_ward_transaction)
 from transactions.rooms.create_room_transaction import (create_room_transaction)
+from transactions.rooms.update_room_transaction import (update_room_transaction,update_room_patientname_transaction)
+from schemas.room_schemas import (UpdateRoomRequest,UpdateRoomPatientRequest)
 
+                                                        
 app = FastAPI()
 #originを指定してCORSを許可する
 app.add_middleware(
@@ -201,13 +204,13 @@ def create_ward_route(
 
 @app.post("/delete-ward")
 def delete_ward_route(
-                        ward: DeleteWardsRequest,
+                        ward: DeleteWardRequest,
                         auth_user_id: str = Depends(get_auth_user_id)
                      ):
 
     current_user = fetch_current_user(auth_user_id)
 
-    delete_wards_transaction(
+    delete_ward_transaction(
                                 ward=ward,
                                 hospital_id=current_user["hospital_id"]
                             )
@@ -280,6 +283,30 @@ def create_room_route(
                                 room=room,
                                 hospital_id=current_user["hospital_id"]
                             )
+
+@app.post("/update-room")
+def update_room_route(
+                        room: UpdateRoomRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)):
+    
+    current_user = fetch_current_user(auth_user_id)
+    update_room_transaction(
+                                     room=room,
+                                     hospital_id=current_user["hospital_id"]
+                                   )
+
+
+@app.post("/update-room-patientname")
+def update_room_patientname_route(
+                                    room: UpdateRoomPatientRequest,
+                                    current_user = Depends(fetch_current_user)
+                                  ):
+
+    return update_room_patientname_transaction(
+                                                 room=room,
+                                                 hospital_id=current_user["hospital_id"]
+                                               )
+
 
 @app.get("/master")
 def get_master(auth_user_id: str = Depends(get_auth_user_id)):

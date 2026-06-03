@@ -5,18 +5,12 @@ import { updateStockAreaTransaction } from "../../api/transactions/stockAreas/up
 type Props = {
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  addStockArea: (name: string) => Promise<void>
-  renameStockArea: (id: number, newName: string) => Promise<boolean>
-  deleteStockAreas: (ids: number[]) => Promise<boolean>
 
 }
 
 export default function StockAreaSettingsModal({ 
     stockAreas,
     setStockAreas,
-    addStockArea,
-    renameStockArea,
-    deleteStockAreas
 }: Props) 
  {
   const [checkedIds, setCheckedIds] = useState<number[]>([])

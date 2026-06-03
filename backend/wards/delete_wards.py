@@ -1,7 +1,7 @@
 from common.supabase_client import (supabase)
-from schemas.ward_schemas import (DeleteWardsRequest)
+from schemas.ward_schemas import (DeleteWardRequest)
 
-def delete_ward(ward: DeleteWardsRequest,
+def delete_ward(ward: DeleteWardRequest,
                 hospital_id:str
                 ):
     print("delete ward_id")
@@ -9,7 +9,7 @@ def delete_ward(ward: DeleteWardsRequest,
                 supabase
                 .table("wards")
                 .delete()
-                .in_("id", ward.ids)
+                .eq("id", ward.id)
                 .eq("hospital_id", hospital_id)
                 
                 .execute()

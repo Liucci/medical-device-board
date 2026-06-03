@@ -31,7 +31,7 @@
 │    │   ├─ add_room.py
 │    │   ├─ delete_room.py
 │    │   ├─ fetch_room.py
-│    │   └─ rename_room.py
+│    │   └─ update_room.py
 │    ├─ stock_areas/
 │    │   ├─ add_stock_area.py
 │    │   ├─ delete_stock_areas.py

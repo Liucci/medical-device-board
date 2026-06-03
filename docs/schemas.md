@@ -1,0 +1,97 @@
+# Schemas 一覧表
+
+| Schema               | 用途     | Request / Response 内容     |
+| -------------------- | ------ | ------------------------- |
+| `WardResponse`       | ward取得 | `id` `hospital_id` `name` |
+| `AddWardRequest`     | ward追加 | `name`                    |
+| `DeleteWardRequest` | ward削除 | `ids: list[int]`          |
+| `UpdateWardRequest`  | ward更新 | `id` `name`               |
+
+---
+
+| Schema                     | 用途        | Request / Response 内容                              |
+| -------------------------- | --------- | -------------------------------------------------- |
+| `RoomResponse`             | room取得    | `id` `hospital_id` `ward_id` `name` `patient_name` |
+| `AddRoomRequest`           | room追加    | `ward_id` `name`                                   |
+| `DeleteRoomsRequest`       | room削除    | `ids: list[int]`                                   |
+| `UpdateRoomRequest`        | room名更新   | `id` `name`                                        |
+| `UpdateRoomPatientRequest` | patient更新 | `id` `patient_name`                                |
+
+---
+
+| Schema                    | 用途           | Request / Response 内容     |
+| ------------------------- | ------------ | ------------------------- |
+| `StockAreaResponse`       | stock area取得 | `id` `hospital_id` `name` |
+| `AddStockAreaRequest`     | stock area追加 | `name`                    |
+| `DeleteStockAreasRequest` | stock area削除 | `ids: list[int]`          |
+| `UpdateStockAreaRequest`  | stock area更新 | `id` `name`               |
+
+---
+
+| Schema                     | 用途            | Request / Response 内容     |
+| -------------------------- | ------------- | ------------------------- |
+| `DeviceTypesResponse`      | device type取得 | `id` `hospital_id` `name` |
+| `AddDeviceTypeRequest`     | device type追加 | `name`                    |
+| `DeleteDeviceTypesRequest` | device type削除 | `ids: list[int]`          |
+| `UpdateDeviceTypeRequest`  | device type更新 | `id` `name`               |
+
+---
+
+| Schema                      | 用途             | Request / Response 内容                      |
+| --------------------------- | -------------- | ------------------------------------------ |
+| `DeviceModelsResponse`      | device model取得 | `id` `device_type_id` `hospital_id` `name` |
+| `AddDeviceModelRequest`     | device model追加 | `device_type_id` `name`                    |
+| `DeleteDeviceModelsRequest` | device model削除 | `ids: list[int]`                           |
+| `UpdateDeviceModelRequest`  | device model更新 | `id` `name`                                |
+
+---
+
+| Schema                     | 用途         | Request / Response 内容                                                                                                                                                                                                                                                                                                       |
+| -------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DeviceResponse`           | device取得   | `id` `hospital_id` `type` `model` `asset_type` `status` `stock_area_id` `room_id` `management_number` `serial_number` `note` `rental_start_date` `rental_end_date` `is_under_maintenance` `maintenance_started_at` `maintenance_finished_at` `standby` `standby_started_at` `standby_finished_at` `created_by` `updated_by` |
+| `AddDeviceRequest`         | device追加   | `type` `model` `asset_type` `rental_start_date` `rental_end_date`                                                                                                                                                                                                                                                           |
+| `DeleteDevicesRequest`     | device削除   | `ids: list[int]`                                                                                                                                                                                                                                                                                                            |
+| `UpdateDeviceInfoRequest`  | device情報更新 | `id` `management_number` `serial_number` `note`                                                                                                                                                                                                                                                                             |
+| `MoveDeviceRequest`        | device移動   | `id` `stock_area_id` `room_id`                                                                                                                                                                                                                                                                                              |
+| `StartMaintenanceRequest`  | メンテ開始      | `id`                                                                                                                                                                                                                                                                                                                        |
+| `FinishMaintenanceRequest` | メンテ終了      | `id`                                                                                                                                                                                                                                                                                                                        |
+| `StartStandbyRequest`      | standby開始  | `id`                                                                                                                                                                                                                                                                                                                        |
+| `FinishStandbyRequest`     | standby終了  | `id`                                                                                                                                                                                                                                                                                                                        |
+
+---
+
+# backend側で付与する値
+
+frontから送らせない。
+
+```text id="2bx4w9"
+hospital_id
+status
+created_by
+updated_by
+```
+
+---
+
+# 設計思想
+
+## schema
+
+```text id="jlwmz5"
+入力形式定義
+```
+
+## transaction
+
+```text id="w0f70m"
+業務ロジック
+状態遷移
+history追加
+permission制御
+```
+
+## crud
+
+```text id="1fj70n"
+単一table DB操作
+```

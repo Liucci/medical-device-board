@@ -4,13 +4,13 @@ import { getWardsFromApi }from "../../wards/fetchWards"
 import { normalizeRoom } from "@/app/utils/roomsMapper"
 import { getRoomsFromApi }from "../../rooms/fetchRooms"
 
-export async function deleteWardsTransaction(
-                                              ids: number[],
+export async function deleteWardTransaction(
+                                              id: number,
                                             setWards:any,  
                                             setRooms:any,
                                             )
  {
-    console.log("deleteWardsTransaction")
+    console.log("deleteWardTransaction")
     if (!confirm("病棟を削除すると部屋も削除されます。よろしいですか？")
     ) {return}
 
@@ -25,7 +25,7 @@ export async function deleteWardsTransaction(
                                 "Content-Type":"application/json",
                                 "Authorization":`Bearer ${token}`
                               },
-                    body: JSON.stringify({ids})
+                    body: JSON.stringify({id})
                   }
                 )
     const wards = await getWardsFromApi()

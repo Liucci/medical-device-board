@@ -37,15 +37,6 @@ type Props = {
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  addStockArea: (name: string) => Promise<void>
-  renameStockArea: (id: number, newName: string) => Promise<boolean>
-  deleteStockAreas: (ids: number[]) => Promise<boolean>
-  addWard: (name: string) => Promise<void>
-  updateWard: (id: number, newName: string) => Promise<boolean>
-  deleteWards: (ids: number[]) => Promise<boolean>
-  addRoom: (wardId: number, name: string) => Promise<void>
-  renameRoom: (id: number, newName: string) => Promise<boolean>
-  deleteRooms: (ids: number[]) => Promise<boolean>
   addDeviceType: (name: string) => Promise<void>
   renameDeviceType: (id: number, newName: string) => Promise<boolean>
   deleteDeviceTypes: (ids: number[]) => Promise<boolean>
@@ -91,15 +82,6 @@ export default function ButtonPanel({
   setWards,
   rooms,
   setRooms,
-  addStockArea,
-  renameStockArea,
-  deleteStockAreas,
-  addWard,
-  updateWard,
-  deleteWards,
-  addRoom,
-  renameRoom,
-  deleteRooms,
   addDeviceType,
   renameDeviceType,
   deleteDeviceTypes,
@@ -245,15 +227,6 @@ export default function ButtonPanel({
           setWards={setWards}
           rooms={rooms}
           setRooms={setRooms}
-          addStockArea={addStockArea}
-          renameStockArea={renameStockArea}
-          deleteStockAreas={deleteStockAreas}
-          addWard={addWard}
-          updateWard={updateWard}
-          deleteWards={deleteWards}
-          addRoom={addRoom}
-          renameRoom={renameRoom}
-          deleteRooms={deleteRooms}
           addDeviceType={addDeviceType}
           renameDeviceType={renameDeviceType}
           deleteDeviceTypes={deleteDeviceTypes}
