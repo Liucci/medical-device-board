@@ -26,9 +26,12 @@ from transactions.stock_areas.delete_stock_area_transaction import delete_stock_
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardsRequest,UpdateWardRequest)
+from schemas.room_schemas import (AddRoomRequest,RoomResponse,DeleteRoomsRequest,UpdateRoomRequest)
+
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
 from transactions.wards.delete_wards_transaction import (delete_wards_transaction)
 from transactions.wards.update_ward_transaction import (update_ward_transaction)
+from transactions.rooms.create_room_transaction import (create_room_transaction)
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -240,6 +243,19 @@ def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
     )
 
     return rooms
+
+@app.post("/rooms")
+def create_room_route(
+                        room:AddRoomRequest,
+                        auth_user_id:str = Depends(get_auth_user_id)
+                     ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    create_room_transaction(
+                                room=room,
+                                hospital_id=current_user["hospital_id"]
+                            )
 
 @app.get("/master")
 def get_master(auth_user_id: str = Depends(get_auth_user_id)):
