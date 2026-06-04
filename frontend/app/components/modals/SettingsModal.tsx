@@ -18,12 +18,13 @@ type Props = {
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   deviceTypes: { id: number; name: string }[]
+  setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
   wards: { wardId: number; wardName: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  addDeviceType: (name: string) => Promise<void>
   renameDeviceType: (id: number, newName: string) => Promise<boolean>
   deleteDeviceTypes: (ids: number[]) => Promise<boolean>
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
@@ -59,13 +60,14 @@ export default function SettingsModal({
   stockAreas,
   setStockAreas,
   deviceTypes,
+  setDeviceTypes,
   deviceModels,
+  setDeviceModels,
   wards,
   setWards,
   rooms,
   setRooms,
   maintenanceTypes,
-  addDeviceType,
   renameDeviceType,
   deleteDeviceTypes,
   addDeviceModel,
@@ -171,9 +173,10 @@ export default function SettingsModal({
             </button>
             <DeviceTypeSettingsModal
               deviceTypes={deviceTypes}
+              setDeviceTypes={setDeviceTypes}
               deviceModels={deviceModels}
-              addDeviceType={addDeviceType}
-              renameDeviceType={renameDeviceType}
+              setDeviceModels={setDeviceModels}
+             renameDeviceType={renameDeviceType}
               deleteDeviceTypes={deleteDeviceTypes}
               addDeviceModel={addDeviceModel}
               renameDeviceModel={renameDeviceModel}

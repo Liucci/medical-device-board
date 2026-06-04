@@ -14,10 +14,14 @@ from rooms.fetch_rooms import (
     fetch_rooms
 )
 
-from backend.device_types.fetch_device_type import (
-    fetch_device_types,
+from device_types.fetch_device_type import (
+    fetch_device_types
+)
+
+from device_models.fetch_device_models import (
     fetch_device_models
 )
+
 
 from tasks.fetch_maintenance_tasks import (
     fetch_maintenance_tasks

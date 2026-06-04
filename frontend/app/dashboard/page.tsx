@@ -16,7 +16,8 @@ import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
 import { normalizeRoom } from "../utils/roomsMapper"
 import { normalizeWard } from "../utils/wardsMapper"
 import { normalizeStockArea } from "../utils/stockAreaMapper"
-import { normalizeDeviceType ,normalizeDeviceModel} from "../utils/masterMapper"
+import { normalizeDeviceType } from "../utils/deviceTypeMapper"
+import { normalizeDeviceModel } from "../utils/deviceModelMapper"
 import { normalizeHistory } from "../utils/historyMapper"
 import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
 import { normalizeMaintenanceTask } from "../utils/taskMapper"
@@ -33,13 +34,15 @@ import {getDevicesFromApi} from "../api/devices/fetchDevices"
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
 import {getWardsFromApi} from "../api/wards/fetchWards"
 import {getRoomsFromApi} from "../api/rooms/fetchRooms"
-import {getDeviceTypesFromApi,getDeviceModelsFromApi} from "../api/master/fetchMaster"
+import {getDeviceTypesFromApi} from "../api/deviceTypes/fetchDeviceTypes"
 import {getTasksFromApi} from "../api/tasks/fetchTasks"
 import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenanceTypes"
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
 import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
+import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
+
 
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -1899,49 +1902,7 @@ const deleteDevice = async (id: number) => {
       )
   }
 
-   //DBのdevice_types tableに新しい機種を追加する関数
-  const addDeviceType = async (name: string) => {
-    if (!currentUser) {return}
-    const trimmed = name.trim()
-    if (!trimmed) return
-
-    // 🔥 重複チェック
-    const exists = deviceTypes.some(
-      t => t.name.toLowerCase() === trimmed.toLowerCase()
-    )
-
-    if (exists) {
-      alert("同じ機種が既に存在します")
-      return
-    }
-
-    const { data, error } = await supabase
-      .from("device_types")
-      .insert([{ 
-                hospital_id:currentUser?.hospitalId,
-                name: trimmed 
-      }])
-      .select()
-      .single()
-
-    if (error) {
-        console.error(error)
-        // 🔥 RLS権限系
-        if (
-              error.code === "42501"
-            ) {
-                alert(
-                      "機種追加権限がありません"
-                      )
-              } else {
-                      alert(
-                            "機種の追加に失敗しました"
-                            )
-                      }
-        return
-      }
-    setDeviceTypes(prev => [...prev, data])
-  }
+  
   //DBのdevice_types tableの機種名を変更する関数
   const renameDeviceType = async (id: number,newName: string): Promise<boolean> => {
     if (!currentUser) {
@@ -3031,6 +2992,7 @@ setDeviceList(
           deviceList={deviceList}
           setDeviceList={setDeviceList}
           deviceTypes={deviceTypes}
+          setDeviceTypes={setDeviceTypes}
           deviceModels={deviceModels}
           stockAreas={stockAreas}
           setStockAreas={setStockAreas}
@@ -3039,7 +3001,6 @@ setDeviceList(
           rooms={rooms}
           setRooms={setRooms}
          
-          addDeviceType={addDeviceType}
           renameDeviceType={renameDeviceType}
           deleteDeviceTypes={deleteDeviceTypes}
           addDeviceModel={addDeviceModel}

@@ -30,14 +30,15 @@ type Props = {
                   React.SetStateAction<any[]>
                 >  
   deviceTypes: { id: number; name: string }[]
+  setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
   wards: { wardId: number; wardName: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  addDeviceType: (name: string) => Promise<void>
   renameDeviceType: (id: number, newName: string) => Promise<boolean>
   deleteDeviceTypes: (ids: number[]) => Promise<boolean>
   addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
@@ -75,14 +76,15 @@ export default function ButtonPanel({
   deviceList,
   setDeviceList,
   deviceTypes,
+  setDeviceTypes,
   deviceModels,
+  setDeviceModels,
   stockAreas,
   setStockAreas,
   wards,
   setWards,
   rooms,
   setRooms,
-  addDeviceType,
   renameDeviceType,
   deleteDeviceTypes,
   addDeviceModel,
@@ -222,12 +224,13 @@ export default function ButtonPanel({
           stockAreas={stockAreas}
           setStockAreas={setStockAreas}
           deviceTypes={deviceTypes}
+          setDeviceTypes={setDeviceTypes}
           deviceModels={deviceModels}
+          setDeviceModels={setDeviceModels}
           wards={wards}
           setWards={setWards}
           rooms={rooms}
           setRooms={setRooms}
-          addDeviceType={addDeviceType}
           renameDeviceType={renameDeviceType}
           deleteDeviceTypes={deleteDeviceTypes}
           addDeviceModel={addDeviceModel}

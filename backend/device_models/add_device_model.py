@@ -1,3 +1,5 @@
+from common.supabase_client import (supabase)
+
 def add_device_model(device_model: AddDeviceModelRequest):
     print("insert device_model")
     response = (

@@ -13,7 +13,7 @@ from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
-from backend.device_types.fetch_device_type import (fetch_device_types,fetch_device_models )
+from device_types.fetch_device_type import (fetch_device_types )
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
@@ -42,6 +42,8 @@ from transactions.rooms.update_room_transaction import (update_room_transaction,
 from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
 from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
+
+
 
 
 app = FastAPI()
@@ -317,10 +319,6 @@ def update_room_patientname_route(
 
 
 
-from fastapi import Depends
-from auth.fetch_current_user import fetch_current_user
-from schemas.room_schemas import DeleteRoomsRequest
-from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
 @app.post("/delete-rooms-transaction")
 def delete_rooms_transaction_route(
@@ -353,7 +351,7 @@ def create_device_type_route(
     print("create_device_type_route")
     create_device_type_transaction(
                                     device_type,
-                                    current_user
+                                    hospital_id=current_user["hospital_id"]
                                     )
 
 
