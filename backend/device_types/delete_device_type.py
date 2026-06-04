@@ -1,17 +1,16 @@
 from common.supabase_client import (
     supabase
 )
-
-def delete_device_type(device_type_id: int):
+from schemas.device_type_schemas import (DeleteDeviceTypesRequest)
+def delete_device_type(device_type:DeleteDeviceTypesRequest,
+                       hospital_id:str):
     print(f"delete device_type")
     response = (
         supabase
         .table("device_types")
         .delete()
-        .eq(
-            "id",
-            device_type_id
-        )
+        .eq("id",device_type)
+        .eq("hospital_id",hospital_id)
         .execute()
     )
     return response.data[0]

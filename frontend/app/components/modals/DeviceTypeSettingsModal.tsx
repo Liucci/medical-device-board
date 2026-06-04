@@ -1,5 +1,6 @@
 import { useState } from "react"
 import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
+import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
 
 type Props = {
   deviceTypes: { id: number; name: string }[]
@@ -66,22 +67,17 @@ export default function DeviceTypeSettingsModal({
     await renameDeviceType(selectedTypeId, name)
   }
 
-  const handleDeleteType =async () => {
-    if (!selectedTypeId) {
-      return
-    }
-    if (
-      !confirm(
-        "機種を削除しますか？（型式がある場合は削除できません）"
-      )
-    ) return
-    const success =
-      await deleteDeviceTypes([
-        selectedTypeId
-      ])
-    if (!success) return
-    setSelectedTypeId(null)
+  const handleDeleteType = async() => {
+      if (!selectedTypeId) {return}
+
+      await deleteDeviceTypeTransaction(
+                                          selectedTypeId,
+                                          setDeviceTypes
+                                        )
+
+      setSelectedTypeId(null)
   }
+
   // ===== deviceModel =====
   const filteredModels = deviceModels
     .filter(m => m.deviceTypeId === selectedTypeId)

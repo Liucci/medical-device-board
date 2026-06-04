@@ -22,7 +22,7 @@ from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateD
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
-from schemas.device_type_schemas import (AddDeviceTypeRequest)
+from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypesRequest)
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -42,7 +42,7 @@ from transactions.rooms.update_room_transaction import (update_room_transaction,
 from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
 from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
-
+from transactions.device_types.delete_device_type_transaction import (delete_device_type_transaction)
 
 
 
@@ -354,7 +354,20 @@ def create_device_type_route(
                                     hospital_id=current_user["hospital_id"]
                                     )
 
+@app.post("/delete-device-type")
+def delete_device_type_route(
+                                device_type:DeleteDeviceTypesRequest,
+                                auth_user_id:str = Depends(get_auth_user_id)
+                            ):
 
+    current_user = fetch_current_user(auth_user_id)
+
+    print("delete_device_type_route")
+
+    delete_device_type_transaction(
+                                    device_type,
+                                    hospital_id=current_user["hospital_id"]
+                                  )
 
 @app.get("/tasks")
 def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
