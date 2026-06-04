@@ -8,6 +8,7 @@ import {normalizeRoom} from "../../utils/roomsMapper"
 import { updateWardTransaction } from "../../../app/api/transactions/wards/updateWardTransaction"
 import { createRoomTransaction } from "../../../app/api/transactions/rooms/createRoomTransaction"
 import { updateRoomTransaction } from "../../../app/api/transactions/rooms/updateRoomTransaction"
+import { deleteRoomsTransaction } from "../../../app/api/transactions/rooms/deleteRoomsTransaction"
 
 
 type Props = {
@@ -91,14 +92,15 @@ export default function WardAreaSettingsModal({
     }
   // 部屋削除
   const handleDeleteRooms = async () => {
+      if (checkedRoomIds.length === 0) {
+      alert("病棟を選択してください")
+      return
+    }
+    await deleteRoomsTransaction({
+                                ids:checkedRoomIds,
+                              },setRooms)
+                                }
 
-    const success =
-      await deleteRooms(
-        checkedRoomIds
-      )
-    if (!success) return
-    setCheckedRoomIds([])
-  }
 // 部屋名前変更（prompt使用の仮実装）
   const handleRenameRoom = async(
                                   room:{

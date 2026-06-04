@@ -1,6 +1,11 @@
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
+from pydantic import BaseModel
+
+from auth.login import (login_user)
+from auth.fetch_current_user import (fetch_current_user)
+from auth.get_auth_user_id import (get_auth_user_id)
 
 from devices.fetch_devices import (fetch_devices)
 from devices.add_devices import (add_device)
@@ -12,28 +17,28 @@ from master.fetch_master import (fetch_device_types,fetch_device_models )
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
-from pydantic import BaseModel
-from auth.login import (login_user)
-from auth.fetch_current_user import (fetch_current_user)
-from auth.get_auth_user_id import (get_auth_user_id)
 
 from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateDeviceInfoRequest)
-from transactions.devices.create_device_transaction import (create_device_transaction)
+from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
+from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
+from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
+
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
+
+from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
+
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
-from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
-from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
-from schemas.room_schemas import (AddRoomRequest,RoomResponse,DeleteRoomsRequest)
 
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
 from transactions.wards.delete_ward_transaction import (delete_ward_transaction)
 from transactions.wards.update_ward_transaction import (update_ward_transaction)
+
 from transactions.rooms.create_room_transaction import (create_room_transaction)
 from transactions.rooms.update_room_transaction import (update_room_transaction,update_room_patientname_transaction)
-from schemas.room_schemas import (UpdateRoomRequest,UpdateRoomPatientRequest)
+from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
                                                         
 app = FastAPI()
@@ -308,12 +313,14 @@ def update_room_patientname_route(
                                                )
 
 
-from schemas.room_schemas import DeleteRoomsRequest
+
+from fastapi import Depends
 from auth.fetch_current_user import fetch_current_user
+from schemas.room_schemas import DeleteRoomsRequest
 from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
 @app.post("/delete-rooms-transaction")
-def delete_room_transaction_route(
+def delete_rooms_transaction_route(
                                     room: DeleteRoomsRequest,
                                     auth_user_id: str = Depends(get_auth_user_id)):
                                   
@@ -323,9 +330,8 @@ def delete_room_transaction_route(
     delete_room_transaction(
                               room=room,
                               hospital_id=current_user["hospital_id"]
-                            )
+                           )
 
-    return {"message":"success"}
 
 @app.get("/master")
 def get_master(auth_user_id: str = Depends(get_auth_user_id)):
