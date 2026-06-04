@@ -299,14 +299,33 @@ def update_room_route(
 @app.post("/update-room-patientname")
 def update_room_patientname_route(
                                     room: UpdateRoomPatientRequest,
-                                    current_user = Depends(fetch_current_user)
-                                  ):
-
+                                    auth_user_id: str = Depends(get_auth_user_id)):
+                                  
+    current_user = fetch_current_user(auth_user_id)
     return update_room_patientname_transaction(
                                                  room=room,
                                                  hospital_id=current_user["hospital_id"]
                                                )
 
+
+from schemas.room_schemas import DeleteRoomsRequest
+from auth.fetch_current_user import fetch_current_user
+from transactions.rooms.delete_rooms_transaction import delete_room_transaction
+
+@app.post("/delete-rooms-transaction")
+def delete_room_transaction_route(
+                                    room: DeleteRoomsRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)):
+                                  
+    current_user = fetch_current_user(auth_user_id)
+    print("delete room transaction route")
+
+    delete_room_transaction(
+                              room=room,
+                              hospital_id=current_user["hospital_id"]
+                            )
+
+    return {"message":"success"}
 
 @app.get("/master")
 def get_master(auth_user_id: str = Depends(get_auth_user_id)):

@@ -70,7 +70,25 @@
 │    │   ├─ user_schemas.py
 │    │   └─ ward_schemas.py
 │    ├─ transactions/
-│    │   ├─ create_device_transaction.py
+│    │   ├─ devices
+│    │   │   ├─create_device_transaction.py
+│    │   │   └─ delete_device_transaction.py
+│    │   │ 
+│    │   ├─ rooms
+│    │   │   ├─create_room_transaction.py
+│    │   │   ├─delete_room_transaction.py
+│    │   │   └─update_room_transaction.py
+│    │   │ 
+│    │   ├─ wards
+│    │   │    ├─create_ward_transaction.py
+│    │   │    ├─delete_ward_transaction.py
+│    │   │    └─update_ward_transaction.py
+│    │   │ 
+│    │   ├─ stock_areas
+│    │   │    ├─create_stock_area_transaction.py
+│    │   │    ├─delete_stock_area_transaction.py
+│    │   │    └─update_stock_area_transaction.py
+│    │   ├─ 
 │    │   └─ fetch_init_dashboard.py
 │    └─ requirements.txt
 ├─ database/

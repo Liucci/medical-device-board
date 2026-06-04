@@ -9,12 +9,13 @@
 - コードの高さを増やさない
 - 短い処理は1行で書く
 -1変数だけの無意味な改行をしない
+-カッコ内変数が１つの場合は改行しない
 - 関数呼び出し時、各カッコ内の引数が1つだけなら1行で書く
 - 無意味な空白行を禁止する
 - frontendに業務ロジックを書かない
 - 必要最小限のdebugだけ書く
 - 必要最小限のerror handlingだけ書く
-
+・import fromの定義は１行で記述
 ---
 
 # 1行で終わる処理は1行で書く
@@ -92,13 +93,19 @@ export const toDBStockArea = (s: StockArea): StockAreaDB => ({
 
 # fetch関数は責務を限定する
 
-## fetch関数の責務
+##  ts fetch関数（CRUD系関数）の責務
 
 - token取得
 - API呼び出し
 - json取得
-- state更新
+- back側のschemaに合わせる
 
+##　ts transaction系関数
+- state更新
+- 業務機能責務
+- 引数の具体的な参照先は明示しない
+## ts route関数
+- 引数の具体的な参照先はrouteに記述
 ## OK
 
 ```ts
@@ -219,12 +226,16 @@ await updateDevice({
 ---
 
 # Frontend Responsibility
+## frontのファイル構成
+-CRUD API呼出関数　　例fetchDevices.ts,updateDevice.ts等
+-transaction関数　　例createDeviceTransaction.ts等
+-route関数 　page.tsx内に記載する@app.get(/devices)等
+-modal関数　　modal表示用ファイル
 
 ## frontendの責務
-
-- UI表示
 - UI入力
 - API呼び出し
+- back側のschemaに合わせる
 - state更新
 
 frontendに業務ロジックを書かない。
@@ -232,6 +243,10 @@ frontendに業務ロジックを書かない。
 ---
 
 # Backend Responsibility
+##backend ファイル構成
+-add,delete,update,fetchのDB操作CRUD系関数ファイル　　例 fetch_devices.py,add_room.py
+-transaction系関数ファイル　例　create_device_transaction.py
+- route関数　
 
 ## backendの責務
 
@@ -273,7 +288,8 @@ backend/devices/
 - 複数DB操作
 - history追加
 - 業務フロー制御
-- 状態遷移
+- 状態遷移（state更新）
+- 引数の具体的な参照先は明示しない
 
 ### 例
 
@@ -347,24 +363,6 @@ onClose()
 ```python
 @app.post("/update-device")
 ```
-
----
-
-# column whitelistをbackendで制御する
-
-## OK
-
-```python
-ALLOWED_COLUMNS = [
-    "room_id",
-    "stock_area_id",
-    "status",
-    "model",
-    "type"
-]
-```
-
----
 
 # 命名ルール
 
