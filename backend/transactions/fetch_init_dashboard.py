@@ -14,7 +14,7 @@ from rooms.fetch_rooms import (
     fetch_rooms
 )
 
-from master.fetch_master import (
+from backend.device_types.fetch_device_type import (
     fetch_device_types,
     fetch_device_models
 )

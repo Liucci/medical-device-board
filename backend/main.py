@@ -13,7 +13,7 @@ from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
-from master.fetch_master import (fetch_device_types,fetch_device_models )
+from backend.device_types.fetch_device_type import (fetch_device_types,fetch_device_models )
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
@@ -22,6 +22,7 @@ from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateD
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
+from schemas.device_type_schemas import (AddDeviceTypeRequest)
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -40,7 +41,9 @@ from transactions.rooms.create_room_transaction import (create_room_transaction)
 from transactions.rooms.update_room_transaction import (update_room_transaction,update_room_patientname_transaction)
 from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
-                                                        
+from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
+
+
 app = FastAPI()
 #originを指定してCORSを許可する
 app.add_middleware(
@@ -332,58 +335,28 @@ def delete_rooms_transaction_route(
                               hospital_id=current_user["hospital_id"]
                            )
 
+@app.get("/device-types")
+def get_device_types(auth_user_id: str = Depends(get_auth_user_id)):
+                                  
+    current_user = fetch_current_user(auth_user_id)
+    print("get_device_types")
 
-@app.get("/master")
-def get_master(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+    return fetch_device_types(current_user["hospital_id"])
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
+@app.post("/device-types")
+def create_device_type_route(
+                                device_type: AddDeviceTypeRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
+                            ):
+    current_user = fetch_current_user(auth_user_id)
 
-        return {
+    print("create_device_type_route")
+    create_device_type_transaction(
+                                    device_type,
+                                    current_user
+                                    )
 
-            "success": False,
 
-            "error":
-            "権限がありません"
-        }
-
-    device_types = (
-        fetch_device_types(
-
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
-    )
-
-    device_models = (
-        fetch_device_models(
-
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
-    )
-
-    return {
-
-        "success": True,
-
-        "device_types":
-        device_types,
-
-        "device_models":
-        device_models
-    }
 
 @app.get("/tasks")
 def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
