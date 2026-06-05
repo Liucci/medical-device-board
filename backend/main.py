@@ -22,7 +22,7 @@ from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateD
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
-from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypesRequest)
+from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypesRequest, UpdateDeviceTypeRequest)
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -43,7 +43,7 @@ from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 
 from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
 from transactions.device_types.delete_device_type_transaction import (delete_device_type_transaction)
-
+from transactions.device_types.update_device_type_transaction import update_device_type_transaction
 
 
 app = FastAPI()
@@ -318,6 +318,20 @@ def update_room_patientname_route(
                                                )
 
 
+@app.post("/update-device-type")
+def update_device_type_route(
+                                device_type: UpdateDeviceTypeRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
+                            ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("update_device_type")
+
+    return update_device_type_transaction(
+                                            device_type,
+                                            current_user["hospital_id"]
+                                          )
 
 
 @app.post("/delete-rooms-transaction")
@@ -368,6 +382,8 @@ def delete_device_type_route(
                                     device_type,
                                     hospital_id=current_user["hospital_id"]
                                   )
+
+
 
 @app.get("/tasks")
 def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):

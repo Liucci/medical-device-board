@@ -1,23 +1,19 @@
-from common.supabase_client import (
-    supabase
-)
+from common.supabase_client import supabase
+from schemas.device_type_schemas import UpdateDeviceTypeRequest
 
-def rename_device_type(
-                       device_type_id: int,
-                       name: str,
-                       ):
-    print("rename device_type")
+def update_device_type(
+                        device_type: UpdateDeviceTypeRequest,
+                        hospital_id: str,
+                      ):
+
+    print("update_device_type")
+
     response = (
-        supabase
-        .table("device_types")
-        .update({
-            "name": name,
-        })
-        .eq(
-            "id",
-            device_type_id
-        )
-        .execute()
-    )
+                  supabase
+                  .table("device_types")
+                  .update({"name": device_type.name})
+                  .eq("id",device_type.id)
+                  .eq("hospital_id",hospital_id)
+                  .execute()
+               )
     return response.data[0]
-
