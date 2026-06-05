@@ -1,10 +1,12 @@
 import { useState } from "react"
+import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
+import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
 
 type Props = {
   deviceTypes: { id: number; name: string }[]
+  setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
-
-  addDeviceType: (name: string) => Promise<void>
+  setDeviceModels:React.Dispatch<React.SetStateAction<any[]>>
   renameDeviceType: (id: number, newName: string) => Promise<boolean>
   deleteDeviceTypes: (ids: number[]) => Promise<boolean>
 
@@ -15,8 +17,9 @@ type Props = {
 
 export default function DeviceTypeSettingsModal({
   deviceTypes,
+  setDeviceTypes,
   deviceModels,
-  addDeviceType,
+  setDeviceModels,
   renameDeviceType,
   deleteDeviceTypes,
   addDeviceModel,
@@ -31,9 +34,25 @@ export default function DeviceTypeSettingsModal({
 
   // ===== deviceType =====
   const handleAddType = async() => {
-    if (!newTypeName.trim()) return
-    await addDeviceType(newTypeName)
-    setNewTypeName("")
+      const trimmed = newTypeName.trim()
+      if (!trimmed) {return}
+
+      const exists = deviceTypes.some(
+                                        t =>
+                                        t.name.toLowerCase() ===
+                                        trimmed.toLowerCase()
+                                    )
+
+      if (exists) {
+          alert("同じ機種が既に存在します")
+          return
+      }
+
+      await createDeviceTypeTransaction(
+                                          trimmed,
+                                          setNewTypeName,
+                                          setDeviceTypes
+                                        )
   }
 
   const handleRenameType = async() => {
@@ -48,22 +67,17 @@ export default function DeviceTypeSettingsModal({
     await renameDeviceType(selectedTypeId, name)
   }
 
-  const handleDeleteType =async () => {
-    if (!selectedTypeId) {
-      return
-    }
-    if (
-      !confirm(
-        "機種を削除しますか？（型式がある場合は削除できません）"
-      )
-    ) return
-    const success =
-      await deleteDeviceTypes([
-        selectedTypeId
-      ])
-    if (!success) return
-    setSelectedTypeId(null)
+  const handleDeleteType = async() => {
+      if (!selectedTypeId) {return}
+
+      await deleteDeviceTypeTransaction(
+                                          selectedTypeId,
+                                          setDeviceTypes
+                                        )
+
+      setSelectedTypeId(null)
   }
+
   // ===== deviceModel =====
   const filteredModels = deviceModels
     .filter(m => m.deviceTypeId === selectedTypeId)

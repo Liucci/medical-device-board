@@ -1,9 +1,3 @@
-export type DeviceType = {
-                          id: number
-                          hospitalId: string
-                          name: string
-                          }
-
 export type DeviceModel = {
                            id: number
                            hospitalId: string
@@ -11,12 +5,7 @@ export type DeviceModel = {
                            name: string
                            }
 
-export type DeviceTypeDB = {
-                            id: number
-                            hospital_id: string
-                            name: string
-                            }
-
+                           
 export type DeviceModelDB = {
                              id: number
                              hospital_id: string

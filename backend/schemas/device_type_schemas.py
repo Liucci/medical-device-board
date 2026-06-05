@@ -14,7 +14,7 @@ class AddDeviceTypeRequest(BaseModel):
 
 class DeleteDeviceTypesRequest(BaseModel):
     #複数同時削除可能にするためlist型
-    ids: list[int]
+    id: int
 
 
 class UpdateDeviceTypeRequest(BaseModel):
