@@ -2994,6 +2994,7 @@ setDeviceList(
           deviceTypes={deviceTypes}
           setDeviceTypes={setDeviceTypes}
           deviceModels={deviceModels}
+          setDeviceModels={setDeviceModels}
           stockAreas={stockAreas}
           setStockAreas={setStockAreas}
           wards={wards}

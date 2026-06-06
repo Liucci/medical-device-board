@@ -82,6 +82,7 @@ update_ward.py
 * 単一tableのみ操作する
 * 他テーブルを操作しない
 * 業務ロジックを書かない
+:DB tableアクセスにはhospital_idの一致が必須
 
 例
 

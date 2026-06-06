@@ -2,7 +2,7 @@ import { useState } from "react"
 import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
 import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
 import {updateDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/updateDeviceTypeTransaction"
-
+import { createDeviceModelTransaction } from "@/app/api/transactions/deviceModels/createDeviceModelTransaction"
 
 type Props = {
   deviceTypes: { id: number; name: string }[]
@@ -91,25 +91,29 @@ export default function DeviceTypeSettingsModal({
 
   // ===== deviceModel =====
   const filteredModels = deviceModels
-    .filter(m => m.deviceTypeId === selectedTypeId)
-    .sort((a, b) => a.name.localeCompare(b.name, "ja"))
+                                    .filter(m => m.deviceTypeId === selectedTypeId)
+                                    .sort((a, b) => a.name.localeCompare(b.name, "ja"))
   const toggleModel = (id: number) => {
-    setCheckedModelIds(prev =>
-      prev.includes(id)
-        ? prev.filter(i => i !== id)
-        : [...prev, id]
-    )
+                                        setCheckedModelIds(prev =>
+                                                                  prev.includes(id)
+                                                                    ? prev.filter(i => i !== id)
+                                                                    : [...prev, id]
+                                                          )
   }
 
   const handleAddModel = async() => {
-    if (!selectedTypeId) {
-      alert("機種を選択してください")
+    if (!selectedTypeId) {alert("機種を選択してください")
       return
     }
 
     if (!newModelName.trim()) return
 
-    await addDeviceModel(selectedTypeId, newModelName)
+    await createDeviceModelTransaction(
+                                        selectedTypeId,
+                                        newModelName,
+                                        setDeviceModels
+                                      )
+
     setNewModelName("")
   }
 

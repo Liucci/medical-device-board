@@ -14,6 +14,8 @@ from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
 from device_types.fetch_device_type import (fetch_device_types )
+from device_models.fetch_device_models import (fetch_device_models)
+
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
@@ -23,6 +25,7 @@ from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequ
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
 from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypesRequest, UpdateDeviceTypeRequest)
+from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -44,6 +47,8 @@ from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
 from transactions.device_types.delete_device_type_transaction import (delete_device_type_transaction)
 from transactions.device_types.update_device_type_transaction import update_device_type_transaction
+from transactions.device_models.create_device_model_transaction import (create_device_model_transaction)
+
 
 
 app = FastAPI()
@@ -383,6 +388,26 @@ def delete_device_type_route(
                                     hospital_id=current_user["hospital_id"]
                                   )
 
+@app.get("/device-models")
+def get_device_models(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = fetch_current_user(auth_user_id)
+    print("get_device_models")
+    return fetch_device_models(current_user["hospital_id"])
+
+@app.post("/device-models")
+def create_device_model(
+                            device_model: AddDeviceModelRequest,
+                            auth_user_id: str = Depends(get_auth_user_id)
+                        ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("create_device_model")
+
+    return create_device_model_transaction(
+                                            device_model,
+                                            current_user["hospital_id"]
+                                          )
 
 
 @app.get("/tasks")
