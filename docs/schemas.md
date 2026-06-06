@@ -32,7 +32,7 @@
 | -------------------------- | ------------- | ------------------------- |
 | `DeviceTypesResponse`      | device type取得 | `id` `hospital_id` `name` |
 | `AddDeviceTypeRequest`     | device type追加 | `name`                    |
-| `DeleteDeviceTypesRequest` | device type削除 | `ids: list[int]`          |
+| `DeleteDeviceTypeRequest` | device type削除 | `ids: list[int]`          |
 | `UpdateDeviceTypeRequest`  | device type更新 | `id` `name`               |
 
 ---

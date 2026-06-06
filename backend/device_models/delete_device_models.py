@@ -1,6 +1,6 @@
 from common.supabase_client import (supabase)
 from schemas.device_model_schemas import DeleteDeviceModelsRequest
-from schemas.device_type_schemas import DeleteDeviceTypesRequest
+from schemas.device_type_schemas import DeleteDeviceTypeRequest
 
 
 #直接modelを消す場合
@@ -23,7 +23,7 @@ def delete_device_models(
 
 #type削除によって紐づいているmodelが削除される場合
 def delete_device_models_by_type_id(
-                                        device_type:DeleteDeviceTypesRequest,
+                                        device_type:DeleteDeviceTypeRequest,
                                         hospital_id:str
                                     ):
 

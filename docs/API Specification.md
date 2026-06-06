@@ -151,7 +151,7 @@ UpdateDeviceTypeRequest
 ## POST /delete-device-types
 
 ```text
-DeleteDeviceTypesRequest
+DeleteDeviceTypeRequest
 ```
 
 ---

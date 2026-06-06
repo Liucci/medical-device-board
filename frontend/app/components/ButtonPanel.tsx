@@ -39,11 +39,6 @@ type Props = {
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  renameDeviceType: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceTypes: (ids: number[]) => Promise<boolean>
-  addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
-  renameDeviceModel: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceModels: (ids: number[]) => Promise<boolean>
   maintenanceTypes: { id: number; name: string; deviceTypeId: number; deviceModelId: number | null; intervalDays: number }[]
   addMaintenanceType: (data: {
                               name: string
@@ -85,11 +80,6 @@ export default function ButtonPanel({
   setWards,
   rooms,
   setRooms,
-  renameDeviceType,
-  deleteDeviceTypes,
-  addDeviceModel,
-  renameDeviceModel,
-  deleteDeviceModels,
   maintenanceTypes,
   addMaintenanceType,
   renameMaintenanceType,
@@ -231,11 +221,6 @@ export default function ButtonPanel({
           setWards={setWards}
           rooms={rooms}
           setRooms={setRooms}
-          renameDeviceType={renameDeviceType}
-          deleteDeviceTypes={deleteDeviceTypes}
-          addDeviceModel={addDeviceModel}
-          renameDeviceModel={renameDeviceModel}
-          deleteDeviceModels={deleteDeviceModels}
           addMaintenanceType={addMaintenanceType}
           renameMaintenanceType={renameMaintenanceType}
           deleteMaintenanceTypes={deleteMaintenanceTypes}

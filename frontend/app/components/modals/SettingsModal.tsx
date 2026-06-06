@@ -25,11 +25,6 @@ type Props = {
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  renameDeviceType: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceTypes: (ids: number[]) => Promise<boolean>
-  addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
-  renameDeviceModel: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceModels: (ids: number[]) => Promise<boolean>
   maintenanceTypes: {
     id: number
     name: string
@@ -68,11 +63,6 @@ export default function SettingsModal({
   rooms,
   setRooms,
   maintenanceTypes,
-  renameDeviceType,
-  deleteDeviceTypes,
-  addDeviceModel,
-  renameDeviceModel,
-  deleteDeviceModels,
   addMaintenanceType,
   renameMaintenanceType,
   deleteMaintenanceTypes
@@ -176,11 +166,6 @@ export default function SettingsModal({
               setDeviceTypes={setDeviceTypes}
               deviceModels={deviceModels}
               setDeviceModels={setDeviceModels}
-             renameDeviceType={renameDeviceType}
-              deleteDeviceTypes={deleteDeviceTypes}
-              addDeviceModel={addDeviceModel}
-              renameDeviceModel={renameDeviceModel}
-              deleteDeviceModels={deleteDeviceModels}
             />
           </>
         )}

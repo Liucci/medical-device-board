@@ -2,19 +2,15 @@ import { useState } from "react"
 import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
 import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
 import {updateDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/updateDeviceTypeTransaction"
-import { createDeviceModelTransaction } from "@/app/api/transactions/deviceModels/createDeviceModelTransaction"
+import { createDeviceModelTransaction } from "../../../app/api/transactions/deviceModels/createDeviceModelTransaction"
+import { deleteDeviceModelsTransaction } from "../../../app/api/transactions/deviceModels/deleteDeviceModelsTransaction"
+import {updateDeviceModelTransaction} from  "../../../app/api/transactions/deviceModels/updateDeviceModelTransaction"
 
 type Props = {
   deviceTypes: { id: number; name: string }[]
   setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   setDeviceModels:React.Dispatch<React.SetStateAction<any[]>>
-  renameDeviceType: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceTypes: (ids: number[]) => Promise<boolean>
-
-  addDeviceModel: (deviceTypeId: number, name: string) => Promise<void>
-  renameDeviceModel: (id: number, newName: string) => Promise<boolean>
-  deleteDeviceModels: (ids: number[]) => Promise<boolean>
 }
 
 export default function DeviceTypeSettingsModal({
@@ -22,11 +18,6 @@ export default function DeviceTypeSettingsModal({
   setDeviceTypes,
   deviceModels,
   setDeviceModels,
-  renameDeviceType,
-  deleteDeviceTypes,
-  addDeviceModel,
-  renameDeviceModel,
-  deleteDeviceModels
 }: Props) {
 
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null)
@@ -117,22 +108,27 @@ export default function DeviceTypeSettingsModal({
     setNewModelName("")
   }
 
-  const handleDeleteModels =async () => {
-    const success =
-      await deleteDeviceModels(
-        checkedModelIds
-      )
-    if (!success) return
+  const handleDeleteModels = async () => {
+    if (checkedModelIds.length === 0) {return}
+
+    await deleteDeviceModelsTransaction(
+                                          checkedModelIds,
+                                          setDeviceModels
+                                        )
+
     setCheckedModelIds([])
   }
-  
+
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
-    if (!name) return
+    if (!name) {return}
 
-   await renameDeviceModel(model.id, name)
+    await updateDeviceModelTransaction({
+                                          id:model.id,
+                                          name,
+                                          setDeviceModels
+                                        })
   }
-
   return (
     <div className="space-y-6">
 

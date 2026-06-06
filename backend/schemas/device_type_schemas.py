@@ -12,8 +12,7 @@ class AddDeviceTypeRequest(BaseModel):
     name: str #type名
 
 
-class DeleteDeviceTypesRequest(BaseModel):
-    #複数同時削除可能にするためlist型
+class DeleteDeviceTypeRequest(BaseModel):
     id: int
 
 

@@ -1,8 +1,8 @@
 from common.supabase_client import (
     supabase
 )
-from schemas.device_type_schemas import (DeleteDeviceTypesRequest)
-def delete_device_type(device_type:DeleteDeviceTypesRequest,
+from schemas.device_type_schemas import (DeleteDeviceTypeRequest)
+def delete_device_type(device_type:DeleteDeviceTypeRequest,
                        hospital_id:str):
     print(f"delete device_type")
     response = (
