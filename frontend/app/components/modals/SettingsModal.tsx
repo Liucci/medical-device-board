@@ -32,20 +32,8 @@ type Props = {
     deviceModelId: number | null
     intervalDays: number
   }[]
-  addMaintenanceType: (data: {
-    name: string
-    deviceTypeId: number
-    deviceModelId: number | null
-    intervalDays: number
-  }) => Promise<void>
-  renameMaintenanceType: (
-    id: number,
-    data: {
-      name: string
-      intervalDays: number
-    }
-  ) => Promise<boolean>
-  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
+  setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
+  
 }
 
 type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance"
@@ -63,9 +51,8 @@ export default function SettingsModal({
   rooms,
   setRooms,
   maintenanceTypes,
-  addMaintenanceType,
-  renameMaintenanceType,
-  deleteMaintenanceTypes
+  setMaintenanceTypes,
+
 }: Props) {
   const [mode, setMode] = useState<Mode>("menu")
 
@@ -177,11 +164,9 @@ export default function SettingsModal({
             </button>
             <MaintenanceSettingsModal
               maintenanceTypes={maintenanceTypes}
+              setMaintenanceTypes={setMaintenanceTypes}
               deviceTypes={deviceTypes}
               deviceModels={deviceModels}
-              addMaintenanceType={addMaintenanceType}
-              renameMaintenanceType={renameMaintenanceType}
-              deleteMaintenanceTypes={deleteMaintenanceTypes}
             />
           </>
         )}

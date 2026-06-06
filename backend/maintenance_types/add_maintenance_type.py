@@ -18,8 +18,6 @@ def add_maintenance_type(
             "device_model_id": maintenance_type.device_model_id,
             "name": maintenance_type.name,
             "interval_days": maintenance_type.interval_days,
-            "created_by": user_id,
-            "updated_by": user_id
         })
         .execute()
     )

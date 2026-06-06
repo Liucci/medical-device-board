@@ -27,7 +27,7 @@ from tasks.fetch_maintenance_tasks import (
     fetch_maintenance_tasks
 )
 
-from backend.maintenance_types.fetch_maintenance_type import (
+from maintenance_types.fetch_maintenance_types import (
     fetch_maintenance_types
 )
 

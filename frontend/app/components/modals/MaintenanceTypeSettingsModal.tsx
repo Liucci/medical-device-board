@@ -30,7 +30,7 @@ export default function MaintenanceTypeSettingsModal({
 
   // 🔽 型式候補
   const filteredModels = deviceModels.filter(
-    m => m.device_type_id === selectedTypeId
+    m => m.deviceTypeId === selectedTypeId
   )
 
   // 🔽 追加
@@ -234,11 +234,11 @@ export default function MaintenanceTypeSettingsModal({
             .sort((a, b) => {
 
               const aType =
-                deviceTypes.find(t => t.id === a.device_type_id)
+                deviceTypes.find(t => t.id === a.deviceTypeId)
                   ?.name ?? ""
 
               const bType =
-                deviceTypes.find(t => t.id === b.device_type_id)
+                deviceTypes.find(t => t.id === b.deviceTypeId)
                   ?.name ?? ""
 
               // ① 機種名
@@ -247,16 +247,16 @@ export default function MaintenanceTypeSettingsModal({
               if (typeCompare !== 0) return typeCompare
 
               const aModel =
-                a.device_model_id
+                a.deviceModelId
                   ? deviceModels.find(
-                      m => m.id === a.device_model_id
+                      m => m.id === a.deviceModelId
                     )?.name ?? ""
                   : "共通"
 
               const bModel =
-                b.device_model_id
+                b.deviceModelId
                   ? deviceModels.find(
-                      m => m.id === b.device_model_id
+                      m => m.id === b.deviceModelId
                     )?.name ?? ""
                   : "共通"
 
@@ -272,13 +272,13 @@ export default function MaintenanceTypeSettingsModal({
 
               const typeName =
                 deviceTypes.find(
-                  t => t.id === mt.device_type_id
+                  t => t.id === mt.deviceTypeId
                 )?.name ?? "不明"
 
               const modelName =
-                mt.device_model_id
+                mt.deviceModelId
                   ? deviceModels.find(
-                      m => m.id === mt.device_model_id
+                      m => m.id === mt.deviceModelId
                     )?.name
                   : "共通"
 
@@ -310,7 +310,7 @@ export default function MaintenanceTypeSettingsModal({
                     </div>
 
                     <div className="text-sm text-gray-500">
-                      {mt.interval_days}日
+                      {mt.intervalDays}日
                     </div>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export default function MaintenanceTypeSettingsModal({
 
                     const newInterval = prompt(
                       "間隔日数",
-                      mt.interval_days
+                      mt.intervalDays
                     )
 
                     if (newInterval === null) return

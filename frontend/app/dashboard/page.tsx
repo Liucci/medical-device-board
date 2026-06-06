@@ -2063,9 +2063,8 @@ setDeviceList(
           setRooms={setRooms}
          
           maintenanceTypes={maintenanceTypes}
-          addMaintenanceType={addMaintenanceType}
-          renameMaintenanceType={renameMaintenanceType}
-          deleteMaintenanceTypes={deleteMaintenanceTypes}
+          setMaintenanceTypes={setMaintenanceTypes}
+
           histories={histories}
           getWardDeviceList={getWardDeviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}

@@ -40,20 +40,7 @@ type Props = {
   rooms: { roomId: number; wardId: number; roomName: string ;patientName:string}[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
   maintenanceTypes: { id: number; name: string; deviceTypeId: number; deviceModelId: number | null; intervalDays: number }[]
-  addMaintenanceType: (data: {
-                              name: string
-                              deviceTypeId: number
-                              deviceModelId: number | null
-                              intervalDays: number
-                            }) => Promise<void>
-  renameMaintenanceType: (
-                          id: number,
-                          data: {
-                            name: string
-                            intervalDays: number
-                          }
-                        ) => Promise<boolean>
-  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
+  setMaintenanceTypes:React.Dispatch<React.SetStateAction<any[]>>
   histories: any[]
   getWardDeviceList: () => any[]
   getLatestMaintenanceTask:(deviceId?: number) => {
@@ -81,9 +68,7 @@ export default function ButtonPanel({
   rooms,
   setRooms,
   maintenanceTypes,
-  addMaintenanceType,
-  renameMaintenanceType,
-  deleteMaintenanceTypes,
+  setMaintenanceTypes,
   histories,
   getWardDeviceList,
   getLatestMaintenanceTask,
@@ -221,10 +206,9 @@ export default function ButtonPanel({
           setWards={setWards}
           rooms={rooms}
           setRooms={setRooms}
-          addMaintenanceType={addMaintenanceType}
-          renameMaintenanceType={renameMaintenanceType}
-          deleteMaintenanceTypes={deleteMaintenanceTypes}
           maintenanceTypes={maintenanceTypes}
+          setMaintenanceTypes={setMaintenanceTypes}
+
         />
       }
       {openHistoryModal &&
