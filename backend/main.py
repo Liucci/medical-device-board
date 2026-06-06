@@ -15,6 +15,7 @@ from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
 from device_types.fetch_device_type import (fetch_device_types )
 from device_models.fetch_device_models import (fetch_device_models)
+from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
 
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
 from histories.fetch_histories import (fetch_histories)
@@ -26,6 +27,8 @@ from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
 from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest)
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
+from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
+
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -51,6 +54,10 @@ from transactions.device_models.create_device_model_transaction import (create_d
 from transactions.device_models.update_device_model_transaction import update_device_model_transaction
 from transactions.device_models.delete_device_models_transaction import delete_device_models_transaction
 from transactions.device_models.update_device_model_transaction import update_device_model_transaction
+
+from transactions.maintenance_types.create_maintenance_type_transaction import create_maintenance_type_transaction
+from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
+from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -598,37 +605,92 @@ def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
 
 @app.get("/maintenance-types")
 def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+
+    current_user = fetch_current_user(auth_user_id)
 
     if (
         current_user["role"]
         != "admin"
     ):
-
         return {
-
             "success": False,
-
             "error":
             "権限がありません"
         }
 
-    maintenance_types = (
-        fetch_maintenance_types(
+    print("get_maintenance_types")
 
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
-    )
+    return fetch_maintenance_types(current_user["hospital_id"])
 
-    return maintenance_types
 
+@app.post("/maintenance-types")
+def create_maintenance_type_route(maintenance_type: AddMaintenanceTypeRequest, auth_user_id: str = Depends(get_auth_user_id)):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    print("create_maintenance_type")
+
+    return create_maintenance_type_transaction(
+                                                maintenance_type,
+                                                current_user["hospital_id"],
+                                                auth_user_id
+                                              )
+
+
+@app.post("/update-maintenance-type")
+def update_maintenance_type_route(maintenance_type: UpdateMaintenanceTypeRequest, auth_user_id: str = Depends(get_auth_user_id)):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    print("update_maintenance_type")
+
+    return update_maintenance_type_transaction(
+                                                maintenance_type,
+                                                current_user["hospital_id"]
+                                              )
+
+
+@app.post("/delete-maintenance-types")
+def delete_maintenance_types_route(maintenance_types: DeleteMaintenanceTypesRequest, auth_user_id: str = Depends(get_auth_user_id)):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    print("delete_maintenance_types")
+
+    return delete_maintenance_type_transaction(
+                                                maintenance_types,
+                                                current_user["hospital_id"]
+                                              )
 @app.get("/histories")
 def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
     current_user = (

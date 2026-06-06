@@ -46,7 +46,12 @@
 
 ---
 
-| Schema                     | 用途         | Request / Response 内容                                                                                                                                                                                                                                                                                                       |
+|　　                                                                                               | Schema                        | 用途                   | 内容 |
+|-------------------------------|------------------------|------|
+| MaintenanceTypeResponse       | maintenance取得        | id hospital_id name device_type_id device_model_id interval_days |
+| AddMaintenanceTypeRequest     | maintenance追加        | name device_type_id device_model_id interval_days |
+| DeleteMaintenanceTypesRequest | maintenance削除        | ids:list[int] |
+| UpdateMaintenanceTypeRequest  | maintenance更新        | id name interval_days |                                                                                                                                                                                                        |
 | -------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DeviceResponse`           | device取得   | `id` `hospital_id` `type` `model` `asset_type` `status` `stock_area_id` `room_id` `management_number` `serial_number` `note` `rental_start_date` `rental_end_date` `is_under_maintenance` `maintenance_started_at` `maintenance_finished_at` `standby` `standby_started_at` `standby_finished_at` `created_by` `updated_by` |
 | `AddDeviceRequest`         | device追加   | `type` `model` `asset_type` `rental_start_date` `rental_end_date`                                                                                                                                                                                                                                                           |

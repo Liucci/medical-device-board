@@ -1,82 +1,31 @@
-import {
-  MaintenanceType,
-  MaintenanceTypeDB
-} from "../types/maintenanceTypeTypes"
+import {MaintenanceType,MaintenanceTypeDB} from "../types/maintenanceTypeTypes"
 
+export const normalizeMaintenanceType = (m: MaintenanceTypeDB): MaintenanceType => ({
+                                                                                      id: m.id,
+                                                                                      hospitalId: m.hospital_id,
+                                                                                      name: m.name,
+                                                                                      deviceTypeId: m.device_type_id,
+                                                                                      deviceModelId: m.device_model_id,
+                                                                                      intervalDays: m.interval_days,
+                                                                                      warningDays: m.warning_days,
+                                                                                      autoCreateOnDrop: m.auto_create_on_drop,
+                                                                                      isActive: m.is_active,
+                                                                                      createdAt: m.created_at
+                                                                                    })
 
-export const normalizeMaintenanceType = (
-  maintenanceType: MaintenanceTypeDB
-): MaintenanceType => {
+export const toCreateMaintenanceTypeRequest = (m: MaintenanceType) => ({
+                                                                          name: m.name,
+                                                                          device_type_id: m.deviceTypeId,
+                                                                          device_model_id: m.deviceModelId ?? null,
+                                                                          interval_days: m.intervalDays
+                                                                        })
 
-  return {
+export const toUpdateMaintenanceTypeRequest = (m: MaintenanceType) => ({
+                                                                          id: m.id,
+                                                                          name: m.name,
+                                                                          interval_days: m.intervalDays
+                                                                        })
 
-    id:
-      maintenanceType.id,
-
-    hospitalId:
-      maintenanceType.hospital_id,
-
-    name:
-      maintenanceType.name,
-
-    deviceTypeId:
-      maintenanceType.device_type_id,
-
-    deviceModelId:
-      maintenanceType.device_model_id,
-
-    intervalDays:
-      maintenanceType.interval_days,
-
-    warningDays:
-      maintenanceType.warning_days,
-
-    autoCreateOnDrop:
-      maintenanceType.auto_create_on_drop,
-
-    isActive:
-      maintenanceType.is_active,
-
-    createdAt:
-      maintenanceType.created_at
-  }
-}
-
-
-export const toDBMaintenanceType = (
-  maintenanceType: MaintenanceType
-): MaintenanceTypeDB => {
-
-  return {
-
-    id:
-      maintenanceType.id || 0,
-
-    hospital_id:
-      maintenanceType.hospitalId,
-
-    name:
-      maintenanceType.name,
-
-    device_type_id:
-      maintenanceType.deviceTypeId,
-
-    device_model_id:
-      maintenanceType.deviceModelId ?? null,
-
-    interval_days:
-      maintenanceType.intervalDays,
-
-    warning_days:
-      maintenanceType.warningDays ?? null,
-
-    auto_create_on_drop:
-      maintenanceType.autoCreateOnDrop ?? null,
-
-    is_active:
-      maintenanceType.isActive ?? null,
-
-    created_at:
-      maintenanceType.createdAt ?? null
-  }
-}
+export const toDeleteMaintenanceTypesRequest = (ids: number[]) => ({
+                                                                      ids
+                                                                    })

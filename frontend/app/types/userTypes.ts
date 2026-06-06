@@ -7,8 +7,8 @@ export type UserRole =
 
 // DB型
 export type CurrentUserDB = {
-  id: string
-  hospital_id: string
+  id?: string
+  hospital_id?: string
   display_name: string
   role: UserRole
   is_active: boolean |true

@@ -9,7 +9,7 @@ export type MaintenanceTaskStatus =
 export type MaintenanceTask = {
   id?: number
 
-  hospitalId: string
+  hospitalId?: string
 
   deviceId: number
 

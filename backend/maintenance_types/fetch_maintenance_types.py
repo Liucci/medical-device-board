@@ -1,6 +1,4 @@
-from common.supabase_client import (
-    supabase
-)
+from common.supabase_client import (supabase)
 
 def fetch_maintenance_types(hospital_id: str):
     print("fetch_maintenance_types")

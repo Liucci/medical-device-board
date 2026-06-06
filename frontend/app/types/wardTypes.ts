@@ -1,6 +1,6 @@
 export type Ward = {
-  wardId: number
-  hospitalId: string
+  wardId?: number
+  hospitalId?: string
   wardName: string
 }
 

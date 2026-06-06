@@ -1,6 +1,6 @@
 export type DeviceModel = {
-                           id: number
-                           hospitalId: string
+                           id?: number
+                           hospitalId?: string
                            deviceTypeId: number
                            name: string
                            }

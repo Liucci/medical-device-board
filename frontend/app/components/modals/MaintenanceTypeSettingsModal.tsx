@@ -1,37 +1,23 @@
 "use client"
 
 import { useState } from "react"
+import {createMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/createMaintenanceTypeTransaction"
+import {deleteMaintenanceTypesTransaction} from "../../../app/api/transactions/maintenanceTypes/deleteMaintenanceTypesTransaction"
+import {updateMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/updateMaintenanceTypeTransaction"
+
+
 
 type Props = {
   maintenanceTypes: any[]
+  setMaintenanceTypes: any
   deviceTypes: any[]
   deviceModels: any[]
-
-  addMaintenanceType: (data: {
-                              name: string
-                              deviceTypeId: number
-                              deviceModelId: number | null
-                              intervalDays: number
-                            }) => Promise<void>
-
-  renameMaintenanceType: (
-                          id: number,
-                          data: {
-                            name: string
-                            intervalDays: number
-                          }
-                        ) => Promise<boolean>
-
-  deleteMaintenanceTypes: (ids: number[]) => Promise<boolean>
 }
-
 export default function MaintenanceTypeSettingsModal({
   maintenanceTypes,
+  setMaintenanceTypes,
   deviceTypes,
   deviceModels,
-  addMaintenanceType,
-  renameMaintenanceType,
-  deleteMaintenanceTypes
 }: Props) {
 
   const [selectedTypeId, setSelectedTypeId] = useState<number | "">("")
@@ -49,6 +35,7 @@ export default function MaintenanceTypeSettingsModal({
 
   // 🔽 追加
   const handleAdd = async () => {
+
     if (selectedTypeId === "") {
       alert("機種を選択してください")
       return
@@ -59,21 +46,23 @@ export default function MaintenanceTypeSettingsModal({
       return
     }
 
-    await addMaintenanceType({
-      name,
-      deviceTypeId: selectedTypeId,
-      deviceModelId:
-        selectedModelId === ""
-          ? null
-          : selectedModelId,
-      intervalDays
-    })
+    await createMaintenanceTypeTransaction({
+                                              maintenanceType: {
+                                                name,
+                                                deviceTypeId: selectedTypeId,
+                                                deviceModelId:
+                                                  selectedModelId === ""
+                                                    ? null
+                                                    : selectedModelId,
+                                                intervalDays
+                                              },
+                                              setMaintenanceTypes
+                                            })
 
     setName("")
     setIntervalDays(30)
     setSelectedModelId("")
   }
-
   // 🔽 チェック切替
   const toggleCheck = (id: number) => {
     setSelectedIds(prev =>
@@ -92,13 +81,15 @@ export default function MaintenanceTypeSettingsModal({
       "選択したメンテ種別を削除しますか？"
     )
     if (!ok) return
-    const success =
-      await deleteMaintenanceTypes(
-        selectedIds
-      )
-    if (!success) return
-    setSelectedIds([])
+    await deleteMaintenanceTypesTransaction({
+                                              ids: selectedIds,
+                                              setMaintenanceTypes
+                                            })
+    setSelectedIds([])    
   }
+
+
+  
 
   return (
     <div className="space-y-6">
@@ -342,13 +333,17 @@ export default function MaintenanceTypeSettingsModal({
 
                     if (newInterval === null) return
 
-                    await renameMaintenanceType(
-                      mt.id,
-                      {
-                        name: newName,
-                        intervalDays: Number(newInterval)
-                      }
-                    )
+
+
+                      await updateMaintenanceTypeTransaction({
+                                                                maintenanceType: {
+                                                                  ...mt,
+                                                                  name: newName,
+                                                                  intervalDays: Number(newInterval)
+                                                                },
+                                                                setMaintenanceTypes
+                                                              })
+
                   }}
                   className="bg-gray-200 px-2 py-1 rounded"
                 >

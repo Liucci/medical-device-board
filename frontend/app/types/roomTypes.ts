@@ -1,7 +1,7 @@
 
 export type Room={
-  roomId: number
-  hospitalId: string
+  roomId?: number
+  hospitalId?: string
   wardId: number
   roomName: string
   patientName?: string
