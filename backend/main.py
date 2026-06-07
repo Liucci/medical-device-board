@@ -8,7 +8,7 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
 from devices.fetch_devices import (fetch_devices)
-from devices.add_devices import (add_device)
+from devices.add_device import (add_device)
 from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
@@ -17,11 +17,22 @@ from device_types.fetch_device_type import (fetch_device_types )
 from device_models.fetch_device_models import (fetch_device_models)
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
 
+from tasks.fetch_maintenance_tasks_by_device_id import (fetch_maintenance_tasks_by_device_id)
 from tasks.fetch_maintenance_tasks import (fetch_maintenance_tasks)
-from histories.fetch_histories import (fetch_histories)
+from histories.fetch_histories import (fetch_device_histories)
 from maintenance_types.fetch_maintenance_types import (fetch_maintenance_types)
 
-from schemas.device_schemas import (AddDeviceRequest,DeleteDeviceRequest,UpdateDeviceInfoRequest)
+from schemas.device_schemas import (
+                                        AddDeviceRequest,
+                                        DeleteDeviceRequest,
+                                        UpdateManagementNumberRequest,
+                                        UpdateSerialNumberRequest,
+                                        UpdateNoteRequest,
+                                        StartMaintenanceRequest,
+                                        FinishMaintenanceRequest,
+                                        StartStandbyRequest,
+                                        FinishStandbyRequest
+                                    )
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
@@ -34,6 +45,13 @@ from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
 from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
+from transactions.devices.update_management_number_transaction import (update_management_number_transaction)
+from transactions.devices.update_serial_number_transaction import (update_serial_number_transaction)
+from transactions.devices.update_note_transaction import (update_note_transaction)
+from transactions.devices.start_maintenance_transaction import (start_maintenance_transaction)
+from transactions.devices.finish_maintenance_transaction import (finish_maintenance_transaction)
+from transactions.devices.start_standby_transaction import (start_standby_transaction)
+from transactions.devices.finish_standby_transaction import (finish_standby_transaction)
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -115,6 +133,27 @@ def root():
         "message":
         "backend running"
     }
+#リロードの際に必要なデータをDBからまとめて取得するAPI
+@app.get("/init-dashboard")
+def init_dashboard(
+    auth_user_id: str = Depends(
+        get_auth_user_id
+    )
+):
+
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    return fetch_init_dashboard(
+        hospital_id=
+            current_user[
+                "hospital_id"
+            ]
+    )
+
 
 @app.get("/users")
 def get_users():
@@ -148,6 +187,53 @@ def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
     return devices
+
+#機器アイコンの新規登録用のAPI
+@app.post("/create-device-transaction")
+def create_device_transaction_route(
+                                    body: AddDeviceRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                   ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
+        return {
+                    "success": False,
+                    "error": "権限がありません"
+               }
+
+    create_device_transaction(
+                            device=body,
+                            hospital_id=current_user["hospital_id"],
+                            user_id=current_user["id"],
+                            stock_area_id=1,
+                            status="stock",
+                            action_type="device_created",
+                            message="機器を新規登録"
+                          )
+
+#機器アイコンを削除するAPI
+@app.post("/delete-device-transaction")
+def delete_device_transaction_route(
+                                        body: DeleteDeviceRequest,
+                                        auth_user_id: str = Depends(get_auth_user_id)
+                                   ):
+    current_user = fetch_current_user(auth_user_id)
+    print("current_user")
+    if current_user["role"] != "admin":
+        return {"error": "権限がありません"}
+
+    delete_device_transaction(
+                            device=body,
+                            hospital_id=current_user["hospital_id"],
+                            user_id=current_user["id"],
+                            action_type="device_deleted",
+                            message="機器を削除"
+                         )    
+
+
+
 
 
 @app.get("/stock-areas")
@@ -572,7 +658,10 @@ def update_device_model_route(
                                           )
 
 @app.get("/tasks")
-def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
+def get_tasks(
+
+    auth_user_id: str = Depends(get_auth_user_id)
+):
     current_user = (
         fetch_current_user(
             auth_user_id
@@ -583,17 +672,13 @@ def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
         current_user["role"]
         != "admin"
     ):
-      return {
-
+        return {
             "success": False,
-
-            "error":
-            "権限がありません"
+            "error": "権限がありません"
         }
 
     tasks = (
         fetch_maintenance_tasks(
-
             hospital_id=
             current_user[
                 "hospital_id"
@@ -601,7 +686,7 @@ def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    return  tasks
+    return tasks
 
 @app.get("/maintenance-types")
 def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
@@ -713,7 +798,7 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
         }
 
     histories = (
-        fetch_histories(
+        fetch_device_histories(
 
             hospital_id=
             current_user[
@@ -724,74 +809,7 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
 
     return histories
 
-#機器アイコンの新規登録用のAPI
-@app.post("/create-device-transaction")
-def create_device_transaction_route(
-                                    body: AddDeviceRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
-                                   ):
 
-    current_user = fetch_current_user(auth_user_id)
-
-    if current_user["role"] != "admin":
-        return {
-                    "success": False,
-                    "error": "権限がありません"
-               }
-
-    create_device_transaction(
-                                device=body,
-                                hospital_id=current_user["hospital_id"],
-                                user_id=current_user["id"],
-                                stock_area_id=1,
-                                status="stock"
-                              )
-
-#リロードの際に必要なデータをDBからまとめて取得するAPI
-@app.get("/init-dashboard")
-def init_dashboard(
-    auth_user_id: str = Depends(
-        get_auth_user_id
-    )
-):
-
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-
-    return fetch_init_dashboard(
-        hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-    )
-
-#機器アイコンを削除するAPI
-@app.post("/delete-device-transaction")
-def delete_device_transaction_route(
-                                        body: DeleteDeviceRequest,
-                                        auth_user_id: str = Depends(
-                                                                    get_auth_user_id
-                                                                  )
-                                   ):
-
-    current_user = fetch_current_user(auth_user_id)
-
-    print("current_user")
-
-    if current_user["role"] != "admin":
-
-        return {
-                    "error": "権限がありません"
-               }
-
-    delete_device_transaction(
-                                device=body,
-                                hospital_id=current_user["hospital_id"],
-                                user_id=current_user["id"],
-                             )
 #stock_area追加用API
 @app.post("/create-stock-area-transaction")
 def create_stock_area_transaction_route(
@@ -836,16 +854,149 @@ def update_stock_area_transaction_route(
                                     current_user=current_user
                                     )
 
+@app.post("/update-management-number")
+def update_management_number_route(
+                                     body: UpdateManagementNumberRequest,
+                                     auth_user_id: str = Depends(get_auth_user_id)
+                                   ):
 
+    current_user = fetch_current_user(auth_user_id)
 
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
 
+    update_management_number_transaction(
+                                            device=body,
+                                            hospital_id=current_user["hospital_id"],
+                                            user_id=current_user["id"],
+                                            action_type="management_number_updated",
+                                            message="管理番号を更新"
+                                         )
 
+@app.post("/update-serial-number")
+def update_serial_number_route(
+                                 body: UpdateSerialNumberRequest,
+                                 auth_user_id: str = Depends(get_auth_user_id)
+                               ):
 
+    current_user = fetch_current_user(auth_user_id)
 
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
 
+    update_serial_number_transaction(
+                                        device=body,
+                                        hospital_id=current_user["hospital_id"],
+                                        user_id=current_user["id"],
+                                        action_type="serial_number_updated",
+                                        message="シリアル番号を更新"
+                                     )
 
+@app.post("/update-note")
+def update_note_route(
+                        body: UpdateNoteRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
+                      ):
 
+    current_user = fetch_current_user(auth_user_id)
 
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
 
+    update_note_transaction(
+                              device=body,
+                              hospital_id=current_user["hospital_id"],
+                              user_id=current_user["id"],
+                              action_type="note_updated",
+                              message="備考を更新"
+                           )
 
+@app.post("/start-maintenance")
+def start_maintenance_route(
+                              body: StartMaintenanceRequest,
+                              auth_user_id: str = Depends(get_auth_user_id)
+                            ):
 
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
+
+    start_maintenance_transaction(
+                                    device=body,
+                                    hospital_id=current_user["hospital_id"],
+                                    user_id=current_user["id"],
+                                    action_type="maintenance_started",
+                                    message="保守開始"
+                                 )
+
+@app.post("/finish-maintenance")
+def finish_maintenance_route(
+                               body: FinishMaintenanceRequest,
+                               auth_user_id: str = Depends(get_auth_user_id)
+                             ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
+
+    finish_maintenance_transaction(
+                                     device=body,
+                                     hospital_id=current_user["hospital_id"],
+                                     user_id=current_user["id"],
+                                     action_type="maintenance_finished",
+                                     message="保守終了"
+                                  )
+
+@app.post("/start-standby")
+def start_standby_route(
+                          body: StartStandbyRequest,
+                          auth_user_id: str = Depends(get_auth_user_id)
+                        ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
+
+    start_standby_transaction(
+                                device=body,
+                                hospital_id=current_user["hospital_id"],
+                                user_id=current_user["id"],
+                                action_type="standby_started",
+                                message="スタンバイ開始"
+                             )
+
+@app.post("/finish-standby")
+def finish_standby_route(
+                           body: FinishStandbyRequest,
+                           auth_user_id: str = Depends(get_auth_user_id)
+                         ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "admin":
+        return {
+                    "error": "権限がありません"
+               }
+
+    finish_standby_transaction(
+                                 device=body,
+                                 hospital_id=current_user["hospital_id"],
+                                 user_id=current_user["id"],
+                                 action_type="standby_finished",
+                                 message="スタンバイ終了"
+                              )
