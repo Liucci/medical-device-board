@@ -32,12 +32,12 @@ from maintenance_types.fetch_maintenance_types import (
 )
 
 from histories.fetch_histories import (
-    fetch_histories
+    fetch_device_histories
 )
 
 
 def fetch_init_dashboard(
-                         hospital_id: str
+                         hospital_id: str,
                          ):
 
     devices = fetch_devices(
@@ -74,36 +74,18 @@ def fetch_init_dashboard(
         )
     )
 
-    histories = fetch_histories(
+    histories = fetch_device_histories(
         hospital_id
     )
 
     return {
-
-        "devices":
-            devices,
-
-        "stock_areas":
-            stock_areas,
-
-        "wards":
-            wards,
-
-        "rooms":
-            rooms,
-
-        "device_types":
-            device_types,
-
-        "device_models":
-            device_models,
-
-        "tasks":
-            tasks,
-
-        "maintenance_types":
-            maintenance_types,
-
-        "histories":
-            histories
+        "devices": devices,
+        "stock_areas": stock_areas,
+        "wards": wards,
+        "rooms": rooms,
+        "device_types": device_types,
+        "device_models": device_models,
+        "tasks": tasks,
+        "maintenance_types": maintenance_types,
+        "histories": histories,
     }

@@ -55,27 +55,58 @@ WardDB
 
 ---
 
-# 2 Mapper Layer
+# 2 Mapper Responsibility
+
+Mapperは変換責務のみを持つ。
+
+## DB → UI
 
 例
 
-```text
-utils/
-└─ wardsMapper.ts
-```
+normalizeMaintenanceType()
 
 責務
 
-* DB → UI変換
-* UI → DB変換
+DBレスポンスをFrontend型へ変換する。
+
+---
+
+## UI → API Request
 
 例
 
-```text
-normalizeWard()
-```
+toCreateMaintenanceTypeRequest()
+toUpdateMaintenanceTypeRequest()
+toDeleteMaintenanceTypesRequest()
+
+責務
+
+Frontend型をBackend Schema(Request)へ変換する。
 
 ---
+
+Transaction Rule
+
+TransactionはRequest Objectを直接組み立てない。
+
+必ずMapperを経由する。
+
+OK
+
+Transaction
+↓
+toCreateMaintenanceTypeRequest
+↓
+POST
+
+NG
+
+Transaction
+↓
+body:{
+  name: xxx,
+  interval_days: xxx
+}
 
 # 3 Fetch Layer
 

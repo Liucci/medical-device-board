@@ -1,27 +1,31 @@
 from common.supabase_client import supabase
-from devices.delete_devices import delete_device
-from tasks.delete_maintenance_tasks import delete_maintenance_tasks
+from devices.delete_device import delete_device
+from tasks.delete_device_maintenance_tasks import delete_device_maintenance_tasks
 from schemas.device_schemas import DeleteDeviceRequest
 
 def delete_device_transaction(
                                 device: DeleteDeviceRequest,
                                 hospital_id: str,
-                                user_id: str
+                                user_id: str,
+                                action_type: str,
+                                message: str
                               ):
 
     print("delete_device_transaction")
 
-    delete_maintenance_tasks(device_id=device.id)
+    supabase.table("device_histories").insert({
+                                                "hospital_id": hospital_id,
+                                                "device_id": device.id,
+                                                "action_by": user_id,
+                                                "action_type": action_type,
+                                                "message": message
+                                              }).execute()
 
+    delete_device_maintenance_tasks(
+                                          device_id=device.id,
+                                          hospital_id=hospital_id
+                                  )
     delete_device(
                     device=device,
                     hospital_id=hospital_id
                  )
-
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "user_id": user_id,
-                                                "action_type": "delete",
-                                                "message": "device delete"
-                                              }).execute()

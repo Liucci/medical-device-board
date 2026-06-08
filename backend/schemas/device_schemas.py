@@ -56,11 +56,17 @@ class DeleteDeviceRequest(BaseModel):
 # =========================
 
 
-class UpdateDeviceInfoRequest(BaseModel):
+class UpdateManagementNumberRequest(BaseModel):
     id: int
-    management_number: str | None = None
-    serial_number: str | None = None
-    note: str | None = None
+    management_number: str
+
+class UpdateSerialNumberRequest(BaseModel):
+    id: int
+    serial_number: str
+
+class UpdateNoteRequest(BaseModel):
+    id: int
+    note: str
 
 
 # =========================

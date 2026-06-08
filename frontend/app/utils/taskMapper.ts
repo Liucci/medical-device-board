@@ -1,72 +1,30 @@
-// taskMapper.ts
+import {MaintenanceTask,MaintenanceTaskDB} from "../types/taskTypes"
 
-import {
-  MaintenanceTask,
-  MaintenanceTaskDB
-} from "../types/taskTypes"
+export const normalizeMaintenanceTask = (t: MaintenanceTaskDB): MaintenanceTask => ({
+                                                                                      id: t.id,
+                                                                                      hospitalId: t.hospital_id,
+                                                                                      deviceId: t.device_id,
+                                                                                      maintenanceTypeId: t.maintenance_type_id,
+                                                                                      dueAt: t.due_at,
+                                                                                      status: t.status,
+                                                                                      completedAt: t.completed_at,
+                                                                                      createdAt: t.created_at
+                                                                                    })
 
+export const toCreateMaintenanceTaskRequest = (t: MaintenanceTask) => ({
+                                                                          device_id: t.deviceId,
+                                                                          maintenance_type_id: t.maintenanceTypeId,
+                                                                          due_at: t.dueAt
+                                                                        })
 
-export const normalizeMaintenanceTask = (
-  task: MaintenanceTaskDB
-): MaintenanceTask => {
+export const toStartMaintenanceTaskRequest = (taskId: number) => ({
+                                                                     id: taskId
+                                                                   })
 
-  return {
+export const toFinishMaintenanceTaskRequest = (taskId: number) => ({
+                                                                      id: taskId
+                                                                    })
 
-    id:
-      task.id,
-
-    hospitalId:
-      task.hospital_id,
-
-    deviceId:
-      task.device_id,
-
-    maintenanceTypeId:
-      task.maintenance_type_id,
-
-    dueAt:
-      task.due_at,
-
-    status:
-      task.status,
-
-    completedAt:
-      task.completed_at,
-
-    createdAt:
-      task.created_at
-  }
-}
-
-
-export const toDBMaintenanceTask = (
-  task: MaintenanceTask
-): MaintenanceTaskDB => {
-
-  return {
-
-    id:
-      task.id || 0,
-
-    hospital_id:
-      task.hospitalId,
-
-    device_id:
-      task.deviceId,
-
-    maintenance_type_id:
-      task.maintenanceTypeId,
-
-    due_at:
-      task.dueAt,
-
-    status:
-      task.status,
-
-    completed_at:
-      task.completedAt ?? null,
-
-    created_at:
-      task.createdAt ?? null
-  }
-}
+export const toDeleteMaintenanceTasksRequest = (ids: number[]) => ({
+                                                                      ids
+                                                                    })

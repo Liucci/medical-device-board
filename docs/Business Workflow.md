@@ -61,3 +61,140 @@
 １７、画面縮小拡大
     ・病棟エリアまたはストックエリアに配置している機器アイコンを拡大縮小できる
 １８、
+
+19. メンテナンスタスク
+
+・機器アイコンを病棟へ配置した際、該当機器に紐づく maintenance type を元に maintenance task を自動生成する
+・task の期限(due_at)は maintenance type の interval_days から算出する
+・機器詳細modalには該当機器の maintenance task 一覧を表示する
+・task の実施ボタン押下時、completed_at と completed_by を記録する
+・warning_days 以内になると機器アイコンのメンテナンス警告インジケータを点灯する
+・機器を病棟から stock area に戻した場合、未完了 task を削除する
+・機器を削除した場合、関連する maintenance task を削除する
+・maintenance task の直接作成・編集は行わない
+・maintenance task はシステムが自動生成・自動削除する
+
+
+
+# Device History
+
+## Purpose
+
+機器操作履歴を永続保存する。
+
+履歴は監査ログとして扱い、原則削除しない。
+
+関連する Device・User・Hospital が削除された場合でも履歴は保持する。
+
+---
+
+## History Record Timing
+
+以下の操作実行時に device_histories へ記録する。
+
+### Device
+
+* 機器追加
+* 機器削除
+* 機器を病室へ移動
+* 機器をStock Areaへ移動
+
+### Device Information
+
+* 管理番号変更
+* シリアル番号変更
+* 備考変更
+
+### Room
+
+* 患者名入力
+* 患者名変更
+
+### Maintenance
+
+* 保守開始
+* 保守終了
+
+### Standby
+
+* スタンバイ開始
+* スタンバイ終了
+
+---
+
+## Action Type Definition
+
+action_type は以下の値を使用する。
+
+```text
+device_created
+device_deleted
+
+moved_to_room
+moved_to_stock
+
+management_number_updated
+serial_number_updated
+note_updated
+
+patient_name_updated
+
+maintenance_started
+maintenance_finished
+
+standby_started
+standby_finished
+```
+
+---
+
+## Stored Snapshot Information
+
+履歴には操作時点の情報を保存する。
+
+```text
+device_type_name
+device_model_name
+room_name
+stock_area_name
+patient_name
+management_number
+serial_number
+note
+```
+
+これにより元データが削除された場合でも履歴内容を参照できる。
+
+---
+
+## Design Rule
+
+History作成は Transaction Layer の責務とする。
+
+CRUD Layer で History を追加してはならない。
+
+例
+
+```text
+move_device_transaction
+↓
+update_device
+↓
+add_device_history
+```
+
+```text
+delete_device_transaction
+↓
+add_device_history
+↓
+delete_device
+```
+
+```text
+start_maintenance_transaction
+↓
+update_device
+↓
+add_device_history
+```

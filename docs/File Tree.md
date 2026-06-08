@@ -16,7 +16,7 @@
 │    │   └─ supabase_client.py
 │    ├─ devices/
 │    │   ├─ add_devices.py
-│    │   ├─ delete_devices.py
+│    │   ├─ delete_device.py
 │    │   ├─ fetch_devices.py
 │    │   └─ rename_devices.py
 │    ├─ histories/

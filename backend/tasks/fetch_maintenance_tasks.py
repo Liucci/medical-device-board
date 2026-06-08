@@ -1,17 +1,12 @@
-# fetch_maintenance_tasks.py
+from common.supabase_client import supabase
 
-from common.supabase_client import (
-    supabase
-)
+def fetch_maintenance_tasks(
+    hospital_id: str
+):
 
-
-def fetch_maintenance_tasks(hospital_id: str):
-    print("fetch_maintenance_tasks")    
     response = (
         supabase
-        .table(
-            "device_maintenance_tasks"
-        )
+        .table("device_maintenance_tasks")
         .select("*")
         .eq(
             "hospital_id",
@@ -19,5 +14,5 @@ def fetch_maintenance_tasks(hospital_id: str):
         )
         .execute()
     )
-    return response.data
 
+    return response.data

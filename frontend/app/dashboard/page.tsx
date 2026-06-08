@@ -1376,6 +1376,19 @@ export default function Page() {
   }
 
   
+ const deleteDevice = async (
+  deviceId: number
+) => {
+
+  await deleteDeviceTransaction({
+    deviceId,
+    setDeviceList,
+    setTasks,
+    setHistories
+  })
+} 
+
+
   //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
   const addMaintenanceType = async (
                                     data: {
@@ -1999,6 +2012,7 @@ setDeviceList(
           deviceList={deviceList}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
+          deleteDevice={deleteDevice}
           wards={wards}
           startDrag={startDrag}
           draggingDevice={draggingDevice}
@@ -2031,6 +2045,8 @@ setDeviceList(
           stockAreas={stockAreas}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
+          deleteDevice={deleteDevice}
+
           managementNumber={managementNumber}
           serialNumber={serialNumber}
           startDrag={startDrag}
