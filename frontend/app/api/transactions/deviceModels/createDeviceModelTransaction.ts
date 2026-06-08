@@ -1,6 +1,9 @@
 import { API_BASE_URL } from "../../client"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
-import { normalizeDeviceModel } from "@/app/utils/deviceModelMapper"
+import {
+         normalizeDeviceModel,
+         toCreateDeviceModelRequest
+       } from "@/app/utils/deviceModelMapper"
 
 export async function createDeviceModelTransaction(
                                                     deviceTypeId: number,
@@ -8,7 +11,8 @@ export async function createDeviceModelTransaction(
                                                     setDeviceModels: any
                                                   )
 {
-    if (!name.trim()) {return}
+    const trimmed = name.trim()
+    if (!trimmed) {return}
 
     const token = localStorage.getItem("access_token")
     if (!token) {return}
@@ -21,17 +25,19 @@ export async function createDeviceModelTransaction(
                                 "Content-Type":"application/json",
                                 "Authorization":`Bearer ${token}`
                               },
-                    body: JSON.stringify({
-                                            device_type_id: deviceTypeId,
-                                            name: name
-                                          })
+                    body: JSON.stringify(
+                                            toCreateDeviceModelRequest(
+                                                                         deviceTypeId,
+                                                                         trimmed
+                                                                       )
+                                          )
                   }
                 )
 
     const deviceModels = await getDeviceModelsFromApi()
     if (!deviceModels) {return}
-    console.log("typeof setDeviceModels", typeof setDeviceModels)
-    console.log("setDeviceModels", setDeviceModels)
 
-    setDeviceModels(deviceModels.map(normalizeDeviceModel))
+    setDeviceModels(
+                      deviceModels.map(normalizeDeviceModel)
+                   )
 }
