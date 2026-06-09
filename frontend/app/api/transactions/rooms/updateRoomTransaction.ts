@@ -1,45 +1,52 @@
-
 import { API_BASE_URL } from "../../client"
-import { getRoomsFromApi } from "../../../api/rooms/fetchRooms"
-import { normalizeRoom,toDBRoom } from "../../../utils/roomsMapper"
+import { UpdateRoomType } from "../../../types/roomTypes"
+import { getRoomsFromApi } from "../../rooms/fetchRooms"
 
-export async function updateRoomTransaction(
-                                              room:{
-                                                id:number
-                                                name:string
-                                              },
-                                              setRooms:any
-                                            )
+import {
+         normalizeRoom,
+         toUpdateRoomRequest
+       } from "../../../utils/roomsMapper"
 
+type UpdateRoomTransactionParams = {
+                                     room: UpdateRoomType
+                                     setRooms: any
+                                   }
+
+export async function updateRoomTransaction({
+                                               room,
+                                               setRooms
+                                             }: UpdateRoomTransactionParams
+                                           )
 {
-    console.log("update room")
+  console.log("updateRoomTransaction")
 
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
+  const response = await fetch(
+                                 `${API_BASE_URL}/update-room`,
+                                 {
+                                   method: "POST",
+                                   headers: {
+                                               "Content-Type":"application/json",
+                                               Authorization:`Bearer ${token}`
+                                             },
+                                   body: JSON.stringify(
+                                                           toUpdateRoomRequest(
+                                                                                 room
+                                                                               )
+                                                         )
+                                 }
+                               )
 
-    console.log(JSON.stringify({
-                              id:room.id,
-                              name:room.name
-                            }))
-    const response = await fetch(
-                                    `${API_BASE_URL}/update-room`,
-                                    {
-                                      method:"POST",
-                                      headers:{
-                                                  "Content-Type":"application/json",
-                                                  Authorization:`Bearer ${token}`
-                                                },
-                                      body:JSON.stringify({
-                                                            id:room.id,
-                                                            name:room.name
-                                                          })
-                                    }
-                                  )
-    console.log(response.status)
-    const rooms = await getRoomsFromApi()
+  const rooms =
+    await getRoomsFromApi()
 
-    setRooms(rooms.map(normalizeRoom))
-    
-    return await response.json()
+  setRooms(
+             rooms.map(
+                        normalizeRoom
+                      )
+           )
+
+  return await response.json()
 }

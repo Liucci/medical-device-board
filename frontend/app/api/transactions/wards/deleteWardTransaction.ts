@@ -1,36 +1,71 @@
 import { API_BASE_URL } from "../../client"
-import { normalizeWard } from "@/app/utils/wardsMapper"
-import { getWardsFromApi }from "../../wards/fetchWards"
-import { normalizeRoom } from "@/app/utils/roomsMapper"
-import { getRoomsFromApi }from "../../rooms/fetchRooms"
+import { DeleteWardsType } from "../../../types/wardTypes"
 
-export async function deleteWardTransaction(
-                                              id: number,
-                                            setWards:any,  
-                                            setRooms:any,
-                                            )
- {
-    console.log("deleteWardTransaction")
-    if (!confirm("病棟を削除すると部屋も削除されます。よろしいですか？")
-    ) {return}
+import { getWardsFromApi } from "../../wards/fetchWards"
+import { getRoomsFromApi } from "../../rooms/fetchRooms"
 
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+import {
+         normalizeWard,
+         toDeleteWardsRequest
+       } from "../../../utils/wardsMapper"
 
-    await fetch(
-                  `${API_BASE_URL}/delete-ward`,
-                  {
-                    method: "POST",
-                    headers: {
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body: JSON.stringify({id})
-                  }
-                )
-    const wards = await getWardsFromApi()
-    setWards(wards.map(normalizeWard))
-    const rooms = await getRoomsFromApi()
-    setRooms(rooms.map(normalizeRoom))
+import { normalizeRoom } from "../../../utils/roomsMapper"
 
-            }
+type DeleteWardTransactionParams = {
+                                     ward: DeleteWardsType
+                                     setWards: any
+                                     setRooms: any
+                                   }
+
+export async function deleteWardTransaction({
+                                               ward,
+                                               setWards,
+                                               setRooms
+                                             }: DeleteWardTransactionParams
+                                           )
+{
+  console.log("deleteWardTransaction")
+
+  if (
+       !confirm(
+                 "病棟を削除すると部屋も削除されます。よろしいですか？"
+               )
+     ) {return}
+
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
+
+  await fetch(
+                `${API_BASE_URL}/delete-ward`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toDeleteWardsRequest(
+                                                                 ward
+                                                               )
+                                        )
+                }
+              )
+
+  const wards =
+    await getWardsFromApi()
+
+  setWards(
+             wards.map(
+                        normalizeWard
+                      )
+           )
+
+  const rooms =
+    await getRoomsFromApi()
+
+  setRooms(
+             rooms.map(
+                        normalizeRoom
+                      )
+           )
+}

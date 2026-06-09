@@ -1,28 +1,50 @@
 import {
-          Room,
-          RoomDB
-        } from "../types/roomTypes"
+         RoomType,
+         RoomDBType,
+         CreateRoomType,
+         UpdateRoomType,
+         UpdateRoomPatientType,
+         DeleteRoomsType
+       } from "../types/roomTypes"
 
-//DB情報をUI用に変換
+// DB → UI
 export const normalizeRoom = (
-                                r: RoomDB
-                              ): Room => ({
-                                            roomId: r.id,
-                                            hospitalId: r.hospital_id,
-                                            wardId: r.ward_id,
-                                            roomName: r.name,
-                                            patientName: r.patient_name ?? ""
+                                r: RoomDBType
+                              ): RoomType => ({
+                                                 id: r.id,
+                                                 hospitalId: r.hospital_id,
+                                                 wardId: r.ward_id,
+                                                 name: r.name,
+                                                 patientName: r.patient_name ?? ""
+                                               })
+
+// Create
+export const toCreateRoomRequest = (
+                                      room: CreateRoomType
+                                    ) => ({
+                                            ward_id: room.wardId,
+                                            name: room.name
                                           })
 
-//UI情報をDB用に変換
-export const toDBRoom = (
-                          r: Room
-                        ): RoomDB => ({
-                                        id: r.roomId,
-                                        hospital_id: r.hospitalId,
-                                        ward_id: r.wardId,
-                                        name: r.roomName,
-                                        patient_name: r.patientName
-                                      })
+// Update
+export const toUpdateRoomRequest = (
+                                      room: UpdateRoomType
+                                    ) => ({
+                                            id: room.id,
+                                            name: room.name
+                                          })
 
-                                      
+// Patient Update
+export const toUpdateRoomPatientRequest = (
+                                             room: UpdateRoomPatientType
+                                           ) => ({
+                                                   id: room.id,
+                                                   patient_name: room.patientName
+                                                 })
+
+// Delete
+export const toDeleteRoomsRequest = (
+                                       rooms: DeleteRoomsType
+                                     ) => ({
+                                             ids: rooms.ids
+                                           })

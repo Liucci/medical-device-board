@@ -1,21 +1,22 @@
 import { useState } from "react"
+
+import { WardType } from "../../types/wardTypes"
+import { RoomType } from "../../types/roomTypes"
+
 import { createWardTransaction } from "../../api/transactions/wards/createWardTransaction"
 import { deleteWardTransaction } from "../../api/transactions/wards/deleteWardTransaction"
-import{getWardsFromApi} from  "../../api/wards/fetchWards"
-import{getRoomsFromApi} from  "../../api/rooms/fetchRooms"
-import {normalizeWard} from "../../utils/wardsMapper"
-import {normalizeRoom} from "../../utils/roomsMapper"
-import { updateWardTransaction } from "../../../app/api/transactions/wards/updateWardTransaction"
-import { createRoomTransaction } from "../../../app/api/transactions/rooms/createRoomTransaction"
-import { updateRoomTransaction } from "../../../app/api/transactions/rooms/updateRoomTransaction"
-import { deleteRoomsTransaction } from "../../../app/api/transactions/rooms/deleteRoomsTransaction"
+import { updateWardTransaction } from "../../api/transactions/wards/updateWardTransaction"
 
+import { createRoomTransaction } from "../../api/transactions/rooms/createRoomTransaction"
+import { updateRoomTransaction } from "../../api/transactions/rooms/updateRoomTransaction"
+import { deleteRoomsTransaction } from "../../api/transactions/rooms/deleteRoomsTransaction"
 
 type Props = {
-  wards: { wardId: number; wardName: string }[]
-  setWards:React.Dispatch<React.SetStateAction<any[]>>
-  rooms: { roomId: number; roomName: string; wardId: number }[]
-  setRooms:React.Dispatch<React.SetStateAction<any[]>>
+  wards: WardType[]
+  setWards: React.Dispatch<React.SetStateAction<any[]>>
+
+  rooms: RoomType[]
+  setRooms: React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export default function WardAreaSettingsModal({
@@ -31,156 +32,223 @@ export default function WardAreaSettingsModal({
   const [checkedRoomIds, setCheckedRoomIds] = useState<number[]>([])
 
   // ===== Ward =====
-  //ward追加
-  const handleAddWard = async() => {
-    await createWardTransaction( 
-                                newWardName,
-                                setNewWardName,
-                                setWards
-                              )
+
+  const handleAddWard = async () => {
+    await createWardTransaction({
+                                   ward: {
+                                           name: newWardName
+                                         },
+                                   setWards,
+                                   onClose: () => setNewWardName("")
+                                 })
   }
-  // ward名前変更（prompt使用）
-  const handleupdateWard = async() => {
-    // selectedWardIdがnullのときは何もしない
-    if (!selectedWardId) return
-    // selectedWardIdに対応する病棟を見つける
-    const ward = wards.find(w => w.wardId === selectedWardId)
-    if (!ward) return
-    // promptで新しい名前を入力してもらう
-    const name = prompt("新しい病棟名", ward.wardName)
-    if (!name) return
-    // updateWard関数を呼び出し、nameとidを渡す
-    await updateWardTransaction(selectedWardId, name,setWards)
+
+  const handleUpdateWard = async () => {
+    if (!selectedWardId) {return}
+
+    const ward =
+      wards.find(
+                  w => w.id === selectedWardId
+                )
+
+    if (!ward) {return}
+
+    const name =
+      prompt(
+               "新しい病棟名",
+               ward.name
+             )
+
+    if (!name) {return}
+
+    await updateWardTransaction({
+                                   ward: {
+                                           id: selectedWardId,
+                                           name
+                                         },
+                                   setWards
+                                 })
   }
-// ward削除
+
   const handleDeleteWard = async () => {
-      if (!selectedWardId) {return}
-      await deleteWardTransaction(selectedWardId,
-                                    setWards,
-                                    setRooms
-                                  )
-      setSelectedWardId(null)
-  }  
-  // ===== Room =====
-  // 選択中の病棟に属する部屋だけ表示
-  const filteredRooms = rooms
-    .filter(r => r.wardId === selectedWardId)
-    .sort((a, b) => a.roomName.localeCompare(b.roomName, "ja"))
-  // チェック切り替え
-  const toggleRoom = (roomId: number) => {
-    setCheckedRoomIds(prev =>
-      prev.includes(roomId)
-        ? prev.filter(i => i !== roomId)
-        : [...prev, roomId]
-    )
+    if (!selectedWardId) {return}
+
+    await deleteWardTransaction({
+                                   ward: {
+                                           ids: [selectedWardId]
+                                         },
+                                   setWards,
+                                   setRooms
+                                 })
+
+    setSelectedWardId(null)
   }
-  // 部屋追加
+
+  // ===== Room =====
+
+  const filteredRooms =
+    rooms
+      .filter(
+                r => r.wardId === selectedWardId
+             )
+      .sort(
+              (a,b) =>
+                a.name.localeCompare(
+                                      b.name,
+                                      "ja"
+                                    )
+           )
+
+  const toggleRoom = (
+                       roomId: number
+                     ) => {
+    setCheckedRoomIds(
+                        prev =>
+                          prev.includes(roomId)
+                            ? prev.filter(i => i !== roomId)
+                            : [...prev, roomId]
+                     )
+  }
+
   const handleAddRoom = async () => {
     if (!selectedWardId) {
       alert("病棟を選択してください")
       return
     }
-    await createRoomTransaction(
-                                  {
-                                    ward_id: selectedWardId,
-                                    name: newRoomName
-                                  },
-                                  setRooms,
-                                  setNewRoomName
-                                )
 
-    }
-  // 部屋削除
+    await createRoomTransaction({
+                                   room: {
+                                           wardId: selectedWardId,
+                                           name: newRoomName
+                                         },
+                                   setRooms,
+                                   onClose: () => setNewRoomName("")
+                                 })
+  }
+
   const handleDeleteRooms = async () => {
-      if (checkedRoomIds.length === 0) {
-      alert("病棟を選択してください")
+    if (checkedRoomIds.length === 0) {
+      alert("部屋を選択してください")
       return
     }
+
     await deleteRoomsTransaction({
-                                ids:checkedRoomIds,
-                              },setRooms)
-                                }
-
-// 部屋名前変更（prompt使用の仮実装）
-  const handleRenameRoom = async(
-                                  room:{
-                                    roomId:number
-                                    roomName:string
-                                  }
-                                ) => {
-
-      const name = prompt("新しい部屋名", room.roomName)
-
-      if (!name) {return}
-
-      await updateRoomTransaction(
-                                    {
-                                      id: room.roomId,
-                                      name: name
-                                    },
+                                    rooms: {
+                                             ids: checkedRoomIds
+                                           },
                                     setRooms
-                                  )
+                                  })
+  }
+
+  const handleRenameRoom = async (
+                                    room: RoomType
+                                  ) => {
+
+    const name =
+      prompt(
+               "新しい部屋名",
+               room.name
+             )
+
+    if (!name) {return}
+
+    await updateRoomTransaction({
+                                   room: {
+                                           id: room.id,
+                                           name
+                                         },
+                                   setRooms
+                                 })
   }
 
   return (
     <div className="space-y-6">
 
-      {/* ===== Ward操作 ===== */}
       <div className="space-y-2">
 
-            <div className="flex gap-2">
-            <select
-                value={selectedWardId ?? ""}
-                onChange={(e) => {
-                const val = Number(e.target.value)
-                setSelectedWardId(val || null)
-                setCheckedRoomIds([]) // 🔥 ward変更でリセット
-                }}
-                className="border px-2 py-1 rounded"
+        <div className="flex gap-2">
+
+          <select
+            value={selectedWardId ?? ""}
+            onChange={(e) => {
+              const val = Number(e.target.value)
+              setSelectedWardId(val || null)
+              setCheckedRoomIds([])
+            }}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="">
+              病棟選択
+            </option>
+
+            {wards.map(w => (
+              <option
+                key={w.id}
+                value={w.id}
+              >
+                {w.name}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleUpdateWard}
+            className="px-2 bg-gray-200 rounded"
+          >
+            ✏
+          </button>
+
+          <button
+            onClick={handleDeleteWard}
+            className="px-2 bg-red-500 text-white rounded"
+          >
+            削除
+          </button>
+
+        </div>
+
+        {!selectedWardId && (
+          <div className="flex gap-2">
+
+            <input
+              value={newWardName}
+              onChange={(e) => setNewWardName(e.target.value)}
+              placeholder="新規病棟名"
+              className="border px-2 py-1 flex-1 rounded"
+            />
+
+            <button
+              onClick={handleAddWard}
+              className="px-3 bg-blue-500 text-white rounded"
             >
-                <option value="">病棟選択</option>
-                {wards.map(w => (
-                <option key={w.wardId} value={w.wardId}>{w.wardName}</option>
-                ))}
-            </select>
+              追加
+            </button>
 
-            <button onClick={handleupdateWard} className="px-2 bg-gray-200 rounded">✏</button>
-            <button onClick={handleDeleteWard} className="px-2 bg-red-500 text-white rounded">削除</button>
-            </div>
+          </div>
+        )}
 
-            {/* ===== Ward追加（未選択時のみ表示） */}
-            {!selectedWardId && (
-            <div className="flex gap-2">
-                <input
-                value={newWardName}
-                onChange={(e) => setNewWardName(e.target.value)}
-                placeholder="新規病棟名"
-                className="border px-2 py-1 flex-1 rounded"
-                />
-                <button
-                onClick={handleAddWard}
-                className="px-3 bg-blue-500 text-white rounded"
-                >
-                追加
-                </button>
-            </div>
-            )}
       </div>
 
-      {/* ===== Room操作 ===== */}
       <div className="space-y-2">
 
         <div className="border rounded p-2 max-h-60 overflow-y-auto">
+
           {filteredRooms.map(room => (
-            <div key={room.roomId} className="flex items-center gap-2 py-1">
+
+            <div
+              key={room.id}
+              className="flex items-center gap-2 py-1"
+            >
 
               <input
                 type="checkbox"
-                checked={checkedRoomIds.includes(room.roomId)}
-                onChange={() => toggleRoom(room.roomId)}
+                checked={checkedRoomIds.includes(room.id)}
+                onChange={() => toggleRoom(room.id)}
               />
 
-              <span className="flex-1">{room.roomName}</span>
+              <span className="flex-1">
+                {room.name}
+              </span>
 
               <button
                 onClick={() => handleRenameRoom(room)}
@@ -190,22 +258,27 @@ export default function WardAreaSettingsModal({
               </button>
 
             </div>
+
           ))}
+
         </div>
 
         <div className="flex gap-2">
+
           <input
             value={newRoomName}
             onChange={(e) => setNewRoomName(e.target.value)}
             placeholder="新規部屋名"
             className="border px-2 py-1 flex-1 rounded"
           />
+
           <button
             onClick={handleAddRoom}
             className="px-3 bg-blue-500 text-white rounded"
           >
             追加
           </button>
+
         </div>
 
         <button

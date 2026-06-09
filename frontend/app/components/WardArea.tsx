@@ -14,7 +14,7 @@ type Props = {
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
-  onDrop: (device: Device, wardId: number) => void
+  onDrop: (device: Device, id: number) => void
   rooms: any[]
   openRoomDeviceInfoModal: (device: Device) => void
   justDropped: boolean
@@ -51,31 +51,30 @@ export default function WardArea({
   
              // 病棟ごとの配置中機器数を数える関数
   // wardId に紐づく病室を探し、その病室に配置されている機器数を合計する
-  const getWardDeviceCount = (wardId: number) => {
-    const roomIds = rooms
-      .filter(room => room.wardId === wardId)
-      .map(room => room.roomId)
+const getWardDeviceCount = (wardId: number) => {
+  const roomIds = rooms
+    .filter(room => room.wardId === wardId)
+    .map(room => room.id)
 
-    return deviceList.filter(
-      device =>
-        device.status === "room" &&
-        roomIds.includes(device.roomId)
-    ).length
-  }
-
+  return deviceList.filter(
+    device =>
+      device.status === "room" &&
+      roomIds.includes(device.roomId)
+  ).length
+}
   // 病棟コンテナの表示順を作る
   // 1. 機器が多く配置されている病棟を上に並べる
   // 2. 機器数が同じ場合は病棟名の自然順で並べる
   const sortedWards = [...wards].sort((a, b) => {
-    const aCount = getWardDeviceCount(a.wardId)
-    const bCount = getWardDeviceCount(b.wardId)
+    const aCount = getWardDeviceCount(a.id)
+    const bCount = getWardDeviceCount(b.id)
 
     if (aCount !== bCount) {
       return bCount - aCount
     }
 
-    return a.wardName.localeCompare(
-      b.wardName,
+    return a.name.localeCompare(
+      b.name,
       "ja",
       { numeric: true }
     )
@@ -182,10 +181,10 @@ return (
     >       
     {sortedWards.map((ward) => (
           <div
-            key={ward.wardId}
+            key={ward.id}
             style={{
               gridColumn:
-                ward.wardId === 1
+                ward.id === 1
                   ? "span 3"
                   : undefined
             }}
@@ -194,14 +193,14 @@ return (
 
               onDrop(
                 draggingDevice,
-                ward.wardId
+                ward.id
               )
             }}
           >
             {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}
             {/* WardGridの中に、病室コンテナであるRoomContainerを配置する。 */}
             <WardGrid
-              title={ward.wardName}
+              title={ward.name}
               minWidth={Math.max(
                                   90,
                                   wardCellSize * 1
@@ -217,7 +216,7 @@ return (
               >
                 {
                   rooms
-                    .filter(r => r.wardId === ward.wardId)
+                    .filter(r => r.wardId === ward.id)
 
                     .sort((a, b) => {
 
@@ -241,21 +240,21 @@ return (
                       }
 
                       // ===== 同数なら部屋番号順 =====
-                      return a.roomName.localeCompare(
-                        b.roomName,
+                      return a.name.localeCompare(
+                        b.name,
                         undefined,
                         { numeric: true }
                       )
                     })
                     .map(room => (
                     <RoomContainer
-                      key={room.roomId}
+                      key={room.id}
                       deviceList={deviceList}
                       deviceTypes={deviceTypes}
                       deviceModels={deviceModels}
                       rooms={rooms}
-                      roomId={room.roomId}
-                      roomName={room.roomName}
+                      roomId={room.id}
+                      roomName={room.name}
                       patientName={
               
                         room.patientName

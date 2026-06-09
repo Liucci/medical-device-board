@@ -1870,14 +1870,14 @@ export default function Page() {
   useEffect(() => {
     const updateRooms = async () => {
       for (const room of rooms) {
-        const devicesInRoom = deviceList.filter(d => d.roomId === room.roomId)
+        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
 
         if (devicesInRoom.length === 0 && room.patientName) {
           // ① DB更新
           const { error } = await supabase
             .from('rooms')
             .update({ patient_name: null }) // or ""
-            .eq('id', room.roomId)
+            .eq('id', room.id)
             .eq(
               "hospital_id",
               currentUser?.hospitalId
@@ -1890,7 +1890,7 @@ export default function Page() {
           // ② UI更新
           setRooms(prev =>
             prev.map(r =>
-              r.id === room.roomId
+              r.id === room.id
                 ? { ...r, patientName: "" }
                 : r
             )

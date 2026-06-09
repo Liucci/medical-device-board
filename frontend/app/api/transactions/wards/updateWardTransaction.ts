@@ -1,39 +1,50 @@
 import { API_BASE_URL } from "../../client"
-import { getWardsFromApi }from "../../wards/fetchWards"
-import { normalizeWard } from "@/app/utils/wardsMapper"
+import { UpdateWardType } from "../../../types/wardTypes"
+import { getWardsFromApi } from "../../wards/fetchWards"
 
-export async function updateWardTransaction(
-                                              id:number,
-                                              name:string,
-                                              
-                                              setWards:any
-                                            )
+import {
+         normalizeWard,
+         toUpdateWardRequest
+       } from "../../../utils/wardsMapper"
+
+type UpdateWardTransactionParams = {
+                                     ward: UpdateWardType
+                                     setWards: any
+                                   }
+
+export async function updateWardTransaction({
+                                               ward,
+                                               setWards
+                                             }: UpdateWardTransactionParams
+                                           )
 {
-    console.log("updateWardTransaction")
+  console.log("updateWardTransaction")
 
-    const trimmed = name.trim()
-    if (!trimmed) {return}
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
+  await fetch(
+                `${API_BASE_URL}/update-ward`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toUpdateWardRequest(
+                                                               ward
+                                                             )
+                                        )
+                }
+              )
 
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  const wards =
+    await getWardsFromApi()
 
-    await fetch(
-                  `${API_BASE_URL}/update-ward`,
-                  {
-                    method: "POST",
-                    headers: {
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body: JSON.stringify({
-                                            id,
-                                            name: trimmed
-                                          })
-                  }
-                )
-
-    const updatedWards = await getWardsFromApi()
-
-    setWards(updatedWards.map(normalizeWard))
+  setWards(
+             wards.map(
+                        normalizeWard
+                      )
+           )
 }
