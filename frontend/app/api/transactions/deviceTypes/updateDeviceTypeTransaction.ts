@@ -1,18 +1,23 @@
 import { API_BASE_URL } from "../../client"
+import { UpdateDeviceTypeType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
-import { normalizeDeviceType } from "../../../utils/deviceTypeMapper"
+import {
+         normalizeDeviceType,
+         toUpdateDeviceTypeRequest
+       } from "../../../utils/deviceTypeMapper"
 
-type Props = {
-                id:number
-                name:string
-                setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
-             }
+type UpdateDeviceTypeTransactionParams = {
+                                            deviceType: UpdateDeviceTypeType
+                                            setDeviceTypes: any
+                                          }
 
-export const updateDeviceTypeTransaction = async ({
-                                                    id,
-                                                    name,
+export async function updateDeviceTypeTransaction({
+                                                    deviceType,
                                                     setDeviceTypes
-                                                  }: Props) => {
+                                                  }: UpdateDeviceTypeTransactionParams
+                                                )
+{
+  console.log("updateDeviceTypeTransaction")
 
   const token = localStorage.getItem("access_token")
   if (!token) {return}
@@ -20,21 +25,25 @@ export const updateDeviceTypeTransaction = async ({
   await fetch(
                 `${API_BASE_URL}/update-device-type`,
                 {
-                  method:"POST",
-                  headers:{
-                            "Content-Type":"application/json",
-                            "Authorization":`Bearer ${token}`
-                          },
-                  body:JSON.stringify({
-                                          id,
-                                          name
-                                        })
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toUpdateDeviceTypeRequest(
+                                                                      deviceType
+                                                                    )
+                                        )
                 }
               )
 
-  const deviceTypes = await getDeviceTypesFromApi()
+  const deviceTypes =
+    await getDeviceTypesFromApi()
 
   setDeviceTypes(
-                  deviceTypes.map(normalizeDeviceType)
-                )
+                   deviceTypes.map(
+                                     normalizeDeviceType
+                                   )
+                 )
 }

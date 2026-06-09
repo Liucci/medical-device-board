@@ -1,39 +1,49 @@
 import { API_BASE_URL } from "../../client"
+import { UpdateDeviceModelType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
-import { normalizeDeviceModel } from "../../../utils/deviceModelMapper"
+import {
+         normalizeDeviceModel,
+         toUpdateDeviceModelRequest
+       } from "../../../utils/deviceModelMapper"
 
-type Params = {
-                id: number
-                name: string
-                setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-              }
+type UpdateDeviceModelTransactionParams = {
+                                             deviceModel: UpdateDeviceModelType
+                                             setDeviceModels: any
+                                           }
 
 export async function updateDeviceModelTransaction({
-                                                      id,
-                                                      name,
-                                                      setDeviceModels
-                                                    }: Params)
+                                                     deviceModel,
+                                                     setDeviceModels
+                                                   }: UpdateDeviceModelTransactionParams
+                                                 )
 {
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  console.log("updateDeviceModelTransaction")
 
-    await fetch(
-                  `${API_BASE_URL}/update-device-model`,
-                  {
-                    method: "POST",
-                    headers: {
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body: JSON.stringify({
-                                            id,
-                                            name
-                                          })
-                  }
-                )
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
-    const deviceModels = await getDeviceModelsFromApi()
-    if (!deviceModels) {return}
+  await fetch(
+                `${API_BASE_URL}/update-device-model`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toUpdateDeviceModelRequest(
+                                                                        deviceModel
+                                                                      )
+                                        )
+                }
+              )
 
-    setDeviceModels(deviceModels.map(normalizeDeviceModel))
+  const deviceModels =
+    await getDeviceModelsFromApi()
+
+  setDeviceModels(
+                    deviceModels.map(
+                                      normalizeDeviceModel
+                                    )
+                  )
 }

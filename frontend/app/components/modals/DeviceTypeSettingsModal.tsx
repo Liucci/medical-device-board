@@ -41,11 +41,14 @@ export default function DeviceTypeSettingsModal({
           return
       }
 
-      await createDeviceTypeTransaction(
-                                          trimmed,
-                                          setNewTypeName,
+      await createDeviceTypeTransaction({
+                                          deviceType: {
+                                                        name: trimmed
+                                                      },
                                           setDeviceTypes
-                                        )
+                                        })
+
+      setNewTypeName("")  
   }
 
   const handleRenameType = async() => {
@@ -63,20 +66,22 @@ export default function DeviceTypeSettingsModal({
     if (!name) return
 
     await updateDeviceTypeTransaction({
-                                        id:selectedTypeId,
-                                        name,
+                                        deviceType: {
+                                                      id: selectedTypeId,
+                                                      name
+                                                    },
                                         setDeviceTypes
                                       })
   }
-
   const handleDeleteType = async() => {
       if (!selectedTypeId) {return}
 
-      await deleteDeviceTypeTransaction(
-                                          selectedTypeId,
+      await deleteDeviceTypeTransaction({
+                                          deviceType: {
+                                                        id: selectedTypeId
+                                                      },
                                           setDeviceTypes
-                                        )
-
+                                        })
       setSelectedTypeId(null)
   }
 
@@ -99,36 +104,39 @@ export default function DeviceTypeSettingsModal({
 
     if (!newModelName.trim()) return
 
-    await createDeviceModelTransaction(
-                                        selectedTypeId,
-                                        newModelName,
+    await createDeviceModelTransaction({
+                                        deviceModel: {
+                                                        deviceTypeId: selectedTypeId,
+                                                        name: newModelName.trim()
+                                                      },
                                         setDeviceModels
-                                      )
+                                      })
 
-    setNewModelName("")
-  }
+    setNewModelName("")  }
 
   const handleDeleteModels = async () => {
     if (checkedModelIds.length === 0) {return}
 
-    await deleteDeviceModelsTransaction(
-                                          checkedModelIds,
+    await deleteDeviceModelsTransaction({
+                                          deviceModels: {
+                                                          ids: checkedModelIds
+                                                        },
                                           setDeviceModels
-                                        )
-
-    setCheckedModelIds([])
-  }
+                                        })
+        setCheckedModelIds([])
+    }
 
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) {return}
 
     await updateDeviceModelTransaction({
-                                          id:model.id,
-                                          name,
+                                          deviceModel: {
+                                                        id: model.id,
+                                                        name
+                                                      },
                                           setDeviceModels
-                                        })
-  }
+                                        })  }
   return (
     <div className="space-y-6">
 

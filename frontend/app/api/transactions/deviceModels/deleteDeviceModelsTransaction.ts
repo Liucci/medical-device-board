@@ -1,31 +1,49 @@
 import { API_BASE_URL } from "../../client"
+import { DeleteDeviceModelsType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
-import { normalizeDeviceModel } from "@/app/utils/deviceModelMapper"
+import {
+         normalizeDeviceModel,
+         toDeleteDeviceModelsRequest
+       } from "../../../utils/deviceModelMapper"
 
-export async function deleteDeviceModelsTransaction(
-                                                      ids: number[],
-                                                      setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-                                                    )
+type DeleteDeviceModelsTransactionParams = {
+                                              deviceModels: DeleteDeviceModelsType
+                                              setDeviceModels: any
+                                            }
+
+export async function deleteDeviceModelsTransaction({
+                                                       deviceModels,
+                                                       setDeviceModels
+                                                     }: DeleteDeviceModelsTransactionParams
+                                                   )
 {
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  console.log("deleteDeviceModelsTransaction")
 
-    await fetch(
-                  `${API_BASE_URL}/delete-device-models`,
-                  {
-                    method: "POST",
-                    headers: {
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body: JSON.stringify({
-                                            ids
-                                          })
-                  }
-                )
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
-    const deviceModels = await getDeviceModelsFromApi()
-    if (!deviceModels) {return}
+  await fetch(
+                `${API_BASE_URL}/delete-device-models`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toDeleteDeviceModelsRequest(
+                                                                        deviceModels
+                                                                      )
+                                        )
+                }
+              )
 
-    setDeviceModels(deviceModels.map(normalizeDeviceModel))
+  const deviceModelsResponse =
+    await getDeviceModelsFromApi()
+
+  setDeviceModels(
+                    deviceModelsResponse.map(
+                                             normalizeDeviceModel
+                                           )
+                  )
 }

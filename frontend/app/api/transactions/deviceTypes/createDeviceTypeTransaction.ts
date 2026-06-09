@@ -1,36 +1,53 @@
-import { normalizeDeviceType } from "../../../utils/deviceTypeMapper"
 import { API_BASE_URL } from "../../client"
+import { CreateDeviceTypeType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
+import {
+         normalizeDeviceType,
+         toCreateDeviceTypeRequest
+       } from "../../../utils/deviceTypeMapper"
 
-export async function createDeviceTypeTransaction(
-                                                    name:string,
-                                                    setNewDeviceTypeName:any,
-                                                    setDeviceTypes:any
-                                                  )
+type CreateDeviceTypeTransactionParams = {
+                                            deviceType: CreateDeviceTypeType
+                                            setDeviceTypes: any
+                                            onClose?: () => void
+                                          }
+
+export async function createDeviceTypeTransaction({
+                                                    deviceType,
+                                                    setDeviceTypes,
+                                                    onClose
+                                                  }: CreateDeviceTypeTransactionParams
+                                                )
 {
-    console.log("createDeviceTypeTransaction")
+  console.log("createDeviceTypeTransaction")
 
-    const trimmed = name.trim()
-    if (!trimmed) {return}
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  await fetch(
+                `${API_BASE_URL}/device-types`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toCreateDeviceTypeRequest(
+                                                                      deviceType
+                                                                    )
+                                        )
+                }
+              )
 
-    await fetch(
-                  `${API_BASE_URL}/device-types`,
-                  {
-                    method:"POST",
-                    headers:{
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body:JSON.stringify({
-                                            name:trimmed
-                                          })
-                  }
-                )
+  const deviceTypes =
+    await getDeviceTypesFromApi()
 
-    const deviceTypes = await getDeviceTypesFromApi()
-    setDeviceTypes(deviceTypes.map(normalizeDeviceType))
-    setNewDeviceTypeName("")
+  setDeviceTypes(
+                   deviceTypes.map(
+                                     normalizeDeviceType
+                                   )
+                 )
+
+  if (onClose) {onClose()}
 }

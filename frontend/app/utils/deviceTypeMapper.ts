@@ -1,40 +1,38 @@
 import {
-          DeviceType,
-          DeviceTypeDB
+         DeviceTypeType,
+         DeviceTypeDBType,
+         CreateDeviceTypeType,
+         UpdateDeviceTypeType,
+         DeleteDeviceTypeType
        } from "../types/deviceTypeTypes"
-
 
 // DB → UI
 export const normalizeDeviceType = (
-                                      d: DeviceTypeDB
-                                    ): DeviceType => ({
-                                                        id: d.id,
-                                                        hospitalId: d.hospital_id,
-                                                        name: d.name
-                                                      })
-
+                                      d: DeviceTypeDBType
+                                    ): DeviceTypeType => ({
+                                                            id: d.id,
+                                                            hospitalId: d.hospital_id,
+                                                            name: d.name
+                                                          })
 
 // Create
 export const toCreateDeviceTypeRequest = (
-                                            name: string
+                                            deviceType: CreateDeviceTypeType
                                           ) => ({
-                                                  name
+                                                  name: deviceType.name
                                                 })
-
 
 // Update
 export const toUpdateDeviceTypeRequest = (
-                                            deviceTypeId: number,
-                                            name: string
+                                            deviceType: UpdateDeviceTypeType
                                           ) => ({
-                                                  id: deviceTypeId,
-                                                  name
+                                                  id: deviceType.id,
+                                                  name: deviceType.name
                                                 })
-
 
 // Delete
 export const toDeleteDeviceTypeRequest = (
-                                            deviceTypeId: number
+                                            deviceType: DeleteDeviceTypeType
                                           ) => ({
-                                                  id: deviceTypeId
+                                                  id: deviceType.id
                                                 })
