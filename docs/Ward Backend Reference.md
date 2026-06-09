@@ -1,19 +1,8 @@
-# Ward Reference Implementation
+# Ward Backend Reference
 
 ## Purpose
 
-Ward機能をBackend実装の標準テンプレートとする。
-
-新規機能は原則としてWard実装を踏襲する。
-
-対象例
-
-* DeviceType
-* DeviceModel
-* Room
-* StockArea
-* MaintenanceType
-* Device
+WardをBackend実装のテンプレートとする。
 
 ---
 
@@ -25,69 +14,41 @@ schemas/
 
 wards/
 ├─ add_ward.py
-├─ delete_ward.py
 ├─ fetch_wards.py
-└─ update_ward.py
+├─ update_ward.py
+└─ delete_ward.py
 
 transactions/wards/
 ├─ create_ward_transaction.py
-├─ delete_ward_transaction.py
-└─ update_ward_transaction.py
-
-main.py
+├─ update_ward_transaction.py
+└─ delete_ward_transaction.py
 ```
 
 ---
 
-# Schema Layer
-
-## ward_schemas.py
+# Schema Example
 
 ```python
-from pydantic import BaseModel
-
 class AddWardRequest(BaseModel):
-    name: str
+    name:str
 
 class WardResponse(BaseModel):
-    id: int
-    hospital_id: str
-    name: str
-
-class DeleteWardRequest(BaseModel):
-    id: int
-
-class UpdateWardRequest(BaseModel):
-    id: int
-    name: str
+    id:int
+    hospital_id:str
+    name:str
 ```
-
-責務
-
-* Request定義
-* Response定義
 
 ---
 
-# CRUD Layer
+# CRUD Example
 
 ## add_ward.py
 
-```text
-Insert
-```
-
 ```python
 add_ward(
-            ward,
+            name,
             hospital_id
         )
-```
-
-責務
-
-```text
-wards table insert
 ```
 
 ---
@@ -100,27 +61,16 @@ fetch_wards(
            )
 ```
 
-責務
-
-```text
-wards table select
-```
-
 ---
 
 ## update_ward.py
 
 ```python
 update_ward(
-                ward,
+                ward_id,
+                name,
                 hospital_id
            )
-```
-
-責務
-
-```text
-wards table update
 ```
 
 ---
@@ -129,22 +79,16 @@ wards table update
 
 ```python
 delete_ward(
-                ward,
+                ward_id,
                 hospital_id
            )
 ```
 
-責務
-
-```text
-wards table delete
-```
-
 ---
 
-# Transaction Layer
+# Transaction Example
 
-## create_ward_transaction.py
+## create_ward_transaction
 
 ```text
 create_ward_transaction
@@ -152,22 +96,9 @@ create_ward_transaction
 add_ward
 ```
 
-```python
-create_ward_transaction(
-                            ward,
-                            hospital_id
-                        )
-```
-
-責務
-
-```text
-Ward作成業務
-```
-
 ---
 
-## update_ward_transaction.py
+## update_ward_transaction
 
 ```text
 update_ward_transaction
@@ -175,22 +106,9 @@ update_ward_transaction
 update_ward
 ```
 
-```python
-update_ward_transaction(
-                            ward,
-                            hospital_id
-                        )
-```
-
-責務
-
-```text
-Ward更新業務
-```
-
 ---
 
-## delete_ward_transaction.py
+## delete_ward_transaction
 
 ```text
 delete_rooms_by_ward_id
@@ -198,85 +116,23 @@ delete_rooms_by_ward_id
 delete_ward
 ```
 
-```python
-delete_ward_transaction(
-                            ward,
-                            hospital_id
-                        )
-```
+---
 
-責務
+# Route Example
 
 ```text
-Ward削除業務
-関連Room削除
-```
+GET /wards
 
-重要
+POST /wards
 
-```text
-親子関係を考慮して子テーブルを先に削除する
+POST /update-ward
+
+POST /delete-ward
 ```
 
 ---
 
-# Route Layer
-
-## GET /wards
-
-```text
-認証
-↓
-current_user取得
-↓
-権限確認
-↓
-fetch_wards
-```
-
----
-
-## POST /wards
-
-```text
-認証
-↓
-current_user取得
-↓
-create_ward_transaction
-```
-
----
-
-## POST /update-ward
-
-```text
-認証
-↓
-current_user取得
-↓
-権限確認
-↓
-update_ward_transaction
-```
-
----
-
-## POST /delete-ward
-
-```text
-認証
-↓
-current_user取得
-↓
-delete_ward_transaction
-```
-
----
-
-# Reusable Pattern
-
-Wardを実装した後は以下を置換するだけでよい。
+# Reusable Mapping
 
 ```text
 Ward
@@ -299,10 +155,11 @@ DeviceType
 ```text
 Ward
 ↓
-MaintenanceType
+DeviceModel
 ```
 
-
-# Backend Golden Template
-
-WardをBackend実装の正解例とする。
+```text
+Ward
+↓
+MaintenanceType
+```

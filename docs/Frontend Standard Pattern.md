@@ -368,3 +368,110 @@ User Interaction
 WardをFrontend実装の標準テンプレートとする。
 
 新規機能はWard実装を踏襲して作成する。
+
+# Mapper First Rule
+
+Frontend と Backend のデータ変換は Mapper に集約する。
+
+```text
+DB
+↓
+Schema
+↓
+DBType
+↓
+Mapper
+↓
+Type
+↓
+UI
+```
+
+---
+
+# Maintenance Rule
+
+DB項目追加時は以下のみ修正する。
+
+```text
+Schema
+↓
+Type
+↓
+Mapper
+```
+
+---
+
+# Transaction Rule
+
+Transaction は個別項目を参照しない。
+
+NG
+
+```ts
+toUpdateDeviceTypeRequest(
+  id,
+  name
+)
+```
+
+OK
+
+```ts
+toUpdateDeviceTypeRequest(
+  deviceType
+)
+```
+
+---
+
+Transaction は Mapper が生成した Request を送信するだけとする。
+
+そのため DB項目追加時も Transaction の修正は原則不要とする。
+
+---
+
+# CRUD Rule
+
+Create
+
+```ts
+toCreateXxxRequest()
+```
+
+Update
+
+```ts
+toUpdateXxxRequest()
+```
+
+Delete
+
+```ts
+toDeleteXxxRequest()
+```
+
+Request生成は全て Mapper が担当する。
+
+---
+
+# Goal
+
+新規項目追加時は
+
+```text
+Schema
+↓
+Type
+↓
+Mapper
+```
+
+のみ修正する。
+
+Transaction
+Fetch
+Modal
+
+への影響を最小化する。
