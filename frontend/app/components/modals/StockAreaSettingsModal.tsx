@@ -42,24 +42,27 @@ export default function StockAreaSettingsModal({
       if (!trimmed) {return}
       if (trimmed === currentName) {return}
       await updateStockAreaTransaction({
-                                          id,
-                                          name: trimmed,
+                                          stockArea: {
+                                                      id,
+                                                      name: trimmed
+                                                    },
                                           setStockAreas,
                                         })
-  setNewName("")
-                                      }
+      setNewName("")
+      }
 
   // 追加
   const handleAdd = async() => {
     if (!newName.trim()) {return}
 
     await createStockAreaTransaction({
-                                        params: {name: newName},
+                                        stockArea: {
+                                                    name: newName.trim()
+                                                  },
                                         setStockAreas,
                                       })
-
-    setNewName("")
-  }
+      setNewName("")
+    }
 
   return (
     <div className="space-y-4">

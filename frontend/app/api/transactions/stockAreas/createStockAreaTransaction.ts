@@ -1,39 +1,54 @@
 import { API_BASE_URL } from "../../client"
-import { StockArea } from "../../../types/stockTypes"
-
+import { CreateStockAreaType } from "../../../types/stockTypes"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
-import { normalizeStockArea,toDBStockArea } from "../../../utils/stockAreaMapper"
+
+import {
+         normalizeStockArea,
+         toCreateStockAreaRequest
+       } from "../../../utils/stockAreaMapper"
 
 type CreateStockAreaTransactionParams = {
-                                          params: StockArea
+                                          stockArea: CreateStockAreaType
                                           setStockAreas: any
+                                          onClose?: () => void
                                         }
 
 export async function createStockAreaTransaction({
-                                                    params,
+                                                    stockArea,
                                                     setStockAreas,
+                                                    onClose
                                                   }: CreateStockAreaTransactionParams
                                                 )
 {
-    console.log("createStockAreaTransaction")
+  console.log("createStockAreaTransaction")
 
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
+  const token = localStorage.getItem("access_token")
+  if (!token) {return}
 
-    await fetch(
-                  `${API_BASE_URL}/create-stock-area-transaction`,
-                  {
-                    method: "POST",
-                    headers: {
-                                "Content-Type":"application/json",
-                                "Authorization":`Bearer ${token}`
-                              },
-                    body: JSON.stringify(toDBStockArea(params))
-                  }
+  await fetch(
+                `${API_BASE_URL}//create-stock-area-transaction`,
+                {
+                  method: "POST",
+                  headers: {
+                              "Content-Type":"application/json",
+                              "Authorization":`Bearer ${token}`
+                            },
+                  body: JSON.stringify(
+                                          toCreateStockAreaRequest(
+                                                                       stockArea
+                                                                     )
+                                        )
+                }
+              )
+
+  const stockAreas =
+    await getStockAreasFromApi()
+
+  setStockAreas(
+                  stockAreas.map(
+                                   normalizeStockArea
+                                 )
                 )
 
-    const stockAreas =
-      await getStockAreasFromApi()
-
-    setStockAreas(stockAreas.map(normalizeStockArea))
+  if (onClose) {onClose()}
 }

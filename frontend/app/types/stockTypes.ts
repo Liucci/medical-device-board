@@ -1,17 +1,31 @@
-//frontend側での型定義
-//frontendのstockArea情報はnameしか持っていない
-//そのほか情報はDBやbackend側で取得する情報
-//fetchStockAreaではid取得は必要
+// Frontend標準型
+export type StockAreaType = {
+                              id: number
+                              hospitalId: string
+                              name: string
+                              createdAt?: string | null
+                            }
 
-export type StockArea = {
-  id?: number
-  hospitalId?: string
-  name: string
-}
+// Backend Response型
+export type StockAreaDBType = {
+                                id: number
+                                hospital_id: string
+                                name: string
+                                created_at?: string | null
+                              }
 
-export type StockAreaDB = {
-  id?: number
-  hospital_id?: string
-  name: string
-  created_at?: string
-}
+// Create専用
+export type CreateStockAreaType = {
+                                    name: string
+                                  }
+
+// Update専用
+export type UpdateStockAreaType = {
+                                    id: number
+                                    name: string
+                                  }
+
+// Delete専用
+export type DeleteStockAreasType = {
+                                     ids: number[]
+                                   }
