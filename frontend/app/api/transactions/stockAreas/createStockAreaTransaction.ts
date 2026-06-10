@@ -26,7 +26,7 @@ export async function createStockAreaTransaction({
   if (!token) {return}
 
   await fetch(
-                `${API_BASE_URL}//create-stock-area-transaction`,
+                `${API_BASE_URL}/create-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {

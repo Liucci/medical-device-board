@@ -9,7 +9,7 @@ def delete_stock_area_transaction(
     print("delete_stock_area_transaction")
 
     stock_area_response = delete_stock_areas(
-                                                stock_area_ids=stock_area.stock_area_ids,
+                                                stock_area_ids=stock_area.ids,
                                                 current_user=current_user
                                              )
 
