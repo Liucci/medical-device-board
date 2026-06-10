@@ -7,7 +7,7 @@ import { createPortal } from "react-dom"
 //stateレス化
 type Props = {
   isOpen: boolean
-  device: Device | null
+  selectedRoomDevice: Device | null
   deviceTypes: any[]
   deviceModels: any[]
   onCancel: () => void
@@ -23,8 +23,6 @@ type Props = {
   toggleDeviceStandby:(
                         deviceId: number,
                         standby: boolean,
-                        standbyStartedAt?: string,
-                        standbyFinishedAt?: string
                       )=> Promise<boolean>
   renameRentalDates : (
                         deviceId: number,
@@ -35,7 +33,7 @@ type Props = {
 
 export default function RoomDeviceInfoModal({
   isOpen,
-  device,
+  selectedRoomDevice,
   deviceTypes,
   deviceModels,
   onCancel,
@@ -52,38 +50,38 @@ export default function RoomDeviceInfoModal({
   renameRentalDates
 }: Props) {
 
-if (!isOpen || !device) return null
+if (!isOpen || !selectedRoomDevice) return null
 
-// ===== deviceから直接取得 =====
+// ===== selectedRoomDeviceから直接取得 =====
 
 const managementNumber =
-  device.managementNumber ?? ""
+  selectedRoomDevice.managementNumber ?? ""
 
 const serialNumber =
-  device.serialNumber ?? ""
+  selectedRoomDevice.serialNumber ?? ""
 
 const note =
-  device.note ?? ""
+  selectedRoomDevice.note ?? ""
 
 const rentalStartDate =
-  device.rentalStartDate || ""
+  selectedRoomDevice.rentalStartDate || ""
 
 const rentalEndDate =
-  device.rentalEndDate || ""
+  selectedRoomDevice.rentalEndDate || ""
 
 const standby =
-  device.standby ?? false
+  selectedRoomDevice.standby ?? false
 
 const standbyStartedAt =
-  device.standbyStartedAt || ""
+  selectedRoomDevice.standbyStartedAt || ""
 
 const standbyFinishedAt =
-  device.standbyFinishedAt || ""
+  selectedRoomDevice.standbyFinishedAt || ""
 
 // ===== room =====
 
 const room = rooms.find(
-  r => r.roomId === device.roomId
+  r => r.roomId === selectedRoomDevice.roomId
 )
 
 const patientName =
@@ -93,12 +91,12 @@ const patientName =
 
 const typeName =
   deviceTypes.find(
-    t => t.id === device.type
+    t => t.id === selectedRoomDevice.type
   )?.name ?? "不明"
 
 const modelName =
   deviceModels.find(
-    m => m.id === device.model
+    m => m.id === selectedRoomDevice.model
   )?.name ?? "不明"
 
 const roomName =
@@ -158,25 +156,18 @@ const wardName =
     return today >= limit
   })()
   //スタンバイ開始解除の関数
-  const handleToggleStandby =async () => {
+  const handleToggleStandby = async () => {
 
-    if (!device.id) return
+    if (!selectedRoomDevice.id) return
 
     // ===== 解除 =====
 
     if (standby) {
 
-      const today =
-        new Date()
-          .toISOString()
-          .split("T")[0]
-
       const success =
         await toggleDeviceStandby(
-          device.id,
-          false,
-          standbyStartedAt,
-          today
+          selectedRoomDevice.id,
+          false
         )
 
       if (!success) return
@@ -186,21 +177,10 @@ const wardName =
 
     // ===== 開始 =====
 
-    const val = prompt(
-      "待機開始日を入力 (YYYY-MM-DD)",
-      new Date()
-        .toISOString()
-        .split("T")[0]
-    )
-
-    if (val === null) return
-
     const success =
       await toggleDeviceStandby(
-        device.id,
-        true,
-        val,
-        ""
+        selectedRoomDevice.id,
+        true
       )
 
     if (!success) return
@@ -230,10 +210,10 @@ const wardName =
         {/* 🔽 機種 + 型式 */}
         <div>
           <div className="text-lg font-bold">
-            {typeName}　{modelName}　{device.assetType}
+            {typeName}　{modelName}　{selectedRoomDevice.assetType}
 
-            {(device.assetType === "レンタル" ||
-              device.assetType === "代替機") &&
+            {(selectedRoomDevice.assetType === "レンタル" ||
+              selectedRoomDevice.assetType === "代替機") &&
               rentalEndDate && (() => {
 
                 const today = new Date()
@@ -295,7 +275,7 @@ const wardName =
             label="患者"
             value={patientName}
             onEdit={async () => {
-              if (!device.roomId) return
+              if (!selectedRoomDevice.roomId) return
               const val = prompt(
                 "患者名を入力",
                 patientName
@@ -303,7 +283,7 @@ const wardName =
               if (val === null) return
               const success =
                 await renamePatientName(
-                  device.roomId,
+                  selectedRoomDevice.roomId,
                   val
                 )
               if (!success) return
@@ -315,7 +295,7 @@ const wardName =
             label="管理番号"
             value={managementNumber}
             onEdit={async () => {
-              if (!device.id) return
+              if (!selectedRoomDevice.id) return
               const val = prompt(
                       "管理番号を入力",
                       managementNumber
@@ -323,7 +303,7 @@ const wardName =
               if (val === null) return
               const success =
                     await renameManagementNumber(
-                      device.id,
+                      selectedRoomDevice.id,
                       val
                     )
               if (!success) return
@@ -334,7 +314,7 @@ const wardName =
             label="シリアル"
             value={serialNumber}
             onEdit={async () => {
-              if (!device.id) return
+              if (!selectedRoomDevice.id) return
               const val = prompt(
                 "シリアル番号を入力",
                 serialNumber
@@ -342,21 +322,21 @@ const wardName =
               if (val === null) return
               const success =
                 await renameSerialNumber(
-                  device.id,
+                  selectedRoomDevice.id,
                   val
                 )
               if (!success) return
             }}
           />
-            {(device.assetType === "レンタル" ||
-              device.assetType === "代替機") && (
+            {(selectedRoomDevice.assetType === "レンタル" ||
+              selectedRoomDevice.assetType === "代替機") && (
               <>
           {/* 貸与開始日 */}
           <InfoRow
             label="貸与開始日"
             value={rentalStartDate}
             onEdit={async () => {
-              if (!device.id) return
+              if (!selectedRoomDevice.id) return
               const val = prompt(
                 "貸与開始日を入力 (YYYY-MM-DD)",
                 rentalStartDate
@@ -364,7 +344,7 @@ const wardName =
               if (val === null) return
               const success =
                 await renameRentalDates(
-                  device.id,
+                  selectedRoomDevice.id,
                   val,
                   rentalEndDate
                 )
@@ -376,7 +356,7 @@ const wardName =
             label="返却日"
             value={rentalEndDate}
             onEdit={async () => {
-              if (!device.id) return
+              if (!selectedRoomDevice.id) return
               const val = prompt(
                 "返却日を入力 (YYYY-MM-DD)",
                 rentalEndDate
@@ -384,7 +364,7 @@ const wardName =
               if (val === null) return
               const success =
                 await renameRentalDates(
-                  device.id,
+                  selectedRoomDevice.id,
                   rentalStartDate,
                   val
                 )
@@ -409,7 +389,7 @@ const wardName =
             value={note}
             onEdit={async () => {
 
-              if (!device.id) return
+              if (!selectedRoomDevice.id) return
 
               const val = prompt(
                 "備考を入力",
@@ -420,7 +400,7 @@ const wardName =
 
               const success =
                 await renameNote(
-                  device.id,
+                  selectedRoomDevice.id,
                   val
                 )
 

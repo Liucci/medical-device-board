@@ -41,7 +41,10 @@ import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
 import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
 import { updateManagementNumber } from "../api/transactions/devices/updateManagementNumber"
-
+import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumber"
+import { updateNote } from "../api/transactions/devices/updateNote"
+import {startStandby} from "../api/transactions/devices/startStandby"
+import {finishStandby} from "../api/transactions/devices/finishStandby"
 
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
@@ -1002,7 +1005,7 @@ export default function Page() {
   }
  */
 
-  //シリアル編集関数(boolean)
+/*   //シリアル編集関数(boolean)
   const renameSerialNumber = async (id: number,value: string): Promise<boolean> => {
 
     if (!currentUser) {
@@ -1077,7 +1080,100 @@ export default function Page() {
   
     return true
   } 
- 
+ */ 
+// シリアル編集関数(boolean)
+  const renameSerialNumber = async (
+                                    id: number,
+                                    value: string
+                                  ): Promise<boolean> => {
+
+    const device =
+      deviceList.find(
+                      d => d.id === id
+                    )
+
+    if (!device) {
+      return false
+    }
+
+    await updateSerialNumber({
+                              device: {
+                                        ...device,
+                                        serialNumber: value.trim()
+                                      }
+                            })
+
+    const devices =
+      await getDevicesFromApi()
+
+    setDeviceList(devices)
+
+    const updatedDevice =
+      devices.find(
+                    d => d.id === id
+                  )
+
+if (updatedDevice) {
+
+  if (selectedRoomDevice?.id === id) {
+    setSelectedRoomDevice(updatedDevice)
+  }
+
+  if (selectedDevice?.id === id) {
+    setSelectedDevice(updatedDevice)
+  }
+
+}
+    return true
+  }
+
+// 備考欄編集関数(boolean)
+  const renameNote = async (
+                              id: number,
+                              value: string
+                            ): Promise<boolean> => {
+
+    const device =
+      deviceList.find(
+                      d => d.id === id
+                    )
+
+    if (!device) {
+      return false
+    }
+
+    await updateNote({
+                      device: {
+                                ...device,
+                                note: value.trim()
+                              }
+                    })
+
+    const devices =
+      await getDevicesFromApi()
+
+    setDeviceList(devices)
+
+    const updatedDevice =
+      devices.find(
+                    d => d.id === id
+                  )
+
+if (updatedDevice) {
+
+  if (selectedRoomDevice?.id === id) {
+    setSelectedRoomDevice(updatedDevice)
+  }
+
+  if (selectedDevice?.id === id) {
+    setSelectedDevice(updatedDevice)
+  }
+
+}
+    return true
+  }
+
+
   const renameManagementNumber = async (
                                           id: number,
                                           value: string
@@ -1111,13 +1207,20 @@ export default function Page() {
                     d => d.id === id
                   )
 
-    if (updatedDevice) {
-      setSelectedRoomDevice(updatedDevice)
-    }
+      if (updatedDevice) {
 
+        if (selectedRoomDevice?.id === id) {
+          setSelectedRoomDevice(updatedDevice)
+        }
+
+        if (selectedDevice?.id === id) {
+          setSelectedDevice(updatedDevice)
+        }
+
+      }
     return true
   }
-
+/* 
   //備考欄編集関数(boolean)
   const renameNote = async (id: number,value: string): Promise<boolean> => {
     if (!currentUser) {
@@ -1184,8 +1287,9 @@ export default function Page() {
   )
 
     return true
-  }
-  const toggleDeviceStandby = async (
+  } */
+  
+/*   const toggleDeviceStandby = async (
       deviceId: number,
       standby: boolean,
       standbyStartedAt?: string,
@@ -1265,6 +1369,48 @@ export default function Page() {
     )
     return true
   }
+ */
+
+
+  const toggleDeviceStandby = async (
+  deviceId: number,
+  standby: boolean,
+): Promise<boolean> => {
+
+  if (standby) {
+
+    await startStandby(
+                        deviceId
+                      )
+
+  } else {
+
+    await finishStandby(
+                         deviceId
+                       )
+  }
+
+  const devices =
+    await getDevicesFromApi()
+
+  setDeviceList(devices)
+
+  const updatedDevice =
+    devices.find(
+                  d => d.id === deviceId
+                )
+
+  if (updatedDevice) {
+
+    setSelectedRoomDevice(
+                            updatedDevice
+                         )
+
+  }
+
+  return true
+}
+
   const toggleDeviceMaintenance = async (
     deviceId: number,
     nextMaintenance: boolean,
@@ -1422,17 +1568,17 @@ export default function Page() {
   }
 
   
- const deleteDevice = async (
-  deviceId: number
-) => {
+  const deleteDevice = async (
+    deviceId: number
+  ) => {
 
-  await deleteDeviceTransaction({
-    deviceId,
-    setDeviceList,
-    setTasks,
-    setHistories
-  })
-} 
+    await deleteDeviceTransaction({
+      deviceId,
+      setDeviceList,
+      setTasks,
+      setHistories
+    })
+  } 
 
 
   //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
@@ -2034,6 +2180,7 @@ setDeviceList(
   fetchData()
 
   }, [currentUser])
+  
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
   if (!currentUser) {
@@ -2193,7 +2340,7 @@ setDeviceList(
        {/* 病室機器詳細モーダル表示 */}
       <RoomDeviceInfoModal
         isOpen={roomDeviceInfoModalOpen}
-        device={selectedRoomDevice}
+        selectedRoomDevice={selectedRoomDevice}
         deviceTypes={deviceTypes}
         deviceModels={deviceModels}
         onCancel={handleRoomDeviceInfoCancel}
