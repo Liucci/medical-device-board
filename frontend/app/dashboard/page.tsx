@@ -40,6 +40,9 @@ import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenan
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
 import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
+import { updateManagementNumber } from "../api/transactions/devices/updateManagementNumber"
+
+
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
 
@@ -932,7 +935,7 @@ export default function Page() {
         setRoomDeviceInfoModalOpen(true)
   }
   //管理番号編集関数（boolean)
-  const renameManagementNumber =async (id: number,value: string): Promise<boolean> => {
+/*   const renameManagementNumber =async (id: number,value: string): Promise<boolean> => {
     if (!currentUser) {
       return false
     }
@@ -997,6 +1000,8 @@ export default function Page() {
   )
     return true
   }
+ */
+
   //シリアル編集関数(boolean)
   const renameSerialNumber = async (id: number,value: string): Promise<boolean> => {
 
@@ -1072,6 +1077,47 @@ export default function Page() {
   
     return true
   } 
+ 
+  const renameManagementNumber = async (
+                                          id: number,
+                                          value: string
+                                        ): Promise<boolean> => {
+
+    const device =
+      deviceList.find(
+                      d => d.id === id
+                    )
+
+    if (!device) {return false}
+
+    await updateManagementNumber({
+                                  device: {
+                                            ...device,
+                                            managementNumber: value
+                                          }
+                                })
+
+    const devices =
+      await getDevicesFromApi()
+
+    setDeviceList(devices)
+    console.log(
+    devices.find(
+    d => d.id === id
+    )
+    )
+    const updatedDevice =
+      devices.find(
+                    d => d.id === id
+                  )
+
+    if (updatedDevice) {
+      setSelectedRoomDevice(updatedDevice)
+    }
+
+    return true
+  }
+
   //備考欄編集関数(boolean)
   const renameNote = async (id: number,value: string): Promise<boolean> => {
     if (!currentUser) {

@@ -81,3 +81,53 @@ export type DeviceDB = {
   updated_by?: string
 
 }
+
+
+export type AddDeviceRequest = {
+  type: number
+  model: number
+  asset_type: typeof AssetTypes[number]
+  rental_start_date?: string
+  rental_end_date?: string
+}
+
+export type DeleteDeviceRequest = {
+  id: number
+}
+
+export type UpdateManagementNumberRequest = {
+  id: number
+  management_number: string
+}
+
+export type UpdateSerialNumberRequest = {
+  id: number
+  serial_number: string
+}
+
+export type UpdateNoteRequest = {
+  id: number
+  note: string
+}
+
+export type MoveDeviceRequest = {
+  id: number
+  stock_area_id?: number | null
+  room_id?: number | null
+}
+
+export type StartMaintenanceRequest = {
+  id: number
+}
+
+export type FinishMaintenanceRequest = {
+  id: number
+}
+
+export type StartStandbyRequest = {
+  id: number
+}
+
+export type FinishStandbyRequest = {
+  id: number
+}

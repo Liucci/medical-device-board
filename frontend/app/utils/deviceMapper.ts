@@ -1,4 +1,19 @@
-import { DeviceDB,Device } from "../types/deviceTypes"
+import {
+         DeviceDB,
+         Device,
+         AddDeviceRequest,
+         DeleteDeviceRequest,
+         UpdateManagementNumberRequest,
+         UpdateSerialNumberRequest,
+         UpdateNoteRequest,
+         MoveDeviceRequest,
+         StartMaintenanceRequest,
+         FinishMaintenanceRequest,
+         StartStandbyRequest,
+         FinishStandbyRequest
+       } from "../types/deviceTypes"
+
+
 // DBのDeviceと、フロントエンドで扱うDeviceの相互変換関数
 export const normalizeDevice = (d: DeviceDB): Device => ({
   id: d.id,
@@ -55,3 +70,74 @@ export const toDBDevice = (d: Device) => ({
   created_by:d.createdBy??null,
   updated_by:d.updatedBy??null
 })
+
+
+//他ファイルも随時下記のMapperを参照する構造に修正していく
+export const toCreateDeviceRequest = (
+                                        device: Device
+                                      ): AddDeviceRequest => ({
+                                                                type: device.type,
+                                                                model: device.model,
+                                                                asset_type: device.assetType,
+                                                                rental_start_date: device.rentalStartDate,
+                                                                rental_end_date: device.rentalEndDate
+                                                              })
+
+export const toDeleteDeviceRequest = (
+                                        deviceId: number
+                                      ): DeleteDeviceRequest => ({
+                                                                    id: deviceId
+                                                                  })
+
+export const toUpdateManagementNumberRequest = (
+                                                  device: Device
+                                                ): UpdateManagementNumberRequest => ({
+                                                                                       id: device.id!,
+                                                                                       management_number: device.managementNumber ?? ""
+                                                                                     })
+
+export const toUpdateSerialNumberRequest = (
+                                              device: Device
+                                            ): UpdateSerialNumberRequest => ({
+                                                                               id: device.id!,
+                                                                               serial_number: device.serialNumber ?? ""
+                                                                             })
+
+export const toUpdateNoteRequest = (
+                                      device: Device
+                                    ): UpdateNoteRequest => ({
+                                                               id: device.id!,
+                                                               note: device.note ?? ""
+                                                             })
+
+export const toMoveDeviceRequest = (
+                                      device: Device
+                                    ): MoveDeviceRequest => ({
+                                                               id: device.id!,
+                                                               stock_area_id: device.stockAreaID ?? null,
+                                                               room_id: device.roomId ?? null
+                                                             })
+
+export const toStartMaintenanceRequest = (
+                                            deviceId: number
+                                          ): StartMaintenanceRequest => ({
+                                                                          id: deviceId
+                                                                        })
+
+export const toFinishMaintenanceRequest = (
+                                             deviceId: number
+                                           ): FinishMaintenanceRequest => ({
+                                                                            id: deviceId
+                                                                          })
+
+export const toStartStandbyRequest = (
+                                        deviceId: number
+                                      ): StartStandbyRequest => ({
+                                                                    id: deviceId
+                                                                  })
+
+export const toFinishStandbyRequest = (
+                                         deviceId: number
+                                       ): FinishStandbyRequest => ({
+                                                                      id: deviceId
+                                                                    })

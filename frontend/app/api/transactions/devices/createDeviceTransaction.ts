@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client"
 import { Device } from "../../../types/deviceTypes"
-import { toDBDevice } from "../../../utils/deviceMapper"
+import { toDBDevice,toCreateDeviceRequest } from "../../../utils/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 
 type CreateDeviceTransactionParams = {
@@ -32,7 +32,7 @@ export async function createDeviceTransaction({
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(
-                toDBDevice(params)
+                toCreateDeviceRequest(params)
             )
         }
     )

@@ -2,6 +2,8 @@ import { API_BASE_URL } from "../../client"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getTasksFromApi } from "../../tasks/fetchTasks"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
+import {toDeleteDeviceRequest} from "../../../utils/deviceMapper"
+
 
 type DeleteDeviceTransactionParams = {
     deviceId: number
@@ -35,9 +37,9 @@ export async function deleteDeviceTransaction({
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({
-                id: deviceId
-            })
+            body: JSON.stringify(
+            toDeleteDeviceRequest(deviceId)
+            )        
         }
     )
 
