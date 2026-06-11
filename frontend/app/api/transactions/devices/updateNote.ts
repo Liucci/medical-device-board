@@ -1,14 +1,16 @@
 import { API_BASE_URL } from "../../client"
+import {
+         toUpdateNoteRequest
+       } from "../../../utils/deviceMapper"
+import { Device } from "../../../types/deviceTypes"
 
 type Params = {
-    id: number
-    note: string
-}
+                device: Device
+              }
 
 export async function updateNote({
-    id,
-    note
-}: Params) {
+                                   device
+                                 }: Params) {
 
     const token = localStorage.getItem("access_token")
 
@@ -17,17 +19,18 @@ export async function updateNote({
     }
 
     await fetch(
-        `${API_BASE_URL}/update-note`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                id,
-                note
-            })
-        }
-    )
+                `${API_BASE_URL}/update-note`,
+                {
+                    method: "POST",
+                    headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`
+                             },
+                    body: JSON.stringify(
+                                            toUpdateNoteRequest(
+                                                                  device
+                                                               )
+                                        )
+                }
+              )
 }

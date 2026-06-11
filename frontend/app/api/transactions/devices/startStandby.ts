@@ -1,8 +1,11 @@
 import { API_BASE_URL } from "../../client"
+import {
+         toStartStandbyRequest
+       } from "../../../utils/deviceMapper"
 
 export async function startStandby(
-    id: number
-) {
+                                     id: number
+                                   ) {
 
     const token = localStorage.getItem("access_token")
 
@@ -11,16 +14,18 @@ export async function startStandby(
     }
 
     await fetch(
-        `${API_BASE_URL}/start-standby`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                id
-            })
-        }
-    )
+                `${API_BASE_URL}/start-standby`,
+                {
+                    method: "POST",
+                    headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`
+                             },
+                    body: JSON.stringify(
+                                            toStartStandbyRequest(
+                                                                    id
+                                                                  )
+                                        )
+                }
+              )
 }
