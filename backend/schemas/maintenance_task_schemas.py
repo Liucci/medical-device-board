@@ -26,3 +26,6 @@ class CompleteMaintenanceTaskRequest(BaseModel):
 class DeleteMaintenanceTasksRequest(BaseModel):
     ids: list[int]
 
+class UpdateMaintenanceTaskStatusRequest(BaseModel):
+    id: int
+    status: str

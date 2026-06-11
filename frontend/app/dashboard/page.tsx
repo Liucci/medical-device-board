@@ -1097,18 +1097,18 @@ export default function Page() {
                                           }
                                 })
 
-    const devices =
+    const devices=
       await getDevicesFromApi()
 
     setDeviceList(devices)
     console.log(
     devices.find(
-    d => d.id === id
+                (d: Device) => d.id === id
     )
     )
     const updatedDevice =
       devices.find(
-                    d => d.id === id
+                    (d: Device) => d.id === id
                   )
 
     if (updatedDevice) {

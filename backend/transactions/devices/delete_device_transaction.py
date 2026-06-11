@@ -1,6 +1,6 @@
 from common.supabase_client import supabase
 from devices.delete_device import delete_device
-from tasks.delete_device_maintenance_tasks import delete_device_maintenance_tasks
+from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 from schemas.device_schemas import DeleteDeviceRequest
 
 def delete_device_transaction(
@@ -21,7 +21,7 @@ def delete_device_transaction(
                                                 "message": message
                                               }).execute()
 
-    delete_device_maintenance_tasks(
+    delete_tasks_by_device_id(
                                           device_id=device.id,
                                           hospital_id=hospital_id
                                   )
