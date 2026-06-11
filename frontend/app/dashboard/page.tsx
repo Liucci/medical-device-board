@@ -31,6 +31,8 @@ import { supabase } from "../lib/supabase"
 
 //FASTAPI移行用
 import {getDevicesFromApi} from "../api/devices/fetchDevices"
+import {moveStockToRoomTransaction} from "../api/transactions/devices/moveStockToRoomTransaction"
+
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
 import {getWardsFromApi} from "../api/wards/fetchWards"
 import {getRoomsFromApi} from "../api/rooms/fetchRooms"
@@ -313,319 +315,28 @@ export default function Page() {
   // roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
 // roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
   const handleRoomSubmit = async (
-    roomID: number,
+    roomId: number,
     patientName: string
   ) => {
-    if (!currentUser) {return}  
-    if (
-      !pendingDevice ||
-      pendingDevice.id === undefined
-    ) return
 
-    // ===== 移動前状態 =====
-
-    const prevDevice =
-      deviceList.find(
-        d => d.id === pendingDevice.id
-      )
-
-    const prevStatus =
-      prevDevice?.status
-
-    const prevRoomId =
-      prevDevice?.roomId
-
-    const prevRoom =
-      rooms.find(
-        r => r.roomId === prevRoomId
-      )
-
-    // 患者名はroom由来
-    const prevPatient =
-      prevRoom?.patientName ?? ""
-
-    // ===== DB更新 =====
-
-    // 患者名更新
-    const { error: roomError } =
-      await supabase
-        .from("rooms")
-        .update({
-          patient_name: patientName
-        })
-        .eq("id", roomID)
-        .eq(
-          "hospital_id",
-          currentUser?.hospitalId
-        )
-    if (roomError) {
-      console.error(roomError)
-      return
-    }
-    // device更新
-    const { error: deviceError } =
-      await supabase
-        .from("devices")
-        .update({
-          status: "room",
-          room_id: roomID,
-        })
-        .eq("id", pendingDevice.id)
-        .eq(
-          "hospital_id",
-          currentUser?.hospitalId
-        )
-    if (deviceError) {
-      console.error(deviceError)
-      return
-    }
-
-    // ===== 履歴用 =====
-
-    const room =
-      rooms.find(
-        r => Number(r.id) === Number(roomID)
-      )
-
-    const type =
-      deviceTypes.find(
-        t =>
-          Number(t.id) ===
-          Number(pendingDevice.type)
-      )
-
-    const model =
-      deviceModels.find(
-        m =>
-          Number(m.id) ===
-          Number(pendingDevice.model)
-      )
-
-    // ===== 変更判定 =====
-
-    const roomChanged =
-      prevRoomId !== roomID
-
-    const patientChanged =
-      prevPatient !== patientName
-
-    // ===== action_type =====
-
-    let actionType: "move" | "other"
-
-    // 病室変更ありなら常にmove
-    if (roomChanged) {
-
-      actionType = "move"
-    }
-
-    // 同一病室で患者変更
-    else if (patientChanged) {
-
-      actionType = "other"
-    }
-
-    // 変更なし
-    else {
-
-      actionType = "other"
-    }
-    // ===== message生成 =====
-
-    let message = ""
-
-    // ===== 病室変更 =====
-
-    if (roomChanged) {
-
-      message =
-        `${type?.name ?? "不明"} : ` +
-        `${model?.name ?? "不明"} ` +
-        `${room?.roomName ?? "不明"}へ移動`
-
-      // 同時に患者変更
-      if (patientChanged) {
-        message += " / 患者名変更"
-      }
-    }
-
-    // ===== 同一病室 =====
-
-    else {
-
-      const updates: string[] = []
-
-      // 患者名変更
-      if (patientChanged) {
-        updates.push("患者名変更")
-      }
-
-      // ===== 変更あり =====
-
-      if (updates.length > 0) {
-
-        message =
-          `${type?.name ?? "不明"} : ` +
-          `${model?.name ?? "不明"} ` +
-          `${room?.roomName ?? "不明"} ` +
-          updates.join(" / ")
-      }
-
-      // ===== 変更なし =====
-
-      else {
-
-        message =
-          `${type?.name ?? "不明"} : ` +
-          `${model?.name ?? "不明"} ` +
-          `${room?.roomName ?? "不明"} ` +
-          `情報更新無し`
-      }
-    }
-
-    // ===== 履歴追加 =====
-
-    const { error: historyError } =
-      await supabase
-        .from("device_histories")
-        .insert({
-          hospital_id:currentUser?.hospitalId,
-          device_id:pendingDevice.id,
-          action_type:actionType,
-          device_type_name:type?.name ?? null,
-          device_model_name:model?.name ?? null,
-          status:"room",
-          room_id:roomID,
-          room_name:room?.roomName ?? null,
-          stock_area_id:null,
-          stock_area_name:null,
-          patient_name:patientName || null,
-          management_number:pendingDevice.managementNumber ?? null,
-          serial_number:pendingDevice.serialNumber ?? null,
-          note:pendingDevice.note ?? null,
-          message
-        })
-
-    if (historyError) {
-      console.error(
-        "history insert error:",
-        historyError
-      )
-    }
-    // ===== 履歴再取得 =====
-    await fetchHistories()
-    // ===== UI更新 =====
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === pendingDevice.id
-          ? {
-              ...d,
-
-              status: "room",
-
-              roomId: roomID,
-            }
-          : d
-      )
-    )
-
-    // ===== room UI更新 =====
-
-    setRooms(prev =>
-      prev.map(r =>
-        r.id === roomID
-          ? {
-              ...r,
-              patientName
-            }
-          : r
-      )
-    )
-
-    // ===== メンテ種別取得 =====
-
-    let types =
-      maintenanceTypes.filter(
-        t =>
-          t.device_model_id ===
-          pendingDevice.model
-      )
-
-    if (types.length === 0) {
-
-      types =
-        maintenanceTypes.filter(
-          t =>
-            t.device_type_id ===
-              pendingDevice.type &&
-            t.device_model_id === null
-        )
-    }
-
-    // ===== タスク処理 =====
-
-    // stock → room
-
-    if (prevStatus === "stock") {
-
-      if (types.length > 0) {
-
-        await cancelTasks(
-          pendingDevice.id
-        )
-
-        await createTasks(
-          pendingDevice,
-          types
-        )
-      }
-    }
-
-    // room → room
-
-    if (
-      prevStatus?.trim() === "room"
-    ) {
-
-      const proceed =
-        window.confirm(
-          "同一患者に同一機器を使用しますか？\n\nOK：はい\nキャンセル：いいえ"
-        )
-
-      if (!proceed) {
-
-        // 別患者扱い
-
-        if (types.length > 0) {
-
-          await cancelTasks(
-            pendingDevice.id
-          )
-
-          await createTasks(
-            pendingDevice,
-            types
-          )
-        }
-
-      } else {
-
-        console.log("タスク継続")
-      }
-    }
-
-    // ===== task再取得 =====
-
-    await fetchTasks()
-
-    // ===== 後処理 =====
+    if (!pendingDevice?.id) {return}
+
+    await moveStockToRoomTransaction({
+                                      deviceId: pendingDevice.id,
+                                      roomId,
+                                      patientName,
+                                      setDevices: setDeviceList,
+                                      setRooms,
+                                      setHistories,
+                                      setTasks
+                                    })
 
     setRoomModalOpen(false)
-
     setPendingDevice(null)
-
     setTargetWardId(null)
   }
+
+
   const handleRoomCancel = () => {
     if (!currentUser) {return}  
     setRoomModalOpen(false)

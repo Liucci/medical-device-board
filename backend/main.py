@@ -31,7 +31,8 @@ from schemas.device_schemas import (
                                         StartMaintenanceRequest,
                                         FinishMaintenanceRequest,
                                         StartStandbyRequest,
-                                        FinishStandbyRequest
+                                        FinishStandbyRequest,
+                                        MoveDeviceRequest
                                     )
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
@@ -52,6 +53,7 @@ from transactions.devices.start_maintenance_transaction import (start_maintenanc
 from transactions.devices.finish_maintenance_transaction import (finish_maintenance_transaction)
 from transactions.devices.start_standby_transaction import (start_standby_transaction)
 from transactions.devices.finish_standby_transaction import (finish_standby_transaction)
+from transactions.devices.move_stock_to_room_transaction import (move_stock_to_room_transaction)
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -136,23 +138,17 @@ def root():
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
 def init_dashboard(
-    auth_user_id: str = Depends(
-        get_auth_user_id
-    )
-):
+                    auth_user_id: str = Depends(get_auth_user_id)
+                    ):
 
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+    current_user = (fetch_current_user(auth_user_id))
 
     return fetch_init_dashboard(
-        hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-    )
+                                    hospital_id=
+                                        current_user[
+                                            "hospital_id"
+                                        ]
+                                )
 
 
 @app.get("/users")
@@ -1000,3 +996,31 @@ def finish_standby_route(
                                  action_type="standby_finished",
                                  message="スタンバイ終了"
                               )
+
+
+
+
+
+@app.post("/move_stock_to_room")
+def move_stock_to_room_route(
+                              device: MoveDeviceRequest,
+                              room: UpdateRoomPatientRequest,
+                              auth_user_id: str = Depends(get_auth_user_id)
+                           ):
+
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+
+    print("move_stock_to_room")
+
+    moved_device = move_stock_to_room_transaction(
+                                                    device=device,
+                                                    room=room,
+                                                    hospital_id=current_user["hospital_id"],
+                                                    user_id=current_user["id"],
+                                                    action_type="moved_to_room",
+                                                    message="stock to room"
+                                                  )
+
+    return moved_device

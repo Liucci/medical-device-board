@@ -35,7 +35,7 @@ export default function RoomModal({
         pendingDevice.roomId
       )
       const room = rooms.find(
-        r => r.roomId === pendingDevice.roomId
+        r => r.id === pendingDevice.roomId
       )
       setPatientName(
         room?.patientName ?? ""
@@ -56,7 +56,7 @@ export default function RoomModal({
   useEffect(() => {
     if (!selectedRoomId) return
 
-    const selectedRoom = rooms.find(r => r.roomId === selectedRoomId)
+    const selectedRoom = rooms.find(r => r.id === selectedRoomId)
 
     if (selectedRoom) {
       setPatientName(selectedRoom.patientName ?? "")
@@ -66,11 +66,11 @@ export default function RoomModal({
   if (!isOpen || wardId === null) return null
 
 
-  const ward = wards.find(w => w.wardId === wardId)
+  const ward = wards.find(w => w.id === wardId)
 
   const filteredRooms = rooms
                         .filter(r => r.wardId === wardId)
-                        .sort((a, b) => a.roomName.localeCompare(b.roomName, "ja"))
+                        .sort((a, b) => a.name.localeCompare(b.name, "ja"))
 
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -93,8 +93,8 @@ export default function RoomModal({
           >
             <option value="">選択してください</option>
             {filteredRooms.map(r => (
-              <option key={r.roomId} value={r.roomId}>
-                {r.roomName}
+              <option key={r.id} value={r.id}>
+                {r.name}
               </option>
             ))}
           </select>
