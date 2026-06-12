@@ -44,14 +44,14 @@ export default function RoomToRoomModal({
 
   const currentRoom =
     rooms.find(
-      r => r.roomId === pendingDevice?.roomId
+      r => r.id === pendingDevice?.roomId
     )
 
   // ===== 現在ward =====
 
   const currentWard =
     wards.find(
-      w => w.wardId === currentRoom?.wardId
+      w => w.id === currentRoom?.wardId
     )
 
   // ===== 機種 =====
@@ -102,8 +102,8 @@ export default function RoomToRoomModal({
           r => r.wardId === targetWardId
         )
         .sort((a, b) =>
-          a.roomName.localeCompare(
-            b.roomName,
+          a.name.localeCompare(
+            b.name,
             "ja",
             { numeric: true }
           )
@@ -119,7 +119,7 @@ export default function RoomToRoomModal({
 
     const room =
       rooms.find(
-        r => r.roomId === selectedRoomId
+        r => r.id === selectedRoomId
       )
 
     // 初回患者名表示
@@ -225,7 +225,7 @@ export default function RoomToRoomModal({
                 </div>
 
                 <div className="font-bold">
-                  {currentWard?.wardName ?? "-"}
+                  {currentWard?.name ?? "-"}
                 </div>
               </div>
 
@@ -235,7 +235,7 @@ export default function RoomToRoomModal({
                 </div>
 
                 <div className="font-bold">
-                  {currentRoom?.roomName ?? "-"}
+                  {currentRoom?.name ?? "-"}
                 </div>
               </div>
 
@@ -343,10 +343,10 @@ export default function RoomToRoomModal({
                   {wards.map(w => (
 
                     <option
-                      key={w.wardId}
-                      value={w.wardId}
+                      key={w.id}
+                      value={w.id}
                     >
-                      {w.wardName}
+                      {w.name}
                     </option>
                   ))}
                 </select>
@@ -384,10 +384,10 @@ export default function RoomToRoomModal({
                   {filteredRooms.map(r => (
 
                     <option
-                      key={r.roomId}
-                      value={r.roomId}
+                      key={r.id}
+                      value={r.id}
                     >
-                      {r.roomName}
+                      {r.name}
                     </option>
                   ))}
                 </select>

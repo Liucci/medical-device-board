@@ -34,6 +34,7 @@ import {getDevicesFromApi} from "../api/devices/fetchDevices"
 import {moveStockToRoomTransaction} from "../api/transactions/devices/moveStockToRoomTransaction"
 import {moveStockToStockTransaction} from "../api/transactions/devices/moveStockToStockTransaction"
 import {moveRoomToStockTransaction} from "../api/transactions/devices/moveRoomToStockTransaction"
+import {moveRoomToRoomTransaction} from "../api/transactions/devices/moveRoomToRoomTransaction"
 
 
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
@@ -285,7 +286,7 @@ export default function Page() {
 
  */    
   
-const handleDropToStock = async (
+  const handleDropToStock = async (
                                   device: Device,
                                   stockAreaId: number
                                 ) => {
@@ -316,7 +317,7 @@ const handleDropToStock = async (
                                     })
 
   setDraggingDevice(null)
-}
+  }
 
   const handleDropToWard = async (
     device: Device,
@@ -382,7 +383,7 @@ const handleDropToStock = async (
     setPendingDevice(null)
     setTargetWardId(null)
     }
-  const handleRoomToRoomSubmit = async (
+/*   const handleRoomToRoomSubmit = async (
     roomID: number,
     patientName: string,
     samePatient: boolean
@@ -663,6 +664,48 @@ const handleDropToStock = async (
 
     setTargetWardId(null)
   }
+ */
+
+const handleRoomToRoomSubmit = async (
+  roomId: number,
+  patientName: string,
+  samePatient: boolean
+) => {
+
+  if (!pendingDevice?.id) {return}
+  if (!pendingDevice?.roomId) {return}
+
+  if (samePatient) {
+
+    await moveRoomToRoomTransaction({
+                                      deviceId: pendingDevice.id,
+                                      preRoomId: pendingDevice.roomId,
+                                      postRoomId: roomId,
+                                      patientName,
+                                      setDevices: setDeviceList,
+                                      setRooms,
+                                      setHistories
+                                    })
+
+  } 
+  //else {
+    // await moveRoomToRoomNewPatientTransaction({
+    //   deviceId: pendingDevice.id,
+    //   preRoomId: pendingDevice.roomId,
+    //   postRoomId: roomId,
+    //   patientName,
+    //   setDevices: setDeviceList,
+    //   setRooms,
+    //   setHistories,
+    //   setTasks
+   // })
+  //}
+
+  setRoomToRoomModalOpen(false)
+  setPendingDevice(null)
+  setTargetWardId(null)
+}
+
   const handleRoomToRoomCancel = () => {
     if (!currentUser) {return}  
     setRoomToRoomModalOpen(false)

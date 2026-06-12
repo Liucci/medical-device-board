@@ -56,6 +56,7 @@ from transactions.devices.finish_standby_transaction import (finish_standby_tran
 from transactions.devices.move_stock_to_room_transaction import (move_stock_to_room_transaction)
 from transactions.devices.move_stock_to_stock_transaction import move_stock_to_stock_transaction
 from transactions.devices.move_room_to_stock_transaction import move_room_to_stock_transaction
+from transactions.devices.move_room_to_room_transaction import move_room_to_room_transaction
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -1077,3 +1078,33 @@ def move_room_to_stock_route(
                                                   )
 
     return moved_device
+
+@app.post("/move_room_to_room")
+def move_room_to_room_route(
+                        device: MoveDeviceRequest,
+                        pre_room: ClearRoomPatientRequest,
+                        post_room: UpdateRoomPatientRequest,
+                        auth_user_id: str = Depends(get_auth_user_id)
+                    ):
+
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+    print("move_room_to_room")
+    moved_device=move_room_to_room_transaction(
+                                            device=device,
+                                            pre_room=pre_room,
+                                            post_room=post_room,
+                                            hospital_id=current_user["hospital_id"],
+                                            user_id=current_user["id"],
+                                            pre_patient_name=None,
+                                            status="room",
+                                            action_type="moved_to_room",
+                                            message="Room moved"
+                                         )
+    return moved_device
+
+
+
+
+
