@@ -32,6 +32,7 @@ import { supabase } from "../lib/supabase"
 //FASTAPI移行用
 import {getDevicesFromApi} from "../api/devices/fetchDevices"
 import {moveStockToRoomTransaction} from "../api/transactions/devices/moveStockToRoomTransaction"
+import {moveStockToStockTransaction} from "../api/transactions/devices/moveStockToStockTransaction"
 
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
 import {getWardsFromApi} from "../api/wards/fetchWards"
@@ -278,7 +279,24 @@ export default function Page() {
     }
     // DBから再取得
     await fetchHistories()
-  }
+    }
+  const handleStockToStock = async (
+                                    device:Device,  
+                                    stockAreaId: number
+                                    ) => {
+
+    if (!device?.id) {return}
+
+    await moveStockToStockTransaction({
+                                        deviceId: device.id,
+                                        stockAreaId,
+                                        setDevices: setDeviceList,
+                                        setHistories
+                                      })
+
+    setPendingDevice(null)
+  }  
+
   const handleDropToWard = async (
     device: Device,
     wardId: number
@@ -1957,7 +1975,7 @@ useEffect(() => {
           handleMouseMove={handleMouseMove}
           draggingDevice={draggingDevice}
           pendingDevice={pendingDevice}
-          onDrop={handleDropToStock}
+          onDrop={handleStockToStock}
           openStockInfoModal={openStockInfoModal}
           getMAlert={getMAlert}
           stockCellSize={stockCellSize}

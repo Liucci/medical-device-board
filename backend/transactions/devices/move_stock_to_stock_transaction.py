@@ -6,6 +6,7 @@ def move_stock_to_stock_transaction(
                                       device: MoveDeviceRequest,
                                       hospital_id: str,
                                       user_id: str,
+                                      status:str,
                                       action_type: str,
                                       message: str
                                     ):
@@ -14,7 +15,8 @@ def move_stock_to_stock_transaction(
 
     moved_device = move_device(
                                 device=device,
-                                hospital_id=hospital_id
+                                hospital_id=hospital_id,
+                                status=status
                               )
 
     supabase.table("device_histories").insert({

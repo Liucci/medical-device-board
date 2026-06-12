@@ -54,6 +54,7 @@ from transactions.devices.finish_maintenance_transaction import (finish_maintena
 from transactions.devices.start_standby_transaction import (start_standby_transaction)
 from transactions.devices.finish_standby_transaction import (finish_standby_transaction)
 from transactions.devices.move_stock_to_room_transaction import (move_stock_to_room_transaction)
+from transactions.devices.move_stock_to_stock_transaction import move_stock_to_stock_transaction
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -1022,6 +1023,30 @@ def move_stock_to_room_route(
                                                     status="room",
                                                     action_type="moved_to_room",
                                                     message="stock to room"
+                                                  )
+
+    return moved_device
+
+
+@app.post("/move_stock_to_stock")
+def move_stock_to_stock_route(
+                                device: MoveDeviceRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
+                             ):
+
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+
+    print("move_stock_to_stock")
+
+    moved_device = move_stock_to_stock_transaction(
+                                                    device=device,
+                                                    hospital_id=current_user["hospital_id"],
+                                                    user_id=current_user["id"],
+                                                    status="stock",
+                                                    action_type="moved_to_stock",
+                                                    message="stock to stock"
                                                   )
 
     return moved_device
