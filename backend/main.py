@@ -36,7 +36,7 @@ from schemas.device_schemas import (
                                     )
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
-from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest)
+from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest,ClearRoomPatientRequest)
 from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest)
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
@@ -55,6 +55,7 @@ from transactions.devices.start_standby_transaction import (start_standby_transa
 from transactions.devices.finish_standby_transaction import (finish_standby_transaction)
 from transactions.devices.move_stock_to_room_transaction import (move_stock_to_room_transaction)
 from transactions.devices.move_stock_to_stock_transaction import move_stock_to_stock_transaction
+from transactions.devices.move_room_to_stock_transaction import move_room_to_stock_transaction
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -1047,6 +1048,32 @@ def move_stock_to_stock_route(
                                                     status="stock",
                                                     action_type="moved_to_stock",
                                                     message="stock to stock"
+                                                  )
+
+    return moved_device
+
+@app.post("/move_room_to_stock")
+def move_room_to_stock_route(
+                              device: MoveDeviceRequest,
+                              room: ClearRoomPatientRequest,
+                              auth_user_id: str = Depends(get_auth_user_id)
+                            ):
+
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+
+    print("move_room_to_stock")
+
+    moved_device = move_room_to_stock_transaction(
+                                                    device=device,
+                                                    room=room,
+                                                    hospital_id=current_user["hospital_id"],
+                                                    user_id=current_user["id"],
+                                                    patient_name=None,
+                                                    status="stock",
+                                                    action_type="moved_to_stock",
+                                                    message="room to stock"
                                                   )
 
     return moved_device

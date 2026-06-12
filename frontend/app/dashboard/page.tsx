@@ -33,6 +33,8 @@ import { supabase } from "../lib/supabase"
 import {getDevicesFromApi} from "../api/devices/fetchDevices"
 import {moveStockToRoomTransaction} from "../api/transactions/devices/moveStockToRoomTransaction"
 import {moveStockToStockTransaction} from "../api/transactions/devices/moveStockToStockTransaction"
+import {moveRoomToStockTransaction} from "../api/transactions/devices/moveRoomToStockTransaction"
+
 
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
 import {getWardsFromApi} from "../api/wards/fetchWards"
@@ -203,7 +205,7 @@ export default function Page() {
     setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
   }
 
-  const handleDropToStock = async (device: Device, stockAreaId: number) => {
+/*   const handleDropToStock = async (device: Device, stockAreaId: number) => {
     if (!currentUser) {return}  
     // ① UI即更新（UX）
     setDeviceList(prev =>
@@ -280,22 +282,41 @@ export default function Page() {
     // DBから再取得
     await fetchHistories()
     }
-  const handleStockToStock = async (
-                                    device:Device,  
-                                    stockAreaId: number
-                                    ) => {
 
-    if (!device?.id) {return}
+ */    
+  
+const handleDropToStock = async (
+                                  device: Device,
+                                  stockAreaId: number
+                                ) => {
 
-    await moveStockToStockTransaction({
+  if (!device?.id) {return}
+
+  if (device.status === "room") {
+    if (!device?.roomId) {return}
+    await moveRoomToStockTransaction({
                                         deviceId: device.id,
+                                        roomId: device.roomId,
                                         stockAreaId,
                                         setDevices: setDeviceList,
-                                        setHistories
+                                        setRooms,
+                                        setHistories,
+                                        setTasks
                                       })
 
-    setPendingDevice(null)
-  }  
+      setDraggingDevice(null)
+    return
+  }
+
+  await moveStockToStockTransaction({
+                                      deviceId: device.id,
+                                      stockAreaId,
+                                      setDevices: setDeviceList,
+                                      setHistories
+                                    })
+
+  setDraggingDevice(null)
+}
 
   const handleDropToWard = async (
     device: Device,
@@ -1975,7 +1996,7 @@ useEffect(() => {
           handleMouseMove={handleMouseMove}
           draggingDevice={draggingDevice}
           pendingDevice={pendingDevice}
-          onDrop={handleStockToStock}
+          onDrop={handleDropToStock}
           openStockInfoModal={openStockInfoModal}
           getMAlert={getMAlert}
           stockCellSize={stockCellSize}

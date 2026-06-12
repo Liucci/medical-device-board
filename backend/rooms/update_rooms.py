@@ -1,7 +1,8 @@
 from common.supabase_client import supabase
 from schemas.room_schemas import (
                                     UpdateRoomRequest,
-                                    UpdateRoomPatientRequest
+                                    UpdateRoomPatientRequest,
+                                    ClearRoomPatientRequest
                                   )
 
 def update_room(
@@ -22,7 +23,7 @@ def update_room(
 
     return response.data[0]
 
-
+"front UIから患者名取得できる操作専用"
 def update_room_patientname(
                               room: UpdateRoomPatientRequest,
                               hospital_id: str
@@ -38,5 +39,27 @@ def update_room_patientname(
                     .eq("hospital_id", hospital_id)
                     .execute()
                 )
+
+    return response.data[0]
+
+"front UIから患者名取得できない操作だが、患者名を編集したいとき専用"
+def clear_room_patientname(
+                             room: ClearRoomPatientRequest,
+                             hospital_id: str,
+                             patient_name:str
+                           ):
+
+    print("clear_room_patientname")
+
+    response = (
+                  supabase
+                  .table("rooms")
+                  .update({
+                              "patient_name": patient_name
+                          })
+                  .eq("id", room.id)
+                  .eq("hospital_id", hospital_id)
+                  .execute()
+               )
 
     return response.data[0]

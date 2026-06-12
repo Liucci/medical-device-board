@@ -33,6 +33,12 @@ export type UpdateRoomPatientType = {
                                       id: number
                                       patientName: string
                                     }
+                                    
+//患者名変更用、ただし患者名入力UI無い場合専用
+export type ClearRoomPatientType = {
+                                     id: number
+                                   }
+
 
 // Delete専用
 export type DeleteRoomsType = {

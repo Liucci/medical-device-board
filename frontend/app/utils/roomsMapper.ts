@@ -4,7 +4,8 @@ import {
          CreateRoomType,
          UpdateRoomType,
          UpdateRoomPatientType,
-         DeleteRoomsType
+         DeleteRoomsType,
+         ClearRoomPatientType
        } from "../types/roomTypes"
 
 // DB → UI
@@ -41,6 +42,12 @@ export const toUpdateRoomPatientRequest = (
                                                    id: room.id,
                                                    patient_name: room.patientName
                                                  })
+//患者名変更、患者名入力UI無し専用mapper
+export const toClearRoomPatientRequest = (
+                                            room: ClearRoomPatientType
+                                          ) => ({
+                                                  id: room.id
+                                                })
 
 // Delete
 export const toDeleteRoomsRequest = (
@@ -48,3 +55,4 @@ export const toDeleteRoomsRequest = (
                                      ) => ({
                                              ids: rooms.ids
                                            })
+
