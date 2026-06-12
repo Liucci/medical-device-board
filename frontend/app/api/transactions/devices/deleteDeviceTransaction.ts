@@ -2,7 +2,9 @@ import { API_BASE_URL } from "../../client"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getTasksFromApi } from "../../tasks/fetchTasks"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
-import {toDeleteDeviceRequest} from "../../../utils/deviceMapper"
+import {toDeleteDeviceRequest,normalizeDevice} from "../../../utils/deviceMapper"
+import { normalizeMaintenanceTask } from "@/app/utils/taskMapper"
+import { normalizeHistory } from "@/app/utils/historyMapper"
 
 
 type DeleteDeviceTransactionParams = {
@@ -52,9 +54,9 @@ export async function deleteDeviceTransaction({
     const histories =
         await getHistoriesFromApi()
 
-    setDeviceList(devices)
-    setTasks(tasks)
-    setHistories(histories)
+    setDeviceList(devices.map(normalizeDevice))
+    setTasks(tasks.map(normalizeMaintenanceTask))
+    setHistories(histories.map(normalizeHistory))
 
     if (onClose) {
         onClose()

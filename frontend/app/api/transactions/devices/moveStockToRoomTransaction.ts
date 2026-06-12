@@ -64,7 +64,11 @@ export async function moveStockToRoomTransaction({
   const devices = await getDevicesFromApi()
   
   setDevices(devices.map(normalizeDevice))
-
+  console.log("devices", devices)
+  console.log(
+      "after normalize",
+      devices.map(normalizeDevice)
+    )
   const rooms = await getRoomsFromApi()
   setRooms(rooms.map(normalizeRoom))
 

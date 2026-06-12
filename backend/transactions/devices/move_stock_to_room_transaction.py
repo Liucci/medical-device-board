@@ -19,7 +19,8 @@ def move_stock_to_room_transaction(
                                      hospital_id: str,
                                      user_id: str,
                                      action_type: str,
-                                     message: str
+                                     message: str,
+                                     status:str
                                    ):
 
     print("move_stock_to_room_transaction")
@@ -32,7 +33,8 @@ def move_stock_to_room_transaction(
     # 機器移動
     moved_device = move_device(
                                 device=device,
-                                hospital_id=hospital_id
+                                hospital_id=hospital_id,
+                                status=status
                               )
     # task生成
     create_device_tasks_transaction(

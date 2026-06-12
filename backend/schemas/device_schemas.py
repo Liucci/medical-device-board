@@ -77,6 +77,7 @@ class MoveDeviceRequest(BaseModel):
     id: int
     stock_area_id: int | None = None
     room_id: int | None = None
+    
 
 # =========================
 # Maintenance

@@ -207,3 +207,22 @@ DB abstraction
 ```text
 UI orchestration
 ```
+
+## Mapper適用ルール
+
+Frontendでは Mapper(normalizeXXX) の適用箇所を統一する。
+
+### 原則
+
+- API Fetch関数は生データ(DB Schema形式)を返す
+- normalize処理はTransaction層で実施する
+- UIコンポーネントへ渡すデータは必ずFrontend Type形式とする
+
+### 例
+
+```ts
+const devices = await getDevicesFromApi()
+
+setDeviceList(
+  devices.map(normalizeDevice)
+)

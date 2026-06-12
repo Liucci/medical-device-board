@@ -17,7 +17,6 @@ import {
   TestTube
 } from "lucide-react"
 //テストボタン用
-import { addDeviceFromApi } from "../api/devices/addDevices"
 
 
 //supabase

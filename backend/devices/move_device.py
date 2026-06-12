@@ -3,7 +3,8 @@ from schemas.device_schemas import MoveDeviceRequest
 
 def move_device(
                  device: MoveDeviceRequest,
-                 hospital_id: str
+                 hospital_id: str,
+                 status:str
                ):
 
     print("move_device")
@@ -13,7 +14,8 @@ def move_device(
                   .table("devices")
                   .update({
                               "room_id": device.room_id,
-                              "stock_area_id": device.stock_area_id
+                              "stock_area_id": device.stock_area_id,
+                              "status":status
                           })
                   .eq("id", device.id)
                   .eq("hospital_id", hospital_id)

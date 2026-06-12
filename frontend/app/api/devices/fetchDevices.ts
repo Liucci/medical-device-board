@@ -21,7 +21,5 @@ export async function getDevicesFromApi() {
         }
     )
 
-    const devices = await response.json()
-
-    return devices.map(normalizeDevice)
+    return await response.json()
 }

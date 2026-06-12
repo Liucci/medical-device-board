@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client"
 import { Device } from "../../../types/deviceTypes"
-import { toDBDevice,toCreateDeviceRequest } from "../../../utils/deviceMapper"
+import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../utils/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 
 type CreateDeviceTransactionParams = {
@@ -40,7 +40,7 @@ export async function createDeviceTransaction({
     const devices =
         await getDevicesFromApi()
 
-    setDeviceList(devices)
+    setDeviceList(devices.map(normalizeDevice))
 
     onClose()
 }

@@ -1019,6 +1019,7 @@ def move_stock_to_room_route(
                                                     room=room,
                                                     hospital_id=current_user["hospital_id"],
                                                     user_id=current_user["id"],
+                                                    status="room",
                                                     action_type="moved_to_room",
                                                     message="stock to room"
                                                   )

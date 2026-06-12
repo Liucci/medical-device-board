@@ -817,7 +817,7 @@ export default function Page() {
     const devices =
       await getDevicesFromApi()
 
-    setDeviceList(devices)
+    setDeviceList(devices.map(normalizeDevice))
 
     const updatedDevice =
       devices.find(
@@ -907,7 +907,7 @@ if (updatedDevice) {
     const devices=
       await getDevicesFromApi()
 
-    setDeviceList(devices)
+    setDeviceList(devices.map(normalizeDevice))
     console.log(
     devices.find(
                 (d: Device) => d.id === id
@@ -1104,7 +1104,7 @@ if (updatedDevice) {
   const devices =
     await getDevicesFromApi()
 
-  setDeviceList(devices)
+  setDeviceList(devices.map(normalizeDevice))
 
   const updatedDevice =
     devices.find(
@@ -1844,11 +1844,11 @@ useEffect(() => {
       return
     }
 
-setDeviceList(
-  data.devices.map(
-    normalizeDevice
-  )
-)
+    setDeviceList(
+      data.devices.map(
+        normalizeDevice
+      )
+    )
     setStockAreas(
       data.stock_areas.map(
         normalizeStockArea
