@@ -13,10 +13,8 @@ from rooms.update_rooms import (
 
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 
-from transactions.tasks.create_device_tasks_transaction import (
-                                                                  create_device_tasks_transaction
-                                                               )
-
+from transactions.tasks.create_device_tasks_transaction import (create_device_tasks_transaction)
+from transactions.histories.create_device_history import (create_device_history)
 from schemas.device_schemas import (
                                       MoveDeviceRequest,
                                       UpdateManagementNumberRequest,
@@ -107,12 +105,12 @@ def move_room_to_room_new_patient_transaction(
                                    )
 
     # 履歴作成
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message
-                                              }).execute()
-
+# 履歴作成
+    create_device_history(
+                            device_id=device.id,
+                            hospital_id=hospital_id,
+                            action_by=user_id,
+                            action_type=action_type,
+                            message=message
+                        )
     return moved_device
