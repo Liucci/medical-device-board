@@ -11,8 +11,6 @@ class HistoryResponse(BaseModel):
     action_type: str
     message: str | None = None
 
-    room_id: int | None = None
-    stock_area_id: int | None = None
 
     management_number: str | None = None
     serial_number: str | None = None

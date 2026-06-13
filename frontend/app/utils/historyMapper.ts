@@ -13,20 +13,11 @@ export const normalizeHistory = (
   deviceId:
     h.device_id,
 
-  userId:
-    h.user_id ?? undefined,
 
   actionType:
     h.action_type,
 
-  status:
-    h.status ?? undefined,
 
-  roomId:
-    h.room_id ?? undefined,
-
-  stockAreaId:
-    h.stock_area_id ?? undefined,
 
   managementNumber:
     h.management_number ?? undefined,
@@ -37,14 +28,6 @@ export const normalizeHistory = (
   note:
     h.note ?? undefined,
 
-  errorCode:
-    h.error_code ?? undefined,
-
-  errorLevel:
-    h.error_level ?? undefined,
-
-  errorDetail:
-    h.error_detail ?? undefined,
 
   message:
     h.message ?? undefined,
@@ -98,20 +81,10 @@ export const toDBHistory = (
   device_id:
     h.deviceId,
 
-  user_id:
-    h.userId ?? null,
 
   action_type:
     h.actionType,
 
-  status:
-    h.status ?? null,
-
-  room_id:
-    h.roomId ?? null,
-
-  stock_area_id:
-    h.stockAreaId ?? null,
 
   management_number:
     h.managementNumber ?? null,
@@ -122,14 +95,6 @@ export const toDBHistory = (
   note:
     h.note ?? null,
 
-  error_code:
-    h.errorCode ?? null,
-
-  error_level:
-    h.errorLevel ?? null,
-
-  error_detail:
-    h.errorDetail ?? null,
 
   message:
     h.message ?? null,

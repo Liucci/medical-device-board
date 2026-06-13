@@ -3,15 +3,10 @@ export type History = {
 
   deviceId: number
 
-  userId?: string
 
   actionType: string
 
-  status?: string | null
 
-  roomId?: number | null
-
-  stockAreaId?: number | null
 
   managementNumber?: string | null
 
@@ -19,11 +14,6 @@ export type History = {
 
   note?: string | null
 
-  errorCode?: string | null
-
-  errorLevel?: string | null
-
-  errorDetail?: string | null
 
   message?: string | null
 
@@ -58,15 +48,10 @@ export type HistoryDB = {
 
   device_id: number
 
-  user_id?: string | null
 
   action_type: string
 
-  status?: string | null
 
-  room_id?: number | null
-
-  stock_area_id?: number | null
 
   management_number?: string | null
 
@@ -74,11 +59,6 @@ export type HistoryDB = {
 
   note?: string | null
 
-  error_code?: string | null
-
-  error_level?: string | null
-
-  error_detail?: string | null
 
   message?: string | null
 

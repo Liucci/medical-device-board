@@ -13,3 +13,22 @@ def fetch_wards(hospital_id:str):
                 .execute()
     )
     return response.data
+
+def fetch_ward(
+                ward_id: int,
+                hospital_id: str
+              ):
+
+    print("fetch_ward")
+
+    response = (
+                    supabase
+                    .table("wards")
+                    .select("*")
+                    .eq("id", ward_id)
+                    .eq("hospital_id", hospital_id)
+                    .single()
+                    .execute()
+               )
+
+    return response.data

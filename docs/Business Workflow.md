@@ -287,3 +287,140 @@ note
 ・Maintenance Task の手動作成は行わない
 ・Maintenance Task の手動編集は行わない
 ・システムが自動生成・自動削除する
+
+① room → room の業務ルール
+
+room → room は患者移動を表す。
+
+同患者の場合
+・機器はそのまま移動
+・管理番号維持
+・シリアル維持
+・備考維持
+・task維持
+
+別患者の場合
+・新規患者への使用開始とみなす
+・管理番号クリア
+・シリアルクリア
+・備考クリア
+・task削除後再生成
+
+
+② 病室患者名のルール
+患者が別病室へ移動した場合
+
+移動元病室の patient_name はクリアする。
+
+患者情報は病室に紐付く。
+
+③ room → room の Front 判定ルール
+
+同患者判定は Frontend が行う。
+
+samePatient = true
+↓
+move_room_to_room
+
+samePatient = false
+↓
+move_room_to_room_new_patient
+
+④ 機器詳細情報リセット対象
+患者変更時にリセットする項目
+
+management_number
+serial_number
+note
+
+上記は患者固有情報として扱う。
+
+⑤ task運用ルール
+患者変更時
+
+既存taskを削除
+↓
+maintenance_typesから再生成
+
+同患者移動ではtask維持
+
+### 12.6 History Design Rule
+
+History は過去時点の Snapshot を保持する。
+
+履歴表示で利用するため、以下の情報は履歴作成時点の値を保存する。
+
+```text
+device_type_name
+device_model_name
+
+room_name
+stock_area_name
+
+patient_name
+
+management_number
+serial_number
+note
+```
+
+ID参照による復元は行わない。
+
+```text
+room_id
+stock_area_id
+```
+
+は保持しない。
+
+理由
+
+・Room名変更後も当時の履歴を正しく表示するため
+・StockArea名変更後も当時の履歴を正しく表示するため
+・履歴単体で内容を理解できるようにするため
+
+---
+
+### 12.7 Maintenance Task History Rule
+
+Maintenance Task 実施時は Device History を作成する。
+
+```text
+action_type
+
+maintenance_task_completed
+```
+
+```text
+message
+
+Maintenance Type 名
+```
+
+例
+
+```text
+action_type
+maintenance_task_completed
+
+message
+輸液ポンプ点検
+```
+
+実施日時は
+
+```text
+created_at
+```
+
+を利用する。
+
+実施者は
+
+```text
+action_by
+```
+
+を利用する。
+
+Maintenance Task 専用の履歴カラムは追加しない。
