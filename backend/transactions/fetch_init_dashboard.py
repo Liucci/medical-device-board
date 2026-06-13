@@ -67,7 +67,7 @@ def fetch_init_dashboard(
     tasks = fetch_maintenance_tasks(
         hospital_id
     )
-
+    #print(f"task:{tasks}")
     maintenance_types = (
         fetch_maintenance_types(
             hospital_id

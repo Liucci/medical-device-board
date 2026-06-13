@@ -57,6 +57,7 @@ from transactions.devices.move_stock_to_room_transaction import (move_stock_to_r
 from transactions.devices.move_stock_to_stock_transaction import move_stock_to_stock_transaction
 from transactions.devices.move_room_to_stock_transaction import move_room_to_stock_transaction
 from transactions.devices.move_room_to_room_transaction import move_room_to_room_transaction
+from transactions.devices.move_room_to_room_new_patient_transaction import move_room_to_room_new_patient_transaction
 
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
@@ -1104,7 +1105,38 @@ def move_room_to_room_route(
                                          )
     return moved_device
 
+@app.post("/move_room_to_room_new_patient")
+def move_room_to_room_new_patient_route(
+                                          device: MoveDeviceRequest,
+                                          pre_room: ClearRoomPatientRequest,
+                                          post_room: UpdateRoomPatientRequest,
+                                          auth_user_id: str = Depends(
+                                                                      get_auth_user_id
+                                                                    )
+                                       ):
 
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+
+    print("move_room_to_room_new_patient")
+
+    moved_device = move_room_to_room_new_patient_transaction(
+                                                              device=device,
+                                                              pre_room=pre_room,
+                                                              post_room=post_room,
+                                                              hospital_id=current_user["hospital_id"],
+                                                              user_id=current_user["id"],
+                                                              pre_patient_name=None,
+                                                              management_number=None,
+                                                              serial_number=None,
+                                                              note=None,
+                                                              status="room",
+                                                              action_type="moved_to_room_new_patient",
+                                                              message="Room moved new patient"
+                                                            )
+
+    return moved_device
 
 
 

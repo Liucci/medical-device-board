@@ -35,7 +35,7 @@ import {moveStockToRoomTransaction} from "../api/transactions/devices/moveStockT
 import {moveStockToStockTransaction} from "../api/transactions/devices/moveStockToStockTransaction"
 import {moveRoomToStockTransaction} from "../api/transactions/devices/moveRoomToStockTransaction"
 import {moveRoomToRoomTransaction} from "../api/transactions/devices/moveRoomToRoomTransaction"
-
+import {moveRoomToRoomNewPatientTransaction} from "../api/transactions/devices/moveRoomToRoomNewPatientTransaction"
 
 import {getStockAreasFromApi} from "../api/stockAreas/fetchStockAreas"
 import {getWardsFromApi} from "../api/wards/fetchWards"
@@ -51,7 +51,7 @@ import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumb
 import { updateNote } from "../api/transactions/devices/updateNote"
 import {startStandby} from "../api/transactions/devices/startStandby"
 import {finishStandby} from "../api/transactions/devices/finishStandby"
-
+import { updateRoomPatientName } from "../api/transactions/rooms/updateRoomPatientName"
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
 
@@ -676,7 +676,6 @@ const handleRoomToRoomSubmit = async (
   if (!pendingDevice?.roomId) {return}
 
   if (samePatient) {
-
     await moveRoomToRoomTransaction({
                                       deviceId: pendingDevice.id,
                                       preRoomId: pendingDevice.roomId,
@@ -686,20 +685,19 @@ const handleRoomToRoomSubmit = async (
                                       setRooms,
                                       setHistories
                                     })
-
-  } 
-  //else {
-    // await moveRoomToRoomNewPatientTransaction({
-    //   deviceId: pendingDevice.id,
-    //   preRoomId: pendingDevice.roomId,
-    //   postRoomId: roomId,
-    //   patientName,
-    //   setDevices: setDeviceList,
-    //   setRooms,
-    //   setHistories,
-    //   setTasks
-   // })
-  //}
+    } 
+    else {
+      await moveRoomToRoomNewPatientTransaction({
+                                                  deviceId: pendingDevice.id,
+                                                  preRoomId: pendingDevice.roomId,
+                                                  postRoomId: roomId,
+                                                  patientName,
+                                                  setDevices: setDeviceList,
+                                                  setRooms,
+                                                  setHistories,
+                                                  setTasks
+                                                })
+    }
 
   setRoomToRoomModalOpen(false)
   setPendingDevice(null)
@@ -874,7 +872,29 @@ const handleRoomToRoomSubmit = async (
     return true
   } 
  */ 
-// シリアル編集関数(boolean)
+
+  const renamePatientName = async (
+                                    roomId: number,
+                                    value: string
+                                  ): Promise<boolean> => {
+
+    const room = rooms.find(r => r.id === roomId)
+
+    if (!room) {return false}
+
+    await updateRoomPatientName({
+                                  room: {
+                                          ...room,
+                                          patientName: value
+                                        },
+                                  setRooms
+                                })
+
+    return true
+  }
+
+
+  // シリアル編集関数(boolean)
   const renameSerialNumber = async (
                                     id: number,
                                     value: string
@@ -1708,8 +1728,8 @@ if (updatedDevice) {
     if (!deviceId) return []
     return tasks.filter(
       t =>
-        Number(t.device_id) === Number(deviceId) &&
-        t.status === "pending"
+        Number(t.deviceId) === Number(deviceId)
+        
     )
   }  
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
@@ -1718,9 +1738,7 @@ if (updatedDevice) {
     // 対象デバイスのタスクだけ取得
     const deviceTasks = tasks.filter(
       t =>
-        Number(t.device_id) === Number(deviceId) &&
-        t.status === "pending"
-    )
+        Number(t.deviceId) === Number(deviceId)    )
 
     // タスクが無ければ正常
     if (deviceTasks.length === 0) return "green"
@@ -1960,7 +1978,6 @@ useEffect(() => {
     setTasks(
       data.tasks.map(normalizeMaintenanceTask)
     )
-
     setMaintenanceTypes(
       data.maintenance_types.map(normalizeMaintenanceType)
     )
@@ -1974,6 +1991,9 @@ useEffect(() => {
 
   }, [currentUser])
   
+  useEffect(() => {
+  console.log("tasks updated", tasks)
+}, [tasks])
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
   if (!currentUser) {
@@ -2142,6 +2162,7 @@ useEffect(() => {
         tasks={getDeviceTasks(selectedRoomDevice?.id)}                  // ← 渡す
         maintenanceTypes={maintenanceTypes} // ← 渡す
         onCompleteTask={handleCompleteTask} // ← 渡す
+        renamePatientName={renamePatientName}
         renameManagementNumber={renameManagementNumber}
         renameSerialNumber={renameSerialNumber}
         renameNote={renameNote}

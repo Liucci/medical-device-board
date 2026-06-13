@@ -81,7 +81,7 @@ const standbyFinishedAt =
 // ===== room =====
 
 const room = rooms.find(
-  r => r.roomId === selectedRoomDevice.roomId
+  r => r.id === selectedRoomDevice.roomId
 )
 
 const patientName =
@@ -100,12 +100,12 @@ const modelName =
   )?.name ?? "不明"
 
 const roomName =
-  room?.roomName ?? "不明"
+  room?.name ?? "不明"
 
 const wardName =
   wards.find(
-    w => w.wardId === room?.wardId
-  )?.wardName ?? "不明"  
+    w => w.id === room?.wardId
+  )?.name ?? "不明"  
     // 🔽 共通表示行
   const InfoRow = ({
                     label,
@@ -440,8 +440,8 @@ const wardName =
             )}
 
             {tasks.map(task => {
-              const type = maintenanceTypes.find(t => t.id === task.maintenance_type_id)
-              const status = getStatus(task.due_at)
+              const type = maintenanceTypes.find(t => t.id === task.maintenanceTypeId)
+              const status = getStatus(task.dueAt)
 
               return (
                 <div
@@ -454,7 +454,7 @@ const wardName =
                       {status.label}
                     </div>
                     <div className="text-xs text-gray-400">
-                      期限：{new Date(task.due_at).toLocaleDateString()}
+                      期限：{new Date(task.dueAt).toLocaleDateString()}
                     </div>
                   </div>
 

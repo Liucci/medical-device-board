@@ -20,15 +20,15 @@ type Device = {
 }
 
 type Room = {
-  roomId: number
+  id: number
   wardId: number
-  roomName: string
+  name: string
   patientName?: string
 }
 
 type Ward = {
-  wardId: number
-  wardName: string
+  id: number
+  name: string
 }
 
 type StockArea = {
@@ -111,7 +111,7 @@ export default function DeviceListModal({
 
     return rooms.find(
       r =>
-        Number(r.roomId)
+        Number(r.id)
         === Number(roomId)
     )
 
@@ -127,11 +127,11 @@ export default function DeviceListModal({
     const ward =
       wards.find(
         w =>
-          Number(w.wardId)
+          Number(w.id)
           === Number(room?.wardId)
       )
 
-    return ward?.wardName ?? ""
+    return ward?.name ?? ""
 
   }
 
@@ -412,11 +412,11 @@ export default function DeviceListModal({
 
         const roomA =
           getRoom(a.roomId)
-            ?.roomName ?? ""
+            ?.name ?? ""
 
         const roomB =
           getRoom(b.roomId)
-            ?.roomName ?? ""
+            ?.name ?? ""
 
         return roomA.localeCompare(
           roomB,
@@ -477,7 +477,7 @@ export default function DeviceListModal({
           : "",
 
         device.status === "room"
-          ? room?.roomName ?? ""
+          ? room?.name ?? ""
           : getStockAreaName(
               device.stockAreaID
             ),
@@ -582,7 +582,7 @@ export default function DeviceListModal({
 
         roomName:
           device.status === "room"
-            ? room?.roomName ?? ""
+            ? room?.name ?? ""
             : getStockAreaName(
                 device.stockAreaID
               ),
@@ -1133,7 +1133,7 @@ export default function DeviceListModal({
 
                       {
                         device.status === "room"
-                          ? room?.roomName ?? ""
+                          ? room?.name ?? ""
                           : getStockAreaName(
                               device.stockAreaID
                             )

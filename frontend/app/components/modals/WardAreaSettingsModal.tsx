@@ -12,10 +12,10 @@ import { updateRoomTransaction } from "../../api/transactions/rooms/updateRoomTr
 import { deleteRoomsTransaction } from "../../api/transactions/rooms/deleteRoomsTransaction"
 
 type Props = {
-  wards: WardType[]
+  wards: { id: number; name: string }[]
   setWards: React.Dispatch<React.SetStateAction<any[]>>
 
-  rooms: RoomType[]
+  rooms:  { id: number; wardId: number; name: string; patientName: string }[]
   setRooms: React.Dispatch<React.SetStateAction<any[]>>
 }
 
@@ -141,7 +141,7 @@ export default function WardAreaSettingsModal({
   }
 
   const handleRenameRoom = async (
-                                    room: RoomType
+                                    room:{id:number,name:string}
                                   ) => {
 
     const name =

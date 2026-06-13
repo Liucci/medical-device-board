@@ -80,7 +80,7 @@ export default function RoomModal({
         {/* 病棟表示 */}
         <div className="mb-4">
           <div className="text-sm text-gray-500">病棟</div>
-          <div className="font-bold text-lg">{ward?.wardName}</div>
+          <div className="font-bold text-lg">{ward?.name}</div>
         </div>
 
         {/* Room dropdown */}

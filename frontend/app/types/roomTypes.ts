@@ -16,7 +16,7 @@ export type RoomDBType = {
                            patient_name?: string
                          }
 
-// Create専用
+// Create専用 wardID表示が正しい
 export type CreateRoomType = {
                                wardId: number
                                name: string

@@ -21,9 +21,9 @@ type Props = {
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-  wards: { wardId: number; wardName: string }[]
+  wards: { id: number; name: string }[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
-  rooms: { roomId: number; wardId: number; roomName: string; patientName: string }[]
+  rooms: { id: number; wardId: number; name: string; patientName: string }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
   maintenanceTypes: {
     id: number
