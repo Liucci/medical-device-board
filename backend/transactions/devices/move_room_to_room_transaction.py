@@ -1,18 +1,11 @@
 from common.supabase_client import supabase
-
 from devices.move_device import move_device
-
-from rooms.update_rooms import (
-                                  clear_room_patientname,
-                                  update_room_patientname
-                               )
-
+from rooms.update_rooms import (  clear_room_patientname,
+                                  update_room_patientname)
 from schemas.device_schemas import MoveDeviceRequest
-from schemas.room_schemas import (
-                                    ClearRoomPatientRequest,
-                                    UpdateRoomPatientRequest
-                                 )
-
+from schemas.room_schemas import ( ClearRoomPatientRequest,
+                                    UpdateRoomPatientRequest)
+from transactions.histories.create_device_history import (create_device_history)
 
 def move_room_to_room_transaction(
                                     device: MoveDeviceRequest,
@@ -50,12 +43,11 @@ def move_room_to_room_transaction(
                               )
 
     # 履歴作成
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message
-                                              }).execute()
-
+    create_device_history(
+                              device_id=device.id,
+                              hospital_id=hospital_id,
+                              action_by=user_id,
+                              action_type=action_type,
+                              message=message
+                           )
     return moved_device

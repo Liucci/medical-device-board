@@ -1,6 +1,7 @@
 from common.supabase_client import supabase
 from devices.update_note import update_note
 from schemas.device_schemas import UpdateNoteRequest
+from transactions.histories.create_device_history import (create_device_history)
 
 def update_note_transaction(
                               device: UpdateNoteRequest,
@@ -17,13 +18,11 @@ def update_note_transaction(
                                   hospital_id=hospital_id
                                 )
 
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message,
-                                                "note": device.note
-                                              }).execute()
-
+    create_device_history(
+                        device_id=device.id,
+                        hospital_id=hospital_id,
+                        action_by=user_id,
+                        action_type=action_type,
+                        message=message
+                     )
     return updated_device

@@ -1,14 +1,10 @@
 from common.supabase_client import supabase
-
 from devices.move_device import move_device
-
 from rooms.update_rooms import clear_room_patientname
-
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
-
 from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ClearRoomPatientRequest
-
+from transactions.histories.create_device_history import (create_device_history)
 
 def move_room_to_stock_transaction(
                                     device: MoveDeviceRequest,
@@ -42,13 +38,12 @@ def move_room_to_stock_transaction(
                                 status=status
                               )
 
-    # 履歴作成
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message
-                                              }).execute()
-
+# 履歴作成
+    create_device_history(
+                        device_id=device.id,
+                        hospital_id=hospital_id,
+                        action_by=user_id,
+                        action_type=action_type,
+                        message=message
+                     )
     return moved_device

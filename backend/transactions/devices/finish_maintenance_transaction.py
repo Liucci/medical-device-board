@@ -1,6 +1,7 @@
 from common.supabase_client import supabase
 from devices.finish_maintenance import finish_maintenance
 from schemas.device_schemas import FinishMaintenanceRequest
+from transactions.histories.create_device_history import (create_device_history)
 
 def finish_maintenance_transaction(
                                      device: FinishMaintenanceRequest,
@@ -17,12 +18,11 @@ def finish_maintenance_transaction(
                                            hospital_id=hospital_id
                                         )
 
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message
-                                              }).execute()
-
+    create_device_history(
+                        device_id=device.id,
+                        hospital_id=hospital_id,
+                        action_by=user_id,
+                        action_type=action_type,
+                        message=message
+                     )
     return updated_device

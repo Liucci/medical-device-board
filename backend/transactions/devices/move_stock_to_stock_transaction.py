@@ -1,6 +1,7 @@
 from common.supabase_client import supabase
 from devices.move_device import move_device
 from schemas.device_schemas import MoveDeviceRequest
+from transactions.histories.create_device_history import (create_device_history)
 
 def move_stock_to_stock_transaction(
                                       device: MoveDeviceRequest,
@@ -19,12 +20,11 @@ def move_stock_to_stock_transaction(
                                 status=status
                               )
 
-    supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": device.id,
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message
-                                              }).execute()
-
+    create_device_history(
+                        device_id=device.id,
+                        hospital_id=hospital_id,
+                        action_by=user_id,
+                        action_type=action_type,
+                        message=message
+                     )
     return moved_device
