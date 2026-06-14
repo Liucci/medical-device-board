@@ -46,7 +46,7 @@ def create_device_tasks_transaction(
         due_at = (
                     datetime.utcnow()
                     + timedelta(days=maintenance_type["interval_days"])
-                 ).isoformat()
+                 )
 
         add_maintenance_task(
                               task=AddMaintenanceTaskRequest(

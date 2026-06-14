@@ -17,9 +17,10 @@ export const toCreateMaintenanceTaskRequest = (t: MaintenanceTask) => ({
                                                                           due_at: t.dueAt
                                                                         })
 
-export const toUpdateMaintenanceTaskStatusRequest = (taskId: number,status: string) => ({
-                                                                                           id: taskId,
-                                                                                           status
-                                                                                         })
+export const toCompleteMaintenanceTaskRequest = (taskId: number) => ({
+                                                                        id: taskId
+                                                                      })
 
-export const toDeleteMaintenanceTasksRequest = (ids: number[]) => ({ids})
+export const toDeleteMaintenanceTasksRequest = (ids: number[]) => ({
+                                                                      ids
+                                                                    })

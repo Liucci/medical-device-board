@@ -6,8 +6,6 @@ def add_maintenance_task(
                             task: AddMaintenanceTaskRequest,
                             hospital_id: str
                         ):
-    print(type(task.due_at))
-    print(task.due_at)
     response = (
         supabase
         .table("device_maintenance_tasks")

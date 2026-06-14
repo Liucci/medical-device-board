@@ -56,8 +56,7 @@ import { finishMaintenance } from "../api/transactions/devices/finishMaintenance
 import { updateRoomPatientName } from "../api/transactions/rooms/updateRoomPatientName"
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
-
-
+import { completeMaintenanceTaskTransaction}from "../api/transactions/tasks/completeMaintenanceTaskTransaction"
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
@@ -1429,59 +1428,19 @@ if (updatedDevice) {
       console.error(error)
     }
 }
+
+
   //タスク完了ボタンを押したときの処理
-  const handleCompleteTask = async (taskId: number): Promise<boolean> => {
-    if (!currentUser) {return false}
-    const today =new Date().toISOString()
-    // ① task completed化
-    const {data,error} = await supabase
-                          .from("device_maintenance_tasks")
-                          .update({
-                                    completed_at: today,
-                                    status: "completed"
-                                  })
-                          .eq("id", taskId)
-                          .eq(
-                            "hospital_id",currentUser.hospitalId
-                          )
-                          .select()
-    // SQL失敗
-    if (error?.message) {alert("メンテ実施権限がありません")
-      return false
-    }
-    // RLS対策
-    if ( !data ||data.length === 0)
-       {alert("メンテ実施権限がありません")
-          return false
-       }
-    // ② completed task取得
-    const completedTask =data[0]
-    // ③ maintenanceType取得
-    const type =maintenanceTypes.find(t =>
-          t.id ===completedTask.maintenance_type_id)
-    // ④ device取得
-    const device =deviceList.find( d =>
-          d.id ===completedTask.device_id)
-    // ⑤ 次回task生成
-    if (type &&device){
-                        await createTasks(device,[type])
-                      }
-    // ⑥ UI更新
-    setTasks(prev =>
-      prev.map(t =>
-        t.id === taskId
-          ? {
-              ...t,
-              completed_at: today,
-              status: "completed"
-            }
-          : t
-      )
-    )
-    // ⑦ DBから最新task再取得
-    await fetchTasks()
-    return true
+  const handleCompleteTask = async (
+                                    id:number
+                                  ) => {
+
+    await completeMaintenanceTaskTransaction({
+                                              id,
+                                              setTasks
+                                            })
   }
+
   //device_idに紐づくタスクを取得する関数
   const getDeviceTasks = (deviceId?: number) => {
     if (!deviceId) return []
@@ -1491,6 +1450,7 @@ if (updatedDevice) {
         
     )
   }  
+  
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
   const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     if (!deviceId) return "green"

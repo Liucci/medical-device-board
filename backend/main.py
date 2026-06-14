@@ -82,6 +82,8 @@ from transactions.device_models.update_device_model_transaction import update_de
 from transactions.maintenance_types.create_maintenance_type_transaction import create_maintenance_type_transaction
 from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
 from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
+from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
+from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -1140,3 +1142,28 @@ def move_room_to_room_new_patient_route(
 
 
 
+@app.post("/complete_maintenance_task")
+def complete_maintenance_task_api(
+                                    task: CompleteMaintenanceTaskRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                 ):
+
+    current_user = (
+                      fetch_current_user(
+                                            auth_user_id
+                                        )
+                   )
+
+    if current_user["role"] != "admin":
+        return {
+                  "success": False,
+                  "error": "権限がありません"
+               }
+
+    return complete_maintenance_task_transaction(
+                                                    task=task,
+                                                    hospital_id=current_user["hospital_id"],
+                                                    user_id=current_user["id"],
+                                                    action_type="update",
+                                                    message="maintenance completed"
+                                                )
