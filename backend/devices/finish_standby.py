@@ -22,3 +22,23 @@ def finish_standby(
                 )
 
     return response.data[0]
+
+
+def clear_standby(
+                      device: FinishStandbyRequest,
+                      hospital_id: str
+                  ):
+    response = (
+                supabase
+                .table("devices")
+                .update({
+                        "standby": False,
+                        "standby_started_at": None,
+                        "standby_finished_at": None
+                  })
+                  .eq("id", device.id)
+                  .eq("hospital_id", hospital_id)
+                  .execute()
+                )
+    
+    return response.data[0]

@@ -5,6 +5,7 @@ from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ClearRoomPatientRequest
 from transactions.histories.create_device_history import (create_device_history)
+from devices.finish_standby import (finish_standby,clear_standby)
 
 def move_room_to_stock_transaction(
                                     device: MoveDeviceRequest,
@@ -25,11 +26,21 @@ def move_room_to_stock_transaction(
                                 hospital_id=hospital_id,
                                 patient_name=patient_name
                             )
+    # standby解除
+    finish_standby(
+                      device=device,
+                      hospital_id=hospital_id
+                  )
+
+
+
     # task削除
     delete_tasks_by_device_id(
                                 device_id=device.id,
                                 hospital_id=hospital_id
                              )
+
+    
 
     # 機器移動
     moved_device = move_device(
@@ -46,4 +57,10 @@ def move_room_to_stock_transaction(
                         action_type=action_type,
                         message=message
                      )
+    clear_standby(
+                      device=device,
+                      hospital_id=hospital_id
+                  )
+
+
     return moved_device

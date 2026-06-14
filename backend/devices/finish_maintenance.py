@@ -22,3 +22,25 @@ def finish_maintenance(
                 )
 
     return response.data[0]
+
+def clear_maintenance(
+                         device: FinishMaintenanceRequest,
+                         hospital_id: str
+                     ):
+
+    print("clear_maintenance")
+
+    response = (
+                  supabase
+                  .table("devices")
+                  .update({
+                              "is_under_maintenance": False,
+                              "maintenance_started_at": None,
+                              "maintenance_finished_at": None
+                          })
+                  .eq("id", device.id)
+                  .eq("hospital_id", hospital_id)
+                  .execute()
+                )
+
+    return response.data[0]
