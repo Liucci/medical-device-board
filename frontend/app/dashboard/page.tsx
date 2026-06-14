@@ -324,6 +324,8 @@ export default function Page() {
     device: Device,
     wardId: number
   ) => {
+    setJustDropped(true)
+
     if (!currentUser) {return}  
     //保守中はWardAreAへのdrag禁止
     if (device.isUnderMaintenance) {
@@ -350,7 +352,7 @@ export default function Page() {
     // drag flag
     setTimeout(
       () => setJustDropped(false),
-      100
+      300
     )
   }
   // roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
@@ -724,6 +726,7 @@ const handleRoomToRoomSubmit = async (
   }
   //RoomDeviceModalを開くコンポーネント
   const openRoomDeviceInfoModal = (device: Device) => {
+    if (justDropped) {return}
     if (!currentUser) {return}  
     if  (device.roomId === undefined) return    
         setSelectedRoomDevice(device)
