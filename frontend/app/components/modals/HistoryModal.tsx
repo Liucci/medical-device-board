@@ -2,30 +2,10 @@
 
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom"
-import { ExportHistoriesPdf }
-  from "../../utils/ExportHistoriesPdf"
+import { History }from "../../types/historyTypes"
+import { ExportHistoriesPdf }from "../../utils/ExportHistoriesPdf"
 
-type History = {
-  id: number
-  device_id: number
 
-  device_type_name: string | null
-  device_model_name: string | null
-
-  action_type: string
-  status: string
-
-  room_name: string | null
-  stock_area_name: string | null
-  patient_name: string | null
-
-  message: string
-
-  maintenance_started_at?: string | null
-  maintenance_finished_at?: string | null
-
-  created_at: string
-}
 
 type Props = {
   isOpen: boolean
@@ -79,17 +59,12 @@ export default function HistoryModal({
 
   // ===== action label =====
 
-  const actionLabelMap:
-    Record<string, string> = {
-
-    create: "新規",
-    move: "移動",
-    delete: "削除",
-
-    fix_start: "保守開始",
-    fix_end: "保守終了"
-
-  }
+const actionLabelMap = {
+  create: "create",
+  update: "update",
+  move: "move",
+  delete: "delete",
+}
 
   // ===== helper =====
 
@@ -123,7 +98,7 @@ export default function HistoryModal({
     return Array.from(
       new Set(
         histories
-          .map(h => h.device_type_name)
+          .map(h => h.deviceTypeName)
           .filter(Boolean)
       )
     )
@@ -148,12 +123,12 @@ export default function HistoryModal({
             }
 
             return selectedDeviceTypes.includes(
-              h.device_type_name ?? ""
+              h.deviceTypeName ?? ""
             )
 
           })
 
-          .map(h => h.device_model_name)
+          .map(h => h.deviceModelName)
 
           .filter(Boolean)
 
@@ -174,7 +149,7 @@ export default function HistoryModal({
       // ===== date =====
 
       const created =
-        new Date(history.created_at)
+        new Date(history.createdAt)
 
       if (startDate) {
 
@@ -215,7 +190,7 @@ export default function HistoryModal({
         selectedDeviceTypes.length > 0
         &&
         !selectedDeviceTypes.includes(
-          history.device_type_name ?? ""
+          history.deviceTypeName ?? ""
         )
       ) {
 
@@ -229,7 +204,7 @@ export default function HistoryModal({
         selectedDeviceModels.length > 0
         &&
         !selectedDeviceModels.includes(
-          history.device_model_name ?? ""
+          history.deviceModelName ?? ""
         )
       ) {
 
@@ -243,7 +218,7 @@ export default function HistoryModal({
         selectedActionTypes.length > 0
         &&
         !selectedActionTypes.includes(
-          history.action_type
+          history.actionType
         )
       ) {
 
@@ -251,26 +226,13 @@ export default function HistoryModal({
 
       }
 
-      // ===== status =====
-
-      if (
-        selectedStatuses.length > 0
-        &&
-        !selectedStatuses.includes(
-          history.status
-        )
-      ) {
-
-        return false
-
-      }
 
       // ===== device id =====
 
       if (
         deviceIdKeyword
         &&
-        !String(history.device_id)
+        !String(history.deviceId)
           .includes(deviceIdKeyword)
       ) {
 
@@ -283,7 +245,7 @@ export default function HistoryModal({
       if (
         patientKeyword
         &&
-        !history.patient_name
+        !history.patientName
           ?.toLowerCase()
           .includes(
             patientKeyword.toLowerCase()
@@ -329,7 +291,6 @@ export default function HistoryModal({
       "型式",
 
       "操作",
-      "状態",
 
       "保守開始日",
       "保守終了日",
@@ -345,41 +306,39 @@ export default function HistoryModal({
       filteredHistories.map(h => [
 
         new Date(
-          h.created_at
+          h.createdAt
         ).toLocaleString("ja-JP"),
 
-        h.device_id,
+        h.deviceId,
 
-        h.device_type_name ?? "",
-        h.device_model_name ?? "",
+        h.deviceTypeName ?? "",
+        h.deviceModelName ?? "",
 
         actionLabelMap[
-          h.action_type
-        ] ?? h.action_type,
+          h.actionType
+        ] ?? h.actionType,
 
-        h.status,
-
-        h.maintenance_started_at
+        h.maintenanceStartedAt
           ? new Date(
-              h.maintenance_started_at
+              h.maintenanceStartedAt
             ).toLocaleDateString(
               "ja-JP"
             )
           : "",
 
-        h.maintenance_finished_at
+        h.maintenanceFinishedAt
           ? new Date(
-              h.maintenance_finished_at
+              h.maintenanceFinishedAt
             ).toLocaleDateString(
               "ja-JP"
             )
           : "",
 
-        h.room_name
-          ?? h.stock_area_name
+        h.roomName
+          ?? h.stockAreaName
           ?? "",
 
-        h.patient_name ?? "",
+        h.patientName ?? "",
 
         h.message
 
@@ -805,13 +764,14 @@ export default function HistoryModal({
             overflow-auto
           ">
 
-            {[
-              ["create", "新規"],
-              ["move", "移動"],
-              ["delete", "削除"],
-              ["fix_start", "保守開始"],
-              ["fix_end", "保守終了"]
-            ].map(([value, label]) => (
+            {
+              [
+                ["create", "create"],
+                ["update", "update"],
+                ["move", "move"],
+                ["delete", "delete"]
+              ]           
+              .map(([value, label]) => (
 
               <label
                 key={value}
@@ -850,62 +810,7 @@ export default function HistoryModal({
             status
         ======================================= */}
 
-        <div>
 
-          <label className="
-            text-xs
-            text-gray-600
-            mb-1
-            block
-          ">
-            状態
-          </label>
-
-          <div className="
-            border
-            rounded
-            p-2
-            max-h-32
-            overflow-auto
-          ">
-
-            {[
-              "stock",
-              "room"
-            ].map(status => (
-
-              <label
-                key={status}
-                className="block"
-              >
-
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedStatuses.includes(
-                      status
-                    )
-                  }
-                  onChange={() =>
-                    toggleSelection(
-                      status,
-                      selectedStatuses,
-                      setSelectedStatuses
-                    )
-                  }
-                />
-
-                <span className="ml-1">
-                  {status}
-                </span>
-
-              </label>
-
-            ))}
-
-          </div>
-
-        </div>
 
       </div>
         {/* ===== count ===== */}
@@ -962,9 +867,7 @@ export default function HistoryModal({
                   操作
                 </th>
 
-                <th className="border p-2">
-                  状態
-                </th>
+
 
                 <th className="border p-2">
                   保守開始日
@@ -1020,14 +923,14 @@ export default function HistoryModal({
                     hover:bg-gray-50
 
                     ${
-                      history.action_type
+                      history.actionType
                       === "fix_start"
                         ? "bg-red-50"
                         : ""
                     }
 
                     ${
-                      history.action_type
+                      history.actionType
                       === "fix_end"
                         ? "bg-green-50"
                         : ""
@@ -1043,7 +946,7 @@ export default function HistoryModal({
 
                     {
                       new Date(
-                        history.created_at
+                        history.createdAt
                       ).toLocaleString("ja-JP")
                     }
 
@@ -1054,7 +957,7 @@ export default function HistoryModal({
                     p-2
                     text-center
                   ">
-                    {history.device_id}
+                    {history.deviceId}
                   </td>
 
                   <td className="
@@ -1062,7 +965,7 @@ export default function HistoryModal({
                     p-2
                   ">
                     {
-                      history.device_type_name
+                      history.deviceTypeName
                       ?? "-"
                     }
                   </td>
@@ -1072,7 +975,7 @@ export default function HistoryModal({
                     p-2
                   ">
                     {
-                      history.device_model_name
+                      history.deviceModelName
                       ?? "-"
                     }
                   </td>
@@ -1085,19 +988,12 @@ export default function HistoryModal({
 
                     {
                       actionLabelMap[
-                        history.action_type
-                      ] ?? history.action_type
+                        history.actionType
+                      ] ?? history.actionType
                     }
 
                   </td>
 
-                  <td className="
-                    border
-                    p-2
-                    text-center
-                  ">
-                    {history.status}
-                  </td>
 
                   <td className="
                     border
@@ -1107,10 +1003,10 @@ export default function HistoryModal({
                   ">
 
                     {
-                      history.maintenance_started_at
+                      history.maintenanceStartedAt
                         ? new Date(
                             history
-                              .maintenance_started_at
+                              .maintenanceStartedAt
                           ).toLocaleDateString(
                             "ja-JP"
                           )
@@ -1127,10 +1023,10 @@ export default function HistoryModal({
                   ">
 
                     {
-                      history.maintenance_finished_at
+                      history.maintenanceFinishedAt
                         ? new Date(
                             history
-                              .maintenance_finished_at
+                              .maintenanceFinishedAt
                           ).toLocaleDateString(
                             "ja-JP"
                           )
@@ -1145,9 +1041,9 @@ export default function HistoryModal({
                   ">
 
                     {
-                      history.room_name
+                      history.roomName
                       ??
-                      history.stock_area_name
+                      history.stockAreaName
                       ??
                       "-"
                     }
@@ -1160,7 +1056,7 @@ export default function HistoryModal({
                   ">
 
                     {
-                      history.patient_name
+                      history.patientName
                       ?? "-"
                     }
 

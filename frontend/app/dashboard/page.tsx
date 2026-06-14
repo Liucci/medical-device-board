@@ -51,6 +51,8 @@ import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumb
 import { updateNote } from "../api/transactions/devices/updateNote"
 import {startStandby} from "../api/transactions/devices/startStandby"
 import {finishStandby} from "../api/transactions/devices/finishStandby"
+import { startMaintenance } from "../api/transactions/devices/startMaintenance"
+import { finishMaintenance } from "../api/transactions/devices/finishMaintenance"
 import { updateRoomPatientName } from "../api/transactions/rooms/updateRoomPatientName"
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
@@ -916,16 +918,12 @@ const handleRoomToRoomSubmit = async (
                                       }
                             })
 
-    const devices =
-      await getDevicesFromApi()
-
-    setDeviceList(devices.map(normalizeDevice))
-
-    const updatedDevice =
-      devices.find(
-                    d => d.id === id
+    const devices=await getDevicesFromApi()
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
+                    (d: Device) => d.id === id
                   )
-
 if (updatedDevice) {
 
   if (selectedRoomDevice?.id === id) {
@@ -962,14 +960,12 @@ if (updatedDevice) {
                               }
                     })
 
-    const devices =
-      await getDevicesFromApi()
 
-    setDeviceList(devices)
-
-    const updatedDevice =
-      devices.find(
-                    d => d.id === id
+    const devices=await getDevicesFromApi()
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
+                    (d: Device) => d.id === id
                   )
 
 if (updatedDevice) {
@@ -1006,311 +1002,74 @@ if (updatedDevice) {
                                           }
                                 })
 
-    const devices=
-      await getDevicesFromApi()
+    const devices=await getDevicesFromApi()
 
-    setDeviceList(devices.map(normalizeDevice))
-    console.log(
-    devices.find(
-                (d: Device) => d.id === id
-    )
-    )
-    const updatedDevice =
-      devices.find(
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
                     (d: Device) => d.id === id
                   )
 
       if (updatedDevice) {
-
-        if (selectedRoomDevice?.id === id) {
-          setSelectedRoomDevice(updatedDevice)
-        }
-
-        if (selectedDevice?.id === id) {
-          setSelectedDevice(updatedDevice)
-        }
-
+                          if (selectedRoomDevice?.id === id) {
+                            setSelectedRoomDevice(updatedDevice)
+                          }
+                          if (selectedDevice?.id === id) {
+                            setSelectedDevice(updatedDevice)
+                          }
       }
     return true
   }
-/* 
-  //備考欄編集関数(boolean)
-  const renameNote = async (id: number,value: string): Promise<boolean> => {
-    if (!currentUser) {
-      return false
-    }
-    const trimmed =
-      value.trim()
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        note: trimmed
-      })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-    if (error) {
-      console.error(error)
-
-      alert(
-        "備考編集権限がありません"
-      )
-
-      return false
-    }
-
-    // 🔥 RLSで0件更新
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      alert(
-        "備考編集権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === id
-          ? {
-              ...d,
-              note: trimmed
-            }
-          : d
-      )
-    )
-    updateSelectedRoomDevice(d =>
-      d.id === id
-        ? {
-            ...d,
-            note: trimmed
-          }
-        : d
-  )
-
-    return true
-  } */
-  
-/*   const toggleDeviceStandby = async (
-      deviceId: number,
-      standby: boolean,
-      standbyStartedAt?: string,
-      standbyFinishedAt?: string
-    ): Promise<boolean> => {
-
-    if (!currentUser) {
-      return false
-    }
-
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        standby,
-        standby_started_at:
-          standbyStartedAt || null,
-        standby_finished_at:
-          standbyFinishedAt || null,
-      })
-      .eq("id", deviceId)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-
-    if (error) {
-
-      console.error(error)
-
-      alert(
-        "スタンバイ変更権限がありません"
-      )
-
-      return false
-    }
-
-    // 🔥 RLS 0件対策
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      alert(
-        "スタンバイ変更権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === deviceId
-          ? {
-              ...d,
-              standby,
-              standbyStartedAt,
-              standbyFinishedAt
-            }
-          : d
-      )
-    )
-    updateSelectedRoomDevice(d =>
-      d.id === deviceId
-        ? {
-            ...d,
-            standby,
-            standbyStartedAt,
-            standbyFinishedAt
-          }
-        : d
-    )
-    return true
-  }
- */
-
 
   const toggleDeviceStandby = async (
-  deviceId: number,
-  standby: boolean,
-): Promise<boolean> => {
+                                      deviceId: number,
+                                      standby: boolean,
+                                    ): Promise<boolean> => {
 
-  if (standby) {
-
-    await startStandby(
-                        deviceId
-                      )
-
-  } else {
-
-    await finishStandby(
-                         deviceId
-                       )
-  }
-
-  const devices =
-    await getDevicesFromApi()
-
-  setDeviceList(devices.map(normalizeDevice))
-
-  const updatedDevice =
-    devices.find(
-                  d => d.id === deviceId
-                )
-
-  if (updatedDevice) {
-
-    setSelectedRoomDevice(
-                            updatedDevice
-                         )
-
-  }
-
-  return true
-}
-
-  const toggleDeviceMaintenance = async (
-    deviceId: number,
-    nextMaintenance: boolean,
-    maintenanceStartedAt?: string,
-    maintenanceFinishedAt?: string
-  ): Promise<boolean> => {
-
-    if (!currentUser) {
-      return false
+    if (standby) { await startStandby( deviceId)
+    } else {await finishStandby(deviceId)
     }
+    const devices =await getDevicesFromApi()
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
+                                          d => d.id === deviceId
+                                        )
 
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        is_under_maintenance:
-          nextMaintenance,
-
-        maintenance_started_at:
-          maintenanceStartedAt || null,
-
-        maintenance_finished_at:
-          maintenanceFinishedAt || null,
-      })
-      .eq("id", deviceId)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-
-    // SQL失敗
-    if (error?.message) {
-
-      alert(
-        "保守変更権限がありません"
-      )
-
-      return false
+    if (updatedDevice) {
+      setSelectedRoomDevice(updatedDevice)
     }
-
-    // 🔥 RLS対策
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      alert(
-        "保守変更権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === deviceId
-          ? {
-              ...d,
-              isUnderMaintenance:
-                nextMaintenance,
-              maintenanceStartedAt,
-              maintenanceFinishedAt
-            }
-          : d
-      )
-    )
-    updateSelectedRoomDevice(d =>
-      d.id === deviceId
-        ? {
-            ...d,
-            isUnderMaintenance:
-              nextMaintenance,
-            maintenanceStartedAt,
-            maintenanceFinishedAt
-          }
-        : d
-    )
-    console.log("currentUser", currentUser)
-    console.log("data", data)
-    console.log("error", error)
     return true
   }
+
+  const toggleDeviceMaintenance = async (
+                                          deviceId: number,
+                                          nextMaintenance: boolean,
+                                        ): Promise<boolean> => {
+    if (nextMaintenance) {
+      await startMaintenance(deviceId)
+    } else {
+      await finishMaintenance(deviceId)
+    }
+
+    const devices =await getDevicesFromApi()
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
+                                        d => d.id === deviceId
+                                      )
+    if (updatedDevice) {
+      if (selectedRoomDevice?.id === deviceId)
+         {setSelectedRoomDevice(updatedDevice)}
+
+      if (selectedDevice?.id === deviceId) 
+        {setSelectedDevice( updatedDevice)
+      }
+    }
+    return true
+  }  
+
+
   const renameRentalDates = async (
         deviceId: number,
         rentalStartDate?: string,
@@ -1766,27 +1525,14 @@ if (updatedDevice) {
     // それ以外は正常
     return "green"
   }
-  //DBからdevice_histories tableを取得しhistoriesに格納する関数
   const fetchHistories = async () => {
-    if (!currentUser) {return}  
-    const { data, error } = await supabase
-      .from("device_histories")
-      .select("*")
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
-      .order("created_at", { ascending: false })
-      .limit(300)
+    const histories = await getHistoriesFromApi()
 
-    if (error) {
-      console.error(error)
-      return
-    }
-
-    setHistories(data || [])
-    console.log("histories:", data)
-  }
+    setHistories(
+      histories.map(normalizeHistory)
+    )
+  }  
+  
   //deviceListの中でstatusが"room"のものだけを抽出する関数
   //病棟機器リストを取得する関数
   const getWardDeviceList = () => {
@@ -2088,6 +1834,7 @@ useEffect(() => {
           setMaintenanceTypes={setMaintenanceTypes}
 
           histories={histories}
+          fetchHistories={fetchHistories}
           getWardDeviceList={getWardDeviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
           handleLogout={handleLogout} 

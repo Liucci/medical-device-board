@@ -3,48 +3,17 @@
 import { useMemo, useState } from "react"
 import { ExportDeviceListPdf } from "../../utils/ExportDeviceListPdf"
 import { createPortal } from "react-dom"
+import { Device } from "../../types/deviceTypes"
+import { RoomType } from "../../types/roomTypes"
+import { WardType } from "../../types/wardTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
 
-type Device = {
-  id: number
 
-  type: number
-  model: number
 
-  roomId?: number
-  stockAreaID?: number
 
-  status: string
 
-  // ===== 保守 =====
-  isUnderMaintenance?: boolean
-}
-
-type Room = {
-  id: number
-  wardId: number
-  name: string
-  patientName?: string
-}
-
-type Ward = {
-  id: number
-  name: string
-}
-
-type StockArea = {
-  id: number
-  name: string
-}
-
-type DeviceType = {
-  id: number
-  name: string
-}
-
-type DeviceModel = {
-  id: number
-  name: string
-}
 
 type Props = {
   isOpen: boolean
@@ -52,13 +21,13 @@ type Props = {
 
   deviceList: Device[]
 
-  rooms: Room[]
-  wards: Ward[]
+  rooms: RoomType[]
+  wards: WardType[]
 
-  stockAreas: StockArea[]
+  stockAreas: StockAreaType[]
 
-  deviceTypes: DeviceType[]
-  deviceModels: DeviceModel[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
 
   getLatestMaintenanceTask:
     (deviceId?: number) => {

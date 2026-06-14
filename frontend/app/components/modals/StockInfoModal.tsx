@@ -15,7 +15,7 @@ type Props = {
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>
   renameNote:(id: number, value: string)=> Promise<boolean>
   renameRentalDates:(id: number, startDate?: string, endDate?: string)=> Promise<boolean>
-  toggleDeviceMaintenance: (deviceId: number, nextMaintenance: boolean, maintenanceStartedAt?: string, maintenanceFinishedAt?: string) => Promise<boolean>
+  toggleDeviceMaintenance: (deviceId: number, nextMaintenance: boolean) => Promise<boolean>
 }
 
 export default function StockInfoModal({
@@ -252,8 +252,11 @@ export default function StockInfoModal({
               <InfoRow
                 label="保守開始日"
                 value={maintenanceStartedAt}
-                onEdit={async () => {
+                onEdit={() => {}}
 
+
+/*   update maintenance startが未実装             
+                  onEdit={async () => {
                   if (!device.id) return
 
                   const val = prompt(
@@ -266,18 +269,20 @@ export default function StockInfoModal({
                   const success =
                     await toggleDeviceMaintenance(
                       device.id,
-                      true,
-                      val,
-                      maintenanceFinishedAt
+                      true
                     )
 
                   if (!success) return
                 }}
+*/                
               />
 
               <InfoRow
                 label="保守終了日"
                 value={maintenanceFinishedAt}
+                onEdit={() => {}}
+
+/* update maintenance finished 未実装
                 onEdit={async () => {
 
                   if (!device.id) return
@@ -292,13 +297,13 @@ export default function StockInfoModal({
                   const success =
                     await toggleDeviceMaintenance(
                       device.id,
-                      false,
-                      maintenanceStartedAt,
-                      val
+                      false
                     )
 
                   if (!success) return
                 }}
+ */              
+              
               />
             </>
           )}
@@ -345,9 +350,7 @@ export default function StockInfoModal({
                 const success =
                   await toggleDeviceMaintenance(
                     device.id,
-                    false,
-                    maintenanceStartedAt,
-                    today
+                    false
                   )
                 if (!success) return
                 return
@@ -363,9 +366,7 @@ export default function StockInfoModal({
               const success =
                 await toggleDeviceMaintenance(
                   device.id,
-                  true,
-                  val,
-                  ""
+                  true
                 )
               if (!success) return
             }}

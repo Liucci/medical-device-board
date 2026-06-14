@@ -41,6 +41,7 @@ type Props = {
   maintenanceTypes: { id: number; name: string; deviceTypeId: number; deviceModelId: number | null; intervalDays: number }[]
   setMaintenanceTypes:React.Dispatch<React.SetStateAction<any[]>>
   histories: any[]
+  fetchHistories: () => Promise<void>
   getWardDeviceList: () => any[]
   getLatestMaintenanceTask:(deviceId?: number) => {
                                                     name: string
@@ -69,6 +70,7 @@ export default function ButtonPanel({
   maintenanceTypes,
   setMaintenanceTypes,
   histories,
+  fetchHistories,
   getWardDeviceList,
   getLatestMaintenanceTask,
   handleLogout,
@@ -89,7 +91,8 @@ export default function ButtonPanel({
   const openSettings = () => {
     setOpenSettingsModal(true)
   }
-  const openHistory = () => {
+  const openHistory = async () => {
+    await fetchHistories()
     setOpenHistoryModal(true)
   }
   const openDeviceList = () => {
