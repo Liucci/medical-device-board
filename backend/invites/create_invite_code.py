@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime,timedelta
 from common.supabase_client import (supabase)
+from schemas.invite_schemas import (CreateInviteCodeRequest)
 
 def create_invite_code(
-                        email: str,
-                        role: str,
+                        invite: CreateInviteCodeRequest,
                         hospital_id: str,
                         created_by: str
                       ):
@@ -20,12 +20,12 @@ def create_invite_code(
                         "code": code,
                         "hospital_id": hospital_id,
                         "created_by": created_by,
-                        "email": email,
-                        "role": role,
+                        "email": invite.email,
+                        "role": invite.role,
                         "used": False,
                         "expires_at": expires_at.isoformat()
                         })
                 .execute()
                 )
 
-    return response.data
+    return response.data[0]

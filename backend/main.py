@@ -2,6 +2,7 @@ from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
+import os
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
@@ -91,7 +92,9 @@ from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
 
+from dotenv import load_dotenv
 
+load_dotenv()
 
 
 app = FastAPI()
@@ -189,18 +192,23 @@ def create_invite_code_route(
                                 auth_user_id: str = Depends(
                                     get_auth_user_id
                                 )
-                             ):
-
+                            ):
+    print("auth_user_id =", auth_user_id)
     current_user = fetch_current_user(
                                         auth_user_id
                                      )
 
+    frontend_url = (
+        os.getenv("FRONTEND_URL")
+        or "http://localhost:3000"
+    )
+
     return create_invite_code_transaction(
                                             invite=invite,
                                             hospital_id=current_user["hospital_id"],
-                                            created_by=current_user["id"]
-                                          )
-
+                                            created_by=current_user["id"],
+                                            frontend_url=frontend_url
+                                         )
 
 
 

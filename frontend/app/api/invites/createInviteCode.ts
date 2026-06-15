@@ -7,7 +7,7 @@ export const createInviteCode = async (
 
   const token =
     localStorage.getItem("access_token")
-
+console.log(API_BASE_URL)
   const response =
     await fetch(
                 `${API_BASE_URL}/create-invite-code`,

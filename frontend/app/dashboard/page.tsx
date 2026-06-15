@@ -1,5 +1,6 @@
 "use client"
 
+
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
 import WardArea from "../components/WardArea"

@@ -19,80 +19,33 @@ export default function InviteCreateModal({
   const [role,setRole]=useState<"normal" | "admin">("normal")
   const [isSuccess, setIsSuccess] = useState(false)
 
-  const handleCreate =
-    async () => {
+  const handleCreate = async () => {
 
-      try {
+    try {
+      setLoading(true)
 
-        setLoading(true)
-
-        // 招待コード作成
-        const data =await createInviteCodeTransaction(
-                                                      email,
-                                                      role
+      const data =await createInviteCodeTransaction(
+                                                    email,
+                                                    role
                                                     )
-        setInviteCode(data.code)
+      setInviteCode(data.code)
+      setIsSuccess(true)
 
-        // 招待URL生成
-        const inviteUrl =`${window.location.origin}/register?code=${data.code}`
+    } catch (err) {
 
-        // メール送信
-        const {data: emailData,error}=
-            await supabase.functions.invoke(
-              "resend-email",
-              {
-                body: {
-                  to: email,
-                  from: "Devix <invite@devix.jp>",
-                  subject:
-                    "医療機器管理システム招待",
-                html: `
-                  <h2>
-                    招待メール
-                  </h2>
+      console.error(
+                    "invite error:",
+                    err
+                  )
 
-                  <p>
-                    以下のリンクから
-                    登録してください
-                  </p>
+      alert("招待失敗")
 
-                  <p>
-                    <a href="${inviteUrl}">
-                      登録する
-                    </a>
-                  </p>
+    } finally {
 
-                  <p>
-                    ${inviteUrl}
-                  </p>
-                `                
-              }
-              }
-            )
-            console.log("emailData", emailData)
-            console.log("emailError", error)
+      setLoading(false)
 
-            if (error) {
-              console.error(error)
-              throw error
-            }
-                
-                setIsSuccess(true)
-                //alert("招待送信完了")
-
-              } catch (err) {
-
-            console.error(
-              "invite error:",
-              JSON.stringify(err, null, 2)
-            )
-                alert("招待失敗")
-
-              } finally {
-
-                setLoading(false)
-              }
     }
+  }
 
 return createPortal(
 

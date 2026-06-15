@@ -17,7 +17,6 @@ def get_auth_user_id(
     )
 
     try:
-
         response = supabase.auth.get_user(
             token
         )
@@ -25,5 +24,4 @@ def get_auth_user_id(
         return response.user.id
 
     except Exception:
-
         return None
