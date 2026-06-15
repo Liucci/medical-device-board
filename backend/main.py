@@ -7,6 +7,11 @@ from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 
+from auth.refresh_token import (refresh_token)
+from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
+from transactions.invites.create_invite_code_transaction import (create_invite_code_transaction)
+
+
 from devices.fetch_devices import (fetch_devices)
 from devices.add_device import (add_device)
 from stock_areas.fetch_stock_areas import (fetch_stock_areas)
@@ -83,7 +88,11 @@ from transactions.maintenance_types.create_maintenance_type_transaction import c
 from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
 from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
-from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
+from schemas.auth_schemas import RefreshTokenRequest
+from schemas.invite_schemas import (CreateInviteCodeRequest)
+
+
+
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -133,6 +142,67 @@ def login(body: LoginRequest):
         "current_user":
         current_user
     }
+
+
+#リロード時にcurrent user情報を再取得することでlogin状態が維持される
+@app.get("/current-user")
+def get_current_user(
+                        auth_user_id: str = Depends(
+                            get_auth_user_id
+                        )
+                    ):
+    if not auth_user_id:
+        return None
+    return fetch_current_user(auth_user_id)
+
+@app.post("/refresh-token")
+def refresh_token_route(
+                            body: RefreshTokenRequest
+                        ):
+
+    response = refresh_token(
+        body.refresh_token
+    )
+
+    auth_user_id = (
+        response.user.id
+    )
+
+    current_user = (
+        fetch_current_user(
+            auth_user_id
+        )
+    )
+
+    return {
+        "access_token":
+            response.session.access_token,
+        "refresh_token":
+            response.session.refresh_token,
+        "current_user":
+            current_user
+    }
+
+@app.post("/create-invite-code")
+def create_invite_code_route(
+                                invite: CreateInviteCodeRequest,
+                                auth_user_id: str = Depends(
+                                    get_auth_user_id
+                                )
+                             ):
+
+    current_user = fetch_current_user(
+                                        auth_user_id
+                                     )
+
+    return create_invite_code_transaction(
+                                            invite=invite,
+                                            hospital_id=current_user["hospital_id"],
+                                            created_by=current_user["id"]
+                                          )
+
+
+
 
 @app.get("/")
 def root():
@@ -1139,8 +1209,6 @@ def move_room_to_room_new_patient_route(
                                                             )
 
     return moved_device
-
-
 
 @app.post("/complete_maintenance_task")
 def complete_maintenance_task_api(

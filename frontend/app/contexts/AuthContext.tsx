@@ -7,75 +7,49 @@ import {
           useState, 
           useEffect
         } from "react"
-import { supabase }from "../lib/supabase"
+import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
 
 
 type AuthContextType = {
-
-  currentUser:
-    CurrentUser | null | undefined
-
-  setCurrentUser:
-    React.Dispatch<
-      React.SetStateAction<
-        CurrentUser | null | undefined
-      >
-  >}
+                        currentUser:CurrentUser | null | undefined
+                        setCurrentUser:React.Dispatch<
+                                                      React.SetStateAction<CurrentUser | null | undefined>
+                                                      >
+                      }
 // ログイン中ユーザー情報をアプリ全体で共有するContext。
 // hospital_id や role 判定、権限制御などに使用する。
-const AuthContext =
-  createContext<AuthContextType | undefined>(
+const AuthContext =createContext<AuthContextType | undefined>(undefined)
+
+
+export function AuthProvider({children}: {children: React.ReactNode})
+{
+const [currentUser,setCurrentUser] =
+  useState<CurrentUser | null | undefined>(
     undefined
   )
 
-export function AuthProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
+useEffect(() => {
 
-  const [currentUser, setCurrentUser] =
-    useState<
-      CurrentUser | null | undefined
-    >(undefined)
-  useEffect(() => {
-    const restoreSession = async () => {
+  const restoreSession = async () => {
 
-      // 現在session取得
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
+    const user =
+      await fetchCurrentUser()
 
-      // 未login
-  if (!user) {
+    if (!user) {
+      localStorage.removeItem(
+        "access_token"
+      )
+      setCurrentUser(null)
+      return
+    }
 
-    setCurrentUser(null)
+    setCurrentUser(
+      normalizeUser(user)
+    )
+  }
 
-    return
-}
-      // public.users取得
-      const {
-        data: userData,
-        error
-      } = await supabase
-        .from("users")
-        .select(`
-          id,
-          hospital_id,
-          display_name,
-          role,
-          is_active
-        `)
-        .eq("id", user.id)
-        .single()
+  restoreSession()
 
-      if (error || !userData) {
-        console.error(error)
-        return
-      }
-      // currentUser復元
-      setCurrentUser(normalizeUser(userData))}
-    restoreSession()
 }, [])
 
   return (
@@ -89,15 +63,17 @@ export function AuthProvider({
     </AuthContext.Provider>
   )
 }
-// AuthContextから
-// currentUser を取得するためのhook。
-// app内の各componentで使用する。
+
 export function useAuth() {
-  const context = useContext(AuthContext)
+
+  const context =
+    useContext(AuthContext)
+
   if (!context) {
     throw new Error(
       "useAuth must be used within AuthProvider"
     )
   }
+
   return context
 }

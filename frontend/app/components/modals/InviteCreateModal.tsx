@@ -2,19 +2,14 @@
 
 import { useState } from "react"
 import { createPortal } from "react-dom"
-import {createInviteCode}from "@/app/auth/services/inviteService"
+import { createInviteCodeTransaction }from "../../api/transactions/invites/createInviteCodeTransaction"
 //supabase
 import { supabase } from "../../lib/supabase"
 type Props = {
-  currentUser: {
-    id: string
-    hospital_id: string
-  }
   onClose: () => void
 }
 
 export default function InviteCreateModal({
-                        currentUser,
                         onClose
                         }: Props) {
 
@@ -32,14 +27,10 @@ export default function InviteCreateModal({
         setLoading(true)
 
         // 招待コード作成
-        const data =
-          await createInviteCode(
-            currentUser.hospital_id,
-            currentUser.id,
-            email,
-            role
-          )
-
+        const data =await createInviteCodeTransaction(
+                                                      email,
+                                                      role
+                                                    )
         setInviteCode(data.code)
 
         // 招待URL生成
@@ -78,12 +69,13 @@ export default function InviteCreateModal({
               }
               }
             )
+            console.log("emailData", emailData)
+            console.log("emailError", error)
 
-            console.log(emailData)
-            console.log(error)
-                if (error) {
-                  throw error
-                }
+            if (error) {
+              console.error(error)
+              throw error
+            }
                 
                 setIsSuccess(true)
                 //alert("招待送信完了")
