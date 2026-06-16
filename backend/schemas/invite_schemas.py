@@ -14,3 +14,8 @@ class RegisterUserRequest(BaseModel):
     code: str
     password: str
     display_name: str
+
+class RegisterUserResponse(BaseModel):
+    display_name:str
+    role:str
+    hospital_name:str

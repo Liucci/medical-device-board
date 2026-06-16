@@ -56,8 +56,9 @@ export default function RegisterPage() {
                 )
         alert("登録完了")
     }
-
 useEffect(() => {
+  console.log("code:",code)
+
     const fetchInvite =async () => {
     if (!code) {setError("招待コードなし")
     setLoading(false)

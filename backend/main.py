@@ -7,8 +7,15 @@ import os
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
-
 from auth.refresh_token import (refresh_token)
+
+from schemas.auth_schemas import RefreshTokenRequest
+from schemas.invite_schemas import (CreateInviteCodeRequest)
+from schemas.invite_schemas import (RegisterUserRequest)
+
+from transactions.invites.register_user_transaction import (register_user_transaction)
+from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
+
 from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
 from transactions.invites.create_invite_code_transaction import (create_invite_code_transaction)
 
@@ -88,12 +95,11 @@ from transactions.device_models.update_device_model_transaction import update_de
 from transactions.maintenance_types.create_maintenance_type_transaction import create_maintenance_type_transaction
 from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
 from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
+
+
+
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
-from schemas.auth_schemas import RefreshTokenRequest
-from schemas.invite_schemas import (CreateInviteCodeRequest)
-
 from dotenv import load_dotenv
-
 load_dotenv()
 
 
@@ -154,6 +160,7 @@ def refresh_token_route(body: RefreshTokenRequest):
             "current_user":current_user
     }
 
+#招待用コードを作成し、メールを送信する
 @app.post("/create-invite-code")
 def create_invite_code_route(
                                 invite: CreateInviteCodeRequest,
@@ -175,18 +182,23 @@ def create_invite_code_route(
                                             invite=invite,
                                             hospital_id=current_user["hospital_id"],
                                             created_by=current_user["id"],
-                                            frontend_url=frontend_url
                                          )
 
+#招待したユーザーをDB登録する
+@app.post("/register")
+def register(
+                register:RegisterUserRequest
+            ):
+    return register_user_transaction(register)
 
 
-@app.get("/")
-def root():
+@app.get("/current-user")
+def current_user(
+                    auth_user_id:str=Depends(get_auth_user_id)
+                ):
+    return fetch_current_user_transaction(auth_user_id)
 
-    return {
-        "message":
-        "backend running"
-    }
+
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
 def init_dashboard(

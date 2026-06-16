@@ -2,9 +2,9 @@ from auth.register_auth_user import register_auth_user
 from invites.fetch_invite_code import fetch_invite_code
 from invites.update_invite_code import update_invite_code
 from users.add_users import add_user
-from schemas.invite_schemas import RegisterUserRequest
+from schemas.invite_schemas import (RegisterUserRequest,RegisterUserResponse)
 from schemas.user_schemas import AddUserRequest
-
+from hospitals.fetch_hospital import fetch_hospital
 def register_user_transaction(
                                 register:RegisterUserRequest
                              ):
@@ -31,14 +31,14 @@ def register_user_transaction(
                                   )
 
     add_user(
-        AddUserRequest(
-            id=auth_user.user.id,
-            hospital_id=invite_code["hospital_id"],
-            email=invite_code["email"],
-            display_name=register.display_name,
-            role=invite_code["role"],
-            is_active=True
-        )
+            AddUserRequest(
+                            id=auth_user.user.id,
+                            hospital_id=invite_code["hospital_id"],
+                            email=invite_code["email"],
+                            display_name=register.display_name,
+                            role=invite_code["role"],
+                            is_active=True
+            )
     )
     update_invite_code(
                         invite_code_id=
@@ -46,4 +46,12 @@ def register_user_transaction(
                         used=True
                       )
 
-    return auth_user
+    hospital = fetch_hospital(
+                                invite_code["hospital_id"]
+                            )
+
+    return RegisterUserResponse(
+                                display_name=register.display_name,
+                                role=invite_code["role"],
+                                hospital_name=hospital["hospital_name"]
+                                )
