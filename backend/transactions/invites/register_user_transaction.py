@@ -1,9 +1,9 @@
 from auth.register_auth_user import register_auth_user
 from invites.fetch_invite_code import fetch_invite_code
 from invites.update_invite_code import update_invite_code
-from users.create_user import create_user
+from users.add_users import add_user
 from schemas.invite_schemas import RegisterUserRequest
-
+from schemas.user_schemas import AddUserRequest
 
 def register_user_transaction(
                                 register:RegisterUserRequest
@@ -18,7 +18,7 @@ def register_user_transaction(
                             "Invalid invite code"
                         )
 
-    if invite_code["used"]:
+    if invite_code.get("used") is True:        
         raise Exception(
                             "Invite code already used"
                         )
@@ -30,23 +30,16 @@ def register_user_transaction(
                                         register.password
                                   )
 
-    create_user(
-                    auth_user_id=
-                        auth_user.user.id,
-
-                    hospital_id=
-                        invite_code["hospital_id"],
-
-                    email=
-                        invite_code["email"],
-
-                    display_name=
-                        register.display_name,
-
-                    role=
-                        invite_code["role"]
-               )
-
+    add_user(
+        AddUserRequest(
+            id=auth_user.user.id,
+            hospital_id=invite_code["hospital_id"],
+            email=invite_code["email"],
+            display_name=register.display_name,
+            role=invite_code["role"],
+            is_active=True
+        )
+    )
     update_invite_code(
                         invite_code_id=
                             invite_code["id"],
