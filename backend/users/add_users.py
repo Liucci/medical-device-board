@@ -13,21 +13,12 @@ def add_user(user: AddUserRequest):
         supabase
         .table("users")
         .insert({
-
-            "hospital_id":
-                user.hospital_id,
-
-            "email":
-                user.email,
-
-            "name":
-                user.name,
-
-            "role":
-                user.role,
-            "is_active":
-                user.is_active,
-
+            "id":user.id,
+            "hospital_id":user.hospital_id,
+            "email":user.email,
+            "display_name":user.display_name,
+            "role":user.role,
+            "is_active":user.is_active
         })
         .execute()
     )

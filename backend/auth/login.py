@@ -8,13 +8,15 @@ def login_user(
     email: str,
     password: str
 ):
+    print("login _user")
 
-    response = (
-        supabase.auth.sign_in_with_password({
-
-            "email": email,
-            "password": password
-        })
-    )
-
+    response = (supabase.auth.sign_in_with_password({
+                            "email": email,
+                            "password": password
+                        })
+        )
+    """     print("login情報")
+        for a in response:
+            print(f"・{a}") 
+    """
     return response

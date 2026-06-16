@@ -121,69 +121,37 @@ class LoginRequest(BaseModel):
 @app.post("/login")
 def login(body: LoginRequest):
     response = login_user(
-        email=body.email,
-        password=body.password
-    )
-    auth_user_id = (
-        response.user.id
-    )
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-    print("===== current user =====")
-    print(current_user)
+                            email=body.email,
+                            password=body.password
+                        )
+    auth_user_id = (response.user.id)
+    current_user = (fetch_current_user(auth_user_id))
     return {
-        "success": True,
-        "access_token":
-        response.session.access_token,
-
-        "refresh_token":
-        response.session.refresh_token,
-
-        "current_user":
-        current_user
-    }
+                "success": True,
+                "access_token":response.session.access_token,
+                "refresh_token":response.session.refresh_token,
+                "current_user":current_user
+            }
 
 
 #リロード時にcurrent user情報を再取得することでlogin状態が維持される
 @app.get("/current-user")
-def get_current_user(
-                        auth_user_id: str = Depends(
-                            get_auth_user_id
-                        )
-                    ):
+def get_current_user(auth_user_id: str = Depends(get_auth_user_id)):
     if not auth_user_id:
         return None
     return fetch_current_user(auth_user_id)
 
 @app.post("/refresh-token")
-def refresh_token_route(
-                            body: RefreshTokenRequest
-                        ):
+def refresh_token_route(body: RefreshTokenRequest):
 
-    response = refresh_token(
-        body.refresh_token
-    )
-
-    auth_user_id = (
-        response.user.id
-    )
-
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+    response = refresh_token(body.refresh_token)
+    auth_user_id = (response.user.id)
+    current_user = (fetch_current_user(auth_user_id))
 
     return {
-        "access_token":
-            response.session.access_token,
-        "refresh_token":
-            response.session.refresh_token,
-        "current_user":
-            current_user
+            "access_token":response.session.access_token,
+            "refresh_token":response.session.refresh_token,
+            "current_user":current_user
     }
 
 @app.post("/create-invite-code")
