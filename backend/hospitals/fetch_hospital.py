@@ -1,5 +1,5 @@
 import os
-from common.supabase_client import supabase
+from common.supabase_client import (supabase)
 
 
 def fetch_hospital(

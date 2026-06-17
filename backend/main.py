@@ -14,6 +14,10 @@ from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
 from schemas.invite_schemas import (RegisterUserRequest)
 
+from schemas.hospital_schemas import CreateHospitalRequest
+from transactions.hospitals.create_hospital_transaction import (create_hospital_transaction)
+
+
 from transactions.invites.register_user_transaction import (register_user_transaction)
 from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
 
@@ -198,21 +202,6 @@ def register(
                 register:RegisterUserRequest
             ):
     return register_user_transaction(register)
-
-
-@app.get("/test-hospital")
-def test_hospital():
-
-    response = (
-        supabase
-        .table("hospitals")
-        .select("*")
-        .execute()
-    )
-
-    print(f"response:{response.data}")
-
-    return response.data
 
 
 
