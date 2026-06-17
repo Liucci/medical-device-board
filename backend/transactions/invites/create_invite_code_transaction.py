@@ -29,7 +29,8 @@ def create_invite_code_transaction(
     send_invite_mail(
                         SendInviteMailRequest(
                                                 email=invite.email,
-                                                invite_url=invite_url
+                                                invite_url=invite_url,
+                                                expires_at=invite_code["expires_at"]
                                              )
                     )
 

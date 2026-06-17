@@ -8,6 +8,7 @@ class CreateInviteCodeRequest(BaseModel):
 class SendInviteMailRequest(BaseModel):
     email: str
     invite_url: str
+    expires_at: str
 
 
 class RegisterUserRequest(BaseModel):
@@ -17,6 +18,7 @@ class RegisterUserRequest(BaseModel):
 
 class RegisterUserResponse(BaseModel):
     display_name:str
+    email: str
     role:str
     hospital_name:str
 

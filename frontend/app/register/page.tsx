@@ -1,9 +1,10 @@
 "use client"
 
-import {useSearchParams} from "next/navigation"
+import {useSearchParams,useRouter} from "next/navigation"
 import {useEffect,useState} from "react"
 import {registerUserTransaction} from "../api/transactions/invites/registerUserTransaction"
 import {RegisteredUser} from "../types/registerTypes"
+import RegisterCompleteModal from "../components/modals/RegisterCompleteModal"
 
 export default function RegisterPage() {
 
@@ -13,12 +14,12 @@ export default function RegisterPage() {
   const [error,setError] = useState("")
   const [displayName,setDisplayName] = useState("")
   const [password,setPassword] = useState("")
-
+  const [showRegisterCompleteModal,setShowRegisterCompleteModal]= useState(false)
   const searchParams = useSearchParams()
   const code = searchParams.get("code")
+  const router = useRouter()
 
   const handleRegister = async () => {
-
     if (password.length < 6) {
       alert("パスワードは6文字以上で入力してください")
       return
@@ -26,15 +27,22 @@ export default function RegisterPage() {
 
     if (!code) {return}
 
+    try{
+        await registerUserTransaction({
+                                      registerUserRequest: {
+                                                              code,
+                                                              password,
+                                                              displayName
+                                                            },
+                                      setRegisteredUser
+                                    })
+        setShowRegisterCompleteModal(true)                            
+    
+    }
+    catch {
+        alert("登録に失敗しました")
+    }
 
-    await registerUserTransaction({
-                                    registerUserRequest: {
-                                                            code,
-                                                            password,
-                                                            displayName
-                                                          },
-                                    setRegisteredUser
-                                  })
   }
 
   useEffect(() => {
@@ -91,7 +99,8 @@ export default function RegisterPage() {
     )
   }
 
-  return (
+return (
+  <>
     <div
       className="
         min-h-screen
@@ -192,5 +201,20 @@ export default function RegisterPage() {
         </button>
       </div>
     </div>
-  )
-}
+
+    {
+      showRegisterCompleteModal &&
+      registeredUser &&
+      (
+        <RegisterCompleteModal
+          registeredUser={registeredUser}
+          onClose={() => {
+                          setShowRegisterCompleteModal(false)
+                          router.push("/login")
+                        }}
+        />
+      )
+    }
+
+  </>
+)}

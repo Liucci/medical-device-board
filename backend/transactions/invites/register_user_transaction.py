@@ -64,6 +64,7 @@ def register_user_transaction(
 
     return RegisterUserResponse(
                                 display_name=register.display_name,
+                                email=invite_code["email"],
                                 role=invite_code["role"],
                                 hospital_name=hospital["hospital_name"]
                                 )
