@@ -3,6 +3,7 @@ from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
 import os
+from common.supabase_client import supabase
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
@@ -18,7 +19,7 @@ from transactions.auth.fetch_current_user_transaction import fetch_current_user_
 
 from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
 from transactions.invites.create_invite_code_transaction import (create_invite_code_transaction)
-
+from transactions.invites.get_invite_info_transaction import (get_invite_info_transaction)
 
 from devices.fetch_devices import (fetch_devices)
 from devices.add_device import (add_device)
@@ -184,12 +185,35 @@ def create_invite_code_route(
                                             created_by=current_user["id"],
                                          )
 
+@app.get("/invite-info/{code}")
+def get_invite_info_route(
+                            code:str
+                         ):
+
+    return get_invite_info_transaction(code)
+
 #招待したユーザーをDB登録する
 @app.post("/register")
 def register(
                 register:RegisterUserRequest
             ):
     return register_user_transaction(register)
+
+
+@app.get("/test-hospital")
+def test_hospital():
+
+    response = (
+        supabase
+        .table("hospitals")
+        .select("*")
+        .execute()
+    )
+
+    print(f"response:{response.data}")
+
+    return response.data
+
 
 
 @app.get("/current-user")

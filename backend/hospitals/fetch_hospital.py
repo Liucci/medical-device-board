@@ -1,3 +1,4 @@
+import os
 from common.supabase_client import supabase
 
 
@@ -13,8 +14,9 @@ def fetch_hospital(
                         "id",
                         hospital_id
                     )
-                    .single()
+                    
                     .execute()
                )
 
-    return response.data
+
+    return response.data[0]

@@ -1,132 +1,96 @@
 "use client"
 
 import {useSearchParams} from "next/navigation"
-import {useEffect,  useState} from "react"
-import { supabase }
-from "@/app/lib/supabase"
+import {useEffect,useState} from "react"
+import {registerUserTransaction} from "../api/transactions/invites/registerUserTransaction"
+import {RegisteredUser} from "../types/registerTypes"
 
 export default function RegisterPage() {
-    const [inviteData,setInviteData]=useState<any>(null)
-    const [loading,setLoading]=useState(true)
-    const [error,  setError]=useState("")
-    const [displayName,setDisplayName]=useState("")
-    const [password,setPassword]=useState("")
 
-    
-    const searchParams =useSearchParams()
-    const code =searchParams.get("code")
+  const [registeredUser,setRegisteredUser] = useState<RegisteredUser | null>(null)
+  const [inviteData,setInviteData] = useState<any>(null)
+  const [loading,setLoading] = useState(true)
+  const [error,setError] = useState("")
+  const [displayName,setDisplayName] = useState("")
+  const [password,setPassword] = useState("")
 
-    const handleRegister =async () => {
-        if (!inviteData) return
-        // Auth登録
-        const {data,error}=await supabase.auth.signUp({
-                                email:inviteData.email,
-                                password,
-                            })
-        if (error) {alert(error.message)
-            return
-        }
-        const userId =data.user?.id
-            if (!userId) {
-                    alert("ユーザー作成失敗")
-            return
-            }
-        // users table作成
-        const {error: userError}=await supabase
-                                .from("users")
-                                .insert({
-                                        id: userId,
-                                        hospital_id:inviteData.hospital_id,
-                                        email:inviteData.email,
-                                        role:inviteData.role,
-                                        display_name:displayName,
-                                        })
+  const searchParams = useSearchParams()
+  const code = searchParams.get("code")
 
-        if (userError) {
-            alert(userError.message)
-        return
-        }
-        // 招待使用済み
-        await supabase
-            .from("invite_codes")
-            .update({used: true})
-            .eq(
-                "id",
-                inviteData.id
-                )
-        alert("登録完了")
+  const handleRegister = async () => {
+
+    if (password.length < 6) {
+      alert("パスワードは6文字以上で入力してください")
+      return
     }
-useEffect(() => {
-  console.log("code:",code)
 
-    const fetchInvite =async () => {
-    if (!code) {setError("招待コードなし")
-    setLoading(false)
-    return
-    }
-    const {data,error}=await supabase
-                    .from("invite_codes")
-                    .select("*")
-                    .eq("code", code)
-                    .single()
-    if (error || !data) {
-    setError("無効な招待コード")
-    setLoading(false)
-    return
-    }
-      // 使用済み
-      if (data.used) {
-        setError(
-          "使用済み招待コード"
-        )
+    if (!code) {return}
+
+
+    await registerUserTransaction({
+                                    registerUserRequest: {
+                                                            code,
+                                                            password,
+                                                            displayName
+                                                          },
+                                    setRegisteredUser
+                                  })
+  }
+
+  useEffect(() => {
+
+    const fetchInvite = async () => {
+
+      if (!code) {
+        setError("招待コードなし")
         setLoading(false)
         return
       }
-      // 期限切れ
-      if (
-        new Date(
-          data.expires_at
-        )
-        <
-        new Date()
-      ) {
-        setError(
-          "招待期限切れ"
-        )
+
+      const response = await fetch(
+                                    `${process.env.NEXT_PUBLIC_API_URL}/invite-info/${code}`
+                                  )
+
+      if (!response.ok) {
+        setError("無効な招待コード")
         setLoading(false)
         return
       }
-      setInviteData(data)
+
+      const inviteInfo = await response.json()
+
+      setInviteData(inviteInfo)
       setLoading(false)
     }
-  fetchInvite()
-}, [code])
-    if (loading) {
 
+    fetchInvite()
+
+  }, [code])
+
+  if (loading) {
     return (
-        <div>
+      <div>
         Loading...
-        </div>
+      </div>
     )
-    }
+  }
 
-    if (error) {
-
+  if (error) {
     return (
-        <div>
+      <div>
         {error}
-        </div>
+      </div>
     )
-    }
+  }
 
-    if (!inviteData) {
-
+  if (!inviteData) {
     return (
-        <div>
+      <div>
         招待データなし
-        </div>
+      </div>
     )
-    }
+  }
+
   return (
     <div
       className="
@@ -154,9 +118,9 @@ useEffect(() => {
         >
           ユーザー登録
         </h1>
-        <div>
-          招待コード:
-        </div>
+
+        <div>招待コード:</div>
+
         <div
           className="
             break-all
@@ -166,67 +130,65 @@ useEffect(() => {
         >
           {code}
         </div>
+
         <div className="mb-4">
-
-        <div className="mb-1">
+          <div className="mb-1">
             メールアドレス
-        </div>
-            <div
-                className="
-                border
-                rounded
-                px-3 py-2
-                bg-gray-100
-                "
-            >
-                {inviteData.email}
-            </div>
-        </div>
-        <input
-            type="text"
-            value={displayName}
-            onChange={(e) =>setDisplayName(
-                            e.target.value
-                            )
-                        }
-            placeholder="名前"
+          </div>
+
+          <div
             className="
-                        w-full
-                        border
-                        rounded
-                        px-3 py-2
-                        mb-4
-                        "
+              border
+              rounded
+              px-3 py-2
+              bg-gray-100
+            "
+          >
+            {inviteData.email}
+          </div>
+        </div>
+
+        <input
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="名前"
+          autoComplete="name"
+          className="
+            w-full
+            border
+            rounded
+            px-3 py-2
+            mb-4
+          "
         />
 
         <input
-        type="password"
-        value={password}
-        onChange={(e) =>
-                    setPassword(
-                    e.target.value
-                    )
-                }
-        placeholder="パスワード"
-        className="
-                    w-full
-                    border
-                    rounded
-                    px-3 py-2
-                    mb-4
-                "
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="パスワード"
+          autoComplete="new-password"
+          className="
+            w-full
+            border
+            rounded
+            px-3 py-2
+            mb-4
+          "
         />
+
         <button
-            onClick={handleRegister}
-            className="
-                        w-full
-                        bg-blue-500
-                        text-white
-                        py-2
-                        rounded
-                    "
+          onClick={handleRegister}
+          className="
+            w-full
+            bg-blue-500
+            text-white
+            py-2
+            rounded
+          "
         >
-        登録
+          登録
         </button>
       </div>
     </div>

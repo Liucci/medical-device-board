@@ -13,7 +13,7 @@ def create_invite_code_transaction(
                                     hospital_id:str,
                                     created_by:str
                                   ):
-
+   #紹介コード作成しinvite code tableに登録
     invite_code = create_invite_code(
                                         invite=invite,
                                         hospital_id=hospital_id,
@@ -25,7 +25,7 @@ def create_invite_code_transaction(
                     f"/register?code="
                     f"{invite_code['code']}"
                  )
-
+   #招待用メールを送信する
     send_invite_mail(
                         SendInviteMailRequest(
                                                 email=invite.email,

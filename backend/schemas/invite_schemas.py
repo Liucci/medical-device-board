@@ -19,3 +19,8 @@ class RegisterUserResponse(BaseModel):
     display_name:str
     role:str
     hospital_name:str
+
+#register pageで使用
+class InviteInfoResponse(BaseModel):
+    email: str
+    role: str

@@ -1,5 +1,5 @@
 "use client"
-
+import { API_BASE_URL } from "../api/client"
 
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
@@ -1642,6 +1642,16 @@ if (updatedDevice) {
 useEffect(() => {
 
   const fetchData = async () => {
+
+
+    /*テスト用 
+    const response = await fetch(
+                              `${API_BASE_URL}/test-hospital`
+                            )
+    const data2 = await response.json()
+    console.log(data2) */
+
+
 
     if (!currentUser) {
       return

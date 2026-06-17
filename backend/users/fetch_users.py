@@ -1,7 +1,7 @@
 from common.supabase_client import (
     supabase
 )
-
+#すべてのuser情報を一括取得用
 def fetch_users():
     print("fetch_users")
     response = (
