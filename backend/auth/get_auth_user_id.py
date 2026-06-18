@@ -2,7 +2,7 @@ from fastapi import Header
 from common.supabase_client import (supabase)
 
 def get_auth_user_id(authorization: str = Header(None)):
-
+    print("get_auth_user_id")
     if not authorization:
         return None
 

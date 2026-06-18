@@ -10,7 +10,9 @@ from auth.fetch_current_user import fetch_current_user
 def register_user_transaction(
                                 register:RegisterUserRequest
                              ):
+    print("register_user_transaction")
 
+    #invite code取得
     invite_code = fetch_invite_code(
                                         register.code
                                     )
@@ -24,40 +26,31 @@ def register_user_transaction(
         raise Exception(
                             "Invite code already used"
                         )
-    #紹介者の情報を取得する
-    #invite_code tableの「create by」のuuidを利用
-    inviter_user = fetch_current_user(
-                                        invite_code["created_by"]
-                                      )
-    inviter_role = inviter_user["role"]
-    print("inviter_role =", inviter_role)
 
-    #new userを登録する作業
+    #auth userを登録する作業
     new_user = register_auth_user(
                                     email=invite_code["email"],
                                     password=register.password
-                                  )
-    new_user_role = invite_code["role"]
-    print("new_user_role =", new_user_role)
+                                    )
+    
+    #user登録                             
     add_user(
             AddUserRequest(
                             id=new_user.user.id,
                             hospital_id=invite_code["hospital_id"],
                             email=invite_code["email"],
                             display_name=register.display_name,
-                            role=new_user_role,
+                            role=invite_code["role"],
                             is_active=True
             )
     )
+    #紹介コード使用済み登録
     update_invite_code(
                         invite_code_id=
                             invite_code["id"],
                         used=True
                       )
-    print(
-      "hospital_id =",
-      invite_code["hospital_id"]
-     )
+    #hospital nameを取得するためにfetch hospital実行
     hospital = fetch_hospital(
                                 invite_code["hospital_id"]
                             )

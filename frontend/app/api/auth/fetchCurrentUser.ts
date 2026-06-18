@@ -3,45 +3,42 @@ import { refreshToken } from "./refreshToken"
 
 export const fetchCurrentUser = async () => {
 
-  const token =localStorage.getItem("access_token")
+  const token = localStorage.getItem("access_token")
 
   if (!token) {return null}
 
   let response = await fetch(
-                            `${API_BASE_URL}/current-user`,
-                            {
-                              headers: {
-                                Authorization: `Bearer ${token}`
-                              }
-                            }
-                          )
+    `${API_BASE_URL}/current-user`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  )
 
+  // ←ここでrefresh
   if (!response.ok) {
-    return null
-  }
 
-  let user = await response.json()
+    const refreshed = await refreshToken()
 
-  if (!user) {
-    const refreshed =await refreshToken()
     if (!refreshed) {
       return null
     }
 
     response = await fetch(
-                            `${API_BASE_URL}/current-user`,
-                            {
-                              headers: {
-                                Authorization:
-                                  `Bearer ${localStorage.getItem("access_token")}`
-                              }
-                            }
-                          )
+      `${API_BASE_URL}/current-user`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${localStorage.getItem("access_token")}`
+        }
+      }
+    )
 
     if (!response.ok) {
       return null
     }
-    user = await response.json()
   }
-  return user
+
+  return await response.json()
 }

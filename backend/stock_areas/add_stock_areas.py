@@ -7,7 +7,7 @@ def add_stock_areas(
                       stock_area: AddStockAreaRequest,
                       current_user
                     ):
-
+    print("add_stock_areas")
     response = (
                   supabase
                   .table("stock_areas")

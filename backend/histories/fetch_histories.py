@@ -4,7 +4,7 @@ from common.supabase_client import supabase
 def fetch_device_histories(
                                 hospital_id: str
                           ):
-
+    print("fetch_device_histories")
     response = (
         supabase
         .table("device_histories")

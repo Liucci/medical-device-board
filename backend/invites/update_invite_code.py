@@ -4,7 +4,7 @@ def update_invite_code(
     invite_code_id:str,
     used:bool
 ):
-
+    print("update_invite_code")
     response = (
         supabase
         .table("invite_codes")

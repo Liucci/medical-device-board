@@ -4,6 +4,7 @@ def fetch_maintenance_tasks_by_device_id(
     device_id: int,
     hospital_id: str
 ):
+    print("fetch_maintenance_tasks_by_device_id")
 
     response = (
         supabase

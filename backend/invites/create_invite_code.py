@@ -8,6 +8,8 @@ def create_invite_code(
                         hospital_id: str,
                         created_by: str
                       ):
+    print("create_invite_code")
+
 #uuidを送る
     code = str(uuid.uuid4())
 #招待コードの期限は７日間

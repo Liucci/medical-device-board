@@ -4,7 +4,7 @@ from common.supabase_client import supabase
 def add_hospital(
                   hospital_name: str
                 ):
-
+    print("add_hospital")
     response = (
                   supabase
                   .table("hospitals")

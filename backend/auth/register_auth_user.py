@@ -5,7 +5,7 @@ def register_auth_user(
                         email:str,
                         password:str
                       ):
-
+    print("register_auth_user")
     response = (
                     supabase
                     .auth

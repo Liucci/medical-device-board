@@ -6,6 +6,7 @@ def create_ward_transaction(
                                 ward:AddWardRequest,
                                 hospital_id
                             ):
+    print("create_ward_transaction")
     add_ward(
             hospital_id=hospital_id,
             ward=ward

@@ -5,7 +5,7 @@ def delete_stock_areas(
                          current_user
                        ):
 
-    print(f"delete stock_area_ids: {stock_area_ids}")
+    print(f"delete stock_areas")
 
     response = (
                   supabase

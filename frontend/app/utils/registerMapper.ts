@@ -1,6 +1,8 @@
 import {
           RegisteredUser,
-          RegisteredUserDB
+          RegisteredUserDB,
+          RegisterUserRequest,
+         RegisterUserRequestDB
        } from "../types/registerTypes"
 
 export const normalizeRegisteredUser = (
@@ -11,3 +13,14 @@ export const normalizeRegisteredUser = (
                                                                   role: user.role,
                                                                   hospitalName: user.hospital_name
                                                                 })
+
+
+
+export const toRegisterUserRequest = (
+                                        register: RegisterUserRequest
+                                      ): RegisterUserRequestDB => ({
+                                                                      code: register.code,
+                                                                      password: register.password,
+                                                                      display_name: register.displayName
+                                                                    })
+

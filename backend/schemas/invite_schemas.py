@@ -26,3 +26,8 @@ class RegisterUserResponse(BaseModel):
 class InviteInfoResponse(BaseModel):
     email: str
     role: str
+
+#初回登録用
+class InviteFirstAdminRequest(BaseModel):
+    hospital_name: str
+    email: str

@@ -13,6 +13,8 @@ def create_invite_code_transaction(
                                     hospital_id:str,
                                     created_by:str
                                   ):
+    print("create_invite_code_transaction")
+
    #紹介コード作成しinvite code tableに登録
     invite_code = create_invite_code(
                                         invite=invite,

@@ -5,7 +5,7 @@ from schemas.user_schemas import UserResponse
 def fetch_current_user_transaction(
                                     auth_user_id:str
                                   ):
-
+    print("fetch_current_user_transaction")
     user = fetch_users(
                         auth_user_id
                      )

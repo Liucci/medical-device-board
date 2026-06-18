@@ -7,6 +7,7 @@ def delete_ward_transaction(
                                 ward: DeleteWardRequest,
                                 hospital_id: str
                             ):
+    print("delete_ward_transaction")
 
     delete_rooms_by_ward_id(
                              ward=ward,

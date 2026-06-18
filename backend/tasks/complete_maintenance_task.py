@@ -7,7 +7,7 @@ def complete_maintenance_task(
                                 hospital_id: str,
                                 user_id: str
                              ):
-
+    print("complete_maintenance_task")
     response = (
                   supabase
                   .table("device_maintenance_tasks")

@@ -15,8 +15,11 @@ from schemas.invite_schemas import (CreateInviteCodeRequest)
 from schemas.invite_schemas import (RegisterUserRequest)
 
 from schemas.hospital_schemas import CreateHospitalRequest
-from transactions.hospitals.create_hospital_transaction import (create_hospital_transaction)
+from schemas.invite_schemas import InviteFirstAdminRequest
 
+from transactions.invites.invite_first_admin_transaction import invite_first_admin_transaction
+from transactions.invites.register_first_admin_transaction import register_first_admin_transaction
+                                                                                                                                   
 
 from transactions.invites.register_user_transaction import (register_user_transaction)
 from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
@@ -203,6 +206,17 @@ def register(
             ):
     return register_user_transaction(register)
 
+#first admin userをDB登録する
+@app.post("/register-first-admin")
+def register_first_admin_route(
+                                register: RegisterUserRequest
+                              ):
+
+    return register_first_admin_transaction(
+                                              register
+                                           )
+
+
 
 
 @app.get("/current-user")
@@ -210,6 +224,25 @@ def current_user(
                     auth_user_id:str=Depends(get_auth_user_id)
                 ):
     return fetch_current_user_transaction(auth_user_id)
+
+@app.post("/invite-first-admin")
+def invite_first_admin_route(
+                              request: InviteFirstAdminRequest,
+                              auth_user_id: str = Depends(get_auth_user_id)
+                            ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    if current_user["role"] != "system_admin":
+        return {
+                  "success": False,
+                  "error": "権限がありません"
+               }
+
+    return invite_first_admin_transaction(
+                                            request=request,
+                                            current_user_id=current_user["id"]
+                                         )
 
 
 #リロードの際に必要なデータをDBからまとめて取得するAPI

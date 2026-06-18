@@ -3,7 +3,7 @@ from common.supabase_client import supabase
 def fetch_maintenance_tasks(
                               hospital_id: str
                            ):
-
+    print("fetch_maintenance_tasks")
     response = (
                   supabase
                   .table("device_maintenance_tasks")

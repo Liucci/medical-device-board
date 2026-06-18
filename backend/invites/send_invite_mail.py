@@ -4,10 +4,11 @@ from datetime import datetime
 from schemas.invite_schemas import (SendInviteMailRequest)
 
 
-print("RESEND =", os.getenv("RESEND_API_KEY"))
 def send_invite_mail(
                         invite:SendInviteMailRequest
                     ):
+    
+    print("send_invite_mail")
     expires_at = datetime.fromisoformat(
                                         invite.expires_at
                                         )

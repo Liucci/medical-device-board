@@ -4,7 +4,7 @@ from schemas.device_model_schemas import UpdateDeviceModelRequest
 def update_device_model(
                         device_model: UpdateDeviceModelRequest,
                         hospital_id: str                        ):
-    print("rename device_model")
+    print("update_device_model")
     response = (
         supabase
         .table("device_models")

@@ -17,3 +17,9 @@ export type RegisterUserRequest = {
   password:string
   displayName:string
 }
+
+export type RegisterUserRequestDB = {
+  code:string
+  password:string
+  display_name:string
+}
