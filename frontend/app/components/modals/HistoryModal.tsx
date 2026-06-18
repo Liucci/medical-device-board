@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { History }from "../../types/historyTypes"
-import { ExportHistoriesPdf }from "../../utils/ExportHistoriesPdf"
-
+import {
+        exportHistoryPdfTransaction
+       }
+from "../../api/transactions/exports/exportHistoryPdfTransaction"
 
 
 type Props = {
@@ -59,8 +61,7 @@ export default function HistoryModal({
 
   // ===== action label =====
 
-const actionLabelMap = {
-  create: "create",
+const actionLabelMap: Record<string, string> = {  create: "create",
   update: "update",
   move: "move",
   delete: "delete",
@@ -148,9 +149,10 @@ const actionLabelMap = {
 
       // ===== date =====
 
-      const created =
-        new Date(history.createdAt)
-
+const created =
+  new Date(
+            history.createdAt ?? ""
+          )
       if (startDate) {
 
         const start =
@@ -306,7 +308,7 @@ const actionLabelMap = {
       filteredHistories.map(h => [
 
         new Date(
-          h.createdAt
+          h.createdAt?? ""
         ).toLocaleString("ja-JP"),
 
         h.deviceId,
@@ -446,16 +448,10 @@ const actionLabelMap = {
 
             <button
               onClick={() =>
-                ExportHistoriesPdf(
-                  filteredHistories
-                )
+                exportHistoryPdfTransaction(
+                                              filteredHistories
+                                            )
               }
-              className="
-                px-3 py-1
-                bg-blue-500
-                text-white
-                rounded
-              "
             >
               PDF出力
             </button>
@@ -943,12 +939,13 @@ const actionLabelMap = {
                     p-2
                     whitespace-nowrap
                   ">
-
-                    {
-                      new Date(
-                        history.createdAt
-                      ).toLocaleString("ja-JP")
-                    }
+{
+  history.createdAt
+    ? new Date(
+        history.createdAt
+      ).toLocaleString("ja-JP")
+    : "-"
+}
 
                   </td>
 

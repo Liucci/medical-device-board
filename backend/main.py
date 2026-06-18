@@ -61,8 +61,7 @@ from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPat
 from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest)
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
-
-
+from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
 from transactions.devices.create_device_transaction import (create_device_transaction)
@@ -104,9 +103,11 @@ from transactions.maintenance_types.create_maintenance_type_transaction import c
 from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
 from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
 
+#exports
+from schemas.export_schemas import  ExportHistoryPdfRequest
+from transactions.exports.export_history_pdf_transaction import export_history_pdf_transaction
+from fastapi.responses import StreamingResponse
 
-
-from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -1269,3 +1270,19 @@ def complete_maintenance_task_api(
                                                     action_type="update",
                                                     message="maintenance completed"
                                                 )
+
+
+
+
+from fastapi import Request
+
+@app.post("/export-history-pdf")
+async def export_history_pdf_route(
+    request: Request
+):
+
+    body = await request.json()
+
+    print(body)
+
+    return {}

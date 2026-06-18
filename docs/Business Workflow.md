@@ -424,3 +424,178 @@ action_by
 を利用する。
 
 Maintenance Task 専用の履歴カラムは追加しない。
+
+
+# 初回管理者登録機能
+
+## 基本思想
+
+一般ユーザー登録と初回管理者登録は別フローとする。
+
+register_user_transaction 内で role による分岐は行わない。
+
+* register_user_transaction
+* register_first_admin_transaction
+
+を分離する。
+
+Page も共通化せず、
+
+* /register
+* /first-admin-register
+
+を別 page とする。
+
+入力項目のみ共通とする。
+
+初回管理者登録画面の入力項目
+
+* display_name
+* password
+
+招待時の入力項目
+
+* hospital_name
+* email
+
+system_admin は display_name を入力しない。
+
+## 処理フロー
+
+system_admin login
+↓
+/first-admin-invite
+↓
+hospital_name,email入力
+↓
+invite_first_admin_transaction
+↓
+create_first_admin_invite_code
+↓
+invite_codes table にレコード作成
+↓
+メール送信
+↓
+first admin がメール内 URL をクリック
+↓
+/first-admin-register?code=xxxx
+↓
+display_name,password入力
+↓
+register_first_admin_transaction
+↓
+hospital作成
+↓
+auth user作成
+↓
+users table登録
+↓
+invite_code.used=true
+↓
+登録完了
+↓
+login page
+
+## invite_codes table
+
+一般ユーザー招待と初回管理者招待で共通テーブルを使用する。
+
+追加項目
+
+* hospital_name
+
+hospital_id は nullable とする。
+
+初回管理者招待時点では hospital が存在しないため、
+
+hospital_id=NULL
+hospital_name=〇〇病院
+
+として保存する。
+
+register_first_admin_transaction 内で hospital を作成し、
+その hospital_id を users table に設定する。
+
+## URL
+
+一般ユーザー
+
+/register?code=xxxx
+
+初回管理者
+
+/first-admin-register?code=xxxx
+
+を使用する。
+
+## system_admin
+
+system_admin 用 hospital を1つ用意する。
+
+例
+
+hospital_name
+Devix System
+
+system_admin は全員この hospital に所属させる。
+
+hospital.id は通常 hospital と同じ UUID を使用する。
+
+特殊文字列は使用しない。
+
+## API
+
+POST /invite-first-admin
+
+system_admin のみ実行可能。
+
+入力
+
+{
+hospital_name,
+email
+}
+
+処理
+
+invite_first_admin_transaction
+
+POST /register-first-admin
+
+入力
+
+{
+code,
+display_name,
+password
+}
+
+処理
+
+register_first_admin_transaction
+
+## Front構成
+
+page
+↓
+transaction
+↓
+mapper
+↓
+CRUD(fetch)
+↓
+backend
+
+mapper が camelCase ⇔ snake_case の変換を担当する。
+
+CRUD 層では変換しない。
+
+CRUD は RequestDB type を受け取る。
+
+transaction は必ず type と mapper を利用する。
+
+import は1行で記述する。
+
+引数1個の関数呼び出しは改行しない。
+
+不要な空行を作らない。
