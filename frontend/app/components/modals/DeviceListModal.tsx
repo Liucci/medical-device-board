@@ -536,13 +536,13 @@ const filteredDeviceLists = useMemo(() => {
     return {
 
       status:
-        device.status,
+        device.status??"",
 
       isUnderMaintenance:
-        device.isUnderMaintenance,
+        device.isUnderMaintenance?? false,
 
       standby:
-        device.standby,
+        device.standby?? false,
 
       wardName:
         device.status === "room"

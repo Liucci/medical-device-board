@@ -29,8 +29,8 @@ def create_device_list_pdf(
 
     table_data = [[
                     "状態",
-                    "保守",
-                    "待機",
+                    "保守/待機",
+                    
                     "病棟",
                     "病室/保管場所",
                     "患者名",
@@ -47,9 +47,9 @@ def create_device_list_pdf(
         maintenance_info = ""
         if row["maintenance_name"]:
             maintenance_info = row["maintenance_name"]
-            if row["due_at"]:
-                maintenance_info += f"\n{row['due_at']}"
-
+        if row["due_at"]:
+            maintenance_info += f" {row['due_at']}"
+        
         location_name = (
                           row["room_name"]
                           or
@@ -57,18 +57,16 @@ def create_device_list_pdf(
                           or
                           ""
                         )
+        
+        status_detail = ""
+        if row["is_under_maintenance"]:
+            status_detail = "保守中"
+        elif row["standby"]:
+            status_detail = "待機中"
 
         table_data.append([
                             row["status"],
-
-                            "○"
-                            if row["is_under_maintenance"]
-                            else "",
-
-                            "○"
-                            if row["standby"]
-                            else "",
-
+                            status_detail,
                             row["ward_name"] or "",
                             location_name,
                             row["patient_name"] or "",
@@ -84,18 +82,17 @@ def create_device_list_pdf(
                     table_data,
                     repeatRows=1,
                     colWidths=[
-                                25,
-                                20,
-                                20,
-                                45,
-                                55,
-                                45,
-                                55,
-                                55,
+                                30,
+                                40,
                                 50,
-                                50,
+                                60,
+                                60,
                                 80,
-                                70
+                                80,
+                                60,
+                                80,
+                                120,
+                                120
                               ]
                   )
 
