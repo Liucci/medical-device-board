@@ -107,6 +107,11 @@ from transactions.maintenance_types.delete_maintenance_type_transaction import d
 from schemas.export_schemas import  ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import export_history_pdf_transaction
 from fastapi.responses import StreamingResponse
+from fastapi import Request
+from fastapi.responses import StreamingResponse
+from schemas.export_schemas import ExportHistoryPdfRequest
+from transactions.exports.export_history_pdf_transaction import (export_history_pdf_transaction)
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1274,15 +1279,30 @@ def complete_maintenance_task_api(
 
 
 
-from fastapi import Request
+
+
 
 @app.post("/export-history-pdf")
 async def export_history_pdf_route(
-    request: Request
+    request: ExportHistoryPdfRequest
 ):
 
-    body = await request.json()
+    # debug
+    print("route called")
+    print("row count:", len(request.rows))
+    if request.rows:
+        for key, value in request.rows[0].model_dump().items():
+            print(f"・{key}: {value}")
 
-    print(body)
+    pdf_buffer = export_history_pdf_transaction(
+        request.rows
+    )
 
-    return {}
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition":
+                "attachment; filename=histories.pdf"
+        }
+    )

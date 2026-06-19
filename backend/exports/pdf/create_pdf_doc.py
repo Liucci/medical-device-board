@@ -3,6 +3,8 @@ from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import landscape
 
 
 pdfmetrics.registerFont(
@@ -25,7 +27,8 @@ def create_pdf_doc():
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(
-                                buffer
+                                buffer,
+                                pagesize=landscape(A4)
                              )
 
     return doc, buffer

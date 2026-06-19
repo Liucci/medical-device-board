@@ -15,8 +15,20 @@ export async function exportHistoryPdfFromApi(
                                         "access_token"
                                       )
 
-  if (!token) {return}
+//debug用　front⇒back時に渡しているデータをみる
+  const request = toExportHistoriesRequest(histories)
+  console.log("front to back request")
+  console.log("row count:", request.rows.length)
+  console.log(
+              JSON.stringify(
+                            request.rows[0],
+                            null,
+                            2
+                          )
+              )
 
+
+  if (!token) {return}
   const response = await fetch(
                                 `${API_BASE_URL}/export-history-pdf`,
                                 {
