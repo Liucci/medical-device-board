@@ -3,12 +3,14 @@ from schemas.export_schemas import HistoryExportRow
 
 
 def export_history_pdf_transaction(
-                                    rows: list[HistoryExportRow]
+                                    rows: list[HistoryExportRow],
+                                    hospital_name:str
                                   ):
 
     return create_history_pdf(
                                 [
                                   row.model_dump()
                                   for row in rows
-                                ]
+                                ],
+                                hospital_name=hospital_name
                              )

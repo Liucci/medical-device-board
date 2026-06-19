@@ -15,8 +15,8 @@ export const toHistoryExportRowRequest = (
   action_type: row.actionType,
   maintenance_started_at: row.maintenanceStartedAt ?? null,
   maintenance_finished_at: row.maintenanceFinishedAt ?? null,
-  location_name: row.locationName ?? null,
-  patient_name: row.patientName ?? null,
+  room_name: row.roomName ?? null,
+  stock_area_name: row.stockAreaName ?? null,  patient_name: row.patientName ?? null,
   message: row.message ?? null
 })
 

@@ -12,7 +12,8 @@ from exports.pdf.create_pdf_doc import create_pdf_doc
 
 
 def create_history_pdf(
-                            rows: list[dict]
+                            rows: list[dict],
+                             hospital_name:str
                       ):
 
     doc, buffer = create_pdf_doc()
@@ -62,7 +63,11 @@ def create_history_pdf(
                 )
                 .strftime("%Y/%m/%d\n%H:%M")
             )
-
+        location_name = (
+                                row["room_name"]
+                                or row["stock_area_name"]
+                                or ""
+                            )
         table_data.append(
             [
                 created_at,
@@ -72,7 +77,7 @@ def create_history_pdf(
                 row["action_type"] or "",
                 row["maintenance_started_at"] or "",
                 row["maintenance_finished_at"] or "",
-                row["location_name"] or "",
+                location_name ,
                 row["patient_name"] or "",
                 row["message"] or ""
             ]
@@ -110,10 +115,21 @@ def create_history_pdf(
                         ]
                         )
             )
+    #印刷日作成
+    printed_at = datetime.now().strftime("%Y/%m/%d %H:%M")
+    def draw_footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("NotoSansJP", 8)
+        canvas.drawString(30, 20, hospital_name)
+        canvas.drawCentredString(420, 20, printed_at)
+        canvas.drawRightString(800, 20, f"Page {doc.page}")
+        canvas.restoreState()
 
     elements.append(table)
 
-    doc.build(elements)
+    doc.build(elements,
+                onFirstPage=draw_footer,
+                onLaterPages=draw_footer)
 
     buffer.seek(0)
 

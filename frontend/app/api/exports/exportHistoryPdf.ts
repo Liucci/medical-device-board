@@ -14,6 +14,7 @@ export async function exportHistoryPdfFromApi(
   const token = localStorage.getItem(
                                         "access_token"
                                       )
+  console.log("token:", token)
 
 //debug用　front⇒back時に渡しているデータをみる
   const request = toExportHistoriesRequest(histories)
@@ -29,6 +30,7 @@ export async function exportHistoryPdfFromApi(
 
 
   if (!token) {return}
+  console.log("Authorization:", `Bearer ${token}`)
   const response = await fetch(
                                 `${API_BASE_URL}/export-history-pdf`,
                                 {

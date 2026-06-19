@@ -61,7 +61,8 @@ export default function HistoryModal({
 
   // ===== action label =====
 
-const actionLabelMap: Record<string, string> = {  create: "create",
+const actionLabelMap: Record<string, string> = {  
+  create: "create",
   update: "update",
   move: "move",
   delete: "delete",

@@ -10,8 +10,13 @@ def get_auth_user_id(authorization: str = Header(None)):
                                     "Bearer ",
                                     ""
                                 )
+    
     try:
         response = supabase.auth.get_user(token)
+        print("authorization:", authorization)
+        print("token:", token)
+        print("response:", response)
+        print("user:", response.user)
         return response.user.id
 
     except Exception:

@@ -6,7 +6,9 @@ export type HistoryExportRow = {
   actionType: string
   maintenanceStartedAt?: string | null
   maintenanceFinishedAt?: string | null
-  locationName?: string | null
+  roomName?: string | null
+  stockAreaName?: string | null
+  //locationName?: string | null
   patientName?: string | null
   message?: string | null
 }
@@ -22,7 +24,10 @@ export type HistoryExportRowDB = {
   action_type: string
   maintenance_started_at: string | null
   maintenance_finished_at: string | null
-  location_name: string | null
+  room_name?: string | null
+  stock_area_name?: string | null
+
+  //location_name: string | null
   patient_name: string | null
   message: string | null
 }

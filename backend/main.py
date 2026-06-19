@@ -10,6 +10,7 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
 
+
 from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
 from schemas.invite_schemas import (RegisterUserRequest)
@@ -34,6 +35,8 @@ from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
 from users.fetch_users import (fetch_users)
+from hospitals.fetch_hospital import fetch_hospital
+
 from device_types.fetch_device_type import (fetch_device_types )
 from device_models.fetch_device_models import (fetch_device_models)
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
@@ -1284,8 +1287,15 @@ def complete_maintenance_task_api(
 
 @app.post("/export-history-pdf")
 async def export_history_pdf_route(
-    request: ExportHistoryPdfRequest
+    request: ExportHistoryPdfRequest,
+    auth_user_id: str = Depends(get_auth_user_id)    
 ):
+    print("auth_user_id:", auth_user_id)
+    current_user = fetch_current_user(auth_user_id)
+    hospital = fetch_hospital(current_user["hospital_id"])
+    print("hospital:",hospital)
+    hospital_name = hospital["hospital_name"]
+
 
     # debug
     print("route called")
@@ -1293,16 +1303,16 @@ async def export_history_pdf_route(
     if request.rows:
         for key, value in request.rows[0].model_dump().items():
             print(f"・{key}: {value}")
-
     pdf_buffer = export_history_pdf_transaction(
-        request.rows
-    )
+                                                request.rows,
+                                                hospital_name
+                                                )
 
     return StreamingResponse(
         pdf_buffer,
         media_type="application/pdf",
         headers={
-            "Content-Disposition":
+                "Content-Disposition":
                 "attachment; filename=histories.pdf"
         }
     )
