@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../../client"
 import { Device } from "../../../types/deviceTypes"
 import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../utils/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
-
+import { authFetch } from "../../client"
 type CreateDeviceTransactionParams = {
     params: Device
     setDeviceList: any
@@ -23,13 +23,14 @@ export async function createDeviceTransaction({
         return
     }
 
-    await fetch(
+    await authFetch(
         `${API_BASE_URL}/create-device-transaction`,
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
+                "Content-Type":
+                "application/json"
+                
             },
             body: JSON.stringify(
                 toCreateDeviceRequest(params)
