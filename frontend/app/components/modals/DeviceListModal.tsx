@@ -9,7 +9,9 @@ import { WardType } from "../../types/wardTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
-
+import {exportDeviceListPdfTransaction}from "../../api/transactions/exports/exportDeviceListPdfTransaction"
+import {DeviceListExportUIType}
+from "../../types/exportTypes"
 
 
 
@@ -519,73 +521,80 @@ export default function DeviceListModal({
   }
 
   // ===== PDF =====
+const filteredDeviceLists = useMemo(() => {
 
-  const exportPdf = () => {
+  return filteredList.map(device => {
 
-    const rows = filteredList.map(device => {
+    const room =
+      getRoom(device.roomId)
 
-      const room =
-        getRoom(device.roomId)
+    const task =
+      getLatestMaintenanceTask(
+        device.id
+      )
 
-      const task =
-        getLatestMaintenanceTask(
-          device.id
-        )
+    return {
 
-      return {
+      status:
+        device.status,
 
-        status:
-          device.status,
+      isUnderMaintenance:
+        device.isUnderMaintenance,
 
-        maintenanceStatus:
-          device.isUnderMaintenance
-            ? "保守中"
-            : "",
+      standby:
+        device.standby,
 
-        wardName:
-          device.status === "room"
-            ? getWardName(
-                device.roomId
-              )
-            : "",
+      wardName:
+        device.status === "room"
+          ? getWardName(device.roomId)
+          : "",
 
-        roomName:
-          device.status === "room"
-            ? room?.name ?? ""
-            : getStockAreaName(
-                device.stockAreaID
-              ),
+      roomName:
+        device.status === "room"
+          ? room?.name ?? ""
+          : "",
 
-        patientName:
-          device.status === "room"
-            ? room?.patientName ?? ""
-            : "",
+      stockAreaName:
+        device.status === "stock"
+          ? getStockAreaName(
+              device.stockAreaID
+            )
+          : "",
 
-        typeName:
-          getTypeName(device.type),
+      patientName:
+        device.status === "room"
+          ? room?.patientName ?? ""
+          : "",
 
-        modelName:
-          getModelName(device.model),
+      deviceTypeName:
+        getTypeName(device.type),
 
-        maintenanceName:
-          task?.name ?? "",
+      deviceModelName:
+        getModelName(device.model),
 
-        maintenanceDue:
-          task?.due_at
-            ? new Date(
-                task.due_at
-              ).toLocaleDateString(
-                "ja-JP"
-              )
-            : ""
+      managementNumber:
+        device.managementNumber,
 
-      }
+      serialNumber:
+        device.serialNumber,
 
-    })
+      note:
+        device.note,
 
-    ExportDeviceListPdf(rows)
+      maintenanceName:
+        task?.name ?? "",
 
-  }
+      dueAt:
+        task?.due_at ?? ""
+
+    }
+
+  })
+
+}, [
+    filteredList
+])
+
 
   if (!isOpen) return null
 
@@ -639,7 +648,12 @@ export default function DeviceListModal({
             </button>
 
             <button
-              onClick={exportPdf}
+              onClick={() =>
+                exportDeviceListPdfTransaction(
+                                              filteredDeviceLists
+                                            )}
+
+
               className="
                 px-3 py-1
                 bg-blue-500

@@ -114,7 +114,8 @@ from fastapi import Request
 from fastapi.responses import StreamingResponse
 from schemas.export_schemas import ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import (export_history_pdf_transaction)
-
+from schemas.export_schemas import (DeviceListExportSchemaRequest)
+from transactions.exports.export_device_list_pdf_transaction import (export_device_list_pdf_transaction)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1316,3 +1317,42 @@ async def export_history_pdf_route(
                 "attachment; filename=histories.pdf"
         }
     )
+
+@app.post("/export-device-list-pdf")
+async def export_device_list_pdf_route(
+    request: DeviceListExportSchemaRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    print("auth_user_id:", auth_user_id)
+
+    current_user = fetch_current_user(auth_user_id)
+
+    hospital = fetch_hospital(
+                                current_user["hospital_id"]
+                              )
+
+    print("hospital:", hospital)
+
+    hospital_name = hospital["hospital_name"]
+
+    # debug
+    print("route called")
+    print("row count:", len(request.rows))
+
+    if request.rows:
+        for key, value in request.rows[0].model_dump().items():
+            print(f"・{key}: {value}")
+
+    pdf_buffer = export_device_list_pdf_transaction(
+                                                    request.rows,
+                                                    hospital_name
+                                                   )
+
+    return StreamingResponse(
+                                pdf_buffer,
+                                media_type="application/pdf",
+                                headers={
+                                            "Content-Disposition":
+                                            "attachment; filename=device_list.pdf"
+                                        }
+                            )
