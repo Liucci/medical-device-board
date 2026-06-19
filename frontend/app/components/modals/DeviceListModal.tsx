@@ -12,7 +12,10 @@ import { DeviceModelType } from "../../types/deviceModelTypes"
 import {exportDeviceListPdfTransaction}from "../../api/transactions/exports/exportDeviceListPdfTransaction"
 import {DeviceListExportUIType}
 from "../../types/exportTypes"
-
+import {
+  exportDeviceListCsvTransaction
+}
+from "../../api/transactions/exports/exportDeviceListCsvTransaction"
 
 
 
@@ -244,7 +247,7 @@ export default function DeviceListModal({
           selectedStatuses.length > 0
           &&
           !selectedStatuses.includes(
-            device.status
+            device.status ?? ""
           )
         ) {
 
@@ -410,115 +413,7 @@ export default function DeviceListModal({
 
   // ===== CSV =====
 
-  const exportCsv = () => {
 
-    const headers = [
-
-      "状態",
-      "保守",
-      "病棟",
-      "病室/保管場所",
-      "患者名",
-      "機種名",
-      "型式",
-      "直近期限メンテナンス"
-
-    ]
-
-    const rows = filteredList.map(device => {
-
-      const room =
-        getRoom(device.roomId)
-
-      const task =
-        getLatestMaintenanceTask(
-          device.id
-        )
-
-      return [
-
-        device.status,
-
-        device.isUnderMaintenance
-          ? "保守中"
-          : "",
-
-        device.status === "room"
-          ? getWardName(device.roomId)
-          : "",
-
-        device.status === "room"
-          ? room?.name ?? ""
-          : getStockAreaName(
-              device.stockAreaID
-            ),
-
-        device.status === "room"
-          ? room?.patientName ?? ""
-          : "",
-
-        getTypeName(device.type),
-
-        getModelName(device.model),
-
-        task
-          ? `${task.name} (${new Date(
-              task.due_at
-            ).toLocaleDateString("ja-JP")})`
-          : ""
-
-      ]
-
-    })
-
-    const csvContent = [
-      headers,
-      ...rows
-    ]
-      .map(row =>
-        row
-          .map(value =>
-            `"${String(value)
-              .replace(/"/g, '""')}"`
-          )
-          .join(",")
-      )
-      .join("\n")
-
-    const blob = new Blob(
-      ["\uFEFF" + csvContent],
-      {
-        type:
-          "text/csv;charset=utf-8;"
-      }
-    )
-
-    const url =
-      URL.createObjectURL(blob)
-
-    const link =
-      document.createElement("a")
-
-    const now = new Date()
-
-    link.href = url
-
-    link.download =
-      `機器一覧_${
-        now
-          .toLocaleDateString("ja-JP")
-          .replace(/\//g, "-")
-      }.csv`
-
-    document.body.appendChild(link)
-
-    link.click()
-
-    document.body.removeChild(link)
-
-    URL.revokeObjectURL(url)
-
-  }
 
   // ===== PDF =====
 const filteredDeviceLists = useMemo(() => {
@@ -636,7 +531,11 @@ const filteredDeviceLists = useMemo(() => {
           <div className="flex gap-2">
 
             <button
-              onClick={exportCsv}
+                onClick={() =>
+                  exportDeviceListCsvTransaction(
+                    filteredDeviceLists
+                  )
+                }
               className="
                 px-3 py-1
                 bg-green-600

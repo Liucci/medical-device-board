@@ -116,6 +116,12 @@ from schemas.export_schemas import ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import (export_history_pdf_transaction)
 from schemas.export_schemas import (DeviceListExportSchemaRequest)
 from transactions.exports.export_device_list_pdf_transaction import (export_device_list_pdf_transaction)
+from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
+from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
+
+from fastapi.responses import StreamingResponse
+
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1356,3 +1362,43 @@ async def export_device_list_pdf_route(
                                             "attachment; filename=device_list.pdf"
                                         }
                             )
+
+
+@app.post("/export-device-list-csv")
+def export_device_list_csv_route(
+    request: DeviceListExportSchemaRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    csv_buffer = export_device_list_csv_transaction(
+        request.rows
+    )
+
+    return StreamingResponse(
+        csv_buffer,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition":
+                "attachment; filename=device_list.csv"
+        }
+    )
+
+@app.post("/export-history-csv")
+def export_history_csv_route(
+    request: ExportHistoryPdfRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    csv_buffer = export_history_csv_transaction(
+    request.rows
+)
+
+    return StreamingResponse(
+        csv_buffer,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition":
+            "attachment; filename=histories.csv"
+        }
+)

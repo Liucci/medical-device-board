@@ -3,10 +3,8 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { History }from "../../types/historyTypes"
-import {
-        exportHistoryPdfTransaction
-       }
-from "../../api/transactions/exports/exportHistoryPdfTransaction"
+import {exportHistoryPdfTransaction}from "../../api/transactions/exports/exportHistoryPdfTransaction"
+import {exportHistoryCsvTransaction}from "../../api/transactions/exports/exportHistoryCsvTransaction"
 
 
 type Props = {
@@ -283,118 +281,6 @@ const created =
 
   // ===== CSV =====
 
-  const exportCsv = () => {
-
-    const headers = [
-
-      "日時",
-      "機器ID",
-
-      "機種",
-      "型式",
-
-      "操作",
-
-      "保守開始日",
-      "保守終了日",
-
-      "配置",
-      "患者",
-
-      "内容"
-
-    ]
-
-    const rows =
-      filteredHistories.map(h => [
-
-        new Date(
-          h.createdAt?? ""
-        ).toLocaleString("ja-JP"),
-
-        h.deviceId,
-
-        h.deviceTypeName ?? "",
-        h.deviceModelName ?? "",
-
-        actionLabelMap[
-          h.actionType
-        ] ?? h.actionType,
-
-        h.maintenanceStartedAt
-          ? new Date(
-              h.maintenanceStartedAt
-            ).toLocaleDateString(
-              "ja-JP"
-            )
-          : "",
-
-        h.maintenanceFinishedAt
-          ? new Date(
-              h.maintenanceFinishedAt
-            ).toLocaleDateString(
-              "ja-JP"
-            )
-          : "",
-
-        h.roomName
-          ?? h.stockAreaName
-          ?? "",
-
-        h.patientName ?? "",
-
-        h.message
-
-      ])
-
-    const csvContent = [
-      headers,
-      ...rows
-    ]
-      .map(row =>
-        row
-          .map(value =>
-            `"${String(value)
-              .replace(/"/g, '""')}"`
-          )
-          .join(",")
-      )
-      .join("\n")
-
-    const blob = new Blob(
-      ["\uFEFF" + csvContent],
-      {
-        type:
-          "text/csv;charset=utf-8;"
-      }
-    )
-
-    const url =
-      URL.createObjectURL(blob)
-
-    const link =
-      document.createElement("a")
-
-    const now = new Date()
-
-    link.href = url
-
-    link.download =
-      `履歴_${
-        now
-          .toLocaleDateString("ja-JP")
-          .replace(/\//g, "-")
-      }.csv`
-
-    document.body.appendChild(link)
-
-    link.click()
-
-    document.body.removeChild(link)
-
-    URL.revokeObjectURL(url)
-
-  }
 
   if (!isOpen) return null
 
@@ -436,7 +322,12 @@ const created =
           <div className="flex gap-2">
 
             <button
-              onClick={exportCsv}
+                onClick={() =>
+                  exportHistoryCsvTransaction(
+                    filteredHistories
+                  )
+                }
+
               className="
                 px-3 py-1
                 bg-green-600
@@ -453,6 +344,12 @@ const created =
                                               filteredHistories
                                             )
               }
+                className="
+                px-3 py-1
+                bg-blue-500
+                text-white
+                rounded
+              "
             >
               PDF出力
             </button>
