@@ -331,7 +331,7 @@ def create_device_transaction_route(
                             user_id=current_user["id"],
                             stock_area_id=1,
                             status="stock",
-                            action_type="device_created",
+                            action_type="create",
                             message="機器を新規登録"
                           )
 
@@ -350,7 +350,7 @@ def delete_device_transaction_route(
                             device=body,
                             hospital_id=current_user["hospital_id"],
                             user_id=current_user["id"],
-                            action_type="device_deleted",
+                            action_type="delete",
                             message="機器を削除"
                          )    
 
@@ -993,7 +993,7 @@ def update_management_number_route(
                                             device=body,
                                             hospital_id=current_user["hospital_id"],
                                             user_id=current_user["id"],
-                                            action_type="management_number_updated",
+                                            action_type="update",
                                             message="管理番号を更新"
                                          )
 
@@ -1014,7 +1014,7 @@ def update_serial_number_route(
                                         device=body,
                                         hospital_id=current_user["hospital_id"],
                                         user_id=current_user["id"],
-                                        action_type="serial_number_updated",
+                                        action_type="update",
                                         message="シリアル番号を更新"
                                      )
 
@@ -1035,7 +1035,7 @@ def update_note_route(
                               device=body,
                               hospital_id=current_user["hospital_id"],
                               user_id=current_user["id"],
-                              action_type="note_updated",
+                              action_type="update",
                               message="備考を更新"
                            )
 
@@ -1056,7 +1056,7 @@ def start_maintenance_route(
                                     device=body,
                                     hospital_id=current_user["hospital_id"],
                                     user_id=current_user["id"],
-                                    action_type="maintenance_started",
+                                    action_type="update",
                                     message="保守開始"
                                  )
 
@@ -1077,7 +1077,7 @@ def finish_maintenance_route(
                                      device=body,
                                      hospital_id=current_user["hospital_id"],
                                      user_id=current_user["id"],
-                                     action_type="maintenance_finished",
+                                     action_type="update",
                                      message="保守終了"
                                   )
 
@@ -1098,7 +1098,7 @@ def start_standby_route(
                                 device=body,
                                 hospital_id=current_user["hospital_id"],
                                 user_id=current_user["id"],
-                                action_type="standby_started",
+                                action_type="update",
                                 message="スタンバイ開始"
                              )
 
@@ -1119,7 +1119,7 @@ def finish_standby_route(
                                  device=body,
                                  hospital_id=current_user["hospital_id"],
                                  user_id=current_user["id"],
-                                 action_type="standby_finished",
+                                 action_type="update",
                                  message="スタンバイ終了"
                               )
 
@@ -1146,7 +1146,7 @@ def move_stock_to_room_route(
                                                     hospital_id=current_user["hospital_id"],
                                                     user_id=current_user["id"],
                                                     status="room",
-                                                    action_type="moved_to_room",
+                                                    action_type="move",
                                                     message="stock to room"
                                                   )
 
@@ -1170,7 +1170,7 @@ def move_stock_to_stock_route(
                                                     hospital_id=current_user["hospital_id"],
                                                     user_id=current_user["id"],
                                                     status="stock",
-                                                    action_type="moved_to_stock",
+                                                    action_type="move",
                                                     message="stock to stock"
                                                   )
 
@@ -1196,7 +1196,7 @@ def move_room_to_stock_route(
                                                     user_id=current_user["id"],
                                                     patient_name=None,
                                                     status="stock",
-                                                    action_type="moved_to_stock",
+                                                    action_type="move",
                                                     message="room to stock"
                                                   )
 
@@ -1222,7 +1222,7 @@ def move_room_to_room_route(
                                             user_id=current_user["id"],
                                             pre_patient_name=None,
                                             status="room",
-                                            action_type="moved_to_room",
+                                            action_type="move",
                                             message="Room moved"
                                          )
     return moved_device
@@ -1254,7 +1254,7 @@ def move_room_to_room_new_patient_route(
                                                               serial_number=None,
                                                               note=None,
                                                               status="room",
-                                                              action_type="moved_to_room_new_patient",
+                                                              action_type="move",
                                                               message="Room moved new patient"
                                                             )
 
