@@ -236,10 +236,7 @@ export default function ButtonPanel({
 
       {openInviteModal &&
         <InviteCreateModal
-          currentUser={{
-                        id: userId,
-                        hospital_id: hospitalId
-                      }}
+
           onClose={() => setOpenInviteModal(false)}
         />
       }

@@ -26,13 +26,13 @@ type Props = {
 
   deviceList: Device[]
 
-  rooms: RoomType[]
-  wards: WardType[]
+  rooms: { id: number; wardId: number; name: string ;patientName:string}[]
+  wards: { id: number; name: string }[]
 
-  stockAreas: StockAreaType[]
+  stockAreas: { id: number; name: string }[]
 
-  deviceTypes: DeviceTypeType[]
-  deviceModels: DeviceModelType[]
+  deviceTypes: { id: number; name: string }[]
+  deviceModels: { id: number; deviceTypeId: number; name: string }[]
 
   getLatestMaintenanceTask:
     (deviceId?: number) => {
