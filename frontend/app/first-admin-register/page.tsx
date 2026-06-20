@@ -1,3 +1,5 @@
+import RegisterClient from "./RegisterClient"
+
 type PageProps = {
   searchParams: Promise<{
     code?: string
@@ -5,15 +7,14 @@ type PageProps = {
 }
 
 export default async function Page({
-  searchParams,
+  searchParams
 }: PageProps) {
 
   const params = await searchParams
-  const code = params.code ?? ""
 
   return (
-    <div>
-      code : {code}
-    </div>
+    <RegisterClient
+      code={params.code ?? ""}
+    />
   )
 }
