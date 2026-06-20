@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { API_BASE_URL } from "../api/client"
 
 import {useSearchParams,useRouter} from "next/navigation"
