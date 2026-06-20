@@ -1,9 +1,13 @@
 import { refreshToken } from "./auth/refreshToken"
 
+
+
 export const API_BASE_URL =
-//backend接続するためのURL、.env.localから取得
-  process.env
-  .NEXT_PUBLIC_API_URL
+  process.env.NODE_ENV === "development"
+    ? process.env.NEXT_PUBLIC_API_URL!
+    : process.env.NEXT_PUBLIC_PROD_API_URL!;
+
+
 
 export async function authFetch(
                                 url: string,

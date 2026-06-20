@@ -1,4 +1,5 @@
 "use client"
+import { API_BASE_URL } from "../api/client"
 
 import {useSearchParams,useRouter} from "next/navigation"
 import {useEffect,useState} from "react"
@@ -57,7 +58,7 @@ export default function RegisterPage() {
       }
 
       const response = await fetch(
-                                    `${process.env.NEXT_PUBLIC_API_URL}/invite-info/${code}`
+                                      `${API_BASE_URL}/invite-info/${code}`
                                   )
 
       if (!response.ok) {
