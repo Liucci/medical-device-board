@@ -1,13 +1,19 @@
-import { Suspense } from "react"
-import RegisterContent from "./RegisterContent"
+type PageProps = {
+  searchParams: Promise<{
+    code?: string
+  }>
+}
 
-export const dynamic = "force-dynamic"
+export default async function Page({
+  searchParams,
+}: PageProps) {
 
-export default function Page() {
+  const params = await searchParams
+  const code = params.code ?? ""
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <RegisterContent />
-    </Suspense>
+    <div>
+      code : {code}
+    </div>
   )
 }
