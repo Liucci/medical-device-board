@@ -1,4 +1,8 @@
-import {MaintenanceType,MaintenanceTypeDB} from "../types/maintenanceTypeTypes"
+import {MaintenanceType,
+        MaintenanceTypeDB, 
+        CreateMaintenanceType,
+        UpdateMaintenanceType
+      } from "../types/maintenanceTypeTypes"
 
 export const normalizeMaintenanceType = (m: MaintenanceTypeDB): MaintenanceType => ({
                                                                                       id: m.id,
@@ -13,14 +17,14 @@ export const normalizeMaintenanceType = (m: MaintenanceTypeDB): MaintenanceType 
                                                                                       createdAt: m.created_at
                                                                                     })
 
-export const toCreateMaintenanceTypeRequest = (m: MaintenanceType) => ({
+export const toCreateMaintenanceTypeRequest = (m:  CreateMaintenanceType) => ({
                                                                           name: m.name,
                                                                           device_type_id: m.deviceTypeId,
                                                                           device_model_id: m.deviceModelId ?? null,
                                                                           interval_days: m.intervalDays
                                                                         })
 
-export const toUpdateMaintenanceTypeRequest = (m: MaintenanceType) => ({
+export const toUpdateMaintenanceTypeRequest = (m: UpdateMaintenanceType) => ({
                                                                           id: m.id,
                                                                           name: m.name,
                                                                           interval_days: m.intervalDays

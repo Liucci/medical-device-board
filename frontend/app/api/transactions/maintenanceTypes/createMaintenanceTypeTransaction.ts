@@ -1,10 +1,10 @@
 import { API_BASE_URL } from "../../client"
-import { MaintenanceType } from "../../../types/maintenanceTypeTypes"
+import { CreateMaintenanceType } from "../../../types/maintenanceTypeTypes"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toCreateMaintenanceTypeRequest } from "../../../utils/maintenanceTypeMapper"
 
 type CreateMaintenanceTypeTransactionParams = {
-                                                maintenanceType: MaintenanceType
+                                                maintenanceType: CreateMaintenanceType
                                                 setMaintenanceTypes: any
                                                 onClose?: () => void
                                               }

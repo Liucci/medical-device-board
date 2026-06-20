@@ -208,85 +208,7 @@ export default function Page() {
     setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
   }
 
-/*   const handleDropToStock = async (device: Device, stockAreaId: number) => {
-    if (!currentUser) {return}  
-    // ① UI即更新（UX）
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === device.id
-          ? {
-              ...d,
-              status: "stock",
-              stockAreaID: stockAreaId,
-              roomId: undefined,
-              managementNumber: undefined, // ←追加
-              serialNumber: undefined,     // ←追加
-              note: undefined,              // ←追加
-              standby: false,
-              standbyStartedAt: undefined
-            }
-          : d
-      )
-    )
 
-    // ② DB更新
-    const { error } = await supabase
-      .from('devices')
-      .update({
-        status: "stock",
-        stock_area_id: stockAreaId,
-        room_id: null,
-        management_number: null, // ←追加
-        serial_number: null,     // ←追加
-        note: null               // ←追加
-      })
-      .eq('id', device.id)
-      .eq(
-          "hospital_id",
-          currentUser?.hospitalId
-      )
-
-
-    if (error) {
-      console.error(error)
-      // 必要ならrollback
-    }
-
-    // ===== 履歴追加 =====
-    const type = deviceTypes.find(
-      t => Number(t.id) === Number(device.type)
-    )
-    const model = deviceModels.find(
-      m => Number(m.id) === Number(device.model)
-    )    
-    const stockArea = stockAreas.find(a => Number(a.id) === Number(stockAreaId))
-    const { error: historyError } = await supabase
-      .from("device_histories")
-      .insert({
-        hospital_id:currentUser?.hospitalId,
-        device_id: device.id,
-        action_type: "move",
-        device_type_name: type?.name ?? null,
-        device_model_name: model?.name ?? null,
-        status: "stock",
-        stock_area_id: stockAreaId,
-        stock_area_name: stockArea?.name ?? null,
-        room_id: null,
-        patient_name: null,
-        management_number: null,
-        serial_number: null,
-        note: null,
-        message: `${stockArea?.name ?? "不明"}へ移動`      
-      })
-
-    if (historyError) {
-      console.error("history insert error:", historyError)
-    }
-    // DBから再取得
-    await fetchHistories()
-    }
-
- */    
   
   const handleDropToStock = async (
                                   device: Device,
@@ -387,326 +309,45 @@ export default function Page() {
     setPendingDevice(null)
     setTargetWardId(null)
     }
-/*   const handleRoomToRoomSubmit = async (
-    roomID: number,
+
+
+  const handleRoomToRoomSubmit = async (
+    roomId: number,
     patientName: string,
     samePatient: boolean
   ) => {
-    if (!currentUser) {return}  
-    if (
-      !pendingDevice ||
-      pendingDevice.id === undefined
-    ) return
 
-    // ===== 移動前状態 =====
+    if (!pendingDevice?.id) {return}
+    if (!pendingDevice?.roomId) {return}
 
-    const prevDevice =
-      deviceList.find(
-        d => d.id === pendingDevice.id
-      )
-
-    const prevRoomId =
-      prevDevice?.roomId
-
-    const prevRoom =
-      rooms.find(
-        r => r.roomId === prevRoomId
-      )
-
-    const prevPatient =
-      prevRoom?.patientName ?? ""
-
-    // ===== DB更新 =====
-
-    const { error: roomError } =
-      await supabase
-        .from("rooms")
-        .update({
-          patient_name: patientName
-        })
-        .eq("id", roomID)
-        .eq(
-          "hospital_id",
-          currentUser?.hospitalId
-        )
-
-    if (roomError) {
-      console.error(roomError)
-      return
-    }
-
-    const { error: deviceError } =
-      await supabase
-        .from("devices")
-        .update({
-          status: "room",
-          room_id: roomID
-        })
-        .eq("id", pendingDevice.id)
-        .eq(
-          "hospital_id",
-          currentUser?.hospitalId
-        )
-
-    if (deviceError) {
-      console.error(deviceError)
-      return
-    }
-
-    // ===== 履歴用 =====
-
-    const room =
-      rooms.find(
-        r => Number(r.roomId) === Number(roomID)
-      )
-
-    const type =
-      deviceTypes.find(
-        t =>
-          Number(t.id) ===
-          Number(pendingDevice.type)
-      )
-
-    const model =
-      deviceModels.find(
-        m =>
-          Number(m.id) ===
-          Number(pendingDevice.model)
-      )
-
-    // ===== 判定 =====
-
-    const roomChanged =
-      prevRoomId !== roomID
-
-    const patientChanged =
-      prevPatient !== patientName
-
-    // ===== action_type =====
-
-    const actionType =
-      roomChanged
-        ? "move"
-        : "other"
-
-    // ===== message =====
-
-    let message = ""
-
-    // room変更
-    if (roomChanged) {
-
-      message =
-        `${type?.name ?? "不明"} : ` +
-        `${model?.name ?? "不明"} ` +
-        `${room?.roomName ?? "不明"}へ移動`
-
-      if (patientChanged) {
-        message += " / 患者名変更"
-      }
-
-      if (!samePatient) {
-        message += " / 別患者使用開始"
-      } else {
-        message += " / 同一患者継続"
-      }
-    }
-
-    // 同一room
-    else {
-
-      if (patientChanged) {
-
-        message =
-          `${type?.name ?? "不明"} : ` +
-          `${model?.name ?? "不明"} ` +
-          `${room?.roomName ?? "不明"} ` +
-          `患者名変更`
-      }
-
+    if (samePatient) {
+      await moveRoomToRoomTransaction({
+                                        deviceId: pendingDevice.id,
+                                        preRoomId: pendingDevice.roomId,
+                                        postRoomId: roomId,
+                                        patientName,
+                                        setDevices: setDeviceList,
+                                        setRooms,
+                                        setHistories
+                                      })
+      } 
       else {
-
-        message =
-          `${type?.name ?? "不明"} : ` +
-          `${model?.name ?? "不明"} ` +
-          `${room?.roomName ?? "不明"} ` +
-          `情報更新無し`
+        await moveRoomToRoomNewPatientTransaction({
+                                                    deviceId: pendingDevice.id,
+                                                    preRoomId: pendingDevice.roomId,
+                                                    postRoomId: roomId,
+                                                    patientName,
+                                                    setDevices: setDeviceList,
+                                                    setRooms,
+                                                    setHistories,
+                                                    setTasks
+                                                  })
       }
-    }
-
-    // ===== 履歴 =====
-
-    const { error: historyError } =
-      await supabase
-        .from("device_histories")
-        .insert({
-          hospital_id:currentUser?.hospitalId,
-          device_id:
-            pendingDevice.id,
-
-          action_type:
-            actionType,
-
-          device_type_name:
-            type?.name ?? null,
-
-          device_model_name:
-            model?.name ?? null,
-
-          status:
-            "room",
-
-          room_id:
-            roomID,
-
-          room_name:
-            room?.roomName ?? null,
-
-          stock_area_id:
-            null,
-
-          stock_area_name:
-            null,
-
-          patient_name:
-            patientName || null,
-
-          management_number:
-            pendingDevice.managementNumber ?? null,
-
-          serial_number:
-            pendingDevice.serialNumber ?? null,
-
-          note:
-            pendingDevice.note ?? null,
-
-          message
-        })
-
-    if (historyError) {
-      console.error(
-        "history insert error:",
-        historyError
-      )
-    }
-
-    // ===== 履歴再取得 =====
-
-    await fetchHistories()
-
-    // ===== UI更新 =====
-
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === pendingDevice.id
-          ? {
-              ...d,
-              status: "room",
-              roomId: roomID
-            }
-          : d
-      )
-    )
-
-    setRooms(prev =>
-      prev.map(r =>
-        r.id === roomID
-          ? {
-              ...r,
-              patientName
-            }
-          : r
-      )
-    )
-
-    // ===== メンテ種別 =====
-
-    let types =
-      maintenanceTypes.filter(
-        t =>
-          t.device_model_id ===
-          pendingDevice.model
-      )
-
-    if (types.length === 0) {
-
-      types =
-        maintenanceTypes.filter(
-          t =>
-            t.device_type_id ===
-              pendingDevice.type &&
-            t.device_model_id === null
-        )
-    }
-
-    // ===== タスク処理 =====
-
-    if (!samePatient) {
-
-      if (types.length > 0) {
-
-        await cancelTasks(
-          pendingDevice.id
-        )
-
-        await createTasks(
-          pendingDevice,
-          types
-        )
-      }
-    }
-
-    // ===== task再取得 =====
-
-    await fetchTasks()
-
-    // ===== 後処理 =====
 
     setRoomToRoomModalOpen(false)
-
     setPendingDevice(null)
-
     setTargetWardId(null)
   }
- */
-
-const handleRoomToRoomSubmit = async (
-  roomId: number,
-  patientName: string,
-  samePatient: boolean
-) => {
-
-  if (!pendingDevice?.id) {return}
-  if (!pendingDevice?.roomId) {return}
-
-  if (samePatient) {
-    await moveRoomToRoomTransaction({
-                                      deviceId: pendingDevice.id,
-                                      preRoomId: pendingDevice.roomId,
-                                      postRoomId: roomId,
-                                      patientName,
-                                      setDevices: setDeviceList,
-                                      setRooms,
-                                      setHistories
-                                    })
-    } 
-    else {
-      await moveRoomToRoomNewPatientTransaction({
-                                                  deviceId: pendingDevice.id,
-                                                  preRoomId: pendingDevice.roomId,
-                                                  postRoomId: roomId,
-                                                  patientName,
-                                                  setDevices: setDeviceList,
-                                                  setRooms,
-                                                  setHistories,
-                                                  setTasks
-                                                })
-    }
-
-  setRoomToRoomModalOpen(false)
-  setPendingDevice(null)
-  setTargetWardId(null)
-}
 
   const handleRoomToRoomCancel = () => {
     if (!currentUser) {return}  
@@ -733,150 +374,6 @@ const handleRoomToRoomSubmit = async (
         setSelectedRoomDevice(device)
         setRoomDeviceInfoModalOpen(true)
   }
-  //管理番号編集関数（boolean)
-/*   const renameManagementNumber =async (id: number,value: string): Promise<boolean> => {
-    if (!currentUser) {
-      return false
-    }
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        management_number: value
-      })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-
-    if (error) {
-
-      console.error(error)
-
-      alert(
-        "編集権限がありません"
-      )
-
-      return false
-    }
-
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      alert(
-        "編集権限がありません"
-      )
-
-      return false
-    }
-
-    // UI更新
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === id
-          ? {
-              ...d,
-              managementNumber:
-                value
-            }
-          : d
-      )
-    )
-
-    updateSelectedRoomDevice(d =>
-      d.id === id
-        ? {
-            ...d,
-            managementNumber: value
-          }
-        : d
-  )
-    return true
-  }
- */
-
-/*   //シリアル編集関数(boolean)
-  const renameSerialNumber = async (id: number,value: string): Promise<boolean> => {
-
-    if (!currentUser) {
-      return false
-    }
-
-    const trimmed =
-      value.trim()
-
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        serial_number:
-          trimmed
-      })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-
-    if (error) {
-
-      console.error(error)
-
-      alert(
-        "シリアル番号編集権限がありません"
-      )
-
-      return false
-    }
-
-    // 🔥 RLSで0件更新
-    if (
-      !data ||
-      data.length === 0
-    ) {
-
-      alert(
-        "シリアル番号編集権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-    // deviceListのserialNumber更新
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === id
-          ? {
-              ...d,
-              serialNumber:
-                trimmed
-            }
-          : d
-      )
-    )
-    // RoomDeviceInfoModalのserialNumberも更新
-    updateSelectedRoomDevice(d =>
-      d.id === id
-        ? {
-            ...d,
-            serialNumber: trimmed
-          }
-        : d
-  )
-  
-    return true
-  } 
- */ 
 
   const renamePatientName = async (
                                     roomId: number,
@@ -925,7 +422,7 @@ const handleRoomToRoomSubmit = async (
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
     const updatedDevice =normalizedDevices.find(
-                    (d: Device) => d.id === id
+                   d => d.id === id
                   )
 if (updatedDevice) {
 
@@ -968,7 +465,7 @@ if (updatedDevice) {
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
     const updatedDevice =normalizedDevices.find(
-                    (d: Device) => d.id === id
+                    d => d.id === id
                   )
 
 if (updatedDevice) {
@@ -1010,7 +507,7 @@ if (updatedDevice) {
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
     const updatedDevice =normalizedDevices.find(
-                    (d: Device) => d.id === id
+                  d => d.id === id
                   )
 
       if (updatedDevice) {
@@ -1036,7 +533,7 @@ if (updatedDevice) {
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
     const updatedDevice =normalizedDevices.find(
-                                          d => d.id === deviceId
+                                           d => d.id === deviceId
                                         )
 
     if (updatedDevice) {
@@ -1156,283 +653,6 @@ if (updatedDevice) {
   } 
 
 
-  //DBのmaintenance_types tableに新しいメンテナンス種別を追加する関数
-  const addMaintenanceType = async (
-                                    data: {
-                                      name: string
-                                      deviceTypeId: number
-                                      deviceModelId: number | null
-                                      intervalDays: number
-                                    }
-  ) => {
-
-    if (!currentUser) {
-      return
-    }
-
-    const trimmed =
-      data.name.trim()
-
-    if (!trimmed) return
-
-    const {
-      data: inserted,
-      error
-    } = await supabase
-      .from("maintenance_types")
-      .insert([{
-        hospital_id:
-          currentUser.hospitalId,
-        name: trimmed,
-        device_type_id:
-          data.deviceTypeId,
-        device_model_id:
-          data.deviceModelId,
-        interval_days:
-          data.intervalDays
-      }])
-      .select()
-      .single()
-
-    if (error) {
-
-      console.error(error)
-
-      // 🔥 権限エラー
-      if (
-        error.code === "42501"
-      ) {
-
-        alert(
-          "メンテナンス項目追加権限がありません"
-        )
-
-      } else {
-
-        alert(
-          "追加に失敗しました"
-        )
-      }
-
-      return
-    }
-
-    setMaintenanceTypes(prev => [
-      ...prev,
-      inserted
-    ])
-  }  
-  //DBのmaintenance_types tableからメンテナンス種別名を変更する関数
-  const renameMaintenanceType = async (
-                                id: number,
-                                data: {
-                                  name: string
-                                  intervalDays: number
-                                }
-                              ): Promise<boolean> => {
-
-    if (!currentUser) {
-      return false
-    }
-
-    const trimmed =
-      data.name.trim()
-
-    if (!trimmed) {
-      return false
-    }
-
-    const {
-      data: updated,
-      error
-    } = await supabase
-      .from("maintenance_types")
-      .update({
-        name: trimmed,
-        interval_days:
-          data.intervalDays
-      })
-      .eq("id", id)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-
-    if (error) {
-
-      console.error(error)
-
-      // 🔥 権限エラー
-      if (
-        error.code === "42501"
-      ) {
-
-        alert(
-          "メンテナンス項目変更権限がありません"
-        )
-
-      } else {
-
-        alert(
-          "変更に失敗しました"
-        )
-      }
-
-      return false
-    }
-
-    // 🔥 RLSで0件更新対策
-    if (
-      !updated ||
-      updated.length === 0
-    ) {
-
-      alert(
-        "メンテナンス項目変更権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-
-    setMaintenanceTypes(prev =>
-      prev.map(t =>
-        t.id === id
-          ? {
-              ...t,
-              name: trimmed,
-              interval_days:
-                data.intervalDays
-            }
-          : t
-      )
-    )
-
-    return true
-  }
-    //DBのmaintenance_types tableからメンテナンス種別を削除する関数
-  const deleteMaintenanceTypes = async (ids: number[]): Promise<boolean> => {
-
-    if (!currentUser) {
-      return false
-    }
-
-    // 🔥 使用中チェック
-    const used = tasks.some(
-      t =>
-        ids.includes(
-          t.maintenance_type_id
-        )
-    )
-
-    if (used) {
-
-      alert(
-        "使用中のメンテ種別は削除できません"
-      )
-
-      return false
-    }
-
-    const { data, error } =
-      await supabase
-        .from("maintenance_types")
-        .delete()
-        .in("id", ids)
-        .eq(
-          "hospital_id",
-          currentUser.hospitalId
-        )
-        .select()
-
-    if (error) {
-
-      console.error(error)
-
-      // 🔥 権限エラー
-      if (
-        error.code === "42501"
-      ) {
-
-        alert(
-          "メンテ種別削除権限がありません"
-        )
-
-      } else {
-
-        alert(
-          "削除に失敗しました"
-        )
-      }
-
-      return false
-    }
-
-    // 🔥 RLSで0件削除対策
-    if (
-      !data ||
-      data.length !== ids.length
-    ) {
-
-      alert(
-        "メンテ種別削除権限がありません"
-      )
-
-      return false
-    }
-
-    // ===== UI更新 =====
-
-    setMaintenanceTypes(prev =>
-      prev.filter(
-        t =>
-          !ids.includes(t.id)
-      )
-    )
-
-    return true
-  }
-  //device_idに紐づくタスクをキャンセルする関数
-  const cancelTasks = async (deviceId: number) => {
-    if (!currentUser) {return}  
-    await supabase
-      .from("device_maintenance_tasks")
-      .update({ status: "canceled" })
-      .eq("device_id", deviceId)
-      .eq("status", "pending")
-      .eq(
-        "hospital_id",
-        currentUser?.hospitalId
-      )
-
-  }
-  //新しいタスクを作成する関数
-  const createTasks = async (device: Device, types: any[]) => {
-    if (!currentUser) {return}  
-    const now = new Date()
-    const inserts = types.map(type => {
-      const due = new Date(now)
-      due.setDate(due.getDate() + type.interval_days)
-
-      return {
-        hospital_id:currentUser.hospitalId,
-        device_id: device.id,
-        maintenance_type_id: type.id,
-        due_at: due.toISOString(),
-        status: "pending"
-      }
-    })
-    const { error } =
-      await supabase
-        .from("device_maintenance_tasks")
-        .insert(inserts)//inserts関数にhosoital_id含んでいる
-    if (error) {
-      console.error(error)
-    }
-}
-
 
   //タスク完了ボタンを押したときの処理
   const handleCompleteTask = async (
@@ -1443,7 +663,8 @@ if (updatedDevice) {
                                               id,
                                               setTasks
                                             })
-  }
+    return true
+    }
 
   //device_idに紐づくタスクを取得する関数
   const getDeviceTasks = (deviceId?: number) => {
@@ -1639,7 +860,7 @@ if (updatedDevice) {
 
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
-useEffect(() => {
+  useEffect(() => {
 
   const fetchData = async () => {
 
@@ -1716,9 +937,9 @@ useEffect(() => {
 }, [tasks])
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
-  if (!currentUser) {
-  return null
-  }
+    if (!currentUser) {
+    return null
+    }
 
 
     return (
