@@ -1,5 +1,24 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
+
+export default function RegisterContent() {
+
+  const searchParams = useSearchParams()
+
+  const code = searchParams.get("code")
+
+  return (
+    <div>
+      code : {code}
+    </div>
+  )
+}
+
+
+
+/* "use client"
+
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -192,4 +211,6 @@ export default function RegisterForm() {
       }
     </>
   )
-}
+} */
+
+

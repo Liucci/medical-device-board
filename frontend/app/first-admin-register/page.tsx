@@ -1,7 +1,5 @@
-"use client"
-
 import { Suspense } from "react"
-import RegisterForm from "./RegisterForm"
+import RegisterContent from "./RegisterContent"
 
 export const dynamic = "force-dynamic"
 
@@ -9,7 +7,7 @@ export default function Page() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <RegisterForm />
+      <RegisterContent />
     </Suspense>
   )
 }
