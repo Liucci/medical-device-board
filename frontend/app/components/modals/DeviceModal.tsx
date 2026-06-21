@@ -14,6 +14,7 @@ type Props = {
   onClose: () => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  stockAreas: { id: number; name: string }[]
   hospitalId:string
 }
 
@@ -24,6 +25,7 @@ export default function DeviceModal({
                                       deviceModels,
                                       hospitalId,
                                       deviceList,
+                                      stockAreas,
                                       setDeviceList
                                     }: Props) 
   {
@@ -36,6 +38,7 @@ export default function DeviceModal({
   const [rentalStartDate, setRentalStartDate] = useState(today)
   const [rentalEndDate, setRentalEndDate] = useState("")
 
+  const [selectedStockAreaID, setSelectedStockAreaID]= useState<number | "">("")
 
   const modelsForType = selectedTypeID === ""
     ? []
@@ -47,7 +50,8 @@ export default function DeviceModal({
 
       if (
           selectedTypeID === "" ||
-          selectedModelID === ""
+          selectedModelID === ""||
+          selectedStockAreaID === ""
         ) {
           return
       }
@@ -58,6 +62,7 @@ export default function DeviceModal({
                                                   type: selectedTypeID,
                                                   model: selectedModelID,
                                                   assetType: selectedAssetType,
+                                                  stockAreaID: selectedStockAreaID,
                                                   rentalStartDate:
                                                                     selectedAssetType === "レンタル" ||
                                                                     selectedAssetType === "代替機"
@@ -104,6 +109,29 @@ return createPortal(
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
         </select>
+
+        {/* stock areaを選択し初期位置を指定する */}
+        <select
+          className="border border-gray-300 rounded px-3 py-2 w-full"
+          value={selectedStockAreaID}
+          onChange={(e) =>
+            setSelectedStockAreaID(Number(e.target.value))
+          }
+        >
+          <option value="">
+            保管場所選択
+          </option>
+
+          {stockAreas.map(area => (
+            <option
+              key={area.id}
+              value={area.id}
+            >
+              {area.name}
+            </option>
+          ))}
+        </select>
+
 
         <select
           className="border border-gray-300 rounded px-3 py-2 w-full"

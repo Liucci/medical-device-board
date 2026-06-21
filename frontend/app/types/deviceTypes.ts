@@ -87,6 +87,7 @@ export type AddDeviceRequest = {
   type: number
   model: number
   asset_type: typeof AssetTypes[number]
+  stock_area_id: number
   rental_start_date?: string
   rental_end_date?: string
 }

@@ -79,6 +79,7 @@ export const toCreateDeviceRequest = (
                                                                 type: device.type,
                                                                 model: device.model,
                                                                 asset_type: device.assetType,
+                                                                stock_area_id: device.stockAreaID!,
                                                                 rental_start_date: device.rentalStartDate,
                                                                 rental_end_date: device.rentalEndDate
                                                               })

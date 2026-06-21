@@ -191,6 +191,7 @@ export default function ButtonPanel({
           onClose={() => setOpenDeviceModal(false)}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
+          stockAreas={stockAreas}
           hospitalId={hospitalId}
         />
       }

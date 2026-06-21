@@ -14,7 +14,7 @@ def create_device_transaction(
                                 device: AddDeviceRequest,
                                 hospital_id: str,
                                 user_id: str,
-                                stock_area_id: int,
+                                #stock_area_id: int,
                                 status: str,
                                 action_type: str,
                                 message: str
@@ -23,7 +23,7 @@ def create_device_transaction(
     print("create_device_transaction")
 
     stock_area = fetch_stock_area(
-                                    stock_area_id,
+                                    device.stock_area_id,
                                     hospital_id
                                  )
 
@@ -38,7 +38,7 @@ def create_device_transaction(
     created_device = add_device(
                                   device=device,
                                   hospital_id=hospital_id,
-                                  stock_area_id=stock_area_id,
+                                  #stock_area_id=stock_area_id,
                                   status=status
                                )
 

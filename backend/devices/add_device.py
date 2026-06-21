@@ -4,7 +4,7 @@ from schemas.device_schemas import (AddDeviceRequest)
 def add_device(
                 device: AddDeviceRequest,
                 hospital_id:str,
-                stock_area_id:int,
+                #stock_area_id:int,
                 status:str
               ):
 
@@ -18,7 +18,7 @@ def add_device(
                           "type": device.type,
                           "model": device.model,
                           "asset_type": device.asset_type,
-                          "stock_area_id":stock_area_id,
+                          "stock_area_id":device.stock_area_id,
                           "status":status,
                           "rental_start_date": device.rental_start_date or None,
                           "rental_end_date": device.rental_end_date or None

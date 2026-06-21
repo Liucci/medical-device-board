@@ -331,7 +331,6 @@ def create_device_transaction_route(
                             device=body,
                             hospital_id=current_user["hospital_id"],
                             user_id=current_user["id"],
-                            stock_area_id=1,
                             status="stock",
                             action_type="create",
                             message="機器を新規登録"
