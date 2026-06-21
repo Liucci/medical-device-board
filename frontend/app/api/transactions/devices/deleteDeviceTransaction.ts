@@ -5,6 +5,7 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import {toDeleteDeviceRequest,normalizeDevice} from "../../../utils/deviceMapper"
 import { normalizeMaintenanceTask } from "@/app/utils/taskMapper"
 import { normalizeHistory } from "@/app/utils/historyMapper"
+import { authFetch } from "../../client"
 
 
 type DeleteDeviceTransactionParams = {
@@ -25,19 +26,15 @@ export async function deleteDeviceTransaction({
 
     console.log("deleteDeviceTransaction")
 
-    const token = localStorage.getItem("access_token")
 
-    if (!token) {
-        return
-    }
 
-    await fetch(
+    await authFetch(
         `${API_BASE_URL}/delete-device-transaction`,
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
+                "Content-Type":
+                "application/json"
             },
             body: JSON.stringify(
             toDeleteDeviceRequest(deviceId)

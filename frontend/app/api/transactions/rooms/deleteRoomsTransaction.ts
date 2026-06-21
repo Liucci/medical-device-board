@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../../client"
+import { authFetch } from "../../client"
 import { DeleteRoomsType } from "../../../types/roomTypes"
 
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
@@ -21,16 +22,13 @@ export async function deleteRoomsTransaction({
 {
   console.log("deleteRoomsTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/delete-rooms-transaction`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              Authorization:`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toDeleteRoomsRequest(

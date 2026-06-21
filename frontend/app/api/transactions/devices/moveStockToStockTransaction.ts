@@ -5,6 +5,7 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
+import { authFetch } from "../../client"
 
 type MoveStockToStockTransactionParams = {
                                           deviceId: number
@@ -23,16 +24,13 @@ export async function moveStockToStockTransaction({
 {
   console.log("moveStockToStockTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/move_stock_to_stock`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify({
                                           id: deviceId,

@@ -1,5 +1,5 @@
 
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL,authFetch  } from "../client"
 import { History } from "../../types/historyTypes"
 import { toDBHistory, normalizeHistory } from "../../utils/historyMapper"
 
@@ -13,17 +13,14 @@ export async function addHistoryFromApi(
                                         )
 {
     console.log("addHistories")
-    const token = localStorage.getItem("access_token")
-    if (!token) {return}
 
-    await fetch(
+    await authFetch(
                 `${API_BASE_URL}/histories`,
                 {
                     method: "POST",
                     headers: {
-                                "Content-Type":"application/json",
-                                Authorization:
-                                `Bearer ${token}`
+                                    "Content-Type":
+                                    "application/json"
                             },
                     body: JSON.stringify(
                             toDBHistory(params)

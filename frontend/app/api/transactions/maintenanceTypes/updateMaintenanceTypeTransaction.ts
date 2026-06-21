@@ -2,6 +2,7 @@ import { API_BASE_URL } from "../../client"
 import { MaintenanceType } from "../../../types/maintenanceTypeTypes"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toUpdateMaintenanceTypeRequest } from "../../../utils/maintenanceTypeMapper"
+import { authFetch } from "../../client"
 
 type UpdateMaintenanceTypeTransactionParams = {
                                                 maintenanceType: MaintenanceType
@@ -16,16 +17,13 @@ export async function updateMaintenanceTypeTransaction({
 {
   console.log("updateMaintenanceTypeTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/update-maintenance-type`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toUpdateMaintenanceTypeRequest(

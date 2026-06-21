@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../../client"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toDeleteMaintenanceTypesRequest } from "../../../utils/maintenanceTypeMapper"
+import { authFetch } from "../../client"
 
 type DeleteMaintenanceTypesTransactionParams = {
                                                  ids: number[]
@@ -15,16 +16,13 @@ export async function deleteMaintenanceTypesTransaction({
 {
   console.log("deleteMaintenanceTypesTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/delete-maintenance-types`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toDeleteMaintenanceTypesRequest(

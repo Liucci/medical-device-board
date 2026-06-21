@@ -4,7 +4,7 @@ import { RegisterUserRequestDB } from "../../types/registerTypes"
 export const registerFirstAdmin = async (
                                           registerUserRequest: RegisterUserRequestDB
                                         ) => {
-
+//登録前なのでtoken存在しない
   const response =
     await fetch(
                   `${API_BASE_URL}/register-first-admin`,

@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "../../client"
 import { DeleteWardsType } from "../../../types/wardTypes"
+import { authFetch } from "../../client"
 
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
@@ -32,16 +33,14 @@ export async function deleteWardTransaction({
                )
      ) {return}
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
 
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/delete-ward`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toDeleteWardsRequest(

@@ -1,15 +1,6 @@
-import {
-        DeviceListExportUIType
-       }
-from "@/app/types/exportTypes"
-
-import {
-        DeviceListExportDBMapper
-       }
-from "@/app/utils/exportMapper"
-
-import { API_BASE_URL }
-from "../client"
+import {DeviceListExportUIType}from "@/app/types/exportTypes"
+import {DeviceListExportDBMapper}from "@/app/utils/exportMapper"
+import { API_BASE_URL,authFetch  }from "../client"
 
 
 export async function exportDeviceListPdfFromApi(
@@ -19,13 +10,6 @@ export async function exportDeviceListPdfFromApi(
 {
   console.log("exportDeviceListPdf")
 
-  const token =
-    localStorage.getItem(
-                          "access_token"
-                        )
-
-  if (!token) {return}
-
   const request = {
                     rows:
                     rows.map(
@@ -33,20 +17,15 @@ export async function exportDeviceListPdfFromApi(
                             )
                   }
 
-  console.log(
-                "row count:",
-                request.rows.length
-              )
+  console.log("row count:",request.rows.length)
 
-  const response = await fetch(
+  const response = await authFetch(
                                 `${API_BASE_URL}/export-device-list-pdf`,
                                 {
                                   method: "POST",
                                   headers: {
-                                              "Content-Type":
-                                              "application/json",
-                                              Authorization:
-                                              `Bearer ${token}`
+                                            "Content-Type":
+                                            "application/json"
                                             },
                                   body:
                                     JSON.stringify(

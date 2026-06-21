@@ -17,17 +17,13 @@ export async function createDeviceTransaction({
 
     console.log("createDeviceTransaction")
 
-    const token = localStorage.getItem("access_token")
-
-    if (!token) {
-        return
-    }
 
     await authFetch(
         `${API_BASE_URL}/create-device-transaction`,
         {
             method: "POST",
             headers: {
+                
                 "Content-Type":
                 "application/json"
                 

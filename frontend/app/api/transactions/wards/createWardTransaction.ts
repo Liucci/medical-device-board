@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../../client"
 import { CreateWardType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
+import { authFetch } from "../../client"
 
 import {
          normalizeWard,
@@ -22,16 +23,13 @@ export async function createWardTransaction({
 {
   console.log("createWardTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/wards`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toCreateWardRequest(

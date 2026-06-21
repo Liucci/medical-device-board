@@ -3,22 +3,20 @@ import {
          toUpdateManagementNumberRequest
        } from "../../../utils/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
+import { authFetch } from "../../client"
 
 type Params = {device: Device}
 
 export async function updateManagementNumber({device}: Params) 
 {
-    const token = localStorage.getItem("access_token")
 
-    if (!token) {return}
-
-    await fetch(
+    await authFetch(
                 `${API_BASE_URL}/update-management-number`,
                 {
                     method: "POST",
                     headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`
+                              "Content-Type":
+                              "application/json"
                              },
                     body: JSON.stringify(
                                             toUpdateManagementNumberRequest(

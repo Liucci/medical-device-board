@@ -5,7 +5,7 @@ import { RegisterUserRequest } from "../../types/registerTypes"
 export const registerUser = async (
                                       registerUserRequest:RegisterUserRequest
                                     ) => {
-
+//登録前なのでtoken存在しない
   const response =
     await fetch(
                   `${API_BASE_URL}/register`,

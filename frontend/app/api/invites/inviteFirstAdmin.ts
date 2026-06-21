@@ -1,20 +1,19 @@
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL,authFetch } from "../client"
 import { InviteFirstAdminRequestDB } from "../../types/inviteTypes"
 
 export const inviteFirstAdmin = async (
                                         invite: InviteFirstAdminRequestDB
                                       ) => {
 
-  const token = localStorage.getItem("access_token")
 
   const response =
-    await fetch(
+    await authFetch(
                   `${API_BASE_URL}/invite-first-admin`,
                   {
                     method:"POST",
                     headers:{
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                                    "Content-Type":
+                                    "application/json"
                             },
                     body: JSON.stringify(invite)
                   }

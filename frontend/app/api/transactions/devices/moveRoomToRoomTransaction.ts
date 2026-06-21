@@ -7,6 +7,7 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
+import { authFetch } from "../../client"
 
 type MoveRoomToRoomTransactionParams = {
                                           deviceId: number
@@ -31,16 +32,13 @@ export async function moveRoomToRoomTransaction({
 {
   console.log("moveRoomToRoomTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/move_room_to_room`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                "Content-Type":
+                "application/json"
                             },
                   body: JSON.stringify({
                                           device: {

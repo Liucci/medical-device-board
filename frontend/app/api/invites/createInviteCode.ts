@@ -1,20 +1,18 @@
-import { API_BASE_URL} from "../client"
+import { API_BASE_URL, authFetch} from "../client"
 
 export const createInviteCode = async (
                                         email: string,
                                         role: string
                                       ) => {
 
-  const token =
-    localStorage.getItem("access_token")
   const response =
-    await fetch(
+    await authFetch(
                 `${API_BASE_URL}/create-invite-code`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                                    "Content-Type":
+                                    "application/json"
                             },
                   body: JSON.stringify({
                                           email,

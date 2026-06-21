@@ -4,6 +4,7 @@ import {
          normalizeMaintenanceTask,
          toCompleteMaintenanceTaskRequest
        } from "../../../utils/taskMapper"
+import { authFetch } from "../../client"
 
 type CompleteMaintenanceTaskTransactionParams = {
                                                   id: number
@@ -18,16 +19,13 @@ export async function completeMaintenanceTaskTransaction({
 {
   console.log("completeMaintenanceTaskTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/complete_maintenance_task`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toCompleteMaintenanceTaskRequest(

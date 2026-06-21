@@ -5,6 +5,7 @@ import {
          normalizeDeviceType,
          toUpdateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
+import { authFetch } from "../../client"
 
 type UpdateDeviceTypeTransactionParams = {
                                             deviceType: UpdateDeviceTypeType
@@ -19,16 +20,13 @@ export async function updateDeviceTypeTransaction({
 {
   console.log("updateDeviceTypeTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/update-device-type`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toUpdateDeviceTypeRequest(

@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../../client"
 import { UpdateRoomType } from "../../../types/roomTypes"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
+import { authFetch } from "../../client"
 
 import {
          normalizeRoom,
@@ -20,16 +21,13 @@ export async function updateRoomTransaction({
 {
   console.log("updateRoomTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  const response = await fetch(
+  const response = await authFetch(
                                  `${API_BASE_URL}/update-room`,
                                  {
                                    method: "POST",
                                    headers: {
-                                               "Content-Type":"application/json",
-                                               Authorization:`Bearer ${token}`
+                                              "Content-Type":
+                                              "application/json"
                                              },
                                    body: JSON.stringify(
                                                            toUpdateRoomRequest(

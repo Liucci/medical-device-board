@@ -1,6 +1,7 @@
 import { API_BASE_URL } from "../../client"
 import { UpdateStockAreaType } from "../../../types/stockTypes"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
+import { authFetch } from "../../client"
 
 import {
          normalizeStockArea,
@@ -22,16 +23,13 @@ export async function updateStockAreaTransaction({
 {
   console.log("updateStockAreaTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/update-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toUpdateStockAreaRequest(

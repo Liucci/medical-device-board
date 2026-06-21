@@ -5,6 +5,7 @@ import {
          normalizeDeviceType,
          toCreateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
+import { authFetch } from "../../client"
 
 type CreateDeviceTypeTransactionParams = {
                                             deviceType: CreateDeviceTypeType
@@ -21,16 +22,13 @@ export async function createDeviceTypeTransaction({
 {
   console.log("createDeviceTypeTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/device-types`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toCreateDeviceTypeRequest(

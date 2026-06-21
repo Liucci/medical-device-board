@@ -1,37 +1,21 @@
-import { API_BASE_URL }
-  from "../client"
+import { API_BASE_URL }from "../client"
+import { authFetch } from "../client"
 
-export const fetchInitDashboard =
-  async () => {
+export const fetchInitDashboard =async () => {
 
-  const token =
-    localStorage.getItem(
-      "access_token"
-    )
 
-  if (!token) {
 
-    console.error(
-      "token not found"
-    )
+  const response =await authFetch(`${API_BASE_URL}/init-dashboard`,
+                                  {
+                                    method: "GET",
+                                    headers: {
+                                            "Content-Type":
+                                            "application/json"
+                                    }
+                                  }
+                                )
 
-    return null
-  }
-
-  const response =
-    await fetch(
-      `${API_BASE_URL}/init-dashboard`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${token}`
-        }
-      }
-    )
-
-  const data =
-    await response.json()
+  const data =await response.json()
 
   return data
 }

@@ -13,7 +13,7 @@ export async function authFetch(
                                 url: string,
                                 options: RequestInit = {}
                               ) {
-
+  //token取得
   let token =localStorage.getItem("access_token")
 
   let response = await fetch(

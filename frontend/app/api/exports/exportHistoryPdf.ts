@@ -3,18 +3,13 @@ from "@/app/types/historyTypes"
 
 import { toExportHistoriesRequest }
 from "@/app/utils/exportMapper"
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL,authFetch} from "../client"
 
 export async function exportHistoryPdfFromApi(
                                                 histories: History[]
                                               )
 {
   console.log("exportHistoryPdf")
-
-  const token = localStorage.getItem(
-                                        "access_token"
-                                      )
-  console.log("token:", token)
 
 //debug用　front⇒back時に渡しているデータをみる
   const request = toExportHistoriesRequest(histories)
@@ -28,16 +23,13 @@ export async function exportHistoryPdfFromApi(
                           )
               )
 
-
-  if (!token) {return}
-  console.log("Authorization:", `Bearer ${token}`)
-  const response = await fetch(
+  const response = await authFetch(
                                 `${API_BASE_URL}/export-history-pdf`,
                                 {
                                   method: "POST",
                                   headers: {
-                                              "Content-Type":"application/json",
-                                              Authorization:`Bearer ${token}`
+                                            "Content-Type":
+                                            "application/json"
                                             },
                                   body: JSON.stringify(
                                                           toExportHistoriesRequest(

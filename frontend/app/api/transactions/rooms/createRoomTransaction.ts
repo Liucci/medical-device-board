@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client"
 import { CreateRoomType } from "../../../types/roomTypes"
 import { getRoomsFromApi } from "../../../api/rooms/fetchRooms"
-
+import { authFetch } from "../../client"
 import {
          normalizeRoom,
          toCreateRoomRequest
@@ -21,17 +21,13 @@ export async function createRoomTransaction({
                                            )
 {
   console.log("createRoomTransaction")
-
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/rooms`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify(
                                           toCreateRoomRequest(

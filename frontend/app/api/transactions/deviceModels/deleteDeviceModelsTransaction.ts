@@ -5,6 +5,7 @@ import {
          normalizeDeviceModel,
          toDeleteDeviceModelsRequest
        } from "../../../utils/deviceModelMapper"
+import { authFetch } from "../../client"
 
 type DeleteDeviceModelsTransactionParams = {
                                               deviceModels: DeleteDeviceModelsType
@@ -19,16 +20,14 @@ export async function deleteDeviceModelsTransaction({
 {
   console.log("deleteDeviceModelsTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
 
-  await fetch(
+  await authFetch(
                 `${API_BASE_URL}/delete-device-models`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                "Content-Type":
+                "application/json"
                             },
                   body: JSON.stringify(
                                           toDeleteDeviceModelsRequest(

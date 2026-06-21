@@ -6,7 +6,7 @@ import {
   DeviceListExportDBMapper
 } from "@/app/utils/exportMapper"
 
-import { API_BASE_URL }
+import { API_BASE_URL ,authFetch}
 from "../client"
 
 export async function exportDeviceListCsvFromApi(
@@ -15,43 +15,29 @@ export async function exportDeviceListCsvFromApi(
 
   console.log("exportDeviceListCsv")
 
-  const token =
-    localStorage.getItem(
-      "access_token"
-    )
-
-  if (!token) {
-    return
-  }
-
   const request = {
-    rows:
-      rows.map(
-        DeviceListExportDBMapper
-      )
-  }
+                    rows:
+                      rows.map(
+                        DeviceListExportDBMapper
+                      )
+                  }
 
-  console.log(
-    "row count:",
-    request.rows.length
-  )
+  console.log("row count:",request.rows.length)
 
-  const response = await fetch(
-    `${API_BASE_URL}/export-device-list-csv`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json",
-        Authorization:
-          `Bearer ${token}`
-      },
-      body:
-        JSON.stringify(
-          request
-        )
-    }
-  )
+  const response = await authFetch(
+                      `${API_BASE_URL}/export-device-list-csv`,
+                        {
+                          method: "POST",
+                          headers: {
+                                    "Content-Type":
+                                    "application/json"
+                          },
+                          body:
+                            JSON.stringify(
+                              request
+                            )
+                        }
+                      )
 
   return await response.blob()
 }

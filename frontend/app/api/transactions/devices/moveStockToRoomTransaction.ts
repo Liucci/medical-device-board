@@ -9,6 +9,8 @@ import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
+import { authFetch } from "../../client"
+
 
 type MoveStockToRoomTransactionParams = {
                                           deviceId: number
@@ -35,16 +37,13 @@ export async function moveStockToRoomTransaction({
 {
   console.log("moveStockToRoomTransaction")
 
-  const token = localStorage.getItem("access_token")
-  if (!token) {return}
-
-  const response =await fetch(
+  const response =await authFetch(
                 `${API_BASE_URL}/move_stock_to_room`,
                 {
                   method: "POST",
                   headers: {
-                              "Content-Type":"application/json",
-                              "Authorization":`Bearer ${token}`
+                            "Content-Type":
+                            "application/json"
                             },
                   body: JSON.stringify({
                                           device: {
