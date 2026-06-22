@@ -24,7 +24,7 @@ export default function DeviceTypeSettingsModal({
   const [newTypeName, setNewTypeName] = useState("")
   const [newModelName, setNewModelName] = useState("")
   const [checkedModelIds, setCheckedModelIds] = useState<number[]>([])
-
+  const [newIconColor, setNewIconColor] = useState("#BFDBFE")
   // ===== deviceType =====
   const handleAddType = async() => {
       const trimmed = newTypeName.trim()
@@ -43,7 +43,8 @@ export default function DeviceTypeSettingsModal({
 
       await createDeviceTypeTransaction({
                                           deviceType: {
-                                                        name: trimmed
+                                                        name: trimmed,
+                                                         icon_color: newIconColor
                                                       },
                                           setDeviceTypes
                                         })
@@ -68,7 +69,9 @@ export default function DeviceTypeSettingsModal({
     await updateDeviceTypeTransaction({
                                         deviceType: {
                                                       id: selectedTypeId,
-                                                      name
+                                                      name,
+                                                      icon_color: newIconColor
+                                                      
                                                     },
                                         setDeviceTypes
                                       })
@@ -212,6 +215,13 @@ export default function DeviceTypeSettingsModal({
             placeholder="新規型式名"
             className="border px-2 py-1 flex-1 rounded"
           />
+          <input
+            type="color"
+            value={newIconColor}
+            onChange={(e) => setNewIconColor(e.target.value)}
+            className="w-12 h-10"
+          />
+
           <button
             onClick={handleAddModel}
             className="px-3 bg-blue-500 text-white rounded"

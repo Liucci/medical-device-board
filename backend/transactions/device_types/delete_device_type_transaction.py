@@ -6,6 +6,8 @@ def delete_device_type_transaction(
                                     device_type:DeleteDeviceTypeRequest,
                                     hospital_id:str
                                   ):
+    print("delete_device_type_transaction")
+
 #typeを消すとmodelも消える
     delete_device_models_by_type_id(
                                         device_type=device_type,

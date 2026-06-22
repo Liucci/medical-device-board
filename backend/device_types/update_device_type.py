@@ -11,7 +11,10 @@ def update_device_type(
     response = (
                   supabase
                   .table("device_types")
-                  .update({"name": device_type.name})
+                  .update({
+                            "name": device_type.name,
+                            "icon_color": device_type.icon_color
+                           })
                   .eq("id",device_type.id)
                   .eq("hospital_id",hospital_id)
                   .execute()

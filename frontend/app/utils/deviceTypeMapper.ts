@@ -12,14 +12,16 @@ export const normalizeDeviceType = (
                                     ): DeviceTypeType => ({
                                                             id: d.id,
                                                             hospitalId: d.hospital_id,
-                                                            name: d.name
+                                                            name: d.name,
+                                                            iconColor: d.icon_color
                                                           })
 
 // Create
 export const toCreateDeviceTypeRequest = (
                                             deviceType: CreateDeviceTypeType
                                           ) => ({
-                                                  name: deviceType.name
+                                                  name: deviceType.name,
+                                                  icon_color: deviceType.icon_color
                                                 })
 
 // Update
@@ -27,7 +29,8 @@ export const toUpdateDeviceTypeRequest = (
                                             deviceType: UpdateDeviceTypeType
                                           ) => ({
                                                   id: deviceType.id,
-                                                  name: deviceType.name
+                                                  name: deviceType.name,
+                                                  icon_color: deviceType.icon_color
                                                 })
 
 // Delete

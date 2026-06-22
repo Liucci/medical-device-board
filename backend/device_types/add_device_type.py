@@ -12,7 +12,8 @@ def add_device_type(device_type: AddDeviceTypeRequest,
         .table("device_types")
         .insert({
                 "hospital_id":hospital_id,
-                "name":device_type.name
+                "name":device_type.name,
+                "icon_color": device_type.icon_color
         })
         .execute()
     )
