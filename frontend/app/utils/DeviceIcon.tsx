@@ -1,5 +1,3 @@
-import { colorMap } from "../utils/deviceColors"
-
 // DeviceIcon.tsx
 // 機器アイコン表示コンポーネント
 
@@ -7,7 +5,7 @@ type Props = {
   typeName: string
   modelName: string
   assetType: string
-
+  iconColor: string
   managementNumber?: string
   serialNumber?: string
 
@@ -25,6 +23,7 @@ export default function DeviceIcon({
   typeName,
   modelName,
   assetType,
+  iconColor,
   managementNumber,
   serialNumber,
   rentalEndDate,
@@ -292,7 +291,7 @@ export default function DeviceIcon({
 
       {/* ===== 本体 ===== */}
       <div
-        className={`
+        className="
           border
           rounded
           shadow
@@ -304,16 +303,17 @@ export default function DeviceIcon({
           select-none
           px-1
           text-center
-          ${colorMap[typeName]}
-        `}
-        style={{
+        "
+
+          style={{
           width: cellSize,
           height: cellSize * 0.8,
 
           fontSize: `${fontSize}px`,
           lineHeight,
 
-          userSelect: "none"
+          userSelect: "none",
+          backgroundColor: iconColor
         }}
       >
 

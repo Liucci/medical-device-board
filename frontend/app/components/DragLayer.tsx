@@ -22,6 +22,10 @@ export default function DragLayer({
 
   const typeName =
     deviceTypes.find(t => t.id === draggingDevice.type)?.name ?? "Unknown"
+  
+    const iconColor =
+          deviceTypes.find((t) => t.id === draggingDevice.type)?.iconColor
+          ?? "#BFDBFE"
 
   const modelName =
     deviceModels.find(m => m.id === draggingDevice.model)?.name ?? "Unknown"
@@ -44,6 +48,7 @@ export default function DragLayer({
           typeName={typeName}
           modelName={modelName}
           assetType={assetType}
+          iconColor={iconColor}
           managementNumber={draggingDevice.managementNumber}
           serialNumber={draggingDevice.serialNumber}
           rentalEndDate={draggingDevice.rentalEndDate}

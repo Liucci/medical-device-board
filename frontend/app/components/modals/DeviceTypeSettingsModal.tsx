@@ -7,7 +7,7 @@ import { deleteDeviceModelsTransaction } from "../../../app/api/transactions/dev
 import {updateDeviceModelTransaction} from  "../../../app/api/transactions/deviceModels/updateDeviceModelTransaction"
 
 type Props = {
-  deviceTypes: { id: number; name: string }[]
+  deviceTypes: { id: number; name: string;iconColor: string }[]
   setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   setDeviceModels:React.Dispatch<React.SetStateAction<any[]>>
@@ -25,6 +25,8 @@ export default function DeviceTypeSettingsModal({
   const [newModelName, setNewModelName] = useState("")
   const [checkedModelIds, setCheckedModelIds] = useState<number[]>([])
   const [newIconColor, setNewIconColor] = useState("#BFDBFE")
+  const [editIconColor, setEditIconColor] = useState("#BFDBFE")
+  
   // ===== deviceType =====
   const handleAddType = async() => {
       const trimmed = newTypeName.trim()
@@ -70,12 +72,30 @@ export default function DeviceTypeSettingsModal({
                                         deviceType: {
                                                       id: selectedTypeId,
                                                       name,
-                                                      icon_color: newIconColor
+                                                      icon_color: type.iconColor
                                                       
                                                     },
                                         setDeviceTypes
                                       })
   }
+  //色変更用確定実施hundle
+  const handleChangeColor = async () => {
+    if (!selectedTypeId) return
+
+    const type =deviceTypes.find(t => t.id === selectedTypeId)
+
+    if (!type) return
+
+    await updateDeviceTypeTransaction({
+                                        deviceType: {
+                                          id: selectedTypeId,
+                                          name: type.name,
+                                          icon_color: editIconColor
+                                        },
+                                        setDeviceTypes
+                                      })
+                                    }
+
   const handleDeleteType = async() => {
       if (!selectedTypeId) {return}
 
@@ -153,6 +173,16 @@ export default function DeviceTypeSettingsModal({
               const val = Number(e.target.value)
               setSelectedTypeId(val || null)
               setCheckedModelIds([])
+              const selectedType =
+                deviceTypes.find((t) => t.id === val)
+
+              if (selectedType) {
+                setEditIconColor(selectedType.iconColor)
+              }
+
+
+
+
             }}
             className="border px-2 py-1 rounded"
           >
@@ -161,8 +191,16 @@ export default function DeviceTypeSettingsModal({
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
           </select>
-
           <button onClick={handleRenameType} className="px-2 bg-gray-200 rounded">✏</button>
+
+          <input
+            type="color"
+            value={editIconColor}
+            onChange={(e) => setEditIconColor(e.target.value)}
+            className="w-10 h-10"
+          />
+          <button onClick={handleChangeColor} className="px-2 bg-gray-200  rounded">確定</button>
+
           <button onClick={handleDeleteType} className="px-2 bg-red-500 text-white rounded">削除</button>
         </div>
 
@@ -175,6 +213,13 @@ export default function DeviceTypeSettingsModal({
               placeholder="新規機種名"
               className="border px-2 py-1 flex-1 rounded"
             />
+            <input
+              type="color"
+              value={newIconColor}
+              onChange={(e) => setNewIconColor(e.target.value)}
+              className="w-12 h-10"
+            />
+
             <button onClick={handleAddType} className="px-3 bg-blue-500 text-white rounded">
               追加
             </button>
@@ -214,12 +259,6 @@ export default function DeviceTypeSettingsModal({
             onChange={(e) => setNewModelName(e.target.value)}
             placeholder="新規型式名"
             className="border px-2 py-1 flex-1 rounded"
-          />
-          <input
-            type="color"
-            value={newIconColor}
-            onChange={(e) => setNewIconColor(e.target.value)}
-            className="w-12 h-10"
           />
 
           <button

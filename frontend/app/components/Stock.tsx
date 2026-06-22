@@ -76,6 +76,10 @@ return (
           const typeName =
             deviceTypes.find((t) => t.id === d.type)?.name || "不明"
 
+          const iconColor =
+            deviceTypes.find((t) => t.id === d.type)?.iconColor
+            ?? "#BFDBFE"
+
           const modelName =
             deviceModels.find((m) => m.id === d.model)?.name || "不明"
           const assetType=d.assetType
@@ -153,12 +157,13 @@ return (
             typeName={typeName}
             modelName={modelName}
             assetType={assetType}
+            iconColor={iconColor}
             managementNumber={d.managementNumber}
             serialNumber={d.serialNumber}
-            rentalEndDate={d.rentalEndDate}            mAlert={getMAlert(d.id)}
+            rentalEndDate={d.rentalEndDate}   
+            mAlert={getMAlert(d.id)}
             cellSize={cellSize}
-            isUnderMaintenance={d.isUnderMaintenance
-}
+            isUnderMaintenance={d.isUnderMaintenance}
             standby={d.standby}
             standbyStartedAt={d.standbyStartedAt}
           />
