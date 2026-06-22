@@ -28,6 +28,7 @@ export type Device = {
   model: DeviceModel["modelID"]
   assetType: typeof AssetTypes[number]
   status?: DeviceStatus // "stock" または "room"
+  quantity?: number
   stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
   roomId?: number
@@ -90,6 +91,7 @@ export type AddDeviceRequest = {
   stock_area_id: number
   rental_start_date?: string
   rental_end_date?: string
+  quantity: number
 }
 
 export type DeleteDeviceRequest = {

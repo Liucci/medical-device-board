@@ -42,7 +42,7 @@ class AddDeviceRequest(BaseModel):
     stock_area_id:int
     rental_start_date: str | None = None
     rental_end_date: str | None = None
-
+    quantity: int = 1
 
 # =========================
 # Delete

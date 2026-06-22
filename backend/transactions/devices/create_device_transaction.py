@@ -34,15 +34,18 @@ def create_device_transaction(
     device_model = fetch_device_model(device.model,
                                         hospital_id
                                      )
-
-    created_device = add_device(
+   #frontのquantityで指定した台数分for inで回して複数台登録する
+   #created_devices=[] listに格納しlistを返す 
+    created_devices = []
+    for _ in range(device.quantity):
+      created_device = add_device(
                                   device=device,
                                   hospital_id=hospital_id,
                                   #stock_area_id=stock_area_id,
                                   status=status
-                               )
+                                 )
 
-    supabase.table("device_histories").insert({
+      supabase.table("device_histories").insert({
                                                 "hospital_id": hospital_id,
                                                 "device_id": created_device["id"],
                                                 "action_by": user_id,
@@ -55,4 +58,5 @@ def create_device_transaction(
                                                 "stock_area_name": stock_area["name"]
                                               }).execute()
 
+      created_devices.append(created_device)
     return created_device

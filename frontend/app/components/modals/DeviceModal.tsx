@@ -39,7 +39,8 @@ export default function DeviceModal({
   const [rentalEndDate, setRentalEndDate] = useState("")
 
   const [selectedStockAreaID, setSelectedStockAreaID]= useState<number | "">("")
-
+  const [quantity, setQuantity] = useState(1)  
+  
   const modelsForType = selectedTypeID === ""
     ? []
     : deviceModels.filter(m => m.deviceTypeId === selectedTypeID)
@@ -63,6 +64,7 @@ export default function DeviceModal({
                                                   model: selectedModelID,
                                                   assetType: selectedAssetType,
                                                   stockAreaID: selectedStockAreaID,
+                                                  quantity: quantity,
                                                   rentalStartDate:
                                                                     selectedAssetType === "レンタル" ||
                                                                     selectedAssetType === "代替機"
@@ -131,6 +133,24 @@ return createPortal(
             </option>
           ))}
         </select>
+        {/* 登録台数を指定する */}
+        <select
+          className="border border-gray-300 rounded px-3 py-2 w-full"
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+        >
+          {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+            <option
+              key={n}
+              value={n}
+            >
+              {n}台
+            </option>
+          ))}
+        </select>
+
+
+
 
 
         <select

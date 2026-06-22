@@ -81,7 +81,8 @@ export const toCreateDeviceRequest = (
                                                                 asset_type: device.assetType,
                                                                 stock_area_id: device.stockAreaID!,
                                                                 rental_start_date: device.rentalStartDate,
-                                                                rental_end_date: device.rentalEndDate
+                                                                rental_end_date: device.rentalEndDate,
+                                                                quantity: device.quantity ?? 1
                                                               })
 
 export const toDeleteDeviceRequest = (

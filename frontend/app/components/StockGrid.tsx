@@ -45,18 +45,14 @@ type Props = {
 
         {/* 倉庫内部グリッド */}
         <div
-          className="grid"
           style={{
-            gridAutoFlow: "column",
-
-            // ★ここを動的化
-            gridAutoColumns: `${cellSize + 8}px`,
-
+            display: "flex",
+            flexWrap: "wrap",
             gap: "6px"
           }}
-      >          
-      {children}
-      </div>
+        >          
+          {children}
+          </div>
 </div>
     // </div>
   )
