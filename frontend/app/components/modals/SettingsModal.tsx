@@ -17,7 +17,7 @@ type Props = {
   onClose: () => void
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  deviceTypes: { id: number; name: string }[]
+  deviceTypes: { id: number; name: string ;iconColor: string}[]
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
