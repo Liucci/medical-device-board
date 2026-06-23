@@ -83,7 +83,7 @@ export type DeviceDB = {
 
 }
 
-
+//request系はfrontからbackへアクセスすることを指す
 export type AddDeviceRequest = {
   type: number
   model: number
@@ -111,6 +111,12 @@ export type UpdateSerialNumberRequest = {
 export type UpdateNoteRequest = {
   id: number
   note: string
+}
+
+export type UpdateDeviceRentalDatesRequest = {
+  id: number
+  rental_start_date?: string | null
+  rental_end_date?: string | null
 }
 
 export type MoveDeviceRequest = {

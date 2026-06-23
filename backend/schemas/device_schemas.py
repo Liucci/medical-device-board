@@ -99,3 +99,8 @@ class StartStandbyRequest(BaseModel):
 class FinishStandbyRequest(BaseModel):
     id: int
 
+
+class UpdateDeviceRentalDatesRequest(BaseModel):
+    id: int
+    rental_start_date: str | None = None
+    rental_end_date: str | None = None

@@ -56,7 +56,8 @@ from schemas.device_schemas import (
                                         FinishMaintenanceRequest,
                                         StartStandbyRequest,
                                         FinishStandbyRequest,
-                                        MoveDeviceRequest
+                                        MoveDeviceRequest,
+                                        UpdateDeviceRentalDatesRequest
                                     )
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
@@ -72,6 +73,7 @@ from transactions.devices.delete_device_transaction import ( delete_device_trans
 from transactions.devices.update_management_number_transaction import (update_management_number_transaction)
 from transactions.devices.update_serial_number_transaction import (update_serial_number_transaction)
 from transactions.devices.update_note_transaction import (update_note_transaction)
+from transactions.devices.update_device_rental_dates_transaction import (update_device_rental_dates_transaction)
 from transactions.devices.start_maintenance_transaction import (start_maintenance_transaction)
 from transactions.devices.finish_maintenance_transaction import (finish_maintenance_transaction)
 from transactions.devices.start_standby_transaction import (start_standby_transaction)
@@ -1039,6 +1041,19 @@ def update_note_route(
                               action_type="update",
                               message="備考を更新"
                            )
+
+@app.post("/update-device-rental-dates")
+def update_device_rental_dates_route(
+                                        device: UpdateDeviceRentalDatesRequest,
+                                        auth_user_id: str = Depends(get_auth_user_id)
+                                    ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    update_device_rental_dates_transaction(
+                                              device=device,
+                                              hospital_id=current_user["hospital_id"]
+                                           )
 
 @app.post("/start-maintenance")
 def start_maintenance_route(

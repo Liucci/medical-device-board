@@ -6,6 +6,7 @@ import {
          UpdateManagementNumberRequest,
          UpdateSerialNumberRequest,
          UpdateNoteRequest,
+         UpdateDeviceRentalDatesRequest,
          MoveDeviceRequest,
          StartMaintenanceRequest,
          FinishMaintenanceRequest,
@@ -111,6 +112,17 @@ export const toUpdateNoteRequest = (
                                                                id: device.id!,
                                                                note: device.note ?? ""
                                                              })
+
+export const toUpdateDeviceRentalDatesRequest = (
+                                                   device: Device
+                                                 ): UpdateDeviceRentalDatesRequest => ({
+                                                                                         id: device.id!,
+                                                                                         rental_start_date: device.rentalStartDate || null,
+                                                                                         rental_end_date: device.rentalEndDate || null
+                                                                                       })                                                            
+
+
+
 
 export const toMoveDeviceRequest = (
                                       device: Device

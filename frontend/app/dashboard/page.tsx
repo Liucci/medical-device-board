@@ -50,6 +50,8 @@ import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDevic
 import { updateManagementNumber } from "../api/transactions/devices/updateManagementNumber"
 import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumber"
 import { updateNote } from "../api/transactions/devices/updateNote"
+import { updateRentalDates } from "../api/transactions/devices/updateRentalDates"
+
 import {startStandby} from "../api/transactions/devices/startStandby"
 import {finishStandby} from "../api/transactions/devices/finishStandby"
 import { startMaintenance } from "../api/transactions/devices/startMaintenance"
@@ -542,6 +544,45 @@ if (updatedDevice) {
     return true
   }
 
+  const renameRentalDates = async (
+                                    deviceId: number,
+                                    rentalStartDate?: string,
+                                    rentalEndDate?: string
+                                  ): Promise<boolean> => {
+
+    const device =deviceList.find(
+                        d => d.id === deviceId
+                      )
+
+    if (!device) {return false}
+
+    await updateRentalDates({
+                              device: {
+                                        ...device,
+                                        rentalStartDate,
+                                        rentalEndDate
+                                      }
+                            })
+
+    const devices = await getDevicesFromApi()
+    const normalizedDevices =devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+    const updatedDevice =normalizedDevices.find(
+                              d => d.id === deviceId
+                            )
+    if (updatedDevice) {
+      if (selectedRoomDevice?.id === deviceId) {
+        setSelectedRoomDevice(updatedDevice)
+      }
+      if (selectedDevice?.id === deviceId) {
+        setSelectedDevice(updatedDevice)
+      }
+    }
+    return true
+  }
+
+
+
   const toggleDeviceStandby = async (
                                       deviceId: number,
                                       standby: boolean,
@@ -591,63 +632,10 @@ if (updatedDevice) {
   }  
 
 
-  const renameRentalDates = async (
-        deviceId: number,
-        rentalStartDate?: string,
-        rentalEndDate?: string
-      ): Promise<boolean> => {
-    if (!currentUser) {
-      return false
-    }
-    const {
-      data,
-      error
-    } = await supabase
-      .from("devices")
-      .update({
-        rental_start_date:
-          rentalStartDate || null,
-        rental_end_date:
-          rentalEndDate || null,
-      })
-      .eq("id", deviceId)
-      .eq(
-        "hospital_id",
-        currentUser.hospitalId
-      )
-      .select()
-    if (error) {
-      console.error(error)
-      alert(
-        "貸与日編集権限がありません"
-      )
-      return false
-    }
-    // 🔥 RLS対策
-    if (
-      !data ||
-      data.length === 0
-    ) {
-      alert(
-        "貸与日編集権限がありません"
-      )
-      return false
-    }
-    // ===== UI更新 =====
-    setDeviceList(prev =>
-      prev.map(d =>
-        d.id === deviceId
-          ? {
-              ...d,
-              rentalStartDate,
-              rentalEndDate
-            }
-          : d
-      )
-    )
-    
-    return true
-  }
+
+
+
+
   const handleRoomDeviceInfoCancel = () => {
     if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
