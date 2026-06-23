@@ -22,6 +22,7 @@ type Props = {
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any
+  scrollRef: React.RefObject<HTMLDivElement | null>
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -45,7 +46,8 @@ export default function WardArea({
                                   managementNumber,
                                   serialNumber,
                                   setWardCellSize,
-                                  currentUser
+                                  currentUser,
+                                  scrollRef
 
                                 }: Props) {
   
@@ -159,9 +161,10 @@ return (
 
     {/* scroll body */}
     <div
+      ref={scrollRef}
       style={{
-        flex: 1,
-        overflow: "auto"
+        flex:1,
+        overflow:"auto"
       }}
     >
     <div

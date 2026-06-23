@@ -22,6 +22,7 @@ type Props = {
   stockCellSize: number
   setStockCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any
+  scrollRef: React.RefObject<HTMLDivElement | null>
 
 }
 
@@ -41,7 +42,8 @@ export default function StockAreas({ deviceList,
                                     getMAlert,
                                     stockCellSize,
                                     setStockCellSize,
-                                    currentUser
+                                    currentUser,
+                                    scrollRef
                                     }: Props) {
 
 return (
@@ -121,12 +123,15 @@ return (
     </div>
 
     {/* scroll body */}
+
     <div
+      ref={scrollRef}
       style={{
         flex: 1,
         overflow: "auto"
       }}
-    >
+    >      
+    
     <div
       style={{
         display: "flex",

@@ -102,6 +102,9 @@ export default function Page() {
   //auto scroll用にStockArea / WardArea のDOMをrefで取得
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
+  const wardScrollRef = useRef<HTMLDivElement | null>(null)
+  const stockScrollRef = useRef<HTMLDivElement | null>(null)
+
   //機器アイコンのサイズを管理するstate
   const [wardCellSize, setWardCellSize] =useState(80)
   const [stockCellSize, setStockCellSize] =useState(80)
@@ -169,6 +172,7 @@ export default function Page() {
       e.clientY <= rect.bottom
     )
   }
+
     // ドラッグ中の処理
   const handleMouseMove = (e: React.MouseEvent) => {
     // ✅ リサイズ優先
@@ -193,10 +197,27 @@ export default function Page() {
     if (wardRef.current && isInside(e, wardRef.current)) {
       autoScroll(wardRef.current,e.clientX,e.clientY)
     }
-    if (stockRef.current && isInside(e, stockRef.current)) {
-      autoScroll(stockRef.current,e.clientX,e.clientY)
-    }  
-  }
+  const wardContainer = wardScrollRef.current
+  if (wardContainer && isInside(e, wardContainer))
+        {
+        autoScroll(
+                    wardContainer,
+                    e.clientX,
+                    e.clientY
+                  )
+        }
+
+    
+  const stockContainer = stockScrollRef.current
+  if (stockContainer && isInside(e, stockContainer))
+        {
+        autoScroll(
+                    stockContainer,
+                    e.clientX,
+                    e.clientY
+                  )
+        }
+    }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
   const handleMouseUp = (e: React.MouseEvent) => {
     const x = e.clientX
@@ -972,6 +993,7 @@ if (updatedDevice) {
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
           currentUser={currentUser}
+          scrollRef={wardScrollRef}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1006,6 +1028,7 @@ if (updatedDevice) {
           stockCellSize={stockCellSize}
           setStockCellSize={setStockCellSize}
           currentUser={currentUser}
+          scrollRef={stockScrollRef}
         />
       </div>      
 
