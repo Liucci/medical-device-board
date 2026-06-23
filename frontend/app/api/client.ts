@@ -31,6 +31,7 @@ export async function authFetch(
   if (response.status === 401)
     {
     const refreshed =await refreshToken()
+  
     if (!refreshed) {
                       throw new Error(
                                         "ログイン期限切れ"
@@ -39,13 +40,13 @@ export async function authFetch(
 
     token =localStorage.getItem("access_token")
     response = await fetch(
-      url,
-      {
-        ...options,
-        headers: {
-          ...options.headers,
-          Authorization:
-            `Bearer ${token}`
+                            url,
+                            {
+                              ...options,
+                                          headers: {
+                                            ...options.headers,
+                                            Authorization:
+                                              `Bearer ${token}`
         }
       }
     )

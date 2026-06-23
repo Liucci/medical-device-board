@@ -318,7 +318,7 @@ def create_device_transaction_route(
                                     body: AddDeviceRequest,
                                     auth_user_id: str = Depends(get_auth_user_id)
                                    ):
-
+    print("auth_user_id =", auth_user_id)
     current_user = fetch_current_user(auth_user_id)
 
     if current_user["role"] != "admin":
