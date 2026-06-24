@@ -88,6 +88,11 @@ class StartMaintenanceRequest(BaseModel):
 
 class FinishMaintenanceRequest(BaseModel):
     id: int
+#保守開始日だけ編集できる。終了日の編集機能は不要
+class UpdateMaintenanceDatesRequest(BaseModel):
+    id: int
+    maintenance_started_at: str | None = None
+    #maintenance_finished_at: str | None = None
 
 # =========================
 # Standby

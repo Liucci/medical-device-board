@@ -15,6 +15,7 @@ type Props = {
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>
   renameNote:(id: number, value: string)=> Promise<boolean>
   renameRentalDates:(id: number, startDate?: string, endDate?: string)=> Promise<boolean>
+  renameMaintenanceDates:(id: number, maintenanceStartedAt?: string)=>Promise<boolean>
   toggleDeviceMaintenance: (deviceId: number, nextMaintenance: boolean) => Promise<boolean>
 }
 
@@ -29,6 +30,7 @@ export default function StockInfoModal({
   renameSerialNumber,
   renameNote,
   renameRentalDates,
+  renameMaintenanceDates,
   toggleDeviceMaintenance
 }: Props) {
   
@@ -247,67 +249,29 @@ export default function StockInfoModal({
               />
             </>
           )}
+
+{/*  
           {isUnderMaintenance && (
-            <>
-              <InfoRow
-                label="保守開始日"
-                value={maintenanceStartedAt}
-                onEdit={() => {}}
+          
+           <InfoRow
+              label="保守開始日"
+              value={maintenanceStartedAt}
+              onEdit={async () => {
 
+                if (!device.id) return
 
-/*   update maintenance startが未実装             
-                  onEdit={async () => {
-                  if (!device.id) return
+                const val = prompt("保守開始日 (YYYY-MM-DD)",maintenanceStartedAt)
 
-                  const val = prompt(
-                    "保守開始日 (YYYY-MM-DD)",
-                    maintenanceStartedAt
-                  )
+                if (val === null) return
 
-                  if (val === null) return
-
-                  const success =
-                    await toggleDeviceMaintenance(
-                      device.id,
-                      true
-                    )
-
-                  if (!success) return
-                }}
-*/                
-              />
-
-              <InfoRow
-                label="保守終了日"
-                value={maintenanceFinishedAt}
-                onEdit={() => {}}
-
-/* update maintenance finished 未実装
-                onEdit={async () => {
-
-                  if (!device.id) return
-
-                  const val = prompt(
-                    "保守終了日 (YYYY-MM-DD)",
-                    maintenanceFinishedAt
-                  )
-
-                  if (val === null) return
-
-                  const success =
-                    await toggleDeviceMaintenance(
-                      device.id,
-                      false
-                    )
-
-                  if (!success) return
-                }}
- */              
-              
-              />
-            </>
+                const success =await renameMaintenanceDates(device.id,val)
+                if (!success) return
+              }}
+            />
+          
           )}
-
+ */}          
+          
           {/* 備考 */}
           <InfoRow
             label="備考"

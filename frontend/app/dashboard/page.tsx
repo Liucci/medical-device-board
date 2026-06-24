@@ -51,7 +51,7 @@ import { updateManagementNumber } from "../api/transactions/devices/updateManage
 import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumber"
 import { updateNote } from "../api/transactions/devices/updateNote"
 import { updateRentalDates } from "../api/transactions/devices/updateRentalDates"
-
+import { updateMaintenanceDatesTransaction } from "../api/transactions/devices/updateMaintenanceDatesTransaction"
 import {startStandby} from "../api/transactions/devices/startStandby"
 import {finishStandby} from "../api/transactions/devices/finishStandby"
 import { startMaintenance } from "../api/transactions/devices/startMaintenance"
@@ -582,6 +582,48 @@ if (updatedDevice) {
   }
 
 
+  const renameMaintenanceDates = async (
+                                              deviceId: number,
+                                              maintenanceStartedAt?: string
+                                            ): Promise<boolean> => {
+
+    const device = deviceList.find(
+                                    d => d.id === deviceId
+                                  )
+
+    if (!device) {return false}
+
+    await updateMaintenanceDatesTransaction({
+                                              device: {
+                                                        ...device,
+                                                        maintenanceStartedAt
+                                                      }
+                                            })
+
+    const devices = await getDevicesFromApi()
+    const normalizedDevices = devices.map(normalizeDevice)
+    setDeviceList(normalizedDevices)
+
+    const updatedDevice = normalizedDevices.find(
+                                                  d => d.id === deviceId
+                                                )
+
+    if (updatedDevice) {
+
+      if (selectedRoomDevice?.id === deviceId) {
+        setSelectedRoomDevice(updatedDevice)
+      }
+
+      if (selectedDevice?.id === deviceId) {
+        setSelectedDevice(updatedDevice)
+      }
+
+    }
+
+    return true
+  }
+
+
 
   const toggleDeviceStandby = async (
                                       deviceId: number,
@@ -1101,6 +1143,7 @@ if (updatedDevice) {
         renameSerialNumber={renameSerialNumber}
         renameNote={renameNote}
         renameRentalDates={renameRentalDates}
+        renameMaintenanceDates={renameMaintenanceDates} 
         toggleDeviceMaintenance={toggleDeviceMaintenance}
       />
        {/* 病室機器詳細モーダル表示 */}

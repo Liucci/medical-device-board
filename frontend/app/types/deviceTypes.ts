@@ -133,6 +133,13 @@ export type FinishMaintenanceRequest = {
   id: number
 }
 
+export type UpdateMaintenanceDatesRequest = {
+  id: number
+  maintenance_started_at: string | null
+  //maintenance_finished_at: string | null
+}
+
+
 export type StartStandbyRequest = {
   id: number
 }

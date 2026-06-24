@@ -7,11 +7,13 @@ import {
          UpdateSerialNumberRequest,
          UpdateNoteRequest,
          UpdateDeviceRentalDatesRequest,
+         UpdateMaintenanceDatesRequest,
          MoveDeviceRequest,
          StartMaintenanceRequest,
          FinishMaintenanceRequest,
          StartStandbyRequest,
-         FinishStandbyRequest
+         FinishStandbyRequest,
+
        } from "../types/deviceTypes"
 
 
@@ -143,6 +145,17 @@ export const toFinishMaintenanceRequest = (
                                            ): FinishMaintenanceRequest => ({
                                                                             id: deviceId
                                                                           })
+
+
+export const toUpdateMaintenanceDatesRequest = (
+                                                  device: Device
+                                                ): UpdateMaintenanceDatesRequest => ({
+                                                                                       id: device.id!,
+                                                                                       maintenance_started_at:device.maintenanceStartedAt || null,
+                                                                                       //maintenance_finished_at:device.maintenanceFinishedAt || null
+                                                                                     })
+
+
 
 export const toStartStandbyRequest = (
                                         deviceId: number

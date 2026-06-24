@@ -52,6 +52,7 @@ from schemas.device_schemas import (
                                         UpdateManagementNumberRequest,
                                         UpdateSerialNumberRequest,
                                         UpdateNoteRequest,
+                                        UpdateMaintenanceDatesRequest,
                                         StartMaintenanceRequest,
                                         FinishMaintenanceRequest,
                                         StartStandbyRequest,
@@ -74,6 +75,8 @@ from transactions.devices.update_management_number_transaction import (update_ma
 from transactions.devices.update_serial_number_transaction import (update_serial_number_transaction)
 from transactions.devices.update_note_transaction import (update_note_transaction)
 from transactions.devices.update_device_rental_dates_transaction import (update_device_rental_dates_transaction)
+from transactions.devices.update_maintenance_dates_transaction import (update_maintenance_dates_transaction)
+
 from transactions.devices.start_maintenance_transaction import (start_maintenance_transaction)
 from transactions.devices.finish_maintenance_transaction import (finish_maintenance_transaction)
 from transactions.devices.start_standby_transaction import (start_standby_transaction)
@@ -120,6 +123,8 @@ from schemas.export_schemas import (DeviceListExportSchemaRequest)
 from transactions.exports.export_device_list_pdf_transaction import (export_device_list_pdf_transaction)
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
+
+
 
 from fastapi.responses import StreamingResponse
 
@@ -1054,6 +1059,20 @@ def update_device_rental_dates_route(
                                               device=device,
                                               hospital_id=current_user["hospital_id"]
                                            )
+
+@app.post("/update-maintenance-dates")
+def update_maintenance_dates_route(
+                                      device: UpdateMaintenanceDatesRequest,
+                                      auth_user_id: str = Depends(get_auth_user_id)
+                                  ):
+    current_user = fetch_current_user(auth_user_id)
+    return update_maintenance_dates_transaction(
+                                                device=device,
+                                                hospital_id=current_user["hospital_id"],
+                                                user_id=current_user["id"],
+                                                action_type="maintenance_started_at_updated",
+                                                message="保守開始日変更"
+                                                )
 
 @app.post("/start-maintenance")
 def start_maintenance_route(
