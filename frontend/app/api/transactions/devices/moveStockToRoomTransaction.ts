@@ -10,6 +10,7 @@ import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
 import { authFetch } from "../../client"
+import{Device} from "../../../types/deviceTypes"
 
 
 type MoveStockToRoomTransactionParams = {
@@ -20,6 +21,7 @@ type MoveStockToRoomTransactionParams = {
                                           setRooms: any
                                           setHistories: any
                                           setTasks: any
+                                          devices: Device[]
                                           onClose?: () => void
                                         }
 
@@ -31,35 +33,56 @@ export async function moveStockToRoomTransaction({
                                                    setRooms,
                                                    setHistories,
                                                    setTasks,
+                                                   devices,
                                                    onClose
                                                  }: MoveStockToRoomTransactionParams
                                                )
 {
   console.log("moveStockToRoomTransaction")
+  const previousDevices = [...devices]
+  setDevices((prev : Device[])=>
+      prev.map(device =>
+        device.id === deviceId
+          ? {
+              ...device,
+              status: "room",
+              roomId: roomId,
+              stockAreaId: undefined,            
+              }: device
+      )
+  )
 
-  const response =await authFetch(
-                `${API_BASE_URL}/move_stock_to_room`,
-                {
-                  method: "POST",
-                  headers: {
-                            "Content-Type":
-                            "application/json"
-                            },
-                  body: JSON.stringify({
-                                          device: {
-                                                    id: deviceId,
-                                                    room_id: roomId,
-                                                    stock_area_id: null
-                                                  },
-                                          room: {
-                                                  id: roomId,
-                                                  patient_name: patientName
-                                                }
-                                        })
+
+try{
+      const response =await authFetch(
+                    `${API_BASE_URL}/move_stock_to_room`,
+                    {
+                      method: "POST",
+                      headers: {
+                                "Content-Type":
+                                "application/json"
+                                },
+                      body: JSON.stringify({
+                                              device: {
+                                                        id: deviceId,
+                                                        room_id: roomId,
+                                                        stock_area_id: null
+                                                      },
+                                              room: {
+                                                      id: roomId,
+                                                      patient_name: patientName
+                                                    }
+                                            })
+                    }
+                  )
                 }
-              )
-  const devices = await getDevicesFromApi()
-  setDevices(devices.map(normalizeDevice))
+catch(error) {
+  setDevices(previousDevices)
+  throw error
+}
+
+  const refreshedDevices = await getDevicesFromApi()
+  setDevices(refreshedDevices.map(normalizeDevice))
   
   const rooms = await getRoomsFromApi()
   setRooms(rooms.map(normalizeRoom))

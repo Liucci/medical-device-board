@@ -1,4 +1,6 @@
 from fastapi import FastAPI,Depends
+from fastapi import HTTPException
+
 from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
@@ -180,18 +182,40 @@ def get_current_user(auth_user_id: str = Depends(get_auth_user_id)):
         return None
     return fetch_current_user(auth_user_id)
 
+
 @app.post("/refresh-token")
 def refresh_token_route(body: RefreshTokenRequest):
 
-    response = refresh_token(body.refresh_token)
-    auth_user_id = (response.user.id)
-    current_user = (fetch_current_user(auth_user_id))
+    try:
+        response = refresh_token(
+            body.refresh_token
+        )
 
-    return {
-            "access_token":response.session.access_token,
-            "refresh_token":response.session.refresh_token,
-            "current_user":current_user
-    }
+        print(
+            "new refresh token",
+            response.session.refresh_token[:20]
+        )
+
+        auth_user_id = response.user.id
+        current_user = fetch_current_user(auth_user_id)
+
+        return {
+            "access_token":
+                response.session.access_token,
+            "refresh_token":
+                response.session.refresh_token,
+            "current_user":
+                current_user
+        }
+
+    except Exception as e:
+        print("refresh failed", e)
+
+        raise HTTPException(
+            status_code=401,
+            detail=str(e)
+        )
+
 
 #招待用コードを作成し、メールを送信する
 @app.post("/create-invite-code")

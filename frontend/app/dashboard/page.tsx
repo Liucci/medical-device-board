@@ -319,7 +319,8 @@ export default function Page() {
                                       setDevices: setDeviceList,
                                       setRooms,
                                       setHistories,
-                                      setTasks
+                                      setTasks,
+                                      devices:deviceList
                                     })
 
     setRoomModalOpen(false)

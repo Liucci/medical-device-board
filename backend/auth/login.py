@@ -19,4 +19,10 @@ def login_user(
         for a in response:
             print(f"・{a}") 
     """
+
+
+    print(
+        "login refresh token",
+        response.session.refresh_token[:12]
+    )
     return response
