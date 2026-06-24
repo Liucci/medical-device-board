@@ -682,7 +682,7 @@ if (updatedDevice) {
     if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
   }
-  
+
   //RoomDeviceInfoModal
   const updateSelectedRoomDevice = (updater: (d: Device) => Device
     ) => {
@@ -850,43 +850,6 @@ if (updatedDevice) {
   }, [draggingDevice])
 
 
-  //病室の機器アイコンがO個になったとき、patientNameを空にするためのuseEffect
-  //deviceListが更新されるたびにroomsを更新する
-  useEffect(() => {
-    const updateRooms = async () => {
-      for (const room of rooms) {
-        const devicesInRoom = deviceList.filter(d => d.roomId === room.id)
-
-        if (devicesInRoom.length === 0 && room.patientName) {
-          // ① DB更新
-          console.log("病室機器アイコン０台")
-          const { error } = await supabase
-            .from('rooms')
-            .update({ patient_name: null }) // or ""
-            .eq('id', room.id)
-            .eq(
-              "hospital_id",
-              currentUser?.hospitalId
-            )
-          if (error) {
-            console.error("patient clear error:", error)
-            continue
-          }
-
-          // ② UI更新
-          setRooms(prev =>
-            prev.map(r =>
-              r.id === room.id
-                ? { ...r, patientName: "" }
-                : r
-            )
-          )
-        }
-      }
-    }
-
-    updateRooms()
-  }, [deviceList])
     
   //deviveListが更新されたら、更新されたdeviceだけ出力
   const prevDeviceListRef = useRef<Device[]>([])
