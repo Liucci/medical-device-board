@@ -20,6 +20,14 @@ def move_room_to_room_transaction(
                                  ):
 
     print("move_room_to_room_transaction")
+    # 機器移動
+    moved_device = move_device(
+                                device=device,
+                                hospital_id=hospital_id,
+                                status=status
+                              )
+
+
 
     # 移動元患者名クリア
     clear_room_patientname(
@@ -35,12 +43,6 @@ def move_room_to_room_transaction(
                               hospital_id=hospital_id
                            )
 
-    # 機器移動
-    moved_device = move_device(
-                                device=device,
-                                hospital_id=hospital_id,
-                                status=status
-                              )
 
     # 履歴作成
     create_device_history(

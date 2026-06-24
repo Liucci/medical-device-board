@@ -682,6 +682,7 @@ if (updatedDevice) {
     if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
   }
+  
   //RoomDeviceInfoModal
   const updateSelectedRoomDevice = (updater: (d: Device) => Device
     ) => {
@@ -763,7 +764,6 @@ if (updatedDevice) {
   }
   const fetchHistories = async () => {
     const histories = await getHistoriesFromApi()
-
     setHistories(
       histories.map(normalizeHistory)
     )

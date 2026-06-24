@@ -5,7 +5,7 @@ from devices.move_device import move_device
 from devices.update_management_number import update_management_number
 from devices.update_serial_number import update_serial_number
 from devices.update_note import update_note
-
+from devices.fetch_devices import fetch_devices_by_room_id
 from rooms.update_rooms import (
                                   clear_room_patientname,
                                   update_room_patientname
@@ -45,12 +45,13 @@ def move_room_to_room_new_patient_transaction(
 
     print("move_room_to_room_new_patient_transaction")
 
-    # 移動元患者名クリア
-    clear_room_patientname(
-                            room=pre_room,
-                            hospital_id=hospital_id,
-                            patient_name=pre_patient_name
-                          )
+    # 機器移動
+    moved_device = move_device(
+                                device=device,
+                                hospital_id=hospital_id,
+                                status=status
+                              )
+
 
     # 移動先患者名更新
     update_room_patientname(
@@ -90,13 +91,18 @@ def move_room_to_room_new_patient_transaction(
                                          ),
                   hospital_id=hospital_id
                )
+    #pre roomの機器台数が0台で移動元の患者名削除
+    room_devices = fetch_devices_by_room_id(
+                                            room_id=pre_room.id,
+                                            hospital_id=hospital_id
+                                        )
+    if len(room_devices) == 0:
+         clear_room_patientname(
+                            room=pre_room,
+                            hospital_id=hospital_id,
+                            patient_name=""
+                          )
 
-    # 機器移動
-    moved_device = move_device(
-                                device=device,
-                                hospital_id=hospital_id,
-                                status=status
-                              )
 
     # task再生成
     create_device_tasks_transaction(
@@ -105,7 +111,6 @@ def move_room_to_room_new_patient_transaction(
                                    )
 
     # 履歴作成
-# 履歴作成
     create_device_history(
                             device_id=device.id,
                             hospital_id=hospital_id,

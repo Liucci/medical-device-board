@@ -1,11 +1,13 @@
 from common.supabase_client import supabase
 from devices.move_device import move_device
+from devices.fetch_devices import fetch_devices_by_room_id
+from devices.finish_standby import (finish_standby,clear_standby)
+
 from rooms.update_rooms import clear_room_patientname
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ClearRoomPatientRequest
 from transactions.histories.create_device_history import (create_device_history)
-from devices.finish_standby import (finish_standby,clear_standby)
 
 def move_room_to_stock_transaction(
                                     device: MoveDeviceRequest,
@@ -20,12 +22,13 @@ def move_room_to_stock_transaction(
 
     print("move_room_to_stock_transaction")
 
-    # 患者名リセット
-    clear_room_patientname(
-                                room=room,
+    # 機器移動
+    moved_device = move_device(
+                                device=device,
                                 hospital_id=hospital_id,
-                                patient_name=patient_name
-                            )
+                                status=status
+                              )
+
     # standby解除
     finish_standby(
                       device=device,
@@ -40,14 +43,21 @@ def move_room_to_stock_transaction(
                                 hospital_id=hospital_id
                              )
 
+    #roomの機器台数が0台で移動元の患者名削除
+    room_devices = fetch_devices_by_room_id(
+                                            room_id=room.id,
+                                            hospital_id=hospital_id
+                                        )
+    if len(room_devices) == 0:
+         clear_room_patientname(
+                            room=room,
+                            hospital_id=hospital_id,
+                            patient_name=""
+                          )
+
+
     
 
-    # 機器移動
-    moved_device = move_device(
-                                device=device,
-                                hospital_id=hospital_id,
-                                status=status
-                              )
 
 # 履歴作成
     create_device_history(
