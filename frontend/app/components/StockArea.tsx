@@ -23,6 +23,8 @@ type Props = {
   setStockCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any
   scrollRef: React.RefObject<HTMLDivElement | null>
+  isDraggingRef: React.MutableRefObject<boolean>
+
 
 }
 
@@ -43,7 +45,8 @@ export default function StockAreas({ deviceList,
                                     stockCellSize,
                                     setStockCellSize,
                                     currentUser,
-                                    scrollRef
+                                    scrollRef,
+                                    isDraggingRef
                                     }: Props) {
 
 return (
@@ -210,6 +213,7 @@ return (
                   managementNumber={managementNumber}
                   serialNumber={serialNumber}
                   currentUser={currentUser}
+                  isDraggingRef={isDraggingRef}
                 />
             </StockGrid>
           </div>

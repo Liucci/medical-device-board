@@ -18,10 +18,10 @@ type Props = {
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
   openRoomDeviceInfoModal: (device: Device) => void
-  justDropped: boolean
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
   currentUser: any
+  isDraggingRef: React.MutableRefObject<boolean>
 }
 
 export default function RoomContainer({
@@ -37,12 +37,12 @@ export default function RoomContainer({
                             pendingDevice,   
                             deleteDevice,
                             openRoomDeviceInfoModal,
-                            justDropped,
                             getMAlert,
                             cellSize,
                             managementNumber,
                             serialNumber,
-                            currentUser
+                            currentUser,
+                            isDraggingRef
 
                             }: Props) {
 
@@ -172,8 +172,9 @@ return (
                   )
                   longPressTimer.current = null
                 }
-                // ===== drag直後除外 =====
-                if (justDropped) return
+                // ===== drag時は除外 =====
+                //isDraggingRef=trueの時はopenRoomDeviceInfoModal開かない
+                if (isDraggingRef.current) return
                 if (!isLongPress.current) {
                   console.log("シングルクリック")
                   console.log("roomDevice",d)

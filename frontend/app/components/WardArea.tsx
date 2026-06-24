@@ -17,12 +17,12 @@ type Props = {
   onDrop: (device: Device, id: number) => void
   rooms: any[]
   openRoomDeviceInfoModal: (device: Device) => void
-  justDropped: boolean
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any
   scrollRef: React.RefObject<HTMLDivElement | null>
+  isDraggingRef: React.MutableRefObject<boolean>
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -40,14 +40,14 @@ export default function WardArea({
                                   onDrop,
                                   rooms,
                                   openRoomDeviceInfoModal,
-                                  justDropped,
                                   getMAlert,
                                   wardCellSize,
                                   managementNumber,
                                   serialNumber,
                                   setWardCellSize,
                                   currentUser,
-                                  scrollRef
+                                  scrollRef,
+                                  isDraggingRef
 
                                 }: Props) {
   
@@ -273,12 +273,12 @@ return (
                       openRoomDeviceInfoModal={
                         openRoomDeviceInfoModal
                       }
-                      justDropped={justDropped}
                       getMAlert={getMAlert}
                       cellSize={wardCellSize}
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
                       currentUser={currentUser}
+                      isDraggingRef={isDraggingRef}
                     />
                   ))
                 }

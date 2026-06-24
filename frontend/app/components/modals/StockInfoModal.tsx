@@ -250,7 +250,6 @@ export default function StockInfoModal({
             </>
           )}
 
-{/*  
           {isUnderMaintenance && (
           
            <InfoRow
@@ -270,7 +269,6 @@ export default function StockInfoModal({
             />
           
           )}
- */}          
           
           {/* 備考 */}
           <InfoRow

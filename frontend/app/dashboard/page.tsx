@@ -89,8 +89,6 @@ export default function Page() {
   const [roomDeviceInfoModalOpen, setRoomDeviceInfoModalOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [selectedRoomDevice, setSelectedRoomDevice] = useState<Device | null>(null)
-  //RoomMOdalとRoomDeviceInfoModal同時に開かないようにするフラグstate
-  const [justDropped, setJustDropped] = useState(false)
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
@@ -106,6 +104,8 @@ export default function Page() {
   const stockRef = useRef<HTMLDivElement | null>(null)
   const wardScrollRef = useRef<HTMLDivElement | null>(null)
   const stockScrollRef = useRef<HTMLDivElement | null>(null)
+  //drag開始のフラグ用
+  const isDraggingRef = useRef(false)
 
   //機器アイコンのサイズを管理するstate
   const [wardCellSize, setWardCellSize] =useState(80)
@@ -134,10 +134,12 @@ export default function Page() {
       x: clientX,
       y: clientY
     })
-    
-    setDraggingDevice(device)
     //Dragイベント発生のフラグ
-    //setJustDropped(true)
+    isDraggingRef.current = true
+    console.log("isDragging:",isDraggingRef)
+    //Drag対象の機器情報を格納
+    setDraggingDevice(device)
+
   }
   //auto scroll関連
   const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
@@ -221,14 +223,19 @@ export default function Page() {
         }
     }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
-  const handleMouseUp = (e: React.MouseEvent) => {
+  const handleMouseUp = () => {
+
+/*  
+    debug用
     const x = e.clientX
     const y = e.clientY
-
-    //console.log("drop position", x, y)
-
+    console.log("drop position", x, y)
+ */
     setDraggingDevice(null)
     setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
+    setTimeout(() => {
+    isDraggingRef.current = false
+     }, 0)
   }
 
 
@@ -270,7 +277,6 @@ export default function Page() {
     device: Device,
     wardId: number
   ) => {
-    setJustDropped(true)
 
     if (!currentUser) {return}  
     //保守中はWardAreAへのdrag禁止
@@ -294,12 +300,7 @@ export default function Page() {
     else if (device.status === "room") {
       setRoomToRoomModalOpen(true)
     }
-
-    // drag flag
-    setTimeout(
-      () => setJustDropped(false),
-      300
-    )
+    
   }
   // roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
 // roomModalで病室名と患者名を入力して確定ボタンを押したときの処理
@@ -391,7 +392,6 @@ export default function Page() {
   }
   //RoomDeviceModalを開くコンポーネント
   const openRoomDeviceInfoModal = (device: Device) => {
-    if (justDropped) {return}
     if (!currentUser) {return}  
     if  (device.roomId === undefined) return    
         setSelectedRoomDevice(device)
@@ -859,6 +859,7 @@ if (updatedDevice) {
 
         if (devicesInRoom.length === 0 && room.patientName) {
           // ① DB更新
+          console.log("病室機器アイコン０台")
           const { error } = await supabase
             .from('rooms')
             .update({ patient_name: null }) // or ""
@@ -914,78 +915,24 @@ if (updatedDevice) {
   useEffect(() => {
 
   const fetchData = async () => {
-
-
-    /*テスト用 
-    const response = await fetch(
-                              `${API_BASE_URL}/test-hospital`
-                            )
-    const data2 = await response.json()
-    console.log(data2) */
-
-
-
-    if (!currentUser) {
-      return
-    }
-
-    const data =
-      await fetchInitDashboard()
-
-    if (!data) {
-      return
-    }
-
-    setDeviceList(
-      data.devices.map(
-        normalizeDevice
-      )
-    )
-    setStockAreas(
-      data.stock_areas.map(
-        normalizeStockArea
-      )
-    )
-
-    setWards(
-      data.wards.map(
-        normalizeWard
-      )
-    )
-
-    setRooms(
-      data.rooms.map(
-        normalizeRoom
-      )
-    )
-
-    setDeviceTypes(
-      data.device_types.map(normalizeDeviceType)
-    )
-
-    setDeviceModels(
-      data.device_models.map(normalizeDeviceModel)
-    )
-
-    setTasks(
-      data.tasks.map(normalizeMaintenanceTask)
-    )
-    setMaintenanceTypes(
-      data.maintenance_types.map(normalizeMaintenanceType)
-    )
-
-    setHistories(
-      data.histories.map(normalizeHistory)
-    )
+    if (!currentUser) {return}
+    const data =await fetchInitDashboard()
+    if (!data) {return}
+    setDeviceList(data.devices.map(normalizeDevice))
+    setStockAreas(data.stock_areas.map(normalizeStockArea))
+    setWards(data.wards.map(normalizeWard))
+    setRooms(data.rooms.map(normalizeRoom))
+    setDeviceTypes(data.device_types.map(normalizeDeviceType))
+    setDeviceModels(data.device_models.map(normalizeDeviceModel))
+    setTasks(data.tasks.map(normalizeMaintenanceTask))
+    setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
+    setHistories(data.histories.map(normalizeHistory))
   }
-
-  fetchData()
-
-  }, [currentUser])
+  fetchData()}, [currentUser])
   
   useEffect(() => {
   console.log("tasks updated", tasks)
-}, [tasks])
+  }, [tasks])
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
     if (!currentUser) {
@@ -1002,7 +949,7 @@ if (updatedDevice) {
         gridTemplateRows: `${split}fr 6px ${1 - split}fr` // 画面をsplitと6pxと残りの割合で分割
         }}
         onMouseMove={e => {handleMouseMove(e)}}
-        onMouseUp={e => {handleMouseUp(e)}}
+        onMouseUp={e => {handleMouseUp()}}
         >
       {/* 病棟エリア */}
       <div className={styles.ward} ref={wardRef}>
@@ -1018,12 +965,12 @@ if (updatedDevice) {
           onDrop={handleDropToWard} 
           rooms={rooms}
           openRoomDeviceInfoModal={openRoomDeviceInfoModal}
-          justDropped={justDropped}
           getMAlert={getMAlert}
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
           currentUser={currentUser}
           scrollRef={wardScrollRef}
+          isDraggingRef={isDraggingRef}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1059,6 +1006,7 @@ if (updatedDevice) {
           setStockCellSize={setStockCellSize}
           currentUser={currentUser}
           scrollRef={stockScrollRef}
+          isDraggingRef={isDraggingRef}
         />
       </div>      
 

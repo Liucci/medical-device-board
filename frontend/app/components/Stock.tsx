@@ -21,6 +21,7 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
   currentUser: any
+  isDraggingRef: React.MutableRefObject<boolean>
 }
 
 
@@ -39,7 +40,8 @@ export default function Stock({
                                 cellSize,
                                 managementNumber,
                                 serialNumber,
-                                currentUser
+                                currentUser,
+                                isDraggingRef
                               }: Props) {
 
 /*   console.log("Stock CE室ID:", stockAreaID);
@@ -119,6 +121,10 @@ return (
                   clearTimeout(longPressTimer.current)
                   longPressTimer.current = null
                 }
+
+                // ===== drag時は除外 =====
+                //isDraggingRef=trueの時はopenStockInfoModal開かない
+                if (isDraggingRef.current) return
                 if (!isLongPress.current) {
                   console.log("シングルクリック")
                   console.log("stockDevice",d)
