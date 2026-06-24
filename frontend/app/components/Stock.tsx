@@ -6,7 +6,7 @@ import {useRef} from "react"
 //StockAreA.tsxよりpropを受け取る
 type Props = {
   deviceList: any[]
-  stockAreaID: number
+  stockAreaId: number
   deviceTypes: any[]
   deviceModels: any[] 
   managementNumber: string | undefined
@@ -27,7 +27,7 @@ type Props = {
 
 export default function Stock({
                                 deviceList,
-                                stockAreaID,
+                                stockAreaId,
                                 deviceTypes,
                                 deviceModels,
                                 startDrag,
@@ -44,19 +44,19 @@ export default function Stock({
                                 isDraggingRef
                               }: Props) {
 
-/*   console.log("Stock CE室ID:", stockAreaID);
-  console.log("CE室 devices:", devices.filter(d => d.stockAreaID === stockAreaID));
+/*   console.log("Stock CE室ID:", stockAreaId);
+  console.log("CE室 devices:", devices.filter(d => d.stockAreaId === stockAreaId));
  */  // この倉庫のdeviceだけ取得
   const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
   const isLongPress = useRef(false)
 
   //console.log("🔥 devices:", deviceList)
-  //console.log("🔥 stockAreaID:", stockAreaID)      
+  //console.log("🔥 stockAreaId:", stockAreaId)      
 
    const areaDevices = deviceList
     .filter(
       (d) => d.status === "stock" &&
-      d.stockAreaID === stockAreaID &&
+      d.stockAreaId === stockAreaId &&
       d.id !== pendingDevice?.id
     )
     .sort((a, b) => {

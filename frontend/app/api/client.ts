@@ -7,12 +7,12 @@ export const API_BASE_URL =
     : process.env.NEXT_PUBLIC_PROD_API_URL!;
 
 
-
+// ★ 関数外へ移動
+let refreshPromise: Promise<any> | null = null
 export async function authFetch(
                                 url: string,
                                 options: RequestInit = {}
                               ) {
-  let refreshPromise: Promise<any> | null = null
   //token取得
   let token =localStorage.getItem("access_token")
 

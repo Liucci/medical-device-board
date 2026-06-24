@@ -31,7 +31,7 @@ const [currentUser,setCurrentUser] =
 useEffect(() => {
 
   const restoreSession = async () => {
-
+    console.log("restoreSession start")
     const user =
       await fetchCurrentUser()
 

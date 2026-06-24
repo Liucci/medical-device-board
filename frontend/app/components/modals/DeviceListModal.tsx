@@ -110,14 +110,14 @@ export default function DeviceListModal({
   }
 
   const getStockAreaName = (
-    stockAreaID?: number
+    stockAreaId?: number
   ) => {
 
     return (
       stockAreas.find(
         s =>
           Number(s.id)
-          === Number(stockAreaID)
+          === Number(stockAreaId)
       )?.name ?? ""
     )
 
@@ -197,7 +197,7 @@ export default function DeviceListModal({
         )
         .map(d =>
           getStockAreaName(
-            d.stockAreaID
+            d.stockAreaId
           )
         )
         .filter(Boolean)
@@ -282,7 +282,7 @@ export default function DeviceListModal({
                 )
 
               : getStockAreaName(
-                  device.stockAreaID
+                  device.stockAreaId
                 )
 
           if (
@@ -452,7 +452,7 @@ const filteredDeviceLists = useMemo(() => {
       stockAreaName:
         device.status === "stock"
           ? getStockAreaName(
-              device.stockAreaID
+              device.stockAreaId
             )
           : "",
 
@@ -1017,7 +1017,7 @@ const filteredDeviceLists = useMemo(() => {
                         device.status === "room"
                           ? room?.name ?? ""
                           : getStockAreaName(
-                              device.stockAreaID
+                              device.stockAreaId
                             )
                       }
 

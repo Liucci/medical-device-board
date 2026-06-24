@@ -63,7 +63,7 @@ export default function DeviceModal({
                                                   type: selectedTypeID,
                                                   model: selectedModelID,
                                                   assetType: selectedAssetType,
-                                                  stockAreaID: selectedStockAreaID,
+                                                  stockAreaId: selectedStockAreaID,
                                                   quantity: quantity,
                                                   rentalStartDate:
                                                                     selectedAssetType === "レンタル" ||

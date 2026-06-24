@@ -25,7 +25,7 @@ export const normalizeDevice = (d: DeviceDB): Device => ({
   model: d.model,
   assetType: d.asset_type as Device["assetType"], // ←ここだけ改善余地
   status: d.status,
-  stockAreaID: d.stock_area_id ?? undefined,
+  stockAreaId: d.stock_area_id ?? undefined,
   roomId: d.room_id ?? undefined,
   managementNumber: d.management_number ?? undefined,
   serialNumber: d.serial_number ?? undefined,
@@ -55,7 +55,7 @@ export const toDBDevice = (d: Device) => ({
   model: d.model,
   asset_type: d.assetType,
   status: d.status,
-  stock_area_id: d.stockAreaID ?? null,
+  stock_area_id: d.stockAreaId ?? null,
   room_id: d.roomId ?? null,
   management_number: d.managementNumber ?? null,
   serial_number: d.serialNumber ?? null,
@@ -82,7 +82,7 @@ export const toCreateDeviceRequest = (
                                                                 type: device.type,
                                                                 model: device.model,
                                                                 asset_type: device.assetType,
-                                                                stock_area_id: device.stockAreaID!,
+                                                                stock_area_id: device.stockAreaId!,
                                                                 rental_start_date: device.rentalStartDate,
                                                                 rental_end_date: device.rentalEndDate,
                                                                 quantity: device.quantity ?? 1
@@ -130,7 +130,7 @@ export const toMoveDeviceRequest = (
                                       device: Device
                                     ): MoveDeviceRequest => ({
                                                                id: device.id!,
-                                                               stock_area_id: device.stockAreaID ?? null,
+                                                               stock_area_id: device.stockAreaId ?? null,
                                                                room_id: device.roomId ?? null
                                                              })
 

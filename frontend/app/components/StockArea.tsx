@@ -158,14 +158,14 @@ return (
         deviceList.filter(
           d =>
             d.status === "stock" &&
-            d.stockAreaID === a.id
+            d.stockAreaId === a.id
         ).length
 
       const bCount =
         deviceList.filter(
           d =>
             d.status === "stock" &&
-            d.stockAreaID === b.id
+            d.stockAreaId === b.id
         ).length
 
       // 機器ありを上へ
@@ -198,7 +198,7 @@ return (
               {/* Stockは機器アイコン作成ファイル */}
                 <Stock
                   deviceList={deviceList}     // 修正: deviceList → devices
-                  stockAreaID={area.id}
+                  stockAreaId={area.id}
                   deviceTypes={deviceTypes}
                   deviceModels={deviceModels}
 

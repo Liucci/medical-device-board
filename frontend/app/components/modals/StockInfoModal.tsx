@@ -44,7 +44,7 @@ export default function StockInfoModal({
     deviceModels.find(m => m.id === device.model)?.name ?? "不明"
 
   const locationName =
-    stockAreas.find(s => s.id === device.stockAreaID)?.name ?? "不明"
+    stockAreas.find(s => s.id === device.stockAreaId)?.name ?? "不明"
   // ===== deviceから直接取得 =====
 
   const managementNumber =

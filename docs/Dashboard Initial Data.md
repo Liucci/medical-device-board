@@ -137,3 +137,23 @@ normalize
 ↓
 state格納
 ```
+
+
+isDraggingRefを使用する
+
+startDrag
+↓
+isDraggingRef.current = true
+
+handleMouseUp
+↓
+setTimeout(() => {
+  isDraggingRef.current = false
+},0)
+
+RoomContainer
+Stock
+
+onMouseUp
+
+if (isDraggingRef.current) return

@@ -29,7 +29,7 @@ export type Device = {
   assetType: typeof AssetTypes[number]
   status?: DeviceStatus // "stock" または "room"
   quantity?: number
-  stockAreaID?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
+  stockAreaId?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
   wardId?: number      // 配置されている場合のみ
   roomId?: number
   //roomName?: string  // 配置されている場合のみ

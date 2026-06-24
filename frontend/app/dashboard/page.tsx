@@ -267,7 +267,8 @@ export default function Page() {
                                       deviceId: device.id,
                                       stockAreaId,
                                       setDevices: setDeviceList,
-                                      setHistories
+                                      setHistories,
+                                      devices:deviceList
                                     })
 
   setDraggingDevice(null)

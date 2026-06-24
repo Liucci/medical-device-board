@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../client"
 
 export const refreshToken = async () => {
-
+  console.log("API_BASE_URL", API_BASE_URL)
   const refreshTokenValue =
     localStorage.getItem("refresh_token")
 
@@ -36,6 +36,10 @@ try {
   }
   catch(error){
     console.error("refresh failed", error)
+    console.log(
+      "refresh token used",
+      refreshTokenValue
+    )
     return null
   }                         
 }

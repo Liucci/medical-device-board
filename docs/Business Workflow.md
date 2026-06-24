@@ -599,3 +599,23 @@ import は1行で記述する。
 引数1個の関数呼び出しは改行しない。
 
 不要な空行を作らない。
+
+
+9.6 Drag Event Rule
+
+drag状態管理は useRef を利用する。
+
+isDraggingRef.current = true
+↓
+drag開始
+
+handleMouseUp終了後
+↓
+isDraggingRef.current = false
+
+drag中は機器詳細Modalを開かない。
+
+RoomContainer
+Stock
+
+if (isDraggingRef.current) return

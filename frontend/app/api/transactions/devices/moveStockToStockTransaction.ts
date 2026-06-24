@@ -6,24 +6,40 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { authFetch } from "../../client"
-
+import{Device} from "../../../types/deviceTypes"
 type MoveStockToStockTransactionParams = {
                                           deviceId: number
                                           stockAreaId: number
                                           setDevices: any
                                           setHistories: any
+                                          devices: Device[]
                                         }
 
 export async function moveStockToStockTransaction({
                                                     deviceId,
                                                     stockAreaId,
                                                     setDevices,
-                                                    setHistories
+                                                    setHistories,
+                                                    devices
                                                   }: MoveStockToStockTransactionParams
                                                 )
 {
   console.log("moveStockToStockTransaction")
+  const previousDevices = [...devices]
 
+    setDevices((prev : Device[])=>
+      prev.map(device =>
+        device.id === deviceId
+          ? {
+              ...device,
+              stockAreaId,
+            }
+          : device
+      )
+  )
+
+
+try{
   await authFetch(
                 `${API_BASE_URL}/move_stock_to_stock`,
                 {
@@ -39,9 +55,14 @@ export async function moveStockToStockTransaction({
                                         })
                 }
               )
+            }
+catch(error) {
+  setDevices(previousDevices)
+  throw error
+}
 
-  const devices = await getDevicesFromApi()
-  setDevices(devices.map(normalizeDevice))
+  const refreshedDevices = await getDevicesFromApi()
+  setDevices(refreshedDevices.map(normalizeDevice))
 
   const histories = await getHistoriesFromApi()
   setHistories(histories.map(normalizeHistory))

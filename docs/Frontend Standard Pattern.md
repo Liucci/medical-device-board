@@ -475,3 +475,24 @@ Fetch
 Modal
 
 への影響を最小化する。
+
+
+justDropped(useState)
+↓
+state更新が非同期
+↓
+clickイベントに間に合わない
+
+isDraggingRef(useRef)
+↓
+同期更新
+↓
+イベント制御向き
+
+
+drag中はclickイベントを無効化する
+
+RoomContainer
+Stock
+
+if (isDraggingRef.current) return
