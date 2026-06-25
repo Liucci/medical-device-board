@@ -310,9 +310,9 @@ export default function Page() {
     roomId: number,
     patientName: string
   ) => {
-
     if (!pendingDevice?.id) {return}
-
+    setPendingDevice(null)
+    setRoomModalOpen(false)
     await moveStockToRoomTransaction({
                                       deviceId: pendingDevice.id,
                                       roomId,
@@ -324,8 +324,7 @@ export default function Page() {
                                       devices:deviceList
                                     })
 
-    setRoomModalOpen(false)
-    setPendingDevice(null)
+    
     setTargetWardId(null)
   }
 
@@ -346,6 +345,8 @@ export default function Page() {
 
     if (!pendingDevice?.id) {return}
     if (!pendingDevice?.roomId) {return}
+    setRoomToRoomModalOpen(false)
+    setPendingDevice(null)
 
     if (samePatient) {
       await moveRoomToRoomTransaction({
@@ -373,8 +374,6 @@ export default function Page() {
                                                   })
       }
 
-    setRoomToRoomModalOpen(false)
-    setPendingDevice(null)
     setTargetWardId(null)
   }
 
