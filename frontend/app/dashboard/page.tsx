@@ -256,8 +256,9 @@ export default function Page() {
                                         setDevices: setDeviceList,
                                         setRooms,
                                         setHistories,
-                                        setTasks
-                                      })
+                                        setTasks,
+                                        devices:deviceList
+  })
 
       setDraggingDevice(null)
     return
@@ -354,7 +355,8 @@ export default function Page() {
                                         patientName,
                                         setDevices: setDeviceList,
                                         setRooms,
-                                        setHistories
+                                        setHistories,
+                                        devices:deviceList
                                       })
       } 
       else {
@@ -366,7 +368,8 @@ export default function Page() {
                                                     setDevices: setDeviceList,
                                                     setRooms,
                                                     setHistories,
-                                                    setTasks
+                                                    setTasks,
+                                                    devices:deviceList
                                                   })
       }
 

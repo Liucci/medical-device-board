@@ -32,6 +32,7 @@ export async function moveStockToStockTransaction({
         device.id === deviceId
           ? {
               ...device,
+              status: "stock",
               stockAreaId,
             }
           : device
