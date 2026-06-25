@@ -21,6 +21,11 @@ export const loginTransaction = async ({
                   password
                )
 
+    console.log(
+    "[LOGIN] refresh_token",
+    loginResponse.refresh_token.slice(0, 12)
+  )             
+
   localStorage.setItem(
                         "access_token",
                         loginResponse.access_token
@@ -30,7 +35,10 @@ export const loginTransaction = async ({
                         "refresh_token",
                         loginResponse.refresh_token
                       )
-
+  console.log(
+    "[LOGIN] localStorage",
+    localStorage.getItem("refresh_token")?.slice(0, 12)
+  )
   const currentUserDB =
     await fetchCurrentUser()
 

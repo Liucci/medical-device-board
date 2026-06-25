@@ -13,8 +13,11 @@ export async function authFetch(
                                 url: string,
                                 options: RequestInit = {}
                               ) {
+  
+  console.log( "[START REFRESH]",url)
   //token取得
   let token =localStorage.getItem("access_token")
+    console.log( "authFtch access_token",token)
 
   let response = await fetch(
                           url,
