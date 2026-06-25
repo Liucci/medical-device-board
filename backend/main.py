@@ -267,12 +267,13 @@ def register_first_admin_route(
 
 
 
-
-@app.get("/current-user")
+#重複したroute使用してなさそうなのでコメントアウト
+""" @app.get("/current-user")
 def current_user(
                     auth_user_id:str=Depends(get_auth_user_id)
                 ):
     return fetch_current_user_transaction(auth_user_id)
+ """
 
 @app.post("/invite-first-admin")
 def invite_first_admin_route(

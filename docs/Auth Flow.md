@@ -290,3 +290,104 @@ auth.users作成
 public.users作成
 ↓
 invite_code.used=True
+
+
+
+## 認証デバッグ用テストページ
+
+### 目的
+
+Dashboardの業務ロジックを介さず、認証機能(authFetch・Refresh Token)だけを単独で検証する。
+
+---
+
+## テストページ
+
+```
+/test-auth
+```
+
+### 実装したボタン
+
+* Token確認
+* Access Token期限切れ(デバッグ用)
+* Access Token削除
+* authFetch実行
+
+---
+
+## 検証項目
+
+### 1. 通常通信
+
+```
+authFetch実行
+```
+
+期待結果
+
+```
+200 OK
+```
+
+---
+
+### 2. Access Token削除
+
+```
+Access Token削除
+↓
+authFetch実行
+```
+
+期待結果
+
+```
+401
+↓
+Refresh Token実行
+↓
+Access Token更新
+↓
+Retry
+↓
+200 OK
+```
+
+Dashboardでも同様の動作を確認済み。
+
+---
+
+### 検証結果
+
+#### authFetch
+
+* 通常通信：正常
+* 401検知：正常
+* Refresh Token実行：正常
+* Access Token更新：正常
+* Retry：正常
+
+#### Dashboard
+
+* restoreSession時：正常
+* init-dashboard取得：正常
+* CRUD実行中：正常
+* Transaction実行中：正常
+
+---
+
+## 調査結果
+
+以前発生した
+
+```
+invalid JWT:
+token contains an invalid number of segments
+```
+
+は再現しなかった。
+
+認証処理・Refresh処理・Retry処理はいずれも正常であることを確認した。
+
+今後認証に問題が発生した場合は、まず `/test-auth` で認証基盤のみを検証してから Dashboard 側の問題かどうかを切り分ける。

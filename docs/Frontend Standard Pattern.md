@@ -496,3 +496,41 @@ RoomContainer
 Stock
 
 if (isDraggingRef.current) return
+
+
+# Drag Event Rule
+
+## Modal重複防止
+
+Drag & Drop 時、drop先の機器アイコン上で mouseup が発生すると、機器アイコンの click が発火し、複数 Modal が同時に開く場合がある。
+
+対策として Drag 状態は useState ではなく useRef で管理する。
+
+```text
+startDrag
+↓
+isDraggingRef.current = true
+
+handleMouseUp
+↓
+setTimeout(() => {
+    isDraggingRef.current = false
+}, 0)
+```
+
+機器アイコンの `onMouseUp` では Drag 中のクリックを無効化する。
+
+```ts
+if (isDraggingRef.current) return
+```
+
+適用箇所
+
+* RoomContainer.tsx
+* Stock.tsx
+
+### 理由
+
+`useState` は更新が非同期のため、Drag 直後の click イベント抑止に間に合わない場合がある。
+
+イベント制御用フラグは `useRef` を使用する。

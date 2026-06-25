@@ -2,8 +2,12 @@ import { API_BASE_URL } from "../client"
 
 export const refreshToken = async () => {
   console.log("API_BASE_URL", API_BASE_URL)
-  const refreshTokenValue =
-    localStorage.getItem("refresh_token")
+  const refreshTokenValue =localStorage.getItem("refresh_token")
+
+    console.log(
+    "[REFRESH BEFORE]",
+    refreshTokenValue?.slice(0, 12)
+  )
 
   if (!refreshTokenValue) {return null}
 try {
@@ -30,6 +34,15 @@ try {
   const data = await response.json()
   localStorage.setItem( "access_token",data.access_token)
   localStorage.setItem("refresh_token",data.refresh_token)
+    console.log(
+      "[REFRESH RESPONSE]",
+      data.refresh_token.slice(0, 12)
+    )
+    console.log(
+          "[REFRESH AFTER]",
+          localStorage.getItem("refresh_token")?.slice(0, 12)
+    )
+
 
   return data
 
