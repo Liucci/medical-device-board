@@ -3,7 +3,7 @@ export type StockAreaType = {
                               id: number
                               hospitalId: string
                               name: string
-                              createdAt?: string | null
+                              displayOrder: number
                             }
 
 // Backend Response型
@@ -11,7 +11,7 @@ export type StockAreaDBType = {
                                 id: number
                                 hospital_id: string
                                 name: string
-                                created_at?: string | null
+                                display_order: number
                               }
 
 // Create専用

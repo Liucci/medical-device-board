@@ -2,7 +2,8 @@ from common.supabase_client import (supabase)
 from schemas.ward_schemas import (AddWardRequest)
 
 def add_ward(ward: AddWardRequest,
-              hospital_id: str              
+              hospital_id: str,
+              display_order: int              
             ):
 
     print("insert ward")
@@ -12,7 +13,8 @@ def add_ward(ward: AddWardRequest,
         .table("wards")
         .insert({
                  "hospital_id": hospital_id,
-                 "name": ward.name
+                 "name": ward.name,
+                 "display_order": display_order
                 })
         .execute()
     )

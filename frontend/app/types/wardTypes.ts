@@ -3,6 +3,7 @@ export type WardType = {
                          id: number
                          hospitalId: string
                          name: string
+                         displayOrder: number
                        }
 
 // Backend Response型
@@ -10,6 +11,7 @@ export type WardDBType = {
                            id: number
                            hospital_id: string
                            name: string
+                           display_order: number
                          }
 
 // Create専用

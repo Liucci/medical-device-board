@@ -12,7 +12,8 @@ export const normalizeWard = (
                               ): WardType => ({
                                                  id: w.id,
                                                  hospitalId: w.hospital_id,
-                                                 name: w.name
+                                                 name: w.name,
+                                                 displayOrder: w.display_order
                                                })
 
 // Create

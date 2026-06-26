@@ -62,8 +62,8 @@ from schemas.device_schemas import (
                                         MoveDeviceRequest,
                                         UpdateDeviceRentalDatesRequest
                                     )
-from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest)
-from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest)
+from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest,UpdateStockAreaOrdersRequest)
+from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest,UpdateWardOrdersRequest,)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest,ClearRoomPatientRequest)
 from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest)
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
@@ -92,10 +92,12 @@ from transactions.devices.move_room_to_room_new_patient_transaction import move_
 from transactions.stock_areas.create_stock_area_transaction import create_stock_area_transaction
 from transactions.stock_areas.delete_stock_area_transaction import delete_stock_area_transaction
 from transactions.stock_areas.update_stock_area_transaction import (update_stock_area_transaction)
+from transactions.stock_areas.update_stock_area_display_order_transaction import (update_stock_area_display_order_transaction)
 
 from transactions.wards.create_ward_transaction import (create_ward_transaction)
 from transactions.wards.delete_ward_transaction import (delete_ward_transaction)
 from transactions.wards.update_ward_transaction import (update_ward_transaction)
+from transactions.wards.update_ward_display_order_transaction import (update_ward_display_order_transaction)
 
 from transactions.rooms.create_room_transaction import (create_room_transaction)
 from transactions.rooms.update_room_transaction import (update_room_transaction,update_room_patientname_transaction)
@@ -519,6 +521,31 @@ def update_ward_route(
                                 ward=ward,
                                 hospital_id=current_user["hospital_id"]
                             )
+@app.post("/update-ward-display-order")
+def update_ward_display_order_route(
+                                    wards: UpdateWardOrdersRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    ):
+
+    current_user = fetch_current_user(auth_user_id)
+    print(current_user)
+
+    if current_user["role"] != "admin":
+        return {
+            "success": False,
+            "error": "権限がありません"
+        }
+
+    update_ward_display_order_transaction(
+                                        wards=wards,
+                                        hospital_id=current_user["hospital_id"]
+                                        )
+
+    return {
+        "success": True
+    }    
+
+
 
 @app.get("/rooms")
 def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
@@ -1008,6 +1035,31 @@ def update_stock_area_transaction_route(
                                     stock_area=stock_area,
                                     current_user=current_user
                                     )
+
+@app.post("/update-stock-area-display-order")
+def update_stock_area_display_order_route(
+                                            stock_areas: UpdateStockAreaOrdersRequest,
+                                            auth_user_id: str = Depends(get_auth_user_id)
+                                        ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print(current_user)
+    if current_user["role"] != "admin":
+        return {
+            "success": False,
+            "error": "権限がありません"
+        }
+
+    update_stock_area_display_order_transaction(
+                                            stock_areas=stock_areas,
+                                            hospital_id=current_user["hospital_id"]
+                                        )
+
+    return {
+        "success": True
+    }
+
 
 @app.post("/update-management-number")
 def update_management_number_route(

@@ -5,17 +5,17 @@ from schemas.stock_area_schemas import AddStockAreaRequest
 
 def add_stock_areas(
                       stock_area: AddStockAreaRequest,
-                      current_user
+                      hospital_id: str,
+                      display_order: int
                     ):
     print("add_stock_areas")
     response = (
                   supabase
                   .table("stock_areas")
                   .insert({
-                              "hospital_id":
-                                  current_user["hospital_id"],
-                              "name":
-                                  stock_area.name,
+                              "hospital_id": hospital_id,
+                              "name":stock_area.name,
+                              "display_order": display_order
                           })
                   .execute()
                 )

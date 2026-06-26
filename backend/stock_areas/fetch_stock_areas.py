@@ -13,6 +13,7 @@ def fetch_stock_areas(hospital_id: str):
             "hospital_id",
             hospital_id
         )
+        .order("display_order")
         .execute()
     )
     return response.data
@@ -32,8 +33,27 @@ def fetch_stock_area(
                     .select("*")
                     .eq("id", stock_area_id)
                     .eq("hospital_id", hospital_id)
+                    .order("display_order")
                     .single()
                     .execute()
                )
 
     return response.data
+
+
+def get_max_stock_area_display_order(
+                                hospital_id: str
+                            ) -> int:
+    result = (
+                    supabase.table("stock_areas")
+                    .select("display_order")
+                    .eq("hospital_id", hospital_id)
+                    .order("display_order", desc=True)
+                    .limit(1)
+                    .execute()
+                )
+
+    if not result.data:
+        return 0
+
+    return result.data[0]["display_order"]

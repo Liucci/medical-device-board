@@ -500,3 +500,259 @@ refreshToken
 - localStorage更新確認
 - 新旧RefreshToken比較
 - 複数セッション確認
+
+# Auth Refresh Token 調査ログ（2026-06-26）
+
+## 概要
+
+Access Token の有効期限切れ後に、
+
+```
+Invalid Refresh Token: Already Used
+```
+
+が発生し、Refresh Token による再認証が失敗する問題を調査した。
+
+---
+
+# 調査方法
+
+Supabase Dashboard の
+
+```
+JWT Settings
+Access token expiry time
+```
+
+を **10秒** に設定し、強制的に期限切れを発生させた。
+
+また、Dashboard の影響を排除するため、
+
+```
+/test-auth
+```
+
+ページを作成し、認証処理のみを検証した。
+
+その結果、
+
+Dashboard固有の問題ではなく、
+認証処理自体で問題が発生していることを確認した。
+
+---
+
+# 調査結果
+
+## ① Frontend の問題ではなかった
+
+以下を疑った。
+
+- authFetch
+- 複数useEffect
+- 複数API同時実行
+- Dashboard
+- Zustand
+- localStorage保存
+
+しかし test-auth ページでも同じ現象が発生したため、
+これらは原因ではないと判断した。
+
+---
+
+## ② Refresh Token の受け渡し
+
+ログイン時
+
+```
+login refresh token
+mos7ikom556z
+```
+
+Refresh時
+
+```
+received refresh token
+mos7ikom556z
+```
+
+完全一致。
+
+つまり
+
+- login
+- localStorage保存
+- authFetch
+
+で別Tokenへ変化していないことを確認。
+
+---
+
+## ③ 問題箇所
+
+Backend
+
+```python
+response = supabase.auth.refresh_session(refresh_token)
+```
+
+実行時に
+
+```
+AuthApiError
+
+Invalid Refresh Token: Already Used
+```
+
+が発生。
+
+Routeには到達しており、
+
+```
+received refresh token
+```
+
+まで表示されるが、
+
+```
+new refresh token
+```
+
+は表示されなかった。
+
+つまり
+
+```
+refresh_session()
+```
+
+内部で例外が発生していた。
+
+---
+
+## ④ 原因
+
+Supabase Client
+
+```python
+supabase = create_client(url, key)
+```
+
+では
+
+Client内部の
+
+```
+auto_refresh_token
+```
+
+が有効になっていた。
+
+そのため、
+
+ライブラリ内部でRefresh Tokenが先に消費され、
+
+その後
+
+```python
+supabase.auth.refresh_session(...)
+```
+
+を実行すると
+
+```
+Already Used
+```
+
+となっていた。
+
+---
+
+# 修正内容
+
+Supabase Client生成時に
+
+```python
+options = ClientOptions(
+    auto_refresh_token=False
+)
+
+supabase = create_client(
+    url,
+    key,
+    options
+)
+```
+
+へ変更。
+
+---
+
+# 修正後ログ
+
+1回目
+
+```
+received refresh token
+mos7ikom556z
+
+↓
+
+refresh_session success
+
+↓
+
+new refresh token
+re7ihtt2qpmj
+```
+
+2回目
+
+```
+received refresh token
+re7ihtt2qpmj
+
+↓
+
+refresh_session success
+
+↓
+
+new refresh token
+f5pbjs736kmj
+```
+
+Refresh Token が毎回更新され、
+
+401 → Refresh → 再取得
+
+の流れが正常に動作することを確認。
+
+---
+
+# 結論
+
+BackendでRefresh Tokenを明示的に管理する構成では、
+
+```
+auto_refresh_token=False
+```
+
+に設定する。
+
+自動Refreshを有効にすると、
+
+Supabase Client内部とアプリ側で
+
+Refresh Tokenの二重利用が発生し、
+
+```
+Invalid Refresh Token: Already Used
+```
+
+となる可能性がある。
+
+本システムでは、
+
+FastAPIが唯一のRefresh管理者となるため、
+
+Client側の自動Refreshは無効化する。

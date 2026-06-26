@@ -9,7 +9,7 @@ export const normalizeStockArea = (s: StockAreaDBType): StockAreaType => ({
                                                                             id: s.id,
                                                                             hospitalId: s.hospital_id,
                                                                             name: s.name,
-                                                                            createdAt: s.created_at
+                                                                            displayOrder: s.display_order,
                                                                           })
 
 export const toCreateStockAreaRequest = (s: CreateStockAreaType) => ({
