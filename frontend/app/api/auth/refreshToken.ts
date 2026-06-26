@@ -26,7 +26,9 @@ try {
   const data = await response.json()
   localStorage.setItem( "access_token",data.access_token)
   localStorage.setItem("refresh_token",data.refresh_token)
-  console.log( "[SAVED REFRESH TOKEN]",localStorage.getItem("refresh_token"))
+  console.log( "[SAVED ACCESS TOKEN]",localStorage.getItem("access_token")?.slice(0, 12))
+  console.log("[SAVED REFRESH TOKEN]",localStorage.getItem("refresh_token")?.slice(0, 12))  
+
   return true
   }
   catch(error){
