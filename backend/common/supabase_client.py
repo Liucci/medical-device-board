@@ -1,8 +1,14 @@
 import os
 from dotenv import load_dotenv
-from supabase import (create_client)
+from supabase import (create_client,ClientOptions)
 
 load_dotenv()
 url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-supabase = create_client(url,key)
+
+options = ClientOptions(
+    auto_refresh_token=False
+)
+
+
+supabase = create_client(url,key,options)

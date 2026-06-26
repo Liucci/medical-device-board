@@ -35,13 +35,13 @@ useEffect(() => {
     const user =
       await fetchCurrentUser()
 
-    if (!user) {
+/*     if (!user) {
       localStorage.removeItem(
         "access_token"
       )
       setCurrentUser(null)
       return
-    }
+    } */
 
     setCurrentUser(
       normalizeUser(user)

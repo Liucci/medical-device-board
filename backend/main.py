@@ -185,7 +185,7 @@ def get_current_user(auth_user_id: str = Depends(get_auth_user_id)):
 
 @app.post("/refresh-token")
 def refresh_token_route(body: RefreshTokenRequest):
-
+    print("refresh_token_route")
     try:
         response = refresh_token(
             body.refresh_token
