@@ -4,7 +4,7 @@ export const refreshToken = async () => {
   const refreshTokenValue =localStorage.getItem("refresh_token")
   if (!refreshTokenValue) {return null}
 try {
-  console.log("refresh start")
+  console.log("refreshToken")
   const response =await fetch(
                               `${API_BASE_URL}/refresh-token`,
                               {

@@ -6,6 +6,7 @@ export async function login(
                               password: string
                             ) 
 {
+  console.log("login")
   const response = await fetch(
                         `${API_BASE_URL}/login`,
                                 {
