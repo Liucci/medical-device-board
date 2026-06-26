@@ -67,7 +67,10 @@ const getWardDeviceCount = (wardId: number) => {
   // 病棟コンテナの表示順を作る
   // 1. 機器が多く配置されている病棟を上に並べる
   // 2. 機器数が同じ場合は病棟名の自然順で並べる
-  const sortedWards = [...wards].sort((a, b) => {
+  
+
+  const sortedWards = wards
+/*   const sortedWards = [...wards].sort((a, b) => {  
     const aCount = getWardDeviceCount(a.id)
     const bCount = getWardDeviceCount(b.id)
 
@@ -81,7 +84,7 @@ const getWardDeviceCount = (wardId: number) => {
       { numeric: true }
     )
   })
-                     
+ */                     
 
 return (
   <div

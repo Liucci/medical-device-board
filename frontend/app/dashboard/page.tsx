@@ -256,8 +256,9 @@ export default function Page() {
                                         setDevices: setDeviceList,
                                         setRooms,
                                         setHistories,
-                                        setTasks
-                                      })
+                                        setTasks,
+                                        devices:deviceList
+  })
 
       setDraggingDevice(null)
     return
@@ -309,9 +310,9 @@ export default function Page() {
     roomId: number,
     patientName: string
   ) => {
-
     if (!pendingDevice?.id) {return}
-
+    setPendingDevice(null)
+    setRoomModalOpen(false)
     await moveStockToRoomTransaction({
                                       deviceId: pendingDevice.id,
                                       roomId,
@@ -323,8 +324,7 @@ export default function Page() {
                                       devices:deviceList
                                     })
 
-    setRoomModalOpen(false)
-    setPendingDevice(null)
+    
     setTargetWardId(null)
   }
 
@@ -345,6 +345,8 @@ export default function Page() {
 
     if (!pendingDevice?.id) {return}
     if (!pendingDevice?.roomId) {return}
+    setRoomToRoomModalOpen(false)
+    setPendingDevice(null)
 
     if (samePatient) {
       await moveRoomToRoomTransaction({
@@ -354,7 +356,8 @@ export default function Page() {
                                         patientName,
                                         setDevices: setDeviceList,
                                         setRooms,
-                                        setHistories
+                                        setHistories,
+                                        devices:deviceList
                                       })
       } 
       else {
@@ -366,12 +369,11 @@ export default function Page() {
                                                     setDevices: setDeviceList,
                                                     setRooms,
                                                     setHistories,
-                                                    setTasks
+                                                    setTasks,
+                                                    devices:deviceList
                                                   })
       }
 
-    setRoomToRoomModalOpen(false)
-    setPendingDevice(null)
     setTargetWardId(null)
   }
 

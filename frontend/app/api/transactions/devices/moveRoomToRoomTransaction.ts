@@ -8,6 +8,7 @@ import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { authFetch } from "../../client"
+import{Device} from "../../../types/deviceTypes"
 
 type MoveRoomToRoomTransactionParams = {
                                           deviceId: number
@@ -17,6 +18,7 @@ type MoveRoomToRoomTransactionParams = {
                                           setDevices: any
                                           setRooms: any
                                           setHistories: any
+                                          devices: Device[]
                                         }
 
 export async function moveRoomToRoomTransaction({
@@ -26,12 +28,27 @@ export async function moveRoomToRoomTransaction({
                                                   patientName,
                                                   setDevices,
                                                   setRooms,
-                                                  setHistories
+                                                  setHistories,
+                                                  devices
                                                 }: MoveRoomToRoomTransactionParams
                                               )
 {
   console.log("moveRoomToRoomTransaction")
 
+  const previousDevices = [...devices]
+
+setDevices((prev: Device[]) =>
+  prev.map(device =>
+    device.id === deviceId
+      ? {
+          ...device,
+          status: "room",
+          roomId: postRoomId
+        }
+      : device
+  )
+)
+try {
   await authFetch(
                 `${API_BASE_URL}/move_room_to_room`,
                 {
@@ -56,9 +73,15 @@ export async function moveRoomToRoomTransaction({
                                         })
                 }
               )
+              }
+catch(error) {
+  setDevices(previousDevices)
+  throw error
+}
 
-  const devices = await getDevicesFromApi()
-  setDevices(devices.map(normalizeDevice))
+
+  const refreshedDevices = await getDevicesFromApi()
+  setDevices(refreshedDevices.map(normalizeDevice))
 
   const rooms = await getRoomsFromApi()
   setRooms(rooms.map(normalizeRoom))

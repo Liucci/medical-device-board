@@ -10,6 +10,9 @@ import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
 import { authFetch } from "../../client"
+import{Device} from "../../../types/deviceTypes"
+import{RoomType} from "../../../types/roomTypes"
+import{MaintenanceType} from "../../../types/maintenanceTypeTypes"
 
 type MoveRoomToStockTransactionParams = {
                                           deviceId: number
@@ -19,6 +22,8 @@ type MoveRoomToStockTransactionParams = {
                                           setRooms: any
                                           setHistories: any
                                           setTasks: any
+                                          devices: Device[]
+                                          
                                         }
 
 export async function moveRoomToStockTransaction({
@@ -28,12 +33,27 @@ export async function moveRoomToStockTransaction({
                                                    setDevices,
                                                    setRooms,
                                                    setHistories,
-                                                   setTasks
+                                                   setTasks,
+                                                   devices,
                                                  }: MoveRoomToStockTransactionParams
                                                )
 {
   console.log("moveRoomToStockTransaction")
-
+  const previousDevices = [...devices]
+  //optimistic update
+  setDevices((prev: Device[]) =>
+  prev.map(device =>
+    device.id === deviceId
+      ? {
+          ...device,
+          status: "stock",
+          roomId: null,
+          stockAreaId
+        }
+      : device
+  )
+)
+try{
   await authFetch(
                 `${API_BASE_URL}/move_room_to_stock`,
                 {
@@ -54,9 +74,13 @@ export async function moveRoomToStockTransaction({
                                         })
                 }
               )
-
-  const devices = await getDevicesFromApi()
-  setDevices(devices.map(normalizeDevice))
+            }
+catch(error) {
+  setDevices(previousDevices)
+  throw error
+}
+  const refreshedDevices = await getDevicesFromApi()
+  setDevices(refreshedDevices.map(normalizeDevice))
 
   const rooms = await getRoomsFromApi()
   setRooms(rooms.map(normalizeRoom))
