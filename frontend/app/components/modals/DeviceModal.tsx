@@ -8,9 +8,7 @@ import {createDeviceTransaction} from "../../api/transactions/devices/createDevi
 
 type Props = {
   deviceList: any[]
-  setDeviceList: React.Dispatch<
-                  React.SetStateAction<any[]>
-                >
+  setDeviceList: React.Dispatch<React.SetStateAction<any[]>>
   onClose: () => void
   deviceTypes: { id: number; name: string }[]
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
@@ -40,7 +38,8 @@ export default function DeviceModal({
 
   const [selectedStockAreaID, setSelectedStockAreaID]= useState<number | "">("")
   const [quantity, setQuantity] = useState(1)  
-  
+  //登録や読込中ですを表示するためのstate
+  const [Loading, setLoading] = useState(false)
   const modelsForType = selectedTypeID === ""
     ? []
     : deviceModels.filter(m => m.deviceTypeId === selectedTypeID)
@@ -49,13 +48,23 @@ export default function DeviceModal({
 
   const handleSubmit = async () => {
 
-      if (
-          selectedTypeID === "" ||
-          selectedModelID === ""||
-          selectedStockAreaID === ""
-        ) {
-          return
-      }
+
+    if (selectedTypeID === "") {
+      alert("機種を選択してください")
+      return
+    }
+
+    if (selectedModelID=== "") {
+      alert("型式を選択してください")
+      return
+    }
+    if (selectedStockAreaID=== "") {
+      alert("保管場所を選択してください")
+      return
+    }
+
+
+
 
       await createDeviceTransaction(
                                       {
@@ -77,7 +86,8 @@ export default function DeviceModal({
                                                                     : undefined,
                                                 },
                                         setDeviceList:setDeviceList,
-                                        onClose:onClose
+                                        onClose:onClose,
+                                        setLoading:setLoading
                                       }
                                     )
   }
@@ -176,10 +186,11 @@ return createPortal(
 
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600"
-        >
-          登録
+          disabled={Loading}
+          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400"        >
+         {Loading ? "登録中..." : "登録"}
         </button>
+
       </div>
           {(selectedAssetType === "レンタル" ||
             selectedAssetType === "代替機") && (

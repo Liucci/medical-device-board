@@ -1,7 +1,7 @@
 from common.supabase_client import (supabase)
 
 def refresh_token(refresh_token: str):
-    print("refresh token")
+    print("refresh_token")
     print(
         "received refresh token",
         refresh_token[:12]

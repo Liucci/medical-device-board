@@ -24,7 +24,8 @@ export const loginTransaction = async ({
   console.log("set access_token in localStorege" )             
   console.log("set refresh_token in localStorege" )             
   localStorage.setItem( "access_token", loginResponse.access_token)
-  localStorage.setItem( "refresh_token", loginResponse.refresh_token)
+  const refreshToken=localStorage.setItem( "refresh_token", loginResponse.refresh_token)
+  console.log("[LOGIN REFRESH TOKEN]", refreshToken)
   const currentUserDB =await fetchCurrentUser()
 
   if (!currentUserDB) {

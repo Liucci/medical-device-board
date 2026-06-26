@@ -92,8 +92,8 @@ export default function ButtonPanel({
     setOpenSettingsModal(true)
   }
   const openHistory = async () => {
-    await fetchHistories()
     setOpenHistoryModal(true)
+    await fetchHistories()
   }
   const openDeviceList = () => {
     //機器一覧表のモーダルを開く処理

@@ -1,10 +1,12 @@
 import { API_BASE_URL } from "../client"
 
-export const refreshToken = async () => {
+export const refreshToken = async (): Promise<boolean> => {
   const refreshTokenValue =localStorage.getItem("refresh_token")
-  if (!refreshTokenValue) {return null}
+  if (!refreshTokenValue) {return false}
 try {
   console.log("refreshToken")
+  console.trace("[REFRESH]")
+
   const response =await fetch(
                               `${API_BASE_URL}/refresh-token`,
                               {
@@ -17,15 +19,18 @@ try {
                                                       })
                               }
                             )
-
+  if (!response.ok) {
+    console.error("refresh failed", response.status)
+    return false
+  }
   const data = await response.json()
   localStorage.setItem( "access_token",data.access_token)
   localStorage.setItem("refresh_token",data.refresh_token)
-
-  return data
+  console.log( "[SAVED REFRESH TOKEN]",localStorage.getItem("refresh_token"))
+  return true
   }
   catch(error){
     console.error("refresh failed", error)
-    return null
+    return false
   }                         
 }
