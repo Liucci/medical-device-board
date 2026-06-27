@@ -17,7 +17,7 @@ type Props = {
   serialNumber: string | undefined
 
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
-  handleMouseMove: (e: React.MouseEvent) => void
+  handleMouseMove: (e: React.PointerEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
@@ -96,7 +96,7 @@ return (
             <div
               key={d.id}
 
-              onMouseDown={(e) => {
+              onPointerDown={(e) => {
                 //左クリック以外排除
                 if (e.button !== 0) return
                 isLongPress.current = false
@@ -118,7 +118,7 @@ return (
                   startDrag(target, clientX, clientY, d)
                 }, 300)
               }}
-              onMouseUp={(e) => {
+              onPointerUp={(e) => {
                 //左クリック以外排除
                 if (e.button !== 0) return
                 if (longPressTimer.current) {
@@ -159,6 +159,7 @@ return (
                       gridColumn: d.col,
                       gridRow: d.row,
                       cursor: "grab",
+                      touchAction: "none",
                       //dragLayerのアイコンドラッグ中はiconを非表示にす
                       visibility: isDragging ? "hidden" : "visible"
                     }

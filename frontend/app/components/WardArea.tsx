@@ -170,7 +170,7 @@ return (
                   ? "span 3"
                   : undefined
             }}
-            onMouseUp={() => {
+            onPointerUp={() => {
               if (!draggingDevice) return
 
               onDrop(

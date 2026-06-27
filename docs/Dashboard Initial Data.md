@@ -154,6 +154,6 @@ setTimeout(() => {
 RoomContainer
 Stock
 
-onMouseUp
+onPointerUp
 
 if (isDraggingRef.current) return

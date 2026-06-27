@@ -518,7 +518,7 @@ setTimeout(() => {
 }, 0)
 ```
 
-機器アイコンの `onMouseUp` では Drag 中のクリックを無効化する。
+機器アイコンの `onPointerUp` では Drag 中のクリックを無効化する。
 
 ```ts
 if (isDraggingRef.current) return

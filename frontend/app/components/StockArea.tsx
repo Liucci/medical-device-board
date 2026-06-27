@@ -16,7 +16,7 @@ type Props = {
   managementNumber: string | undefined
   serialNumber: string | undefined
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
-  handleMouseMove: (e: React.MouseEvent) => void
+  handleMouseMove: (e: React.PointerEvent) => void
   deleteDevice: (id: number) => void
   draggingDevice: Device | null
   pendingDevice: Device | null
@@ -168,7 +168,7 @@ return (
         
 
         // ★ここに追加
-        onMouseUp={() => {
+        onPointerUp={() => {
           if (!draggingDevice) return
           //onDropにdraggingDeviceとarea.idを渡す
           onDrop(draggingDevice, area.id)

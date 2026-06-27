@@ -167,7 +167,7 @@ export default function Page() {
     }
   }
   //マウスがStockAreaまたはWardArea内にあるか判定するための関数
-  const isInside = (e: React.MouseEvent, el: HTMLElement) => {
+  const isInside = (e: React.PointerEvent, el: HTMLElement) => {
     const rect = el.getBoundingClientRect()
     return (
       e.clientX >= rect.left &&
@@ -178,7 +178,7 @@ export default function Page() {
   }
 
     // ドラッグ中の処理
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.PointerEvent) => {
     // ✅ リサイズ優先
     //isResizingがtrueでdraggingDeviceがnullの場合は、splitを更新する
     if (isResizing && !draggingDevice) {
@@ -915,8 +915,8 @@ if (updatedDevice) {
         style={{
         gridTemplateRows: `${split}fr 6px ${1 - split}fr` // 画面をsplitと6pxと残りの割合で分割
         }}
-        onMouseMove={e => {handleMouseMove(e)}}
-        onMouseUp={e => {handleMouseUp()}}
+        onPointerMove={e => {handleMouseMove(e)}}
+        onPointerUp={e => {handleMouseUp()}}
         >
       {/* 病棟エリア */}
       <div className={styles.ward} ref={wardRef}>
@@ -944,9 +944,10 @@ if (updatedDevice) {
       <div
         style={{
           background: "#ccc",
-          cursor: "row-resize"
+          cursor: "row-resize",
+          touchAction: "none"
         }}
-        onMouseDown={() => setIsResizing(true)}
+        onPointerDown={() => setIsResizing(true)}
       />
 
 

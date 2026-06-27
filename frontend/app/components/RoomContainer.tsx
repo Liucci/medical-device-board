@@ -141,7 +141,7 @@ return (
         return (
           <div
             key={d.id}
-              onMouseDown={(e) => {
+              onPointerDown={(e) => {
                 //左クリック以外は排除
                 if (e.button !== 0) return
 
@@ -163,7 +163,7 @@ return (
                   startDrag(target, clientX, clientY, d)
                 }, 300)
               }}
-              onMouseUp={(e) => {
+              onPointerUp={(e) => {
                 // 左クリック以外排除
                 if (e.button !== 0) return
                 // ===== timer解除最優先 =====
@@ -190,6 +190,7 @@ return (
             }}
             //機器アイコンdrag中は元位置のアイコンは見えなくする
             style={{
+              touchAction: "none",
               visibility: isDragging ? "hidden" : "visible"
             }}
           >
