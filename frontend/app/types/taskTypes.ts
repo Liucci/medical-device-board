@@ -1,5 +1,6 @@
+//task表示用、実施時用
 export type MaintenanceTask = {
-  id?: number
+  id: number
   hospitalId?: string
   deviceId: number
   maintenanceTypeId: number
@@ -7,6 +8,12 @@ export type MaintenanceTask = {
   completedAt?: string | null
   completedBy?: string | null
   createdAt?: string | null
+}
+//task発生時用
+export type CreateMaintenanceTask = {
+  deviceId: number
+  maintenanceTypeId: number
+  dueAt: string
 }
 
 export type MaintenanceTaskDB = {

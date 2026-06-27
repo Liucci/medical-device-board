@@ -1,4 +1,8 @@
-import {MaintenanceTask,MaintenanceTaskDB} from "../types/taskTypes"
+import {
+        MaintenanceTask,
+        MaintenanceTaskDB,
+        CreateMaintenanceTask
+      }from "../types/taskTypes"
 
 export const normalizeMaintenanceTask = (t: MaintenanceTaskDB): MaintenanceTask => ({
                                                                                       id: t.id,
@@ -11,7 +15,7 @@ export const normalizeMaintenanceTask = (t: MaintenanceTaskDB): MaintenanceTask 
                                                                                       createdAt: t.created_at
                                                                                     })
 
-export const toCreateMaintenanceTaskRequest = (t: MaintenanceTask) => ({
+export const toCreateMaintenanceTaskRequest = (t: CreateMaintenanceTask) => ({
                                                                           device_id: t.deviceId,
                                                                           maintenance_type_id: t.maintenanceTypeId,
                                                                           due_at: t.dueAt
