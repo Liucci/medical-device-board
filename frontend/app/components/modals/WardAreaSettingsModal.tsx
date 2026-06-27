@@ -1,7 +1,13 @@
 import { useState } from "react"
 
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
 import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 
 import { createWardTransaction } from "../../api/transactions/wards/createWardTransaction"
 import { deleteWardTransaction } from "../../api/transactions/wards/deleteWardTransaction"
@@ -12,10 +18,9 @@ import { updateRoomTransaction } from "../../api/transactions/rooms/updateRoomTr
 import { deleteRoomsTransaction } from "../../api/transactions/rooms/deleteRoomsTransaction"
 
 type Props = {
-  wards: { id: number; name: string }[]
+  wards:WardType[]
   setWards: React.Dispatch<React.SetStateAction<any[]>>
-
-  rooms:  { id: number; wardId: number; name: string; patientName: string }[]
+  rooms: RoomType[]
   setRooms: React.Dispatch<React.SetStateAction<any[]>>
 }
 

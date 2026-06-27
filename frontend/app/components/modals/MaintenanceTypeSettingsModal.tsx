@@ -1,6 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+
 import {createMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/createMaintenanceTypeTransaction"
 import {deleteMaintenanceTypesTransaction} from "../../../app/api/transactions/maintenanceTypes/deleteMaintenanceTypesTransaction"
 import {updateMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/updateMaintenanceTypeTransaction"
@@ -8,10 +17,10 @@ import {updateMaintenanceTypeTransaction} from "../../../app/api/transactions/ma
 
 
 type Props = {
-  maintenanceTypes: any[]
-  setMaintenanceTypes: any
-  deviceTypes: any[]
-  deviceModels: any[]
+  maintenanceTypes: MaintenanceType[]
+  setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
 }
 export default function MaintenanceTypeSettingsModal({
   maintenanceTypes,
@@ -25,7 +34,6 @@ export default function MaintenanceTypeSettingsModal({
 
   const [name, setName] = useState("")
   const [intervalDays, setIntervalDays] = useState(30)
-
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
   // 🔽 型式候補
@@ -324,17 +332,21 @@ export default function MaintenanceTypeSettingsModal({
                       mt.name
                     )
 
-                    if (newName === null) return
+                  if (newName === null) return
 
-                    const newInterval = prompt(
-                      "間隔日数",
-                      mt.intervalDays
-                    )
+                  const newInterval = prompt(
+                    "間隔日数",
+                    `${mt.intervalDays}`
+                  )
 
-                    if (newInterval === null) return
+                  if (newInterval === null) return
+                  //promptはstring定義のためnumberに変換
+                  const intervalDays = Number(newInterval)
 
-
-
+                  if (Number.isNaN(intervalDays)) {
+                    alert("数値を入力してください")
+                    return
+                  }
                       await updateMaintenanceTypeTransaction({
                                                                 maintenanceType: {
                                                                   ...mt,

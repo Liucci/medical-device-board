@@ -30,7 +30,7 @@ export type Device = {
   status?: DeviceStatus // "stock" または "room"
   quantity?: number
   stockAreaId?:number  // 在庫エリアの名前（在庫エリアに配置されている場合のみ）
-  wardId?: number      // 配置されている場合のみ
+  wardId?: number    // 配置されている場合のみ
   roomId?: number
   //roomName?: string  // 配置されている場合のみ
   row?: number
@@ -81,6 +81,16 @@ export type DeviceDB = {
   created_by?: string
   updated_by?: string
 
+}
+
+export type CreateDeviceType = {
+  type: DeviceType["typeID"]
+  model: DeviceModel["modelID"]
+  assetType: typeof AssetTypes[number]
+  stockAreaId: number
+  quantity: number
+  rentalStartDate?: string
+  rentalEndDate?: string
 }
 
 //request系はfrontからbackへアクセスすることを指す

@@ -9,32 +9,36 @@ import {
   Wrench,
   GripVertical
 } from "lucide-react"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
 import DeviceTypeSettingsModal from "./DeviceTypeSettingsModal"
 import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
+import StockAreaOrderModal from "./StockAreaOrderModal"
 
 
 type Props = {
   onClose: () => void
-  stockAreas: { id: number; name: string }[]
+  stockAreas: StockAreaType[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  deviceTypes: { id: number; name: string ;iconColor: string}[]
+  deviceTypes: DeviceTypeType[]
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
-  deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  deviceModels: DeviceModelType[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-  wards: { id: number; name: string ,hospitalId:string,displayOrder: number}[]
+  wards:WardType[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
-  rooms: { id: number; wardId: number; name: string; patientName: string }[]
+  rooms: RoomType[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  maintenanceTypes: {
-                      id: number
-                      name: string
-                      deviceTypeId: number
-                      deviceModelId: number | null
-                      intervalDays: number
-                    }[]
+  maintenanceTypes: MaintenanceType[]
   setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
 }
 
@@ -45,8 +49,7 @@ type Mode =
             | "deviceType"
             | "maintenance"
             | "wardOrder"
-
-
+            | "stockAreaOrder"
 export default function SettingsModal({
   onClose,
   stockAreas,
@@ -89,6 +92,11 @@ export default function SettingsModal({
     {
       label: "病棟レイアウト",
       mode: "wardOrder" as const,
+      icon: GripVertical,
+    },
+        {
+      label: "ストックエリアレイアウト",
+      mode: "stockAreaOrder" as const,
       icon: GripVertical,
     }
   ]
@@ -198,6 +206,24 @@ export default function SettingsModal({
               onClose={() => setMode("menu")}
               wards={wards}
               setWards={setWards}
+            />
+          </>
+        )}
+
+        {mode === "stockAreaOrder" && (
+          <>
+            <button
+              onClick={() => setMode("menu")}
+              className="mb-4"
+            >
+              戻る
+            </button>
+
+            <StockAreaOrderModal
+              isOpen={true}
+              onClose={() => setMode("menu")}
+              stockAreas={stockAreas}
+              setStockAreas={setStockAreas}
             />
           </>
         )}

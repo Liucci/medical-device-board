@@ -1,18 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import { Device,  AssetTypes } from "../../types/deviceTypes"
+import {AssetTypes } from "../../types/deviceTypes"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+
 import { createPortal } from "react-dom"
 import {createDeviceTransaction} from "../../api/transactions/devices/createDeviceTransaction"
 
 
 type Props = {
-  deviceList: any[]
+  deviceList: Device[]
   setDeviceList: React.Dispatch<React.SetStateAction<any[]>>
   onClose: () => void
-  deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; deviceTypeId: number; name: string }[]
-  stockAreas: { id: number; name: string }[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
+  stockAreas: StockAreaType[]
   hospitalId:string
 }
 

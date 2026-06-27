@@ -1,14 +1,18 @@
 "use client"
 
 import { Device } from "../types/deviceTypes"
+import { StockAreaType } from "../types/stockTypes"
+import { DeviceTypeType } from "../types/deviceTypeTypes"
+import { DeviceModelType } from "../types/deviceModelTypes"
+
 import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
 //StockAreA.tsxよりpropを受け取る
 type Props = {
-  deviceList: any[]
+  deviceList:  Device[]
   stockAreaId: number
-  deviceTypes: any[]
-  deviceModels: any[] 
+  deviceTypes: DeviceTypeType[]
+  deviceModels:  DeviceModelType[]
   managementNumber: string | undefined
   serialNumber: string | undefined
 
@@ -142,6 +146,7 @@ return (
 
               onContextMenu={(e) => {
               e.preventDefault()
+              if (d.id === undefined) return
               if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
                 deleteDevice(d.id)
               }

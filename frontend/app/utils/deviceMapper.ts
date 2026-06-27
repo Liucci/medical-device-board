@@ -1,6 +1,7 @@
 import {
          DeviceDB,
          Device,
+         CreateDeviceType,
          AddDeviceRequest,
          DeleteDeviceRequest,
          UpdateManagementNumberRequest,
@@ -77,7 +78,7 @@ export const toDBDevice = (d: Device) => ({
 
 //他ファイルも随時下記のMapperを参照する構造に修正していく
 export const toCreateDeviceRequest = (
-                                        device: Device
+                                        device: CreateDeviceType
                                       ): AddDeviceRequest => ({
                                                                 type: device.type,
                                                                 model: device.model,

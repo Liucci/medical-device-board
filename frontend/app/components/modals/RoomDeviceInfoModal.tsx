@@ -1,6 +1,14 @@
 "use client"
 
 import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
 
 //page.tsxから
@@ -8,13 +16,13 @@ import { createPortal } from "react-dom"
 type Props = {
   isOpen: boolean
   selectedRoomDevice: Device | null
-  deviceTypes: any[]
-  deviceModels: any[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
   onCancel: () => void
-  wards: any[]
-  rooms: any[]
-  tasks: any[]                 // ← 追加
-  maintenanceTypes: any[]      // ← 追加
+  wards:WardType[]
+  rooms: RoomType[]
+  tasks: MaintenanceTask[]                 // ← 追加
+  maintenanceTypes: MaintenanceType[]
   onCompleteTask: (taskId: number) => Promise<boolean>  // ← 追加
   renameManagementNumber:(id: number, value: string)=> Promise<boolean>
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>

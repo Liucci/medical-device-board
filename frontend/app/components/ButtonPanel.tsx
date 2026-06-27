@@ -1,5 +1,15 @@
 "use client"
+
 import { Device } from "../types/deviceTypes"
+import { StockAreaType } from "../types/stockTypes"
+import { DeviceTypeType } from "../types/deviceTypeTypes"
+import { DeviceModelType } from "../types/deviceModelTypes"
+import { WardType } from "../types/wardTypes"
+import {CurrentUser  } from "../types/userTypes"
+import { RoomType } from "../types/roomTypes"
+import {MaintenanceType } from "../types/maintenanceTypeTypes"
+
+
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
@@ -24,21 +34,21 @@ import { supabase } from "../lib/supabase"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
-  deviceList: any[]
+  deviceList:  Device[]
   setDeviceList: React.Dispatch<
                   React.SetStateAction<any[]>
                 >  
-  deviceTypes: { id: number; name: string ;iconColor: string}[]
+  deviceTypes: DeviceTypeType[]
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
-  deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  deviceModels: DeviceModelType[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-  stockAreas: { id: number; name: string }[]
+  stockAreas: StockAreaType[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  wards: { id: number; name: string ,hospitalId:string,displayOrder: number}[]
+  wards:WardType[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
-  rooms: { id: number; wardId: number; name: string ;patientName:string}[]
+  rooms: RoomType[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
-  maintenanceTypes: { id: number; name: string; deviceTypeId: number; deviceModelId: number | null; intervalDays: number }[]
+  maintenanceTypes: MaintenanceType[]
   setMaintenanceTypes:React.Dispatch<React.SetStateAction<any[]>>
   histories: any[]
   fetchHistories: () => Promise<void>

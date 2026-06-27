@@ -1,15 +1,22 @@
 "use client"
 
 import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+
 import { createPortal } from "react-dom"
 //page.tsxからpropsを受け取る
 //stateレス化
 type Props = {
   isOpen: boolean
   device: Device | null
-  deviceTypes: any[]
-  deviceModels: any[]
-  stockAreas: any[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
+  stockAreas: StockAreaType[]
   onCancel: () => void
   renameManagementNumber:(id: number, value: string)=> Promise<boolean>
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>

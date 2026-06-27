@@ -23,17 +23,12 @@ from "../../api/transactions/exports/exportDeviceListCsvTransaction"
 type Props = {
   isOpen: boolean
   onClose: () => void
-
   deviceList: Device[]
-
-  rooms: { id: number; wardId: number; name: string ;patientName:string}[]
-  wards: { id: number; name: string }[]
-
-  stockAreas: { id: number; name: string }[]
-
-  deviceTypes: { id: number; name: string }[]
-  deviceModels: { id: number; deviceTypeId: number; name: string }[]
-
+  rooms: RoomType[]
+  wards:WardType[]
+  stockAreas: StockAreaType[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
   getLatestMaintenanceTask:
     (deviceId?: number) => {
       name: string

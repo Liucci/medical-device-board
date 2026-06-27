@@ -3,12 +3,16 @@
 import StockGrid from "./StockGrid"
 import Stock from "./Stock"
 import { Device } from "../types/deviceTypes"
+import { StockAreaType } from "../types/stockTypes"
+import { DeviceTypeType } from "../types/deviceTypeTypes"
+import { DeviceModelType } from "../types/deviceModelTypes"
+
 //page.tsxより
 type Props = {  
-  deviceList: any[]
-  stockAreas: any[]
-  deviceTypes: any[]
-  deviceModels: any[]
+  deviceList: Device[]
+  stockAreas: StockAreaType[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
   managementNumber: string | undefined
   serialNumber: string | undefined
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
@@ -151,37 +155,17 @@ return (
       }}
     >
 
-  {[...stockAreas]
-    .sort((a, b) => {
-
-      const aCount =
-        deviceList.filter(
-          d =>
-            d.status === "stock" &&
-            d.stockAreaId === a.id
-        ).length
-
-      const bCount =
-        deviceList.filter(
-          d =>
-            d.status === "stock" &&
-            d.stockAreaId === b.id
-        ).length
-
-      // 機器ありを上へ
-      if (aCount > 0 && bCount === 0) return -1
-      if (aCount === 0 && bCount > 0) return 1
-
-      // 同条件ならid順
-      return a.id - b.id
-    })
-
+  {
+[...stockAreas]
+  .sort((a, b) => a.displayOrder - b.displayOrder)
   .map((area) => (
      <div
         key={area.id}
         style={{
           gridColumn: area.id === 1 ? "span 3" : undefined
         }}
+
+        
 
         // ★ここに追加
         onMouseUp={() => {

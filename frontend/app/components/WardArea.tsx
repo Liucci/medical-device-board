@@ -1,13 +1,20 @@
 import WardGrid from "./WardGrid"
 import { Device } from "../types/deviceTypes"
+import { StockAreaType } from "../types/stockTypes"
+import { DeviceTypeType } from "../types/deviceTypeTypes"
+import { DeviceModelType } from "../types/deviceModelTypes"
+import { WardType } from "../types/wardTypes"
+import {CurrentUser  } from "../types/userTypes"
+import { RoomType } from "../types/roomTypes"
+
 import RoomContainer from "./RoomContainer"
 
 //page.tsxより
 type Props = {
-  deviceList: any[]
-  deviceTypes: any[]
-  deviceModels: any[]
-  wards:any[]
+  deviceList:  Device[]
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
+  wards:WardType[]
   managementNumber?: string
   serialNumber?: string
   startDrag: (target: HTMLElement,clientX: number,  clientY: number,device: Device) => void
@@ -15,12 +22,12 @@ type Props = {
   draggingDevice: Device | null
   pendingDevice: Device | null
   onDrop: (device: Device, id: number) => void
-  rooms: any[]
+  rooms: RoomType[]
   openRoomDeviceInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
-  currentUser: any
+  currentUser:CurrentUser 
   scrollRef: React.RefObject<HTMLDivElement | null>
   isDraggingRef: React.MutableRefObject<boolean>
 }
@@ -51,40 +58,6 @@ export default function WardArea({
 
                                 }: Props) {
   
-             // 病棟ごとの配置中機器数を数える関数
-  // wardId に紐づく病室を探し、その病室に配置されている機器数を合計する
-const getWardDeviceCount = (wardId: number) => {
-  const roomIds = rooms
-    .filter(room => room.wardId === wardId)
-    .map(room => room.id)
-
-  return deviceList.filter(
-    device =>
-      device.status === "room" &&
-      roomIds.includes(device.roomId)
-  ).length
-}
-  // 病棟コンテナの表示順を作る
-  // 1. 機器が多く配置されている病棟を上に並べる
-  // 2. 機器数が同じ場合は病棟名の自然順で並べる
-  
-
-  const sortedWards = wards
-/*   const sortedWards = [...wards].sort((a, b) => {  
-    const aCount = getWardDeviceCount(a.id)
-    const bCount = getWardDeviceCount(b.id)
-
-    if (aCount !== bCount) {
-      return bCount - aCount
-    }
-
-    return a.name.localeCompare(
-      b.name,
-      "ja",
-      { numeric: true }
-    )
-  })
- */                     
 
 return (
   <div
@@ -185,7 +158,10 @@ return (
         gap: "12px"
       }}
     >       
-    {sortedWards.map((ward) => (
+    {
+    [...wards]
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((ward) => (          
           <div
             key={ward.id}
             style={{

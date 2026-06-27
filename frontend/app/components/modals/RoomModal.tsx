@@ -1,16 +1,23 @@
 import { createPortal } from "react-dom"
 import { useState } from "react"
 import { useEffect } from "react"
-//import { wards, Room } from "../types/wards"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   onSubmit: (roomId: number, patientName: string) => void
   wardId: number | null
-  wards: any[]
-  rooms: any[]
-  pendingDevice: any
+  wards:WardType[]
+  rooms: RoomType[]
+  pendingDevice: Device | null
 }
 
 export default function RoomModal({

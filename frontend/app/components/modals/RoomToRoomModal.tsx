@@ -2,6 +2,15 @@
 
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
+import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+
 
 type Props = {
   isOpen: boolean
@@ -11,13 +20,11 @@ type Props = {
     patientName: string,
     samePatient: boolean
   ) => void
-  wards: any[]
-  rooms: any[]
-
-  pendingDevice: any | null
-
-  deviceTypes: any[]
-  deviceModels: any[]
+  wards:WardType[]
+  rooms: RoomType[]
+  pendingDevice: Device | null
+  deviceTypes: DeviceTypeType[]
+  deviceModels: DeviceModelType[]
 }
 
 export default function RoomToRoomModal({

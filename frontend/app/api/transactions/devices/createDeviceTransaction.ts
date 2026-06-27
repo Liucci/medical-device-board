@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "../../client"
-import { Device } from "../../../types/deviceTypes"
+import { CreateDeviceType, } from "../../../types/deviceTypes"
 import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../utils/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { authFetch } from "../../client"
 import { executeWithLoading } from "../executeWithLoading"
 type CreateDeviceTransactionParams = {
-    params: Device
+    params: CreateDeviceType,
     setDeviceList: any
     onClose: () => void
     setLoading: React.Dispatch<React.SetStateAction<boolean>>}

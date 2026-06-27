@@ -5,11 +5,18 @@ import {updateDeviceTypeTransaction} from  "../../../app/api/transactions/device
 import { createDeviceModelTransaction } from "../../../app/api/transactions/deviceModels/createDeviceModelTransaction"
 import { deleteDeviceModelsTransaction } from "../../../app/api/transactions/deviceModels/deleteDeviceModelsTransaction"
 import {updateDeviceModelTransaction} from  "../../../app/api/transactions/deviceModels/updateDeviceModelTransaction"
+import { Device } from "../../types/deviceTypes"
+import { StockAreaType } from "../../types/stockTypes"
+import { DeviceTypeType } from "../../types/deviceTypeTypes"
+import { DeviceModelType } from "../../types/deviceModelTypes"
+import { WardType } from "../../types/wardTypes"
+import {CurrentUser  } from "../../types/userTypes"
+import { RoomType } from "../../types/roomTypes"
 
 type Props = {
-  deviceTypes: { id: number; name: string;iconColor: string }[]
+  deviceTypes: DeviceTypeType[]
   setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
-  deviceModels: { id: number; deviceTypeId: number; name: string }[]
+  deviceModels: DeviceModelType[]
   setDeviceModels:React.Dispatch<React.SetStateAction<any[]>>
 }
 
