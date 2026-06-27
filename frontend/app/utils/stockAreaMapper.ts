@@ -2,7 +2,9 @@ import {
          StockAreaType,
          StockAreaDBType,
          CreateStockAreaType,
-         UpdateStockAreaType
+         UpdateStockAreaType,
+         UpdateStockAreaOrderType,
+         UpdateStockAreaOrdersType
        } from "../types/stockTypes"
 
 export const normalizeStockArea = (s: StockAreaDBType): StockAreaType => ({
@@ -24,3 +26,14 @@ export const toUpdateStockAreaRequest = (s: UpdateStockAreaType) => ({
 export const toDeleteStockAreasRequest = (ids: number[]) => ({
                                                                 ids
                                                               })
+
+
+//並び順編集用
+export const toUpdateStockAreaOrdersRequest = (
+                                              stockAreas: UpdateStockAreaOrdersType
+                                            ) => ({
+                                                  stock_areas: stockAreas.stockAreas.map((stockArea) => ({
+                                                                                                            id: stockArea.id,
+                                                                                                            display_order: stockArea.displayOrder,
+                                                                                                          })),
+                                                })

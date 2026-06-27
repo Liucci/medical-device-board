@@ -6,12 +6,15 @@ import {
   Boxes,
   Building2,
   Settings2,
-  Wrench
+  Wrench,
+  GripVertical
 } from "lucide-react"
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
 import DeviceTypeSettingsModal from "./DeviceTypeSettingsModal"
 import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
+import WardOrderModal from "./WardOrderModal"
+
 
 type Props = {
   onClose: () => void
@@ -21,22 +24,28 @@ type Props = {
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: { id: number; deviceTypeId: number; name: string }[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
-  wards: { id: number; name: string }[]
+  wards: { id: number; name: string ,hospitalId:string,displayOrder: number}[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { id: number; wardId: number; name: string; patientName: string }[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
   maintenanceTypes: {
-    id: number
-    name: string
-    deviceTypeId: number
-    deviceModelId: number | null
-    intervalDays: number
-  }[]
+                      id: number
+                      name: string
+                      deviceTypeId: number
+                      deviceModelId: number | null
+                      intervalDays: number
+                    }[]
   setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
-  
 }
 
-type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance"
+type Mode =
+            "menu" 
+            | "stock"
+            | "ward"
+            | "deviceType"
+            | "maintenance"
+            | "wardOrder"
+
 
 export default function SettingsModal({
   onClose,
@@ -76,6 +85,11 @@ export default function SettingsModal({
       label: "メンテナンス編集",
       mode: "maintenance" as const,
       icon: Wrench
+    },
+    {
+      label: "病棟レイアウト",
+      mode: "wardOrder" as const,
+      icon: GripVertical,
     }
   ]
 
@@ -170,6 +184,25 @@ export default function SettingsModal({
             />
           </>
         )}
+        {mode === "wardOrder" && (
+          <>
+            <button
+              onClick={() => setMode("menu")}
+              className="mb-4"
+            >
+              戻る
+            </button>
+
+            <WardOrderModal
+              isOpen={true}
+              onClose={() => setMode("menu")}
+              wards={wards}
+              setWards={setWards}
+            />
+          </>
+        )}
+
+
       </div>
     </div>,
     document.body

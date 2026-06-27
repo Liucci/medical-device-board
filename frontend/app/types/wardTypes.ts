@@ -29,3 +29,14 @@ export type UpdateWardType = {
 export type DeleteWardsType = {
                                 ids: number[]
                               }
+
+
+//並び順編集用
+export type UpdateWardOrderType = {
+                                    id: number
+                                    displayOrder: number
+                                  }
+
+export type UpdateWardOrdersType = {
+                                    wards: UpdateWardOrderType[]
+                                  }

@@ -34,7 +34,7 @@ type Props = {
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  wards: { id: number; name: string }[]
+  wards: { id: number; name: string ,hospitalId:string,displayOrder: number}[]
   setWards:React.Dispatch<React.SetStateAction<any[]>>
   rooms: { id: number; wardId: number; name: string ;patientName:string}[]
   setRooms:React.Dispatch<React.SetStateAction<any[]>>

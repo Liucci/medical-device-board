@@ -29,3 +29,12 @@ export type UpdateStockAreaType = {
 export type DeleteStockAreasType = {
                                      ids: number[]
                                    }
+
+export type UpdateStockAreaOrderType = {
+                                        id: number
+                                        displayOrder: number
+                                      }
+
+export type UpdateStockAreaOrdersType = {
+                                          stockAreas: UpdateStockAreaOrderType[]
+                                        }

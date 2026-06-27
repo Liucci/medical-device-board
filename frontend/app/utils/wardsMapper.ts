@@ -3,7 +3,9 @@ import {
          WardDBType,
          CreateWardType,
          UpdateWardType,
-         DeleteWardsType
+         DeleteWardsType,
+         UpdateWardOrderType,
+         UpdateWardOrdersType
        } from "../types/wardTypes"
 
 // DB → UI
@@ -37,3 +39,13 @@ export const toDeleteWardsRequest = (
                                      ) => ({
                                              ids: wards.ids
                                            })
+
+//並び順編集用
+export const toUpdateWardOrdersRequest = (
+                                          wards: UpdateWardOrdersType
+                                          ) => ({
+                                                  wards: wards.wards.map((ward) => ({
+                                                                                    id: ward.id,
+                                                                                    display_order: ward.displayOrder,
+                                                                                  })),
+                                                })
