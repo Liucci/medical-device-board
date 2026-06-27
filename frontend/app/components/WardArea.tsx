@@ -171,6 +171,9 @@ return (
                   : undefined
             }}
             onPointerUp={() => {
+
+ alert(`Ward Drop: ${draggingDevice ? "あり" : "なし"}`)
+              
               if (!draggingDevice) return
 
               onDrop(

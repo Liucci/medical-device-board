@@ -224,7 +224,7 @@ export default function Page() {
     }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
   const handleMouseUp = () => {
-
+alert("Page PointerUp")
 /*  
     debug用
     const x = e.clientX

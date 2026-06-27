@@ -169,6 +169,8 @@ return (
 
         // ★ここに追加
         onPointerUp={() => {
+ alert(`stock area Drop: ${draggingDevice ? "あり" : "なし"}`)
+
           if (!draggingDevice) return
           //onDropにdraggingDeviceとarea.idを渡す
           onDrop(draggingDevice, area.id)
