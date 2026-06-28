@@ -27,7 +27,7 @@ type Props = {
   setStockCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any
   scrollRef: React.RefObject<HTMLDivElement | null>
-  isDraggingRef: React.MutableRefObject<boolean>
+  isDragging: boolean
 
 
 }
@@ -50,7 +50,7 @@ export default function StockAreas({ deviceList,
                                     setStockCellSize,
                                     currentUser,
                                     scrollRef,
-                                    isDraggingRef
+                                    isDragging
                                     }: Props) {
 
 return (
@@ -161,20 +161,24 @@ return (
   .map((area) => (
      <div
         key={area.id}
+        //DOM識別用ID
+       data-stock-area-id={area.id} 
         style={{
           gridColumn: area.id === 1 ? "span 3" : undefined
         }}
 
         
 
-        // ★ここに追加
+/*         // ★ここに追加
         onPointerUp={() => {
- alert(`stock area Drop: ${draggingDevice ? "あり" : "なし"}`)
+        //alert(`stock area Drop: ${draggingDevice ? "あり" : "なし"}`)
 
           if (!draggingDevice) return
           //onDropにdraggingDeviceとarea.idを渡す
           onDrop(draggingDevice, area.id)
         }}
+ */
+
       >           
    {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
           <StockGrid
@@ -199,7 +203,7 @@ return (
                   managementNumber={managementNumber}
                   serialNumber={serialNumber}
                   currentUser={currentUser}
-                  isDraggingRef={isDraggingRef}
+                  isDragging={isDragging}
                 />
             </StockGrid>
           </div>

@@ -60,6 +60,13 @@ import { updateRoomPatientName } from "../api/transactions/rooms/updateRoomPatie
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
 import { completeMaintenanceTaskTransaction}from "../api/transactions/tasks/completeMaintenanceTaskTransaction"
+
+//drag系
+import { useDrag } from "../drag/useDrag"
+import { autoScroll, isInside } from "../drag/autoScroll"
+import { getDropTarget } from "../drag/drop"
+
+
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
@@ -75,9 +82,9 @@ export default function Page() {
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
   const [serialNumber, setSerialNumber] = useState<string | undefined>(undefined)
 
-  const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
+  // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  // const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   //病室の情報を管理するstate,初期値はinitialRoomsから
   //const [rooms, setRooms] = useState<Room[]>(initialRooms)  
   //roomModalを開くためのstate
@@ -105,7 +112,7 @@ export default function Page() {
   const wardScrollRef = useRef<HTMLDivElement | null>(null)
   const stockScrollRef = useRef<HTMLDivElement | null>(null)
   //drag開始のフラグ用
-  const isDraggingRef = useRef(false)
+  //const isDraggingRef = useRef(false)
 
   //機器アイコンのサイズを管理するstate
   const [wardCellSize, setWardCellSize] =useState(80)
@@ -115,8 +122,23 @@ export default function Page() {
   const router = useRouter()
   const {currentUser,setCurrentUser} = useAuth()
 
+  const {
+        draggingDevice,
+        setDraggingDevice,
+        isDragging,
+        setIsDragging,
+        mousePos,
+        setMousePos,
+        dragOffset,
+        setDragOffset,
+        startDrag,
+        updateMousePos,
+        endDrag,
+                      } = useDrag()
 
-  const startDrag = (
+
+
+/*   const startDrag = (
                       target: HTMLElement,
                       clientX: number,
                       clientY: number,
@@ -141,7 +163,10 @@ export default function Page() {
     setDraggingDevice(device)
 
   }
-  //auto scroll関連
+ */  
+
+
+/*   //auto scroll関連
   const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
     const AUTO_SCROLL_MARGIN = 60  // 端の判定範囲(px)
     const AUTO_SCROLL_SPEED = 10   // スクロール速度
@@ -176,7 +201,7 @@ export default function Page() {
       e.clientY <= rect.bottom
     )
   }
-
+ */
     // ドラッグ中の処理
   const handleMouseMove = (e: React.PointerEvent) => {
     // ✅ リサイズ優先
@@ -193,11 +218,12 @@ export default function Page() {
     //draggingDeviceがnullの場合は何もしない
     if (!draggingDevice) return
     //DragLayerのマウス位置情報のMousePosを更新する
-        setMousePos({
-          x: e.clientX, 
-          y: e.clientY 
-        })
-    // 👇 追加：自動スクロール
+      updateMousePos(
+                      e.clientX,
+                      e.clientY
+                    )    
+
+// 👇 追加：自動スクロール
     if (wardRef.current && isInside(e, wardRef.current)) {
       autoScroll(wardRef.current,e.clientX,e.clientY)
     }
@@ -223,21 +249,37 @@ export default function Page() {
         }
     }
   //dragLayerのマウス位置情報を更新するため、handleMouseMove内でsetMousePosを呼び出すように変更
-  const handleMouseUp = () => {
-alert("Page PointerUp")
-/*  
-    debug用
-    const x = e.clientX
-    const y = e.clientY
-    console.log("drop position", x, y)
- */
-    setDraggingDevice(null)
-    setIsResizing(false)// ドラッグ終了と同時にリサイズも終了する
-    setTimeout(() => {
-    isDraggingRef.current = false
-     }, 0)
-  }
+  const handlePointerUp = async (
+    e: React.PointerEvent
+  ) => {
 
+    const dropTarget = getDropTarget(
+      e.clientX,
+      e.clientY
+    )
+
+    // ← 先にドラッグ終了
+    const device = draggingDevice
+
+    endDrag()
+    setIsResizing(false)
+
+    if (!device || !dropTarget) return
+
+    if (dropTarget.type === "stock") {
+      await handleDropToStock(
+        device,
+        dropTarget.stockAreaId
+      )
+    }
+
+    if (dropTarget.type === "ward") {
+      await handleDropToWard(
+        device,
+        dropTarget.wardId
+      )
+    }
+  }
 
   
   const handleDropToStock = async (
@@ -916,7 +958,7 @@ if (updatedDevice) {
         gridTemplateRows: `${split}fr 6px ${1 - split}fr` // 画面をsplitと6pxと残りの割合で分割
         }}
         onPointerMove={e => {handleMouseMove(e)}}
-        onPointerUp={e => {handleMouseUp()}}
+        onPointerUp={e => {handlePointerUp(e)}}
         >
       {/* 病棟エリア */}
       <div className={styles.ward} ref={wardRef}>
@@ -937,7 +979,7 @@ if (updatedDevice) {
           setWardCellSize={setWardCellSize}
           currentUser={currentUser}
           scrollRef={wardScrollRef}
-          isDraggingRef={isDraggingRef}
+          isDragging={isDragging}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -974,7 +1016,7 @@ if (updatedDevice) {
           setStockCellSize={setStockCellSize}
           currentUser={currentUser}
           scrollRef={stockScrollRef}
-          isDraggingRef={isDraggingRef}
+          isDragging={isDragging}
         />
       </div>      
 

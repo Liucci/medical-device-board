@@ -2,6 +2,14 @@ import { Device } from "../types/deviceTypes"
 import DeviceIcon from "../utils/DeviceIcon"
 //import { deviceTypes, deviceModels } from "../types/deviceTypes"
 import {useRef} from "react"
+import {
+  createLongPressState,
+  startLongPress,
+  finishLongPress,
+  cancelLongPress,
+} from "../drag/longPress"
+
+
 //WardArea.tsxより
 type Props = {
   deviceList: any[]
@@ -21,7 +29,7 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
   currentUser: any
-  isDraggingRef: React.MutableRefObject<boolean>
+  isDragging: boolean
 }
 
 export default function RoomContainer({
@@ -42,7 +50,7 @@ export default function RoomContainer({
                             managementNumber,
                             serialNumber,
                             currentUser,
-                            isDraggingRef
+                            isDragging
 
                             }: Props) {
 
@@ -53,9 +61,9 @@ const roomDevices = deviceList.filter(
 )
   //console.log("患者名:",patientName)
   //console.log("rooms",rooms)
-
-const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
-const isLongPress = useRef(false)
+const longPress = useRef(createLongPressState())
+//const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+//const isLongPress = useRef(false)
 
 
 
@@ -123,8 +131,7 @@ return (
       >
 
       {roomDevices.slice(0, 6).map(d => {
-        const isDragging = draggingDevice?.id === d.id
-
+const isCurrentDragging = draggingDevice?.id === d.id
         const typeName =
           deviceTypes.find(t => t.id === d.type)?.name ?? "不明"
 
@@ -144,43 +151,49 @@ return (
               onPointerDown={(e) => {
                 //左クリック以外は排除
                 if (e.button !== 0) return
+                    const target = e.currentTarget as HTMLElement
+                    const clientX = e.clientX
+                    const clientY = e.clientY
 
-                isLongPress.current = false
-                // ✅ 必要な値を先に退避
-                const target = e.currentTarget as HTMLElement
-                const clientX = e.clientX
-                const clientY = e.clientY
+                    startLongPress(
+                      longPress.current,
+                      () => {
+                        if (currentUser?.role === "viewer") {
+                          alert("閲覧者は機器移動できません")
+                          return
+                        }
 
-                longPressTimer.current = setTimeout(() => {
-                  // ===== viewer禁止 =====
-                  if (currentUser?.role === "viewer") {
-                    alert("閲覧者は機器移動できません")
-                    return
-                  }
-                  console.log("長押し → drag開始")
-                  isLongPress.current = true
-
-                  startDrag(target, clientX, clientY, d)
-                }, 300)
+                        startDrag(
+                          target,
+                          clientX,
+                          clientY,
+                          d
+                        )
+                      }
+                    )
               }}
+
               onPointerUp={(e) => {
                 // 左クリック以外排除
                 if (e.button !== 0) return
-                // ===== timer解除最優先 =====
-                if (longPressTimer.current) {clearTimeout(
-                        longPressTimer.current
-                  )
-                  longPressTimer.current = null
-                }
-                // ===== drag時は除外 =====
-                //isDraggingRef=trueの時はopenRoomDeviceInfoModal開かない
-                if (isDraggingRef.current) return
-                if (!isLongPress.current) {
-                  console.log("シングルクリック")
-                  console.log("roomDevice",d)
-                  openRoomDeviceInfoModal(d)
-                }
+                  
+                    finishLongPress(
+                      longPress.current,
+                      () => {
+                    console.log("シングルクリック")
+                    console.log("roomDevice", d)
+                    openRoomDeviceInfoModal(d)
+                      },
+                      isDragging
+                    )
               }}
+
+              onPointerLeave={() => {
+                cancelLongPress(longPress.current)
+              }}
+
+
+
               onContextMenu={(e) => {
                 console.log("右クリック検知")
                 e.preventDefault()
@@ -191,7 +204,7 @@ return (
             //機器アイコンdrag中は元位置のアイコンは見えなくする
             style={{
               touchAction: "none",
-              visibility: isDragging ? "hidden" : "visible"
+              visibility: isCurrentDragging ? "hidden" : "visible"
             }}
           >
             <DeviceIcon 

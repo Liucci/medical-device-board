@@ -29,7 +29,7 @@ type Props = {
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser:CurrentUser 
   scrollRef: React.RefObject<HTMLDivElement | null>
-  isDraggingRef: React.MutableRefObject<boolean>
+  isDragging: boolean
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -54,7 +54,7 @@ export default function WardArea({
                                   setWardCellSize,
                                   currentUser,
                                   scrollRef,
-                                  isDraggingRef
+                                  isDragging
 
                                 }: Props) {
   
@@ -164,23 +164,27 @@ return (
       .map((ward) => (          
           <div
             key={ward.id}
+            //DOMの識別用ID
+            data-ward-id={ward.id}
+
             style={{
               gridColumn:
                 ward.id === 1
                   ? "span 3"
                   : undefined
             }}
-            onPointerUp={() => {
 
- alert(`Ward Drop: ${draggingDevice ? "あり" : "なし"}`)
-              
+
+/*             onPointerUp={() => {
+             //alert(`Ward Drop: ${draggingDevice ? "あり" : "なし"}`)
               if (!draggingDevice) return
-
               onDrop(
                 draggingDevice,
                 ward.id
               )
             }}
+ */
+
           >
             {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}
             {/* WardGridの中に、病室コンテナであるRoomContainerを配置する。 */}
@@ -260,7 +264,7 @@ return (
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
                       currentUser={currentUser}
-                      isDraggingRef={isDraggingRef}
+                      isDragging={isDragging}
                     />
                   ))
                 }

@@ -7,6 +7,12 @@ import { DeviceModelType } from "../types/deviceModelTypes"
 
 import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
+import {
+  createLongPressState,
+  startLongPress,
+  finishLongPress,
+  cancelLongPress,
+} from "../drag/longPress"
 //StockAreA.tsxよりpropを受け取る
 type Props = {
   deviceList:  Device[]
@@ -25,7 +31,7 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   cellSize: number
   currentUser: any
-  isDraggingRef: React.MutableRefObject<boolean>
+  isDragging: boolean
 }
 
 
@@ -45,15 +51,21 @@ export default function Stock({
                                 managementNumber,
                                 serialNumber,
                                 currentUser,
-                                isDraggingRef
+                                isDragging
                               }: Props) {
+
+
+
 
 /*   console.log("Stock CE室ID:", stockAreaId);
   console.log("CE室 devices:", devices.filter(d => d.stockAreaId === stockAreaId));
  */  // この倉庫のdeviceだけ取得
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
-  const isLongPress = useRef(false)
+  //const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
+  //const isLongPress = useRef(false)
 
+
+
+const longPress = useRef(createLongPressState())
   //console.log("🔥 devices:", deviceList)
   //console.log("🔥 stockAreaId:", stockAreaId)      
 
@@ -77,8 +89,7 @@ return (
     <>
       {areaDevices.map((d) => {
         //dragging中は座標管理、それ以外はgridで配置するためのフラグ
-          const isDragging = draggingDevice?.id === d.id
-
+const isCurrentDragging = draggingDevice?.id === d.id
           const typeName =
             deviceTypes.find((t) => t.id === d.type)?.name || "不明"
 
@@ -91,6 +102,7 @@ return (
           const assetType=d.assetType
 
           
+          
           //console.log("typeName:", typeName, "modelName:", modelName);
         return (
             <div
@@ -99,48 +111,47 @@ return (
               onPointerDown={(e) => {
                 //左クリック以外排除
                 if (e.button !== 0) return
-                isLongPress.current = false
+                  // 必要な値を先に取得
+                    const target = e.currentTarget as HTMLElement
+                    const clientX = e.clientX
+                    const clientY = e.clientY
+                    startLongPress(
+                      longPress.current,
+                      () => {
 
-                // ✅ 必要な値を先に退避
-                const target = e.currentTarget as HTMLElement
-                const clientX = e.clientX
-                const clientY = e.clientY
+                        if (currentUser?.role === "viewer") {
+                          alert("閲覧者は機器移動できません")
+                          return
+                        }
 
-                longPressTimer.current = setTimeout(() => {
-                   // ===== viewer禁止 =====
-                  if (currentUser?.role === "viewer") {
-                    alert("閲覧者は機器移動できません")
-                    return
-                  }
-                  console.log("長押し → drag開始")
-                  isLongPress.current = true
+                        console.log("長押し → drag開始")
 
-                  startDrag(target, clientX, clientY, d)
-                }, 300)
+                        startDrag(
+                          target,
+                          clientX,
+                          clientY,
+                          d
+                        )
+                      }
+                    )
               }}
+
               onPointerUp={(e) => {
-                //左クリック以外排除
                 if (e.button !== 0) return
-                if (longPressTimer.current) {
-                  clearTimeout(longPressTimer.current)
-                  longPressTimer.current = null
-                }
 
-                // ===== drag時は除外 =====
-                //isDraggingRef=trueの時はopenStockInfoModal開かない
-                if (isDraggingRef.current) return
-                if (!isLongPress.current) {
-                  console.log("シングルクリック")
-                  console.log("stockDevice",d)
-                  openStockInfoModal(d)
-                }
+                finishLongPress(
+                  longPress.current,
+                  () => {
+                    console.log("シングルクリック")
+                    console.log("stockDevice", d)
+                    openStockInfoModal(d)
+                  },
+                  isDragging
+                )
               }}
 
-              onMouseLeave={() => {
-                if (longPressTimer.current) {
-                  clearTimeout(longPressTimer.current)
-                  longPressTimer.current = null
-                }
+              onPointerLeave={() => {
+                cancelLongPress(longPress.current)
               }}
 
 
@@ -161,8 +172,7 @@ return (
                       cursor: "grab",
                       touchAction: "none",
                       //dragLayerのアイコンドラッグ中はiconを非表示にす
-                      visibility: isDragging ? "hidden" : "visible"
-                    }
+                      visibility: isCurrentDragging ? "hidden" : "visible"                    }
               }
             >
           <DeviceIcon
