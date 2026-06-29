@@ -34,7 +34,7 @@ export async function deleteWardTransaction({
      ) {return}
 
 
-  await authFetch(
+  const response=await authFetch(
                 `${API_BASE_URL}/delete-ward`,
                 {
                   method: "POST",
@@ -49,7 +49,12 @@ export async function deleteWardTransaction({
                                         )
                 }
               )
-
+if (!response.ok) {
+    const error = await response.json()
+    alert(error.detail)
+    return
+}
+              
   const wards =
     await getWardsFromApi()
 

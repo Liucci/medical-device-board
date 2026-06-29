@@ -40,7 +40,7 @@ def fetch_stock_area(
 
     return response.data
 
-
+#disply orderの最大値を取得する関数
 def get_max_stock_area_display_order(
                                 hospital_id: str
                             ) -> int:

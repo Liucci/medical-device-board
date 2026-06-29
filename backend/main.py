@@ -1001,10 +1001,10 @@ def create_stock_area_transaction_route(
                                         )
                                         ):
     current_user = (fetch_current_user(auth_user_id))
-
+    hospital_id = current_user["hospital_id"]
     response = create_stock_area_transaction(
                                                 stock_area=stock_area,
-                                                current_user=current_user
+                                                hospital_id=hospital_id
                                              )
 
     return response
@@ -1016,10 +1016,11 @@ def delete_stock_area_transaction_route(
                                           get_auth_user_id)
                                         ):
     current_user = (fetch_current_user(auth_user_id))
+    hospital_id = current_user["hospital_id"]
 
     delete_stock_area_transaction(
                                     stock_area=stock_area,
-                                    current_user=current_user
+                                    hospital_id=hospital_id
                                  )
 
 @app.post("/update-stock-area-transaction")

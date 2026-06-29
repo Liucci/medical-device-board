@@ -22,7 +22,7 @@ export async function deleteStockAreaTransaction({
 {
   console.log("deleteStockAreaTransaction")
 
-  await authFetch(
+  const response =await authFetch(
                 `${API_BASE_URL}/delete-stock-area-transaction`,
                 {
                   method: "POST",
@@ -37,6 +37,11 @@ export async function deleteStockAreaTransaction({
                                         )
                 }
               )
+  if (!response.ok) {
+    const error = await response.json()
+    alert(error.detail)
+    return
+  }
 
   const stockAreas =
     await getStockAreasFromApi()

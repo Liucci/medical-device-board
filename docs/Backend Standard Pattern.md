@@ -289,3 +289,108 @@ Transaction Invocation
 Ward を Backend実装の標準テンプレートとする。
 
 新規機能は Ward 実装を踏襲して作成する。
+
+
+## 削除前存在チェック（Exists Pattern）
+
+### 概要
+
+削除時はDBの外部キーエラーに依存せず、Transaction内で関連データの存在を事前確認する。
+
+存在する場合は削除を中止し、`HTTPException(400)`を返却する。
+
+---
+
+## ディレクトリ構成
+
+```
+backend/
+├── exists/
+│   ├── exists_devices_in_ward.py
+│   ├── exists_devices_in_rooms.py
+│   └── exists_devices_in_stock_areas.py
+```
+
+Exists系は「存在確認のみ」を責務とする。
+
+---
+
+## Exists関数
+
+戻り値は `bool` とする。
+
+```python
+return bool(response.data)
+```
+
+複数IDの判定は `.in_()` を使用し、一度のSQLで判定する。
+
+例)
+
+```python
+.in_("room_id", room_ids)
+.in_("stock_area_id", stock_area_ids)
+```
+
+---
+
+## Transaction
+
+削除前にExists関数を呼び出す。
+
+```
+存在チェック
+    ↓
+存在する
+    ↓
+HTTPException(400)
+    ↓
+削除中止
+
+存在しない
+    ↓
+削除処理
+```
+
+例)
+
+```python
+if exists_devices_in_rooms(
+    room.ids,
+    hospital_id
+):
+    raise HTTPException(
+        status_code=400,
+        detail="機器が配置されている部屋は削除できません。"
+    )
+```
+
+---
+
+## Frontend
+
+TransactionでHTTPレスポンスを確認する。
+
+```ts
+const response = await authFetch(...)
+
+if (!response.ok) {
+    const error = await response.json()
+    alert(error.detail)
+    return
+}
+```
+
+業務エラー(400)のみTransaction側で処理する。
+
+authFetchは認証(Token管理)のみを責務とする。
+
+---
+
+## 適用対象
+
+* 病棟削除
+* 病室削除
+* 倉庫削除
+
+今後、削除前に関連データの存在確認が必要な処理は、このExists Patternを採用する。

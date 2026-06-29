@@ -22,7 +22,7 @@ export async function deleteRoomsTransaction({
 {
   console.log("deleteRoomsTransaction")
 
-  await authFetch(
+  const response =await authFetch(
                 `${API_BASE_URL}/delete-rooms-transaction`,
                 {
                   method: "POST",
@@ -37,7 +37,11 @@ export async function deleteRoomsTransaction({
                                         )
                 }
               )
-
+  if (!response.ok) {
+      const error = await response.json()
+      alert(error.detail)
+      return
+  }
   const updatedRooms =
     await getRoomsFromApi()
 

@@ -35,9 +35,9 @@ export const toUpdateWardRequest = (
 
 // Delete
 export const toDeleteWardsRequest = (
-                                       wards: DeleteWardsType
+                                       ward: DeleteWardsType
                                      ) => ({
-                                             ids: wards.ids
+                                             id: ward.id
                                            })
 
 //並び順編集用

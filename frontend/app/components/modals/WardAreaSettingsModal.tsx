@@ -80,7 +80,7 @@ export default function WardAreaSettingsModal({
 
     await deleteWardTransaction({
                                    ward: {
-                                           ids: [selectedWardId]
+                                           id: selectedWardId
                                          },
                                    setWards,
                                    setRooms

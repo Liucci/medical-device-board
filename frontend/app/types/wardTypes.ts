@@ -27,7 +27,7 @@ export type UpdateWardType = {
 
 // Delete専用
 export type DeleteWardsType = {
-                                ids: number[]
+                                id: number
                               }
 
 
