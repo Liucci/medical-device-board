@@ -30,7 +30,7 @@ export default function LowStockPanel({
   devices,
   isDragging = false
 }: Props) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const nodeRef = useRef<HTMLDivElement>(null)
   const summaries = useMemo(() => {
     const map = new Map<string, SummaryItem>()
@@ -97,6 +97,7 @@ export default function LowStockPanel({
   return (
     <Draggable
         handle=".low-stock-handle"
+        cancel=".no-drag"
         nodeRef={nodeRef}
     >      
     <div
@@ -143,6 +144,7 @@ className={`
             <button
             onClick={() => setCollapsed(!collapsed)}
             className="
+              no-drag
               rounded
               px-2
               py-1
