@@ -16,17 +16,14 @@ export async function exportHistoryPdfTransaction(
 
   const url = URL.createObjectURL(blob)
 
-  const link = document.createElement("a")
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  )
 
-  link.href = url
-
-  link.download = "histories.pdf"
-
-  document.body.appendChild(link)
-
-  link.click()
-
-  document.body.removeChild(link)
-
-  URL.revokeObjectURL(url)
+  // 新しいタブで読み込まれるまで少し待って解放
+  setTimeout(() => {
+    URL.revokeObjectURL(url)
+  }, 10000)
 }

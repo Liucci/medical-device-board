@@ -20,25 +20,16 @@ export async function exportDeviceListPdfTransaction(
                                     )
 
   if (!blob) {return}
+  const url = URL.createObjectURL(blob)
 
-  const url =
-    window.URL.createObjectURL(
-                                blob
-                              )
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  )
 
-  const link =
-    document.createElement(
-                            "a"
-                          )
-
-  link.href = url
-
-  link.download =
-    "device_list.pdf"
-
-  link.click()
-
-  window.URL.revokeObjectURL(
-                              url
-                            )
+  // 新しいタブで読み込まれるまで少し待って解放
+  setTimeout(() => {
+    URL.revokeObjectURL(url)
+  }, 10000)
 }

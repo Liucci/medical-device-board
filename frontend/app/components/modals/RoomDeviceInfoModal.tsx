@@ -207,7 +207,16 @@ const deviceTasks =
 return createPortal(
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
 
-    <div className="relative bg-white rounded-xl shadow-xl w-full max-w-5xl max-w-[850px] max-h-[90vh] overflow-hidden p-6">
+    <div className="relative
+                     bg-white 
+                    rounded-xl 
+                    shadow-xl 
+                    w-full
+                     max-w-5xl 
+                     max-w-[850px] 
+                     h-[70vh] 
+                     flex 
+                     flex-col p-6">
 
       <button
         onClick={onCancel}
@@ -228,7 +237,7 @@ return createPortal(
         病棟機器情報
       </h2>
 
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-4 mt-4 flex-1 overflow-hidden">
 
         {/* ===== 左 ===== */}
         <div className="w-[420px] overflow-y-auto">
@@ -442,7 +451,7 @@ return createPortal(
         </div>
 
         {/* ===== 右 ===== */}
-        <div className="w-[380px] flex flex-col">
+        <div className="w-[380px] flex flex-col overflow-hidden">
 
           {/* スタンバイ */}
           <div className="border rounded p-3">
@@ -471,13 +480,13 @@ return createPortal(
           </div>
 
           {/* メンテナンス */}
-          <div className="border rounded p-3 mt-4">
+          <div className="border rounded p-3 mt-4 flex-1 flex flex-col overflow-hidden">
 
             <div className="font-bold mb-2">
               メンテナンス
             </div>
 
-            <div className="h-[450px] overflow-y-auto pr-2">
+            <div className="flex-1 overflow-y-auto pr-2">
 
               {deviceTasks.length === 0 && (
                 <div className="text-gray-500 text-sm">
