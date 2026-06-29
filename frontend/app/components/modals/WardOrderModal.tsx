@@ -87,7 +87,7 @@ export default function WardOrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[500px] h-[600px] rounded-lg bg-white p-6 shadow-lg flex flex-col">
+        <div className="w-[400px] h-[500px] rounded-lg bg-white p-6 shadow-lg flex flex-col">
         <h2 className="mb-4 text-xl font-bold">
           病棟並び替え
         </h2>

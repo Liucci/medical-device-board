@@ -76,10 +76,15 @@ return (
         borderBottom: "1px solid #ddd",
       }}
     >
-      <h2 className="text-1xl font-bold m-0">
-        ストックエリア一覧
-      </h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-bold">
+          ストックエリア一覧
+        </h2>
 
+        <span className="text-xs text-gray-500">
+          最終更新：{"lastUpdated"}
+        </span>
+      </div>
       <div
         style={{
           display: "flex",
@@ -168,16 +173,6 @@ return (
         }}
 
         
-
-/*         // ★ここに追加
-        onPointerUp={() => {
-        //alert(`stock area Drop: ${draggingDevice ? "あり" : "なし"}`)
-
-          if (!draggingDevice) return
-          //onDropにdraggingDeviceとarea.idを渡す
-          onDrop(draggingDevice, area.id)
-        }}
- */
 
       >           
    {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}

@@ -82,10 +82,15 @@ return (
         borderBottom: "1px solid #ddd",
       }}
     >
-      <h2 className="text-1xl font-bold m-0">
-        病棟一覧
-      </h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-bold">
+          病棟一覧
+        </h2>
 
+        <span className="text-xs text-gray-500">
+          最終更新：{"lastUpdated"}
+        </span>
+      </div>
       <div
         style={{
           display: "flex",
@@ -175,15 +180,6 @@ return (
             }}
 
 
-/*             onPointerUp={() => {
-             //alert(`Ward Drop: ${draggingDevice ? "あり" : "なし"}`)
-              if (!draggingDevice) return
-              onDrop(
-                draggingDevice,
-                ward.id
-              )
-            }}
- */
 
           >
             {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}

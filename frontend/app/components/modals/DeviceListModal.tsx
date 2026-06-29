@@ -53,9 +53,7 @@ export default function DeviceListModal({
   const [
     selectedStatuses,
     setSelectedStatuses
-  ] = useState<string[]>([
-    "room"
-  ])
+  ] = useState<string[]>([])
 
   const [
     selectedWards,

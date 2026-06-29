@@ -827,14 +827,16 @@ if (updatedDevice) {
   const getLatestMaintenanceTask = (deviceId?: number) => {
         if (!deviceId) return null
             const deviceTasks =getDeviceTasks(deviceId)
+            console.log(deviceId)
+            console.log(deviceTasks)
               if (deviceTasks.length === 0) {
                 return null
             }
             const sorted = [...deviceTasks]
               .sort((a, b) =>
-                new Date(a.due_at).getTime()
+                new Date(a.dueAt).getTime()
                 -
-                new Date(b.due_at).getTime()
+                new Date(b.dueAt).getTime()
               )
             const latest = sorted[0]
             const maintenanceType =
@@ -842,14 +844,14 @@ if (updatedDevice) {
                 mt =>
                   Number(mt.id)
                   === Number(
-                    latest.maintenance_type_id
+                    latest.maintenanceTypeId
                   )
               )
             return {
               name:
                 maintenanceType?.name ?? "",
               due_at:
-                latest.due_at
+                latest.dueAt
             }
   }
   //機種ごとの残数をカウントする
