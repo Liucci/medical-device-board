@@ -200,38 +200,14 @@ return (
                 }}
               >
                 {
-                  rooms
-                    .filter(r => r.wardId === ward.id)
-
-                    .sort((a, b) => {
-
-                      const aCount =
-                        deviceList.filter(
-                          d =>
-                            d.status === "room" &&
-                            d.roomId === a.id
-                        ).length
-
-                      const bCount =
-                        deviceList.filter(
-                          d =>
-                            d.status === "room" &&
-                            d.roomId === b.id
-                        ).length
-
-                      // ===== 機器数多い順 =====
-                      if (aCount !== bCount) {
-                        return bCount - aCount
-                      }
-
-                      // ===== 同数なら部屋番号順 =====
-                      return a.name.localeCompare(
-                        b.name,
-                        undefined,
-                        { numeric: true }
-                      )
-                    })
-                    .map(room => (
+                  rooms.filter(r => r.wardId === ward.id)
+                       .sort((a, b) =>a.name.localeCompare(
+                                            b.name,
+                                            undefined,
+                                            { numeric: true }
+                                          )
+                        )
+                        .map(room => (
                     <RoomContainer
                       key={room.id}
                       deviceList={deviceList}
