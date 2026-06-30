@@ -804,39 +804,42 @@ if (updatedDevice) {
 
 
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
-  const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
-    if (!deviceId) return "green"
-    // 対象デバイスのタスクだけ取得
-    const deviceTasks = tasks.filter(
-      t =>
-        Number(t.deviceId) === Number(deviceId)    )
+const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
 
-    // タスクが無ければ正常
-    if (deviceTasks.length === 0) return "green"
+  if (!deviceId) return "green"
 
-    const now = new Date()
+  const nearestTask =
+    tasks
+      .filter(
+        t =>
+          Number(t.deviceId) === Number(deviceId) &&
+          !t.completedAt
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.due_at).getTime() -
+          new Date(b.due_at).getTime()
+      )[0]
 
-    let hasWarning = false
+  if (!nearestTask) return "green"
 
-    for (const task of deviceTasks) {
-      const diff =
-        new Date(task.due_at).getTime() - now.getTime()
+  const now = new Date()
 
-      const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+  const diff =
+    new Date(nearestTask.due_at).getTime() - now.getTime()
 
-      // 🔴 期限切れが1つでもあれば即赤
-      if (days < 0) return "red"
+  const days =
+    Math.ceil(diff / (1000 * 60 * 60 * 24))
 
-      // 🟡 2日以内なら警告
-      if (days <= 2) hasWarning = true
-      }
+  if (days < 0) return "red"
 
-    // 🟡があれば黄色
-    if (hasWarning) return "yellow"
+  if (days <= 2) return "yellow"
 
-    // それ以外は正常
-    return "green"
-  }
+  return "green"
+}
+
+
+
   const fetchHistories = async () => {
     const histories = await getHistoriesFromApi()
     setHistories(
@@ -851,6 +854,9 @@ if (updatedDevice) {
       d => d.status === "room"
     )
   }
+
+
+
   //getDeviceTasksを使って、device_idに紐づくタスクの中で最も期限が近いものを返す関数
   // ===== 直近期限task取得 =====
   const getLatestMaintenanceTask = (deviceId?: number) => {
