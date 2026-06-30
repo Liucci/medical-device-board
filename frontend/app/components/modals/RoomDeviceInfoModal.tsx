@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -11,6 +12,10 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+
+
 //page.tsxから
 //stateレス化
 type Props = {
@@ -66,6 +71,8 @@ export default function RoomDeviceInfoModal({
   renameMaintenanceTaskDueAt,
   cancelTask,
 }: Props) {
+const [loading, setLoading] = useState(false)
+
 
 if (!isOpen || !selectedRoomDevice) return null
 
@@ -185,18 +192,19 @@ const deviceTasks =
   //スタンバイ開始解除の関数
   const handleToggleStandby = async () => {
 
-    if (!selectedRoomDevice.id) return
+    const deviceId = selectedRoomDevice.id
+    if (!deviceId) return
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
-    // ===== 解除 =====
-
+    // ===== 解除 ====
     if (standby) {
-
       const success =
         await toggleDeviceStandby(
-          selectedRoomDevice.id,
+          deviceId,
           false
         )
-
       if (!success) return
 
       return
@@ -206,14 +214,17 @@ const deviceTasks =
 
     const success =
       await toggleDeviceStandby(
-        selectedRoomDevice.id,
+        deviceId,
         true
       )
 
     if (!success) return
+    }
+    })
   }  
 
 return createPortal(
+  <>
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
 
     <div className="relative
@@ -313,7 +324,8 @@ return createPortal(
               label="患者"
               value={patientName}
               onEdit={async () => {
-                if (!selectedRoomDevice.roomId) return
+                const roomId = selectedRoomDevice.roomId
+                if (!roomId) return
 
                 const val = prompt(
                   "患者名を入力",
@@ -321,14 +333,22 @@ return createPortal(
                 )
 
                 if (val === null) return
-
-                const success =
-                  await renamePatientName(
-                    selectedRoomDevice.roomId,
-                    val
-                  )
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
+      
+                  const success =
+                          await renamePatientName(
+                            roomId,
+                            val
+                          )
 
                 if (!success) return
+
+                }
+                })
+
+                
               }}
             />
 
@@ -336,7 +356,9 @@ return createPortal(
               label="管理番号"
               value={managementNumber}
               onEdit={async () => {
-                if (!selectedRoomDevice.id) return
+                const deviceId = selectedRoomDevice.id
+
+                if (!deviceId) return
 
                 const val = prompt(
                   "管理番号を入力",
@@ -344,14 +366,19 @@ return createPortal(
                 )
 
                 if (val === null) return
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
 
-                const success =
-                  await renameManagementNumber(
-                    selectedRoomDevice.id,
-                    val
-                  )
+                      const success =
+                        await renameManagementNumber(
+                          deviceId,
+                          val
+                        )
+                    if (!success) return
+                    }
+                })
 
-                if (!success) return
               }}
             />
 
@@ -359,7 +386,8 @@ return createPortal(
               label="シリアル"
               value={serialNumber}
               onEdit={async () => {
-                if (!selectedRoomDevice.id) return
+                const deviceId = selectedRoomDevice.id
+                if (!deviceId) return
 
                 const val = prompt(
                   "シリアル番号を入力",
@@ -367,14 +395,22 @@ return createPortal(
                 )
 
                 if (val === null) return
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
 
-                const success =
-                  await renameSerialNumber(
-                    selectedRoomDevice.id,
-                    val
-                  )
+                    const success =
+                      await renameSerialNumber(
+                        deviceId,
+                        val
+                      )
 
                 if (!success) return
+
+                }
+                })
+
+
               }}
             />
 
@@ -385,7 +421,9 @@ return createPortal(
                   label="貸与開始日"
                   value={rentalStartDate}
                   onEdit={async () => {
-                    if (!selectedRoomDevice.id) return
+
+                    const deviceId=selectedRoomDevice.id
+                    if (!deviceId) return
 
                     const val = prompt(
                       "貸与開始日を入力 (YYYY-MM-DD)",
@@ -393,15 +431,21 @@ return createPortal(
                     )
 
                     if (val === null) return
+                    await executeWithLoading({
+                        setLoading,
+                        action: async () => {
 
-                    const success =
-                      await renameRentalDates(
-                        selectedRoomDevice.id,
-                        val,
-                        rentalEndDate
-                      )
+                        const success =
+                              await renameRentalDates(
+                                deviceId,
+                                val,
+                                rentalEndDate
+                              )
 
-                    if (!success) return
+                        if (!success) return
+                        }
+                    })
+
                   }}
                 />
 
@@ -409,7 +453,9 @@ return createPortal(
                   label="返却日"
                   value={rentalEndDate}
                   onEdit={async () => {
-                    if (!selectedRoomDevice.id) return
+
+                    const deviceId=selectedRoomDevice.id
+                    if (!deviceId) return
 
                     const val = prompt(
                       "返却日を入力 (YYYY-MM-DD)",
@@ -417,15 +463,20 @@ return createPortal(
                     )
 
                     if (val === null) return
+                    await executeWithLoading({
+                        setLoading,
+                        action: async () => {
+          
+                        const success =
+                              await renameRentalDates(
+                                deviceId,
+                                rentalStartDate,
+                                val
+                              )
 
-                    const success =
-                      await renameRentalDates(
-                        selectedRoomDevice.id,
-                        rentalStartDate,
-                        val
-                      )
-
-                    if (!success) return
+                        if (!success) return
+                    }
+                    })
                   }}
                 />
               </>
@@ -435,8 +486,8 @@ return createPortal(
               label="備考"
               value={note}
               onEdit={async () => {
-
-                if (!selectedRoomDevice.id) return
+                const deviceId=selectedRoomDevice.id
+                if (!deviceId) return
 
                 const val = prompt(
                   "備考を入力",
@@ -444,14 +495,19 @@ return createPortal(
                 )
 
                 if (val === null) return
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
 
-                const success =
-                  await renameNote(
-                    selectedRoomDevice.id,
-                    val
-                  )
+                    const success =
+                            await renameNote(
+                              deviceId,
+                              val
+                            )
+                    if (!success) return
+                  }
+                })
 
-                if (!success) return
               }}
             />
 
@@ -465,10 +521,31 @@ return createPortal(
           {/* スタンバイ */}
           <div className="border rounded p-3">
 
-            <div className="font-bold mb-2">
-              スタンバイ
-            </div>
+              <div className="flex items-center justify-between mb-2">
 
+                <div className="font-bold">
+                  スタンバイ
+                </div>
+
+                <button
+                  onClick={handleToggleStandby}
+                  className={`
+                    px-3
+                    py-1
+                    rounded
+                    text-sm
+                    font-bold
+                    ${
+                      standby
+                        ? "bg-yellow-300 text-black hover:bg-yellow-400"
+                        : "bg-gray-200 text-black hover:bg-gray-300"
+                    }
+                  `}
+                >
+                  {standby ? "解除" : "開始"}
+                </button>
+
+              </div>
             {standby ? (
               <div className="text-sm text-gray-600">
                 待機開始日：
@@ -561,14 +638,18 @@ return createPortal(
                         <button
                           className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
                           onClick={async () => {
+                            await executeWithLoading({
+                                setLoading,
+                                action: async () => {
+                                  const success =
+                                    await onCompleteTask({
+                                      id: task.id
+                                    })
 
-                            const success =
-                              await onCompleteTask({
-                                id: task.id
+                                  if (!success) return
+
+                                }
                               })
-
-                            if (!success) return
-
                           }}
                         >
                           実施
@@ -589,15 +670,18 @@ return createPortal(
                               alert("YYYY-MM-DD形式で入力してください")
                               return
                             }
+                            await executeWithLoading({
+                                setLoading,
+                                action: async () => {
+                                const success =
+                                      await renameMaintenanceTaskDueAt({
+                                        id: task.id,
+                                        dueAt: `${val}T00:00:00`
+                                      })
+                                if (!success) return
 
-                            const success =
-                              await renameMaintenanceTaskDueAt({
-                                id: task.id,
-                                dueAt: `${val}T00:00:00`
+                                }
                               })
-
-                            if (!success) return
-
                           }}
                         >
                           修正
@@ -612,15 +696,17 @@ return createPortal(
                             )
 
                             if (!ok) return
-
-                            const success =
-                              await cancelTask({
-                                id: task.id,
-                                isActive: false
+                            await executeWithLoading({
+                                setLoading,
+                                action: async () => {
+                                const success =
+                                      await cancelTask({
+                                        id: task.id,
+                                        isActive: false
+                                      })
+                                if (!success) return
+                                }
                               })
-
-                            if (!success) return
-
                           }}
                         >
                           中止
@@ -644,15 +730,17 @@ return createPortal(
                           )
 
                           if (!ok) return
-
-                          const success =
-                            await cancelTask({
-                              id: task.id,
-                              isActive: true
-                            })
-
-                          if (!success) return
-
+                          await executeWithLoading({
+                              setLoading,
+                              action: async () => {
+                              const success =
+                                    await cancelTask({
+                                      id: task.id,
+                                      isActive: true
+                                    })
+                              if (!success) return
+                              }
+                        })
                         }}
                       >
                         中止解除
@@ -672,45 +760,14 @@ return createPortal(
 
       </div>
 
-      <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-
-        <button
-          onClick={handleToggleStandby}
-          className={`
-            px-3 py-1 rounded text-sm font-bold
-            ${
-              standby
-                ? "bg-yellow-300 text-black hover:bg-yellow-400"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }
-          `}
-        >
-          {standby ? "スタンバイ解除" : "スタンバイ"}
-        </button>
-
-      </div>
 
     </div>
 
-  </div>,
+  </div>
+      <LoadingOverlay loading={loading} />
+  </>
+
+  
+  ,
   document.body
 )}
-// 簡易スタイル
-const overlayStyle: React.CSSProperties = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  background: "rgba(0,0,0,0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center"
-}
-
-const modalStyle: React.CSSProperties = {
-  background: "#fff",
-  padding: 20,
-  borderRadius: 8,
-  width: 300
-}

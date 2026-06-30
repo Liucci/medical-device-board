@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { createPortal } from "react-dom"
 import { createInviteCodeTransaction }from "../../api/transactions/invites/createInviteCodeTransaction"
+
+import {executeWithLoading} from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 //supabase
 import { supabase } from "../../lib/supabase"
 type Props = {
@@ -20,35 +23,38 @@ export default function InviteCreateModal({
   const [isSuccess, setIsSuccess] = useState(false)
 
   const handleCreate = async () => {
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
-    try {
-      setLoading(true)
+        try {
 
-      const data =await createInviteCodeTransaction(
-                                                    email,
-                                                    role
-                                                    )
-      setInviteCode(data.code)
-      setIsSuccess(true)
+          const data =await createInviteCodeTransaction(
+                                                        email,
+                                                        role
+                                                        )
+          setInviteCode(data.code)
+          setIsSuccess(true)
 
-    } catch (err) {
+        } catch (err) {
 
-      console.error(
-                    "invite error:",
-                    err
-                  )
+          console.error(
+                        "invite error:",
+                        err
+                      )
+          alert("招待失敗")
+        } finally {
 
-      alert("招待失敗")
 
-    } finally {
-
-      setLoading(false)
-
+        }
     }
+    })
+
+
   }
 
 return createPortal(
-
+  <>
   <div
     className="
       fixed inset-0
@@ -264,7 +270,12 @@ return createPortal(
 
     </div>
 
-  </div>,
+  </div>
+      <LoadingOverlay loading={loading} /> 
+</>
+
+  
+  ,
 
   document.body
 )

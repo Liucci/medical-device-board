@@ -16,6 +16,9 @@ import { updateWardTransaction } from "../../api/transactions/wards/updateWardTr
 import { createRoomTransaction } from "../../api/transactions/rooms/createRoomTransaction"
 import { updateRoomTransaction } from "../../api/transactions/rooms/updateRoomTransaction"
 import { deleteRoomsTransaction } from "../../api/transactions/rooms/deleteRoomsTransaction"
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+
 
 type Props = {
   wards:WardType[]
@@ -35,58 +38,74 @@ export default function WardAreaSettingsModal({
   const [newWardName, setNewWardName] = useState("")
   const [newRoomName, setNewRoomName] = useState("")
   const [checkedRoomIds, setCheckedRoomIds] = useState<number[]>([])
+  const [loading, setLoading] = useState(false)
 
-  // ===== Ward =====
+// ===== Ward =====
 
   const handleAddWard = async () => {
-    await createWardTransaction({
-                                   ward: {
-                                           name: newWardName
-                                         },
-                                   setWards,
-                                   onClose: () => setNewWardName("")
-                                 })
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+
+            await createWardTransaction({
+                                          ward: {
+                                                  name: newWardName
+                                                },
+                                          setWards,
+                                          onClose: () => setNewWardName("")
+                                        })
+        }
+    })
+  
   }
 
   const handleUpdateWard = async () => {
     if (!selectedWardId) {return}
 
     const ward =
-      wards.find(
-                  w => w.id === selectedWardId
-                )
+                  wards.find(
+                              w => w.id === selectedWardId
+                            )
 
     if (!ward) {return}
 
     const name =
-      prompt(
-               "新しい病棟名",
-               ward.name
-             )
+                  prompt(
+                          "新しい病棟名",
+                          ward.name
+                        )
 
     if (!name) {return}
-
-    await updateWardTransaction({
-                                   ward: {
-                                           id: selectedWardId,
-                                           name
-                                         },
-                                   setWards
-                                 })
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+            await updateWardTransaction({
+                                          ward: {
+                                                  id: selectedWardId,
+                                                  name
+                                                },
+                                          setWards
+                                        })
+        }
+    })
   }
 
   const handleDeleteWard = async () => {
     if (!selectedWardId) {return}
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
-    await deleteWardTransaction({
-                                   ward: {
-                                           id: selectedWardId
-                                         },
-                                   setWards,
-                                   setRooms
-                                 })
-
-    setSelectedWardId(null)
+            await deleteWardTransaction({
+                                          ward: {
+                                                  id: selectedWardId
+                                                },
+                                          setWards,
+                                          setRooms
+                                        })
+        }
+    })
+  setSelectedWardId(null)
   }
 
   // ===== Room =====
@@ -120,15 +139,20 @@ export default function WardAreaSettingsModal({
       alert("病棟を選択してください")
       return
     }
-
-    await createRoomTransaction({
-                                   room: {
-                                           wardId: selectedWardId,
-                                           name: newRoomName
-                                         },
-                                   setRooms,
-                                   onClose: () => setNewRoomName("")
-                                 })
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+    
+        await createRoomTransaction({
+                                            room: {
+                                                    wardId: selectedWardId,
+                                                    name: newRoomName
+                                                  },
+                                            setRooms,
+                                            onClose: () => setNewRoomName("")
+                                    })
+            }
+    })
   }
 
   const handleDeleteRooms = async () => {
@@ -136,13 +160,18 @@ export default function WardAreaSettingsModal({
       alert("部屋を選択してください")
       return
     }
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
-    await deleteRoomsTransaction({
-                                    rooms: {
-                                             ids: checkedRoomIds
-                                           },
-                                    setRooms
-                                  })
+            await deleteRoomsTransaction({
+                                            rooms: {
+                                                    ids: checkedRoomIds
+                                                  },
+                                            setRooms
+                                          })
+              }
+    })
   }
 
   const handleRenameRoom = async (
@@ -150,23 +179,28 @@ export default function WardAreaSettingsModal({
                                   ) => {
 
     const name =
-      prompt(
-               "新しい部屋名",
-               room.name
-             )
+                  prompt(
+                          "新しい部屋名",
+                          room.name
+                        )
 
     if (!name) {return}
-
-    await updateRoomTransaction({
-                                   room: {
-                                           id: room.id,
-                                           name
-                                         },
-                                   setRooms
-                                 })
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+          await updateRoomTransaction({
+                                        room: {
+                                                id: room.id,
+                                                name
+                                              },
+                                        setRooms
+                                      })
+                }
+    })
   }
 
   return (
+    <>
     <div className="space-y-6">
 
       <div className="space-y-2">
@@ -296,5 +330,8 @@ export default function WardAreaSettingsModal({
       </div>
 
     </div>
+
+        <LoadingOverlay loading={loading} />
+  </>
   )
 }

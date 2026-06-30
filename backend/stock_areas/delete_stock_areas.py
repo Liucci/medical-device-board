@@ -2,7 +2,7 @@ from common.supabase_client import supabase
 
 def delete_stock_areas(
                          stock_area_ids: list[int],
-                         current_user
+                         hospital_id:str
                        ):
 
     print(f"delete stock_areas")
@@ -12,7 +12,7 @@ def delete_stock_areas(
                   .table("stock_areas")
                   .delete()
                   .in_("id", stock_area_ids)
-                  .eq("hospital_id", current_user["hospital_id"])
+                  .eq("hospital_id", hospital_id)
                   .execute()
                )
 

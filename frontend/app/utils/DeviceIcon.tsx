@@ -48,9 +48,6 @@ export default function DeviceIcon({
       ? "small"
       : "mini"
 
-  // ===== 点滅 =====
-  const isBlink = mAlert === "red"
-
   // ===== メンテナンスインジケータ表示 =====
   const showIndicator =
     displayLevel !== "small" &&
@@ -152,6 +149,13 @@ export default function DeviceIcon({
 
     return today >= limit
   })()
+
+    // ===== 点滅 =====
+  const isBlink =
+  mAlert === "red" ||
+  rentalAlert === "red" ||
+  isStandbyOverOneMonth
+
 
   return (
     <div

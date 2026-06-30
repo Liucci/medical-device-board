@@ -3,7 +3,7 @@ import { CreateDeviceType, } from "../../../types/deviceTypes"
 import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../utils/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { authFetch } from "../../client"
-import { executeWithLoading } from "../executeWithLoading"
+import { executeWithLoading } from "../../../components/common/executeWithLoading"
 type CreateDeviceTransactionParams = {
     params: CreateDeviceType,
     setDeviceList: any

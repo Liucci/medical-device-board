@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react"
 
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -9,6 +10,9 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 
 import { createPortal } from "react-dom"
+import {executeWithLoading} from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+
 //page.tsxからpropsを受け取る
 //stateレス化
 type Props = {
@@ -40,6 +44,7 @@ export default function StockInfoModal({
   renameMaintenanceDates,
   toggleDeviceMaintenance
 }: Props) {
+  const [loading, setLoading] = useState(false)
   
 
   if (!isOpen || !device) return null
@@ -106,6 +111,7 @@ export default function StockInfoModal({
   )
 
   return createPortal(
+    <>
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
         <button
@@ -177,18 +183,28 @@ export default function StockInfoModal({
             label="管理番号"
             value={managementNumber}
             onEdit={async () => {
-              if (!device.id) return
+
+              const deviceId=device.id
+              if (!deviceId) return
               const val = prompt(
                       "管理番号を入力",
                       managementNumber
                     )
               if (val === null) return
-              const success =
-                    await renameManagementNumber(
-                      device.id,
-                      val
-                    )
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+                  const success =
+                          await renameManagementNumber(
+                            deviceId,
+                            val
+                          )
+                  if (!success) return
+
+                }
+                })
+
+
             }}
           />
 
@@ -197,18 +213,24 @@ export default function StockInfoModal({
             label="シリアル"
             value={serialNumber}
             onEdit={async () => {
-              if (!device.id) return
+              const deviceId=device.id
+              if (!deviceId) return
               const val = prompt(
                 "シリアル番号を入力",
                 serialNumber
               )
               if (val === null) return
-              const success =
-                await renameSerialNumber(
-                  device.id,
-                  val
-                )
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+                  const success =
+                        await renameSerialNumber(
+                          deviceId,
+                          val
+                        )
+                  if (!success) return
+                  }
+              })
             }}
           />
           {(device.assetType === "レンタル" ||
@@ -219,19 +241,29 @@ export default function StockInfoModal({
                 label="貸与開始日"
                 value={rentalStartDate}
             onEdit={async () => {
-              if (!device.id) return
+
+              const deviceId=device.id
+              if (!deviceId) return
               const val = prompt(
                 "貸与開始日を入力 (YYYY-MM-DD)",
                 rentalStartDate
               )
               if (val === null) return
-              const success =
-                await renameRentalDates(
-                  device.id,
-                  val,
-                  rentalEndDate
-                )
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+
+                  const success =
+                    await renameRentalDates(
+                      deviceId,
+                      val,
+                      rentalEndDate
+                    )
+                  if (!success) return
+                  }
+                })
+
+
             }}
               />
               {/* 返却日 */}
@@ -239,19 +271,27 @@ export default function StockInfoModal({
                 label="返却日"
                 value={rentalEndDate}
             onEdit={async () => {
-              if (!device.id) return
+              const deviceId=device.id
+              if (!deviceId) return
               const val = prompt(
                 "返却日を入力 (YYYY-MM-DD)",
                 rentalEndDate
               )
               if (val === null) return
-              const success =
-                await renameRentalDates(
-                  device.id,
-                  rentalStartDate,
-                  val
-                )
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+
+                  const success =
+                    await renameRentalDates(
+                      deviceId,
+                      rentalStartDate,
+                      val
+                    )
+                  if (!success) return
+                }
+              })
+
             }}
               />
             </>
@@ -263,15 +303,20 @@ export default function StockInfoModal({
               label="保守開始日"
               value={maintenanceStartedAt}
               onEdit={async () => {
-
-                if (!device.id) return
+                const deviceId=device.id
+                if (!deviceId) return
 
                 const val = prompt("保守開始日 (YYYY-MM-DD)",maintenanceStartedAt)
 
                 if (val === null) return
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
+                      const success =await renameMaintenanceDates(deviceId,val)
+                      if (!success) return
+                    }
+                })
 
-                const success =await renameMaintenanceDates(device.id,val)
-                if (!success) return
               }}
             />
           
@@ -282,8 +327,8 @@ export default function StockInfoModal({
             label="備考"
             value={note}
             onEdit={async () => {
-
-              if (!device.id) return
+              const deviceId=device.id
+              if (!deviceId) return
 
               const val = prompt(
                 "備考を入力",
@@ -291,14 +336,17 @@ export default function StockInfoModal({
               )
 
               if (val === null) return
-
-              const success =
-                await renameNote(
-                  device.id,
-                  val
-                )
-
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+                    const success =
+                        await renameNote(
+                          deviceId,
+                          val
+                        )
+                    if (!success) return
+                }
+                })
 
             }} 
           />
@@ -309,20 +357,30 @@ export default function StockInfoModal({
 
           <button
             onClick={async () => {
-              if (!device.id) return
+
+              const deviceId=device.id
+              if (!deviceId) return
               // ===== 保守終了 =====
               if (isUnderMaintenance) {
                 const today =
                   new Date()
                     .toISOString()
                     .split("T")[0]
-                const success =
-                  await toggleDeviceMaintenance(
-                    device.id,
-                    false
-                  )
-                if (!success) return
-                return
+
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
+
+                      const success =
+                        await toggleDeviceMaintenance(
+                          deviceId,
+                          false
+                        )
+                      if (!success) return
+
+                }
+              })
+              return
               }
               // ===== 保守開始 =====
               const val = prompt(
@@ -332,12 +390,18 @@ export default function StockInfoModal({
                   .split("T")[0]
               )
               if (val === null) return
-              const success =
-                await toggleDeviceMaintenance(
-                  device.id,
-                  true
-                )
-              if (!success) return
+              await executeWithLoading({
+                  setLoading,
+                  action: async () => {
+                          
+                  const success =
+                        await toggleDeviceMaintenance(
+                          deviceId,
+                          true
+                        )
+                  if (!success) return
+                }
+                })
             }}
             className="
               bg-red-500
@@ -354,7 +418,10 @@ export default function StockInfoModal({
         </div>
 
       </div>
-    </div>,
+    </div>
+    <LoadingOverlay loading={loading} /> 
+</>
+    ,
     document.body
   )
 }

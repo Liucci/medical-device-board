@@ -4,7 +4,7 @@ from schemas.stock_area_schemas import (UpdateStockAreaRequest,UpdateStockAreaOr
 
 def update_stock_area(
                       stock_area:UpdateStockAreaRequest,
-                        current_user
+                        hospital_id:str
                       ):
 
     print("update_stock_area")
@@ -14,7 +14,7 @@ def update_stock_area(
                   .table("stock_areas")
                   .update({"name": stock_area.name})
                   .eq("id", stock_area.id)
-                  .eq("hospital_id", current_user["hospital_id"])
+                  .eq("hospital_id", hospital_id)
                   .execute()
                )
 

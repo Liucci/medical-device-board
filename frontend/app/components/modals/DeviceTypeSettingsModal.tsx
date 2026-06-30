@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react"
 import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
 import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
@@ -12,6 +13,8 @@ import { DeviceModelType } from "../../types/deviceModelTypes"
 import { WardType } from "../../types/wardTypes"
 import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 
 type Props = {
   deviceTypes: DeviceTypeType[]
@@ -33,7 +36,7 @@ export default function DeviceTypeSettingsModal({
   const [checkedModelIds, setCheckedModelIds] = useState<number[]>([])
   const [newIconColor, setNewIconColor] = useState("#BFDBFE")
   const [editIconColor, setEditIconColor] = useState("#BFDBFE")
-  
+  const [loading, setLoading] = useState(false)
   // ===== deviceType =====
   const handleAddType = async() => {
       const trimmed = newTypeName.trim()
@@ -49,17 +52,20 @@ export default function DeviceTypeSettingsModal({
           alert("同じ機種が既に存在します")
           return
       }
-
-      await createDeviceTypeTransaction({
-                                          deviceType: {
-                                                        name: trimmed,
-                                                         icon_color: newIconColor
-                                                      },
-                                          setDeviceTypes
-                                        })
-
+    await executeWithLoading({
+      setLoading,
+      action: async () => {
+        await createDeviceTypeTransaction({
+                                            deviceType: {
+                                                          name: trimmed,
+                                                          icon_color: newIconColor
+                                                        },
+                                            setDeviceTypes
+                                          })
+                          }
+    })                                       
       setNewTypeName("")  
-  }
+    }
 
   const handleRenameType = async() => {
     if (!selectedTypeId) return
@@ -75,15 +81,20 @@ export default function DeviceTypeSettingsModal({
 
     if (!name) return
 
-    await updateDeviceTypeTransaction({
-                                        deviceType: {
-                                                      id: selectedTypeId,
-                                                      name,
-                                                      icon_color: type.iconColor
-                                                      
-                                                    },
-                                        setDeviceTypes
-                                      })
+    await executeWithLoading({
+    setLoading,
+    action: async () => {
+      await updateDeviceTypeTransaction({
+                                          deviceType: {
+                                                        id: selectedTypeId,
+                                                        name,
+                                                        icon_color: type.iconColor
+                                                        
+                                                      },
+                                          setDeviceTypes
+                                        })
+    }
+    })
   }
   //色変更用確定実施hundle
   const handleChangeColor = async () => {
@@ -92,19 +103,27 @@ export default function DeviceTypeSettingsModal({
     const type =deviceTypes.find(t => t.id === selectedTypeId)
 
     if (!type) return
+  await executeWithLoading({
+    setLoading,
+    action: async () => {
+        await updateDeviceTypeTransaction({
+                                            deviceType: {
+                                              id: selectedTypeId,
+                                              name: type.name,
+                                              icon_color: editIconColor
+                                            },
+                                            setDeviceTypes
+                                          })
+   }
+  })
 
-    await updateDeviceTypeTransaction({
-                                        deviceType: {
-                                          id: selectedTypeId,
-                                          name: type.name,
-                                          icon_color: editIconColor
-                                        },
-                                        setDeviceTypes
-                                      })
-                                    }
+  }
 
   const handleDeleteType = async() => {
       if (!selectedTypeId) {return}
+  await executeWithLoading({
+    setLoading,
+    action: async () => {
 
       await deleteDeviceTypeTransaction({
                                           deviceType: {
@@ -112,7 +131,10 @@ export default function DeviceTypeSettingsModal({
                                                       },
                                           setDeviceTypes
                                         })
-      setSelectedTypeId(null)
+     }
+  })
+
+  setSelectedTypeId(null)
   }
 
   // ===== deviceModel =====
@@ -133,41 +155,59 @@ export default function DeviceTypeSettingsModal({
     }
 
     if (!newModelName.trim()) return
+    await executeWithLoading({
+      setLoading,
+      action: async () => {
 
-    await createDeviceModelTransaction({
-                                        deviceModel: {
-                                                        deviceTypeId: selectedTypeId,
-                                                        name: newModelName.trim()
-                                                      },
-                                        setDeviceModels
-                                      })
-
-    setNewModelName("")  }
-
-  const handleDeleteModels = async () => {
-    if (checkedModelIds.length === 0) {return}
-
-    await deleteDeviceModelsTransaction({
-                                          deviceModels: {
-                                                          ids: checkedModelIds
+      await createDeviceModelTransaction({
+                                          deviceModel: {
+                                                          deviceTypeId: selectedTypeId,
+                                                          name: newModelName.trim()
                                                         },
                                           setDeviceModels
                                         })
-        setCheckedModelIds([])
+      }
+    })
+
+    setNewModelName("")
+  }
+
+  const handleDeleteModels = async () => {
+    if (checkedModelIds.length === 0) {return}
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+          await deleteDeviceModelsTransaction({
+                                                deviceModels: {
+                                                                ids: checkedModelIds
+                                                              },
+                                                setDeviceModels
+                                              })
+          }
+    })
+    setCheckedModelIds([])
+
     }
 
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) {return}
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
-    await updateDeviceModelTransaction({
-                                          deviceModel: {
-                                                        id: model.id,
-                                                        name
-                                                      },
-                                          setDeviceModels
-                                        })  }
+        await updateDeviceModelTransaction({
+                                              deviceModel: {
+                                                            id: model.id,
+                                                            name
+                                                          },
+                                              setDeviceModels
+                                            }) 
+        }
+    })
+  }
   return (
+    <>
     <div className="space-y-6">
 
       {/* ===== deviceType操作 ===== */}
@@ -286,5 +326,7 @@ export default function DeviceTypeSettingsModal({
       </div>
 
     </div>
+    <LoadingOverlay loading={loading} />
+  </>
   )
 }

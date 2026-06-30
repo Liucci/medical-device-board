@@ -13,7 +13,8 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import {createMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/createMaintenanceTypeTransaction"
 import {deleteMaintenanceTypesTransaction} from "../../../app/api/transactions/maintenanceTypes/deleteMaintenanceTypesTransaction"
 import {updateMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/updateMaintenanceTypeTransaction"
-
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 
 
 type Props = {
@@ -35,7 +36,7 @@ export default function MaintenanceTypeSettingsModal({
   const [name, setName] = useState("")
   const [intervalDays, setIntervalDays] = useState(30)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-
+  const [loading, setLoading] = useState(false)
   // 🔽 型式候補
   const filteredModels = deviceModels.filter(
     m => m.deviceTypeId === selectedTypeId
@@ -53,19 +54,24 @@ export default function MaintenanceTypeSettingsModal({
       alert("メンテ名を入力してください")
       return
     }
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+          await createMaintenanceTypeTransaction({
+                                                    maintenanceType: {
+                                                      name,
+                                                      deviceTypeId: selectedTypeId,
+                                                      deviceModelId:
+                                                        selectedModelId === ""
+                                                          ? null
+                                                          : selectedModelId,
+                                                      intervalDays
+                                                    },
+                                                    setMaintenanceTypes
+                                                  })
+              }
+    })
 
-    await createMaintenanceTypeTransaction({
-                                              maintenanceType: {
-                                                name,
-                                                deviceTypeId: selectedTypeId,
-                                                deviceModelId:
-                                                  selectedModelId === ""
-                                                    ? null
-                                                    : selectedModelId,
-                                                intervalDays
-                                              },
-                                              setMaintenanceTypes
-                                            })
 
     setName("")
     setIntervalDays(30)
@@ -89,17 +95,26 @@ export default function MaintenanceTypeSettingsModal({
       "選択したメンテ種別を削除しますか？"
     )
     if (!ok) return
-    await deleteMaintenanceTypesTransaction({
-                                              ids: selectedIds,
-                                              setMaintenanceTypes
-                                            })
-    setSelectedIds([])    
+
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+    
+          await deleteMaintenanceTypesTransaction({
+                                                    ids: selectedIds,
+                                                    setMaintenanceTypes
+                                                  })
+        }
+    })
+    
+  setSelectedIds([])    
   }
 
 
   
 
   return (
+    <>
     <div className="space-y-6">
 
       {/* 🔽 追加フォーム */}
@@ -347,14 +362,20 @@ export default function MaintenanceTypeSettingsModal({
                     alert("数値を入力してください")
                     return
                   }
-                      await updateMaintenanceTypeTransaction({
-                                                                maintenanceType: {
-                                                                  ...mt,
-                                                                  name: newName,
-                                                                  intervalDays: Number(newInterval)
-                                                                },
-                                                                setMaintenanceTypes
-                                                              })
+                await executeWithLoading({
+                    setLoading,
+                    action: async () => {
+                  
+                            await updateMaintenanceTypeTransaction({
+                                                                      maintenanceType: {
+                                                                        ...mt,
+                                                                        name: newName,
+                                                                        intervalDays: Number(newInterval)
+                                                                      },
+                                                                      setMaintenanceTypes
+                                                                    })
+                    }
+                })
 
                   }}
                   className="bg-gray-200 px-2 py-1 rounded"
@@ -373,5 +394,8 @@ export default function MaintenanceTypeSettingsModal({
         </div>
       </div>
     </div>
+
+        <LoadingOverlay loading={loading} />
+  </>
   )
 }

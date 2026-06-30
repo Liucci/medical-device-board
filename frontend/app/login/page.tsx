@@ -4,6 +4,9 @@ import { useState ,useEffect} from "react"
 import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
 import { loginTransaction } from "../api/transactions/auth/loginTransaction"
+import {executeWithLoading} from "../components/common/executeWithLoading"
+import {LoadingOverlay} from "../components/common/LoadingOverlay"
+
 export default function LoginPage() {
 
   const router = useRouter()
@@ -16,39 +19,45 @@ export default function LoginPage() {
   //backendの/loginを呼び出す
 const handleLogin = async () => {
 
-  setLoading(true)
   setError("")
+  await executeWithLoading({
+      setLoading,
+      action: async () => {
+          
+          try {
 
-  try {
+            const currentUser =
+              await loginTransaction({
+                                        email,
+                                        password,
+                                        setCurrentUser
+                                      })
 
-    const currentUser =
-      await loginTransaction({
-                                email,
-                                password,
-                                setCurrentUser
-                              })
+            if (currentUser.role === "system_admin") {
+              router.push("/first-admin-invite")
+              return
+            }
 
-    if (currentUser.role === "system_admin") {
-      router.push("/first-admin-invite")
-      return
-    }
+            router.push("/dashboard")
 
-    router.push("/dashboard")
+          } catch (err) {
 
-  } catch (err) {
+            console.error(err)
+            setError("ログイン失敗")
 
-    console.error(err)
-    setError("ログイン失敗")
+          } finally {
 
-  } finally {
 
-    setLoading(false)
+          }
+        }
+        })
 
-  }
+
 }  
 
 
   return (
+    <>
     <div
       className="
         min-h-screen
@@ -136,5 +145,9 @@ const handleLogin = async () => {
 
       </div>
     </div>
+
+        <LoadingOverlay loading={loading} /> 
+</>
+
   )
 }

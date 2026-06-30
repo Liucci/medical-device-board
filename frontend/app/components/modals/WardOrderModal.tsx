@@ -5,7 +5,8 @@ import { useEffect, useState } from "react"
 import { WardType } from "../../types/wardTypes"
 import { updateWardDisplayOrderTransaction } from "../../api/transactions/wards/updateWardDisplayOrderTransaction"
 import {GripVertical} from "lucide-react"
-
+import {executeWithLoading} from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 
 //DnDライブラリー
 import {
@@ -37,7 +38,7 @@ export default function WardOrderModal({
                                         }: WardOrderModalProps)
 {
   const [editingWards, setEditingWards] = useState<WardType[]>([])
-
+  const [loading, setLoading] = useState(false)
   useEffect(() => {
                     if (isOpen) {
                     setEditingWards([...wards])
@@ -72,6 +73,10 @@ export default function WardOrderModal({
   if (!isOpen) return null
 
   async function handleSave() {
+  //loading表示
+  await executeWithLoading({
+      setLoading,
+      action: async () => {
                 await updateWardDisplayOrderTransaction({
                                 wards: {
                                     wards: editingWards.map((ward, index) => ({
@@ -83,10 +88,15 @@ export default function WardOrderModal({
                                 setWards,
                                 })
                 onClose()
+        }
+        })
+                
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+//loading表示用の<></>
+    <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
         <div className="w-[400px] h-[500px] rounded-lg bg-white p-6 shadow-lg flex flex-col">
         <h2 className="mb-4 text-xl font-bold">
           病棟並び替え
@@ -132,5 +142,8 @@ export default function WardOrderModal({
 
       </div>
     </div>
+    <LoadingOverlay loading={loading} /> 
+</>
+    
   )
 }

@@ -5,7 +5,8 @@ import { useEffect, useState } from "react"
 import { StockAreaType } from "../../types/stockTypes"
 import { updateStockAreaDisplayOrderTransaction } from "../../api/transactions/stockAreas/updateStockAreaDisplayOrderTransaction"
 import {GripVertical} from "lucide-react"
-
+import {executeWithLoading} from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 
 //DnDライブラリー
 import {
@@ -22,6 +23,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import SortableStockAreaItem from "./SortableStockAreaItem"
 
+
 type StockAreaOrderModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -37,6 +39,7 @@ export default function StockAreaOrderModal({
                                         }: StockAreaOrderModalProps)
 {
   const [editingStockAreas, setEditingStockAreas] = useState<StockAreaType[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
                     if (isOpen) {
@@ -72,6 +75,10 @@ export default function StockAreaOrderModal({
   if (!isOpen) return null
 
   async function handleSave() {
+  await executeWithLoading({
+      setLoading,
+      action: async () => {
+
                 await updateStockAreaDisplayOrderTransaction({
                                 stockAreas: {
                                     stockAreas: editingStockAreas.map((stockArea, index) => ({
@@ -83,9 +90,12 @@ export default function StockAreaOrderModal({
                                 setStockAreas,
                                 })
                 onClose()
+        }
+        })
   }
 
   return (
+     <>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
         <div className="w-[400px] h-[500px] rounded-lg bg-white p-6 shadow-lg flex flex-col">
         <h2 className="mb-4 text-xl font-bold">
@@ -132,5 +142,8 @@ export default function StockAreaOrderModal({
 
       </div>
     </div>
+    <LoadingOverlay loading={loading} /> 
+</>
   )
+  
 }

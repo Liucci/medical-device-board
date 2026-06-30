@@ -13,6 +13,8 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 
 import { createPortal } from "react-dom"
 import {createDeviceTransaction} from "../../api/transactions/devices/createDeviceTransaction"
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
 
 
 type Props = {
@@ -48,7 +50,7 @@ export default function DeviceModal({
   const [selectedStockAreaID, setSelectedStockAreaID]= useState<number | "">("")
   const [quantity, setQuantity] = useState(1)  
   //登録や読込中ですを表示するためのstate
-  const [Loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const modelsForType = selectedTypeID === ""
     ? []
     : deviceModels.filter(m => m.deviceTypeId === selectedTypeID)
@@ -72,36 +74,42 @@ export default function DeviceModal({
       return
     }
 
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
 
 
+            await createDeviceTransaction(
+                                            {
+                                              params: {
+                                                        type: selectedTypeID,
+                                                        model: selectedModelID,
+                                                        assetType: selectedAssetType,
+                                                        stockAreaId: selectedStockAreaID,
+                                                        quantity: quantity,
+                                                        rentalStartDate:
+                                                                          selectedAssetType === "レンタル" ||
+                                                                          selectedAssetType === "代替機"
+                                                                            ? rentalStartDate
+                                                                            : undefined,
+                                                        rentalEndDate:
+                                                                        selectedAssetType === "レンタル" ||
+                                                                        selectedAssetType === "代替機"
+                                                                          ? rentalEndDate
+                                                                          : undefined,
+                                                      },
+                                              setDeviceList:setDeviceList,
+                                              onClose:onClose,
+                                              setLoading:setLoading
+                                            }
+                                          )
+            }
+    })
 
-      await createDeviceTransaction(
-                                      {
-                                        params: {
-                                                  type: selectedTypeID,
-                                                  model: selectedModelID,
-                                                  assetType: selectedAssetType,
-                                                  stockAreaId: selectedStockAreaID,
-                                                  quantity: quantity,
-                                                  rentalStartDate:
-                                                                    selectedAssetType === "レンタル" ||
-                                                                    selectedAssetType === "代替機"
-                                                                      ? rentalStartDate
-                                                                      : undefined,
-                                                  rentalEndDate:
-                                                                  selectedAssetType === "レンタル" ||
-                                                                  selectedAssetType === "代替機"
-                                                                    ? rentalEndDate
-                                                                    : undefined,
-                                                },
-                                        setDeviceList:setDeviceList,
-                                        onClose:onClose,
-                                        setLoading:setLoading
-                                      }
-                                    )
   }
 
 return createPortal(
+   <>
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
     
     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
@@ -195,9 +203,9 @@ return createPortal(
 
         <button
           onClick={handleSubmit}
-          disabled={Loading}
+          disabled={loading}
           className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400"        >
-         {Loading ? "登録中..." : "登録"}
+         {loading ? "登録中..." : "登録"}
         </button>
 
       </div>
@@ -237,6 +245,10 @@ return createPortal(
 
     </div>
 
-  </div>,
+  </div>
+    <LoadingOverlay loading={loading} />
+  </>
+  ,
   document.body
+  
 )}

@@ -817,8 +817,8 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
       )
       .sort(
         (a, b) =>
-          new Date(a.due_at).getTime() -
-          new Date(b.due_at).getTime()
+          new Date(a.dueAt).getTime() -
+          new Date(b.dueAt).getTime()
       )[0]
 
   if (!nearestTask) return "green"
@@ -826,7 +826,7 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
   const now = new Date()
 
   const diff =
-    new Date(nearestTask.due_at).getTime() - now.getTime()
+    new Date(nearestTask.dueAt).getTime() - now.getTime()
 
   const days =
     Math.ceil(diff / (1000 * 60 * 60 * 24))

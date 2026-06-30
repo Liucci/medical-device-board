@@ -2,6 +2,10 @@ import { useState } from "react"
 import {createStockAreaTransaction} from "../../api/transactions/stockAreas/createStockAreaTransaction"
 import { deleteStockAreaTransaction } from "../../api/transactions/stockAreas/deleteStockAreaTransaction"
 import { updateStockAreaTransaction } from "../../api/transactions/stockAreas/updateStockAreaTransaction"
+import { executeWithLoading } from "../common/executeWithLoading"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+
+
 type Props = {
   stockAreas: { id: number; name: string }[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
@@ -9,29 +13,35 @@ type Props = {
 }
 
 export default function StockAreaSettingsModal({ 
-    stockAreas,
-    setStockAreas,
-}: Props) 
+                                                  stockAreas,
+                                                  setStockAreas,
+                                              }: Props) 
  {
   const [checkedIds, setCheckedIds] = useState<number[]>([])
   const [newName, setNewName] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  // チェック入れたstockAreaのIdをlist化
+// チェック入れたstockAreaのIdをlist化
   const toggleCheck = (id: number) => {
-    setCheckedIds(prev =>
-      prev.includes(id)
-        ? prev.filter(i => i !== id)
-        : [...prev, id]
-    )
+                            setCheckedIds(prev =>
+                                          prev.includes(id)
+                                            ? prev.filter(i => i !== id)
+                                            : [...prev, id]
+                            )
   }
 
   // 削除
   const handleDelete = async() => {
-    await deleteStockAreaTransaction({
-                                        stockAreaIds: checkedIds,
-                                        setStockAreas,
-                                      })
-    setCheckedIds([])
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+        await deleteStockAreaTransaction({
+                                            stockAreaIds: checkedIds,
+                                            setStockAreas,
+                                          })
+          }
+    })
+   setCheckedIds([])
   }
   // 名前変更（仮：prompt）
   const handleRename = async(id: number, currentName: string) => {
@@ -41,30 +51,40 @@ export default function StockAreaSettingsModal({
       const trimmed = newName.trim()
       if (!trimmed) {return}
       if (trimmed === currentName) {return}
-      await updateStockAreaTransaction({
-                                          stockArea: {
-                                                      id,
-                                                      name: trimmed
-                                                    },
-                                          setStockAreas,
-                                        })
-      setNewName("")
-      }
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+            await updateStockAreaTransaction({
+                                                stockArea: {
+                                                            id,
+                                                            name: trimmed
+                                                          },
+                                                setStockAreas,
+                                              })
+          }
+    })
+    setNewName("")
+    }
 
   // 追加
   const handleAdd = async() => {
     if (!newName.trim()) {return}
-
-    await createStockAreaTransaction({
-                                        stockArea: {
-                                                    name: newName.trim()
-                                                  },
-                                        setStockAreas,
-                                      })
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+              await createStockAreaTransaction({
+                                                      stockArea: {
+                                                                  name: newName.trim()
+                                                                },
+                                                      setStockAreas,
+                                                    })
+        }
+    })
       setNewName("")
     }
 
   return (
+    <>
     <div className="space-y-4">
 
       {/* 一覧 */}
@@ -115,5 +135,8 @@ export default function StockAreaSettingsModal({
       </button>
 
     </div>
+
+        <LoadingOverlay loading={loading} />
+  </>
   )
 }
