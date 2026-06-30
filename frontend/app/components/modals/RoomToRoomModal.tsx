@@ -13,21 +13,24 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 
 
 type Props = {
+  deviceList: Device[]
   isOpen: boolean
   onClose: () => void
   onSubmit: (
-    roomId: number,
-    patientName: string,
-    samePatient: boolean
-  ) => void
+              roomId: number,
+              patientName: string,
+              samePatient: boolean
+            ) => void
   wards:WardType[]
   rooms: RoomType[]
   pendingDevice: Device | null
   deviceTypes: DeviceTypeType[]
   deviceModels: DeviceModelType[]
+  initialWardId: number | null
 }
 
 export default function RoomToRoomModal({
+  deviceList,
   isOpen,
   onClose,
   onSubmit,
@@ -35,7 +38,8 @@ export default function RoomToRoomModal({
   rooms,
   pendingDevice,
   deviceTypes,
-  deviceModels
+  deviceModels,
+  initialWardId
 }: Props) {
 
   const [targetWardId, setTargetWardId] =
@@ -80,24 +84,16 @@ export default function RoomToRoomModal({
   useEffect(() => {
 
     if (!isOpen) return
-
-    setTargetWardId(
-      currentRoom?.wardId ?? null
-    )
-
-    setSelectedRoomId(
-      pendingDevice?.roomId ?? null
-    )
-
+    setTargetWardId(initialWardId)
+    setSelectedRoomId(null)
     setPatientName(
-      currentRoom?.patientName ?? ""
-    )
-
-  }, [
-    isOpen,
-    pendingDevice,
-    currentRoom
-  ])
+                    currentRoom?.patientName ?? ""
+                  )
+    }, [
+      isOpen,
+      pendingDevice,
+      currentRoom
+    ])
 
   // ===== 移動先room一覧 =====
 
@@ -377,11 +373,25 @@ export default function RoomToRoomModal({
 
                   value={selectedRoomId ?? ""}
 
-                  onChange={(e) =>
-                    setSelectedRoomId(
-                      Number(e.target.value)
-                    )
-                  }
+                  onChange={(e) => {
+
+                    const roomId = Number(e.target.value)
+
+                    const existsDevice =
+                      deviceList.some(
+                        d =>
+                          d.roomId === roomId &&
+                          d.id !== pendingDevice?.id
+                      )
+
+                    if (existsDevice) {
+                      alert("別患者がいる病室には移動できません。")
+                      return
+                    }
+
+                    setSelectedRoomId(roomId)
+                  }}
+
                 >
 
                   <option value="">

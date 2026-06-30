@@ -1111,6 +1111,7 @@ if (updatedDevice) {
       />
 
       <RoomToRoomModal
+        deviceList={deviceList}
         isOpen={roomToRoomModalOpen}
         onClose={handleRoomToRoomCancel}
         onSubmit={handleRoomToRoomSubmit}
@@ -1119,6 +1120,7 @@ if (updatedDevice) {
         deviceTypes={deviceTypes}
         deviceModels={deviceModels}
         pendingDevice={pendingDevice}
+        initialWardId={targetWardId}
       />
       {/*ストック機器詳細モーダル表示 */}
       <StockInfoModal

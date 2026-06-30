@@ -619,3 +619,316 @@ RoomContainer
 Stock
 
 if (isDraggingRef.current) return
+
+
+# Maintenance Task機能拡張（期限変更・中止・中止解除）
+
+## 概要
+
+メンテナンスタスクの運用性向上のため、以下の機能を追加した。
+
+* メンテ期限の変更
+* メンテタスクの中止
+* メンテタスクの中止解除
+
+---
+
+# Backend
+
+## Schema追加・変更
+
+### UpdateMaintenanceTaskDueAtRequest
+
+```python
+class UpdateMaintenanceTaskDueAtRequest(BaseModel):
+    id: int
+    due_at: datetime
+```
+
+### CancelMaintenanceTaskRequest
+
+中止・中止解除の両方で利用するため、`is_active`を追加した。
+
+```python
+class CancelMaintenanceTaskRequest(BaseModel):
+    id: int
+    is_active: bool
+```
+
+---
+
+## CRUD追加
+
+### update_maintenance_task_due_at.py
+
+役割
+
+* due_at更新
+
+---
+
+### cancel_maintenance_task.py
+
+役割
+
+* is_active更新
+
+```python
+.update({
+    "is_active": task.is_active
+})
+```
+
+* `False`：中止
+* `True`：中止解除
+
+CRUDは1本で両方に対応した。
+
+---
+
+## Transaction追加
+
+### update_maintenance_task_due_at_transaction.py
+
+処理
+
+* due_at更新
+* DeviceHistory作成
+
+---
+
+### cancel_maintenance_task_transaction.py
+
+処理
+
+* is_active更新
+* DeviceHistory作成
+
+---
+
+## Route追加
+
+### POST
+
+```
+/update-maintenance-task-due-at
+```
+
+メンテ期限変更
+
+---
+
+### POST
+
+```
+/cancel-maintenance-task
+```
+
+メンテタスク状態更新
+
+送信例
+
+```json
+{
+  "id": 1,
+  "is_active": false
+}
+```
+
+↓
+
+中止
+
+```json
+{
+  "id": 1,
+  "is_active": true
+}
+```
+
+↓
+
+中止解除
+
+Routeは1本で運用する設計とした。
+
+---
+
+# Frontend
+
+## Type追加
+
+```ts
+UpdateMaintenanceTaskDueAt
+CancelMaintenanceTask
+CompleteMaintenanceTask
+DeleteMaintenanceTasks
+```
+
+Task関連RequestをすべてType化した。
+
+---
+
+## Mapper追加
+
+```ts
+toUpdateMaintenanceTaskDueAtRequest()
+
+toCancelMaintenanceTaskRequest()
+```
+
+既存
+
+```ts
+toCompleteMaintenanceTaskRequest()
+
+toDeleteMaintenanceTasksRequest()
+```
+
+もTypeを利用する設計へ統一した。
+
+---
+
+## API追加
+
+```
+updateMaintenanceTaskDueAt.ts
+
+cancelMaintenanceTask.ts
+```
+
+---
+
+## Transaction追加
+
+```
+updateMaintenanceTaskDueAtTransaction.ts
+
+cancelMaintenanceTaskTransaction.ts
+```
+
+---
+
+## page.tsx
+
+追加
+
+```ts
+renameMaintenanceTaskDueAt()
+
+cancelTask()
+```
+
+両方とも `Promise<boolean>` を返す設計とした。
+
+---
+
+# RoomDeviceInfoModal
+
+## メンテタスク表示改善
+
+状態判定を追加
+
+```ts
+isPending
+isCompleted
+isCancelled
+```
+
+---
+
+## 未実施
+
+表示
+
+* 🔴🟡🟢
+* 実施
+* 修正
+* 中止
+
+---
+
+## 実施済み
+
+表示
+
+```
+実施済み
+```
+
+---
+
+## 中止済み
+
+表示
+
+```
+中止解除
+```
+
+ボタンのみ表示する仕様へ変更。
+
+---
+
+## メンテ期限変更
+
+入力
+
+```
+YYYY-MM-DD
+```
+
+↓
+
+送信時
+
+```
+YYYY-MM-DDT00:00:00
+```
+
+へ変換し、Backendへ送信する。
+
+Backendでは `datetime` として受け取る。
+
+---
+
+## 中止
+
+```
+is_active = false
+```
+
+---
+
+## 中止解除
+
+```
+is_active = true
+```
+
+中止・中止解除は同じAPIを利用し、送信する `is_active` の値のみ変更する設計とした。
+
+---
+
+# 設計変更
+
+今回の実装に合わせ、Task系Requestはすべて
+
+```
+Type
+↓
+
+Mapper
+
+↓
+
+API
+
+↓
+
+Transaction
+```
+
+という統一パターンへ変更した。
+
+これによりTask系APIの保守性・可読性が向上した。
