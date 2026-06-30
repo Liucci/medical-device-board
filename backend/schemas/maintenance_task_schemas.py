@@ -11,6 +11,7 @@ class MaintenanceTaskResponse(BaseModel):
     completed_at: datetime | None = None
     completed_by: str | None = None
     created_at: datetime
+    is_active: bool
 
 
 class AddMaintenanceTaskRequest(BaseModel):
@@ -25,3 +26,11 @@ class CompleteMaintenanceTaskRequest(BaseModel):
 
 class DeleteMaintenanceTasksRequest(BaseModel):
     ids: list[int]
+
+class UpdateMaintenanceTaskDueAtRequest(BaseModel):
+    id: int
+    due_at: datetime
+
+class CancelMaintenanceTaskRequest(BaseModel):
+    id: int
+    is_active: bool

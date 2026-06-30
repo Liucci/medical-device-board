@@ -28,6 +28,10 @@ from transactions.invites.register_user_transaction import (register_user_transa
 from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
 
 from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
+from transactions.tasks.update_maintenance_task_due_at_transaction import update_maintenance_task_due_at_transaction
+from transactions.tasks.cancel_maintenance_task_transaction import cancel_maintenance_task_transaction
+
+
 from transactions.invites.create_invite_code_transaction import (create_invite_code_transaction)
 from transactions.invites.get_invite_info_transaction import (get_invite_info_transaction)
 
@@ -69,6 +73,9 @@ from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRe
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
+from schemas.maintenance_task_schemas import (UpdateMaintenanceTaskDueAtRequest,CancelMaintenanceTaskRequest)
+
+
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
 from transactions.devices.create_device_transaction import (create_device_transaction)
@@ -870,6 +877,39 @@ def get_tasks(
 
     return tasks
 
+@app.post("/update-maintenance-task-due-at")
+def update_maintenance_task_due_at_route(
+                                        task: UpdateMaintenanceTaskDueAtRequest,
+                                        auth_user_id = Depends(get_auth_user_id)
+                                        ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    return update_maintenance_task_due_at_transaction(
+                                                        task=task,
+                                                        hospital_id=current_user["hospital_id"],
+                                                        user_id=current_user["id"],
+                                                        action_type="maintenance_task_due_at_updated",
+                                                        message="メンテナンス期限を変更"
+                                                    )
+
+@app.post("/cancel-maintenance-task")
+def cancel_maintenance_task_route(
+                                    task: CancelMaintenanceTaskRequest,
+                                    auth_user_id = Depends(get_auth_user_id)
+                                    ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    return cancel_maintenance_task_transaction(
+                                                task=task,
+                                                hospital_id=current_user["hospital_id"],
+                                                user_id=current_user["id"],
+                                                action_type="maintenance_task_cancelled",
+                                                message="メンテナンスタスクを中止"
+                                            )
+
+
 @app.get("/maintenance-types")
 def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
 
@@ -888,6 +928,9 @@ def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
     print("get_maintenance_types")
 
     return fetch_maintenance_types(current_user["hospital_id"])
+
+
+
 
 
 @app.post("/maintenance-types")

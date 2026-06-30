@@ -8,6 +8,7 @@ export type MaintenanceTask = {
   completedAt?: string | null
   completedBy?: string | null
   createdAt?: string | null
+  isActive: boolean
 }
 //task発生時用
 export type CreateMaintenanceTask = {
@@ -25,4 +26,24 @@ export type MaintenanceTaskDB = {
   completed_at?: string | null
   completed_by?: string | null
   created_at?: string | null
+  is_active: boolean
+}
+
+export type CompleteMaintenanceTask = {
+  id: number
+}
+
+export type DeleteMaintenanceTasks = {
+  ids: number[]
+}
+
+
+export type UpdateMaintenanceTaskDueAt = {
+  id: number
+  dueAt: string
+}
+
+export type CancelMaintenanceTask = {
+  id: number
+  isActive: boolean
 }

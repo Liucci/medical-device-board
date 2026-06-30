@@ -60,7 +60,10 @@ import { updateRoomPatientName } from "../api/transactions/rooms/updateRoomPatie
 import { updateWardTransaction }from "../api/transactions/wards/updateWardTransaction"
 import { createDeviceTypeTransaction } from "../api/transactions/deviceTypes/createDeviceTypeTransaction"
 import { completeMaintenanceTaskTransaction}from "../api/transactions/tasks/completeMaintenanceTaskTransaction"
-
+import { updateMaintenanceTaskDueAtTransaction } from "../api/transactions/tasks/updateMaintenanceTaskDueAtTransaction"
+import { cancelMaintenanceTaskTransaction } from "../api/transactions/tasks/cancelMaintenanceTaskTransaction"
+import { CompleteMaintenanceTask } from "../types/taskTypes"
+import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTypes"
 //drag系
 import { useDrag } from "../drag/useDrag"
 import { autoScroll, isInside } from "../drag/autoScroll"
@@ -754,11 +757,11 @@ if (updatedDevice) {
 
   //タスク完了ボタンを押したときの処理
   const handleCompleteTask = async (
-                                    id:number
+                                     task: CompleteMaintenanceTask
                                   ) => {
 
     await completeMaintenanceTaskTransaction({
-                                              id,
+                                              task,
                                               setTasks
                                             })
     return true
@@ -773,7 +776,33 @@ if (updatedDevice) {
         
     )
   }  
-  
+  const renameMaintenanceTaskDueAt = async (
+  task: UpdateMaintenanceTaskDueAt
+  ): Promise<boolean> => {
+
+  await updateMaintenanceTaskDueAtTransaction({
+    task,
+    setTasks
+  })
+
+  return true
+  }
+
+
+  const cancelTask = async (
+    task: CancelMaintenanceTask
+  ): Promise<boolean> => {
+
+    await cancelMaintenanceTaskTransaction({
+      task,
+      setTasks
+    })
+
+    return true
+  }
+
+
+
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
   const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     if (!deviceId) return "green"
@@ -1124,6 +1153,8 @@ if (updatedDevice) {
         renameNote={renameNote}
         toggleDeviceStandby={toggleDeviceStandby}
         renameRentalDates={renameRentalDates}
+        renameMaintenanceTaskDueAt={renameMaintenanceTaskDueAt}
+        cancelTask={cancelTask}
       />
 
 

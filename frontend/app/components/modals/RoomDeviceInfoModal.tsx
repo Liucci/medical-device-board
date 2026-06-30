@@ -10,7 +10,7 @@ import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
-
+import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
 //page.tsxから
 //stateレス化
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
   rooms: RoomType[]
   tasks: MaintenanceTask[]                 // ← 追加
   maintenanceTypes: MaintenanceType[]
-  onCompleteTask: (taskId: number) => Promise<boolean>  // ← 追加
+  onCompleteTask: (task: CompleteMaintenanceTask) => Promise<boolean>
   renameManagementNumber:(id: number, value: string)=> Promise<boolean>
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>
   renameNote:(id: number, value: string)=> Promise<boolean>
@@ -37,6 +37,13 @@ type Props = {
                         rentalStartDate: string,
                         rentalEndDate: string
                       )=>Promise<boolean>
+  renameMaintenanceTaskDueAt: (
+                                task: UpdateMaintenanceTaskDueAt
+                              ) => Promise<boolean>
+
+cancelTask: (
+              task: CancelMaintenanceTask
+            ) => Promise<boolean>
 }
 
 export default function RoomDeviceInfoModal({
@@ -55,7 +62,9 @@ export default function RoomDeviceInfoModal({
   renameNote,
   renamePatientName,
   toggleDeviceStandby,
-  renameRentalDates
+  renameRentalDates,
+  renameMaintenanceTaskDueAt,
+  cancelTask,
 }: Props) {
 
 if (!isOpen || !selectedRoomDevice) return null
@@ -504,6 +513,18 @@ return createPortal(
                 const status =
                   getStatus(task.dueAt)
 
+                const isCompleted =
+                  task.completedAt !== null &&
+                  task.completedAt !== undefined
+
+                const isCancelled =
+                  !task.isActive
+
+                const isPending =
+                  task.isActive && !isCompleted
+
+
+
                 return (
                   <div
                     key={task.id}
@@ -527,41 +548,118 @@ return createPortal(
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
 
-                      {!task.completedAt && (
-                        <>
-                          <span>
-                            {status.color === "red" && "🔴"}
-                            {status.color === "yellow" && "🟡"}
-                            {status.color === "green" && "🟢"}
-                          </span>
+                    {isPending && (
+                      <>
+                        <span>
+                          {status.color === "red" && "🔴"}
+                          {status.color === "yellow" && "🟡"}
+                          {status.color === "green" && "🟢"}
+                        </span>
 
-                          <button
-                            className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
-                            onClick={async () => {
+                        <button
+                          className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+                          onClick={async () => {
 
-                              const success =
-                                await onCompleteTask(
-                                  task.id
-                                )
+                            const success =
+                              await onCompleteTask({
+                                id: task.id
+                              })
 
-                              if (!success) return
-                            }}
-                          >
-                            実施
-                          </button>
-                        </>
-                      )}
+                            if (!success) return
 
-                      {task.completedAt && (
-                        <div className="text-green-600 font-bold text-sm">
-                          実施済み
-                        </div>
-                      )}
+                          }}
+                        >
+                          実施
+                        </button>
 
-                    </div>
+                        <button
+                          className="bg-yellow-500 text-white px-2 py-1 rounded text-sm"
+                          onClick={async () => {
 
+                            const val = prompt(
+                              "メンテ期限を入力 (YYYY-MM-DD)",
+                              task.dueAt.slice(0, 10)
+                            )
+
+                            if (val === null) return
+
+                            if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                              alert("YYYY-MM-DD形式で入力してください")
+                              return
+                            }
+
+                            const success =
+                              await renameMaintenanceTaskDueAt({
+                                id: task.id,
+                                dueAt: `${val}T00:00:00`
+                              })
+
+                            if (!success) return
+
+                          }}
+                        >
+                          修正
+                        </button>
+
+                        <button
+                          className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                          onClick={async () => {
+
+                            const ok = confirm(
+                              "このメンテナンスタスクを中止しますか？"
+                            )
+
+                            if (!ok) return
+
+                            const success =
+                              await cancelTask({
+                                id: task.id,
+                                isActive: false
+                              })
+
+                            if (!success) return
+
+                          }}
+                        >
+                          中止
+                        </button>
+                      </>
+                    )}
+
+                    {isCompleted && (
+                      <div className="text-green-600 font-bold text-sm">
+                        実施済み
+                      </div>
+                    )}
+
+                    {isCancelled && (
+                      <button
+                        className="bg-gray-500 text-white px-2 py-1 rounded text-sm"
+                        onClick={async () => {
+
+                          const ok = confirm(
+                            "中止を解除しますか？"
+                          )
+
+                          if (!ok) return
+
+                          const success =
+                            await cancelTask({
+                              id: task.id,
+                              isActive: true
+                            })
+
+                          if (!success) return
+
+                        }}
+                      >
+                        中止解除
+                      </button>
+                    )}
+
+                  </div>
                   </div>
                 )
               })}

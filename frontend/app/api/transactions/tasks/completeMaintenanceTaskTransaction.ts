@@ -5,16 +5,17 @@ import {
          toCompleteMaintenanceTaskRequest
        } from "../../../utils/taskMapper"
 import { authFetch } from "../../client"
+import { CompleteMaintenanceTask } from "../../../types/taskTypes"
 
-type CompleteMaintenanceTaskTransactionParams = {
-                                                  id: number
-                                                  setTasks: any
-                                                }
+type Params = {
+                task: CompleteMaintenanceTask
+                setTasks: React.Dispatch<React.SetStateAction<any[]>>
+              }
 
 export async function completeMaintenanceTaskTransaction({
-                                                           id,
+                                                           task,
                                                            setTasks
-                                                         }: CompleteMaintenanceTaskTransactionParams
+                                                         }:Params
                                                        )
 {
   console.log("completeMaintenanceTaskTransaction")
@@ -26,12 +27,12 @@ export async function completeMaintenanceTaskTransaction({
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                                              },
                   body: JSON.stringify(
-                                          toCompleteMaintenanceTaskRequest(
-                                                                             id
-                                                                           )
-                                        )
+                    toCompleteMaintenanceTaskRequest(
+                      task
+                    )
+                  )
                 }
               )
 
