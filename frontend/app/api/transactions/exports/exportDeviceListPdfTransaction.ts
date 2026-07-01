@@ -20,16 +20,26 @@ export async function exportDeviceListPdfTransaction(
                                     )
 
   if (!blob) {return}
+
   const url = URL.createObjectURL(blob)
+  
+  const link = document.createElement("a")
 
-  window.open(
-    url,
-    "_blank",
-    "noopener,noreferrer"
-  )
+  link.href = url
 
-  // 新しいタブで読み込まれるまで少し待って解放
-  setTimeout(() => {
-    URL.revokeObjectURL(url)
-  }, 10000)
+  const now = new Date()
+
+  const yyyy = now.getFullYear()
+  const mm = String(now.getMonth() + 1).padStart(2, "0")
+  const dd = String(now.getDate()).padStart(2, "0")
+  const hh = String(now.getHours()).padStart(2, "0")
+  const min = String(now.getMinutes()).padStart(2, "0")
+
+  link.download = `device_list_${yyyy}${mm}${dd}_${hh}${min}.pdf`
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
 }

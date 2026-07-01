@@ -889,7 +889,7 @@ def update_maintenance_task_due_at_route(
                                                         task=task,
                                                         hospital_id=current_user["hospital_id"],
                                                         user_id=current_user["id"],
-                                                        action_type="maintenance_task_due_at_updated",
+                                                        action_type="update",
                                                         message="メンテナンス期限を変更"
                                                     )
 
@@ -905,7 +905,7 @@ def cancel_maintenance_task_route(
                                                 task=task,
                                                 hospital_id=current_user["hospital_id"],
                                                 user_id=current_user["id"],
-                                                action_type="maintenance_task_cancelled",
+                                                action_type="update",
                                                 message="メンテナンスタスクを中止"
                                             )
 

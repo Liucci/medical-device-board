@@ -25,18 +25,26 @@ export async function exportDeviceListCsvTransaction(
     )
 
   const link =
-    document.createElement(
-      "a"
-    )
+    document.createElement( "a" )
 
   link.href = url
 
-  link.download =
-    "device_list.csv"
+
+
+  const now = new Date()
+
+  const yyyy = now.getFullYear()
+  const mm = String(now.getMonth() + 1).padStart(2, "0")
+  const dd = String(now.getDate()).padStart(2, "0")
+  const hh = String(now.getHours()).padStart(2, "0")
+  const min = String(now.getMinutes()).padStart(2, "0")
+
+  link.download = `device_list_${yyyy}${mm}${dd}_${hh}${min}.csv`
 
   link.click()
 
-  window.URL.revokeObjectURL(
-    url
-  )
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
