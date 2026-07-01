@@ -68,7 +68,12 @@ import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTyp
 import { useDrag } from "../drag/useDrag"
 import { autoScroll, isInside } from "../drag/autoScroll"
 import { getDropTarget } from "../drag/drop"
-
+import {
+          createLongPressState,
+          startLongPress,
+          finishLongPress,
+          cancelLongPress,
+        } from "../drag/longPress"
 
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -109,6 +114,8 @@ export default function Page() {
   //StockAreaとWardAreaの仕切りをドラッグするためのstate
   const [split, setSplit] = useState(0.65) // 上の割合
   const [isResizing, setIsResizing] = useState(false)
+  const resizeLongPress = useRef(createLongPressState())
+
   //auto scroll用にStockArea / WardArea のDOMをrefで取得
   const wardRef = useRef<HTMLDivElement | null>(null)
   const stockRef = useRef<HTMLDivElement | null>(null)
@@ -255,6 +262,12 @@ export default function Page() {
   const handlePointerUp = async (
     e: React.PointerEvent
   ) => {
+
+      finishLongPress(
+    resizeLongPress.current,
+    () => {},
+    isResizing
+  )
 
     const dropTarget = getDropTarget(
       e.clientX,
@@ -1022,12 +1035,49 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
       {/* ✅ 境界バー */}
       <div
         style={{
-          background: "#ccc",
+          height: "6px",
+          background: isResizing ? "#2563eb" : "#ccc",
           cursor: "row-resize",
-          touchAction: "none"
+          touchAction: "none",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          userSelect: "none"
         }}
-        onPointerDown={() => setIsResizing(true)}
-      />
+            onPointerDown={() => {
+                startLongPress(
+                  resizeLongPress.current,
+                  () => {
+                    setIsResizing(true)
+                  }
+                )
+            }}
+            onPointerLeave={() => {
+                cancelLongPress(resizeLongPress.current)
+            }}      
+      > 
+      <div
+          style={{
+            width: "48px",
+            height: "20px",
+            borderRadius: "10px",
+            background: isResizing ? "#2563eb" : "#888",
+            color: "white",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "14px",
+            fontWeight: "bold"
+          }}
+      >
+        ≡
+  </div>
+</div>
+      
+
+
+
+      
 
 
 

@@ -226,3 +226,86 @@ const devices = await getDevicesFromApi()
 setDeviceList(
   devices.map(normalizeDevice)
 )
+
+---
+
+# 処理中（Loading）表示 共通化
+
+## 共通コンポーネント作成
+
+### executeWithLoading
+
+ローディング表示を共通化するため、`executeWithLoading` を作成。
+
+役割
+
+- setLoading(true)
+- 非同期処理実行
+- finallyでsetLoading(false)
+
+各画面で `setLoading(true/false)` を直接記述しない。
+
+---
+
+### LoadingOverlay
+
+処理中は画面全体を半透明オーバーレイで覆い、中央に「処理中」を表示する共通コンポーネントを作成。
+
+---
+
+## 実装方針
+
+更新系処理は以下の形式へ統一する。
+
+```ts
+await executeWithLoading({
+  setLoading,
+  action: async () => {
+    // 更新処理
+  }
+})
+```
+
+エラー処理は `action` 内で実装し、ローディング制御のみ共通関数へ委譲する。
+
+---
+
+## 適用箇所
+
+### Settings系Modal
+
+- 病棟設定
+- 病室設定
+- ストックエリア設定
+- 機種設定
+- 型式設定
+- メンテナンスタイプ設定
+
+### RoomDeviceInfoModal
+
+- 患者名変更
+- 管理番号変更
+- シリアル番号変更
+- 備考変更
+- レンタル開始日変更
+- レンタル返却日変更
+- スタンバイ開始
+- スタンバイ解除
+- メンテナンス実施
+- メンテナンス期限変更
+- メンテナンス中止
+
+### その他
+
+- ストックエリア並び替え保存
+- 招待コード作成
+
+---
+
+## 効果
+
+- 全画面で処理中表示を統一
+- 多重クリック防止
+- 各画面からローディング制御を排除
+- 更新処理の実装パターンを統一
+- 保守性向上
