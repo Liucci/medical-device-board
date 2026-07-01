@@ -262,6 +262,8 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                         devices:deviceList
   })
 
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())
       setDraggingDevice(null)
     return
   }
@@ -273,8 +275,9 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                       setHistories,
                                       devices:deviceList
                                     })
-
-  setDraggingDevice(null)
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())                                  
+      setDraggingDevice(null)
   }
 
   const handleDropToWard = async (
@@ -326,7 +329,8 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                       devices:deviceList
                                     })
 
-    
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated())
     setTargetWardId(null)
   }
 
@@ -375,7 +379,8 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                                     devices:deviceList
                                                   })
       }
-
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated())
     setTargetWardId(null)
   }
 

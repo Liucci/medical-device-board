@@ -94,4 +94,5 @@ catch(error) {
 
   const tasks = await getTasksFromApi()
   setTasks(tasks.map(normalizeMaintenanceTask))
+  
 }
