@@ -1,5 +1,5 @@
 from common.supabase_client import supabase
-from backend.schemas.infection_type_schemas import UpdateInfectionTypeRequest
+from schemas.infection_type_schemas import UpdateInfectionTypeRequest
 
 def update_infection_type(
                             infection_type: UpdateInfectionTypeRequest,

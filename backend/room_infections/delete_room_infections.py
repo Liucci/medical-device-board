@@ -1,5 +1,5 @@
 from common.supabase_client import supabase
-from backend.schemas.infection_type_schemas import DeleteRoomInfectionsRequest
+from schemas.room_infection_schemas import DeleteRoomInfectionsRequest
 
 def delete_room_infections(
                             room_infection: DeleteRoomInfectionsRequest,
