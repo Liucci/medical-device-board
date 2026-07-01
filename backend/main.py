@@ -137,6 +137,27 @@ from transactions.exports.export_device_list_pdf_transaction import (export_devi
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
 
+from schemas.infection_type_schemas import (
+                                            InfectionTypeResponse,
+                                            AddInfectionTypeRequest,
+                                            UpdateInfectionTypeRequest,
+                                            DeleteInfectionTypesRequest,)
+ 
+from schemas.room_infection_schemas import (
+                                            RoomInfectionResponse,
+                                                AddRoomInfectionRequest,
+                                                DeleteRoomInfectionsRequest
+                                            )
+
+from infection_types.fetch_infection_types import fetch_infection_types
+from room_infections.fetch_room_infections import fetch_room_infections
+
+from transactions.infection_types.create_infection_type_transaction import create_infection_type_transaction
+from transactions.infection_types.update_infection_type_transaction import update_infection_type_transaction
+from transactions.infection_types.delete_infection_types_transaction import delete_infection_types_transaction
+
+from transactions.room_infections.create_room_infection_transaction import create_room_infection_transaction
+from transactions.room_infections.delete_room_infections_transaction import delete_room_infections_transaction
 
 
 from fastapi.responses import StreamingResponse
@@ -1011,18 +1032,7 @@ def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-
-        return {
-
-            "success": False,
-
-            "error":
-            "権限がありません"
-        }
+  
 
     histories = (
         fetch_device_histories(
@@ -1081,6 +1091,183 @@ def update_stock_area_transaction_route(
                                     stock_area=stock_area,
                                     hospital_id=hospital_id
                                     )
+
+@app.get("/infection-types")
+def get_infection_types(
+                            auth_user_id: str = Depends(get_auth_user_id)
+                       ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("get_infection_types")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    return fetch_infection_types(current_user["hospital_id"])
+
+
+@app.post("/infection-types")
+def create_infection_type_route(
+                                    infection_type: AddInfectionTypeRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                               ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("create_infection_type")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    create_infection_type_transaction(
+                                        infection_type,
+                                        current_user["hospital_id"]
+                                     )
+
+
+@app.post("/update-infection-type")
+def update_infection_type_route(
+                                    infection_type: UpdateInfectionTypeRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                               ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("update_infection_type")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    update_infection_type_transaction(
+                                        infection_type,
+                                        current_user["hospital_id"]
+                                     )
+
+
+@app.post("/delete-infection-types")
+def delete_infection_types_route(
+                                    infection_type: DeleteInfectionTypesRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("delete_infection_types")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    delete_infection_types_transaction(
+                                        infection_type,
+                                        current_user["hospital_id"]
+                                      )
+
+
+@app.get("/room-infections")
+def get_room_infections(
+                            auth_user_id: str = Depends(get_auth_user_id)
+                       ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("get_room_infections")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    return fetch_room_infections(current_user["hospital_id"])
+
+
+@app.post("/room-infections")
+def create_room_infection_route(
+                                    room_infection: AddRoomInfectionRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                               ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("create_room_infection")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    create_room_infection_transaction(
+                                        room_infection,
+                                        current_user["hospital_id"]
+                                     )
+
+
+@app.post("/delete-room-infections")
+def delete_room_infections_route(
+                                    room_infection: DeleteRoomInfectionsRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id)
+                                ):
+
+    current_user = fetch_current_user(auth_user_id)
+
+    print("delete_room_infections")
+
+    if (
+        current_user["role"]
+        != "admin"
+    ):
+        return {
+            "success": False,
+            "error":
+            "権限がありません"
+        }
+
+    delete_room_infections_transaction(
+                                        room_infection,
+                                        current_user["hospital_id"]
+                                      )
+
+
+
+
 
 @app.post("/update-stock-area-display-order")
 def update_stock_area_display_order_route(
@@ -1592,3 +1779,4 @@ def export_history_csv_route(
             "attachment; filename=histories.csv"
         }
 )
+

@@ -8,6 +8,7 @@ import { WardType } from "../types/wardTypes"
 import {CurrentUser  } from "../types/userTypes"
 import { RoomType } from "../types/roomTypes"
 import {MaintenanceType } from "../types/maintenanceTypeTypes"
+import { InfectionTypeType } from "../types/infectionTypeTypes"
 
 
 import DeviceModal from "./modals/DeviceModal"
@@ -62,6 +63,8 @@ type Props = {
   userId:string
   userName: string
   role: string
+  infectionTypes:InfectionTypeType[]
+  setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export default function ButtonPanel({
@@ -87,7 +90,10 @@ export default function ButtonPanel({
   hospitalId,
   userId,
   userName,
-  role
+  role,
+  infectionTypes,
+  setInfectionTypes
+
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
@@ -221,6 +227,9 @@ export default function ButtonPanel({
           setRooms={setRooms}
           maintenanceTypes={maintenanceTypes}
           setMaintenanceTypes={setMaintenanceTypes}
+          infectionTypes={infectionTypes}
+          setInfectionTypes={setInfectionTypes}
+
 
         />
       }

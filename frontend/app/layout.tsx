@@ -2,6 +2,7 @@
 //ヘッダーやフッターなど、全ページ共通の要素を配置するためのコンポーネント
 import "./globals.css" 
 import { AuthProvider }from "./contexts/AuthContext"
+import ContextMenuBlocker from "./components/common/ContextMenuBlocker"
 
 export default function RootLayout({
   children,
@@ -27,21 +28,15 @@ return (
   </head>
 
   <body>
-
-    {/*
-      ログイン中ユーザー情報を
-      app全体で共有するProvider。
-    */}
+    <ContextMenuBlocker />
+    {/* ログイン中ユーザー情報をapp全体で共有するProvider。*/}
     <AuthProvider>
 
       {children}
 
     </AuthProvider>
 
-    {/*
-      React Portal用の
-      modal描画専用DOM。
-    */}
+    {/* React Portal用のmodal描画専用DOM。*/}
     <div id="modal-root"></div>
 
   </body>

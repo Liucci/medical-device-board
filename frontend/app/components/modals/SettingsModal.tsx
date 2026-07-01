@@ -7,7 +7,8 @@ import {
   Building2,
   Settings2,
   Wrench,
-  GripVertical
+  GripVertical,
+  Biohazard
 } from "lucide-react"
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -17,6 +18,7 @@ import { WardType } from "../../types/wardTypes"
 import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+import { InfectionTypeType } from "../../types/infectionTypeTypes"
 
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
@@ -24,7 +26,7 @@ import DeviceTypeSettingsModal from "./DeviceTypeSettingsModal"
 import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
-
+import InfectionModal from "./InfectionModal"
 
 type Props = {
   onClose: () => void
@@ -40,6 +42,9 @@ type Props = {
   setRooms:React.Dispatch<React.SetStateAction<any[]>>
   maintenanceTypes: MaintenanceType[]
   setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
+  infectionTypes:InfectionTypeType[]
+  setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
+
 }
 
 type Mode =
@@ -48,6 +53,7 @@ type Mode =
             | "ward"
             | "deviceType"
             | "maintenance"
+            | "infection"
             | "wardOrder"
             | "stockAreaOrder"
 export default function SettingsModal({
@@ -64,6 +70,9 @@ export default function SettingsModal({
   setRooms,
   maintenanceTypes,
   setMaintenanceTypes,
+  infectionTypes,
+  setInfectionTypes
+
 
 }: Props) {
   const [mode, setMode] = useState<Mode>("menu")
@@ -88,6 +97,11 @@ export default function SettingsModal({
       label: "メンテナンス編集",
       mode: "maintenance" as const,
       icon: Wrench
+    },
+    {
+      label: "感染症編集",
+      mode: "infection" as const,
+      icon: Biohazard
     },
     {
       label: "病棟レイアウト",
@@ -192,6 +206,23 @@ export default function SettingsModal({
             />
           </>
         )}
+
+        {mode === "infection" && (
+          <>
+            <button
+              onClick={() => setMode("menu")}
+              className="mb-4"
+            >
+              戻る
+            </button>
+
+            <InfectionModal
+              infectionTypes={infectionTypes}
+              setInfectionTypes={setInfectionTypes}
+            />
+          </>
+        )}
+
         {mode === "wardOrder" && (
           <>
             <button

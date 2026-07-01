@@ -309,3 +309,135 @@ await executeWithLoading({
 - 各画面からローディング制御を排除
 - 更新処理の実装パターンを統一
 - 保守性向上
+
+## 最終更新日時表示機能追加
+
+### 概要
+
+ストックエリアおよび病棟エリアに、それぞれの最終更新日時を表示する機能を追加。
+
+---
+
+### 更新対象
+
+最終更新日時は **機器移動（Move系Transaction）** を更新対象とする。
+
+対象Transaction
+
+* Stock → Room
+* Room → Stock
+* Room → Room
+* Stock → Stock
+
+移動処理時に `move_device()` が必ず実行されるため、更新日時管理を `move_device()` に集約した。
+
+---
+
+### Backend
+
+#### devices テーブル
+
+以下のカラムを使用。
+
+* `updated_at`
+* `updated_by`
+
+#### move_device
+
+機器移動時に更新日時・更新ユーザーを自動更新するよう修正。
+
+* `updated_at`：現在時刻（UTC）
+* `updated_by`：実行ユーザーID
+
+これにより、全Move系Transactionで自動的に更新日時が記録される。
+
+---
+
+### CRUD追加
+
+追加CRUD
+
+* `fetch_stock_last_updated`
+* `fetch_ward_last_updated`
+
+役割
+
+* hospital_id を受け取り、各エリアの最新 `updated_at` を取得する。
+* `status = stock`
+* `status = room`
+
+それぞれ `updated_at` 降順で1件取得する。
+
+---
+
+### Route追加
+
+追加API
+
+* `GET /stock-last-updated`
+* `GET /ward-last-updated`
+
+認証ユーザーから hospital_id を取得し、CRUDを呼び出して最新更新日時を返す。
+
+---
+
+### Frontend
+
+追加API
+
+* `fetchStockLastUpdated`
+* `fetchWardLastUpdated`
+
+Mapper追加
+
+* `normalizeStockLastUpdated`
+* `normalizeWardLastUpdated`
+
+---
+
+### Dashboard
+
+Dashboard(page.tsx) に以下Stateを追加。
+
+* stockLastUpdated
+* wardLastUpdated
+
+初回Dashboard表示時に取得。
+
+さらに各Move処理完了後
+
+* handleDropToWard
+* handleDropToStock
+
+から再取得し、画面へ即時反映する。
+
+Dashboardの状態管理は page.tsx のみに集約し、Transaction側ではStateを保持しない構成とした。
+
+---
+
+### UI
+
+表示位置
+
+* 「病棟一覧」の右側
+* 「ストックエリア一覧」の右側
+
+表示形式
+
+```
+最終更新：2026/07/01 12:34
+```
+
+共通関数 `formatDateTime()` を利用して表示形式を統一。
+
+---
+
+### 設計方針
+
+* 更新対象はMove系のみ
+* 更新日時管理は `move_device()` に集約
+* DashboardのState管理は page.tsx に集約
+* TransactionはAPI通信・データ更新のみ担当
+* UIはProps経由で最終更新日時を受け取り表示のみ担当
+
+責務を明確に分離することで、将来的に Supabase Realtime を導入した場合も、更新日時取得処理を再利用できる構成とした。

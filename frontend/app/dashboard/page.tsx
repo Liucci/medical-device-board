@@ -22,6 +22,10 @@ import { normalizeDeviceModel } from "../utils/deviceModelMapper"
 import { normalizeHistory } from "../utils/historyMapper"
 import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
 import { normalizeMaintenanceTask } from "../utils/taskMapper"
+import { normalizeInfectionType} from "../utils/infectionTypeMapper"
+import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
+
+
 
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
@@ -67,6 +71,18 @@ import { updateMaintenanceTaskDueAtTransaction } from "../api/transactions/tasks
 import { cancelMaintenanceTaskTransaction } from "../api/transactions/tasks/cancelMaintenanceTaskTransaction"
 import { CompleteMaintenanceTask } from "../types/taskTypes"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTypes"
+//infection系
+import { getInfectionTypesFromApi } from "../api/infectionTypes/fetchInfectionTypes"
+import { getRoomInfectionsFromApi } from "../api/roomInfections/fetchRoomInfections"
+
+import { createInfectionTypeTransaction } from "../api/transactions/infectionTypes/createInfectionTypeTransaction"
+import { updateInfectionTypeTransaction } from "../api/transactions/infectionTypes/updateInfectionTypeTransaction"
+import { deleteInfectionTypesTransaction } from "../api/transactions/infectionTypes/deleteInfectionTypesTransaction"
+
+import { createRoomInfectionTransaction } from "../api/transactions/roomInfections/createRoomInfectionTransaction"
+import { deleteRoomInfectionsTransaction } from "../api/transactions/roomInfections/deleteRoomInfectionsTransaction"
+
+
 //drag系
 import { useDrag } from "../drag/useDrag"
 import { autoScroll, isInside } from "../drag/autoScroll"
@@ -88,6 +104,9 @@ export default function Page() {
   const [deviceTypes, setDeviceTypes] = useState<any[]>([])
   const [deviceModels, setDeviceModels] = useState<any[]>([])
   const [histories, setHistories] = useState<any[]>([])
+  const [infectionTypes, setInfectionTypes] = useState<any[]>([])
+  const [roomInfections, setRoomInfections] = useState<any[]>([])
+
 
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
@@ -935,6 +954,8 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     setTasks(data.tasks.map(normalizeMaintenanceTask))
     setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
     setHistories(data.histories.map(normalizeHistory))
+    setInfectionTypes(data.infection_types.map(normalizeInfectionType))
+    setRoomInfections(data.room_infections.map(normalizeRoomInfection))
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
     const wardLastUpdated = await fetchWardLastUpdated()
@@ -987,6 +1008,9 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
           scrollRef={wardScrollRef}
           isDragging={isDragging}
           wardLastUpdated={wardLastUpdated}
+          infectionTypes={infectionTypes}
+          roomInfections={roomInfections}
+
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1094,6 +1118,9 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
           role={currentUser.role}
           userId={currentUser.id}
 
+          infectionTypes={infectionTypes}
+          setInfectionTypes={setInfectionTypes}
+
         />
       </div>
       {/*機器残数表示パネル */}
@@ -1171,6 +1198,10 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
         renameRentalDates={renameRentalDates}
         renameMaintenanceTaskDueAt={renameMaintenanceTaskDueAt}
         cancelTask={cancelTask}
+        infectionTypes={infectionTypes}
+        roomInfections={roomInfections}
+        setRoomInfections={setRoomInfections}
+
       />
 
 
