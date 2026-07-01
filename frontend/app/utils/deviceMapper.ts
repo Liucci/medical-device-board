@@ -14,8 +14,10 @@ import {
          FinishMaintenanceRequest,
          StartStandbyRequest,
          FinishStandbyRequest,
-
+          StockLastUpdatedResponse,
+          WardLastUpdatedResponse,
        } from "../types/deviceTypes"
+
 
 
 // DBのDeviceと、フロントエンドで扱うDeviceの相互変換関数
@@ -77,6 +79,7 @@ export const toDBDevice = (d: Device) => ({
 
 
 //他ファイルも随時下記のMapperを参照する構造に修正していく
+//to〇〇はUI情報をbackに送るときにsnake caseに変換するmapper
 export const toCreateDeviceRequest = (
                                         device: CreateDeviceType
                                       ): AddDeviceRequest => ({
@@ -169,3 +172,17 @@ export const toFinishStandbyRequest = (
                                        ): FinishStandbyRequest => ({
                                                                       id: deviceId
                                                                     })
+
+//backからの情報をUI用に変換                                                                    
+export const normalizeStockLastUpdated = (
+                                            updated_at: string | null 
+                                          ): StockLastUpdatedResponse => ({
+                                                                            updatedAt:updated_at
+                                                                            })
+
+//backからの情報をUI用に変換                                                                    
+export const normalizeWardLastUpdated = (
+                                            updated_at: string | null 
+                                          ): WardLastUpdatedResponse => ({
+                                                                            updatedAt:updated_at
+                                                                            })

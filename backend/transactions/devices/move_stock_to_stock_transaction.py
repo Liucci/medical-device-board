@@ -17,7 +17,8 @@ def move_stock_to_stock_transaction(
     moved_device = move_device(
                                 device=device,
                                 hospital_id=hospital_id,
-                                status=status
+                                status=status,
+                                user_id=user_id
                               )
 
     create_device_history(

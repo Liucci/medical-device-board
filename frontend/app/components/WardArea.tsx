@@ -6,8 +6,9 @@ import { DeviceModelType } from "../types/deviceModelTypes"
 import { WardType } from "../types/wardTypes"
 import {CurrentUser  } from "../types/userTypes"
 import { RoomType } from "../types/roomTypes"
-
+import { WardLastUpdatedResponse} from "../types/deviceTypes"
 import RoomContainer from "./RoomContainer"
+import { formatDateTime } from "../utils/dateUtils"
 
 //page.tsxより
 type Props = {
@@ -30,6 +31,7 @@ type Props = {
   currentUser:CurrentUser 
   scrollRef: React.RefObject<HTMLDivElement | null>
   isDragging: boolean
+  wardLastUpdated: WardLastUpdatedResponse
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -54,7 +56,8 @@ export default function WardArea({
                                   setWardCellSize,
                                   currentUser,
                                   scrollRef,
-                                  isDragging
+                                  isDragging,
+                                  wardLastUpdated
 
                                 }: Props) {
   
@@ -87,8 +90,10 @@ return (
           病棟一覧
         </h2>
 
-        <span className="text-xs text-gray-500">
-          最終更新：{"lastUpdated"}
+        <span className="ml-3 text-xs text-gray-500">
+          最終更新：{wardLastUpdated.updatedAt
+          ? formatDateTime(wardLastUpdated.updatedAt)
+          : "-"}
         </span>
       </div>
       <div

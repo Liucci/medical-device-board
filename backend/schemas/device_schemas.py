@@ -109,3 +109,5 @@ class UpdateDeviceRentalDatesRequest(BaseModel):
     id: int
     rental_start_date: str | None = None
     rental_end_date: str | None = None
+
+

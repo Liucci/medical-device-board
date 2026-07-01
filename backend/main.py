@@ -37,6 +37,8 @@ from transactions.invites.get_invite_info_transaction import (get_invite_info_tr
 
 from devices.fetch_devices import (fetch_devices)
 from devices.add_device import (add_device)
+from devices.fetch_stock_last_updated import fetch_stock_last_updated
+from devices.fetch_ward_last_updated import fetch_ward_last_updated
 from stock_areas.fetch_stock_areas import (fetch_stock_areas)
 from wards.fetch_wards import (fetch_wards)
 from rooms.fetch_rooms import (fetch_rooms)
@@ -1415,6 +1417,38 @@ def move_room_to_room_new_patient_route(
                                                             )
 
     return moved_device
+
+@app.get("/stock-last-updated")
+def fetch_stock_last_updated_route(
+    current_user = Depends(get_current_user)
+):
+
+    print("fetch_last_updated_route")
+
+    hospital_id = current_user["hospital_id"]
+    stock_updated_at=fetch_stock_last_updated(hospital_id=hospital_id)
+    print("stock_updated_at:",stock_updated_at)
+    
+    return {
+        "updated_at": stock_updated_at,
+    }
+
+@app.get("/ward-last-updated")
+def fetch_ward_last_updated_route(
+    current_user = Depends(get_current_user)
+):
+
+    print("fetch_ward_last_updated_route")
+
+    hospital_id = current_user["hospital_id"]
+    ward_updated_at=fetch_ward_last_updated(hospital_id=hospital_id)
+    print("ward_updated_at:",ward_updated_at)
+    
+    return {
+        "updated_at": ward_updated_at,
+    }
+
+
 
 @app.post("/complete_maintenance_task")
 def complete_maintenance_task_api(

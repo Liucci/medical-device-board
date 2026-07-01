@@ -19,7 +19,6 @@ def fetch_init_dashboard(hospital_id: str,):
     tasks = fetch_maintenance_tasks( hospital_id)
     maintenance_types = ( fetch_maintenance_types(hospital_id) )
     histories = fetch_device_histories( hospital_id)
-
     return {
         "devices": devices,
         "stock_areas": stock_areas,

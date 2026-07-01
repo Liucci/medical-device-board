@@ -6,7 +6,8 @@ import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
-
+import { formatDateTime } from "../utils/dateUtils"
+import { StockLastUpdatedResponse} from "../types/deviceTypes"
 //page.tsxより
 type Props = {  
   deviceList: Device[]
@@ -28,6 +29,7 @@ type Props = {
   currentUser: any
   scrollRef: React.RefObject<HTMLDivElement | null>
   isDragging: boolean
+  stockLastUpdated: StockLastUpdatedResponse
 
 
 }
@@ -50,7 +52,8 @@ export default function StockAreas({ deviceList,
                                     setStockCellSize,
                                     currentUser,
                                     scrollRef,
-                                    isDragging
+                                    isDragging,
+                                    stockLastUpdated
                                     }: Props) {
 
 return (
@@ -81,8 +84,10 @@ return (
           ストックエリア一覧
         </h2>
 
-        <span className="text-xs text-gray-500">
-          最終更新：{"lastUpdated"}
+        <span className="ml-3 text-xs text-gray-500">
+          最終更新：{stockLastUpdated.updatedAt
+          ? formatDateTime(stockLastUpdated.updatedAt)
+          : "-"}
         </span>
       </div>
       <div

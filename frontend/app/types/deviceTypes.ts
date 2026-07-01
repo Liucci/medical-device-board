@@ -82,7 +82,7 @@ export type DeviceDB = {
   updated_by?: string
 
 }
-
+//front型定義
 export type CreateDeviceType = {
   type: DeviceType["typeID"]
   model: DeviceModel["modelID"]
@@ -93,7 +93,7 @@ export type CreateDeviceType = {
   rentalEndDate?: string
 }
 
-//request系はfrontからbackへアクセスすることを指す
+//request系はbackの型定義
 export type AddDeviceRequest = {
   type: number
   model: number
@@ -157,3 +157,19 @@ export type StartStandbyRequest = {
 export type FinishStandbyRequest = {
   id: number
 }
+
+export type StockLastUpdatedRequest = {
+  updated_at: string | null
+}
+export type StockLastUpdatedResponse = {
+  updatedAt: string | null
+}
+
+
+export type WardLastUpdatedRequest = {
+  updated_at: string | null
+}
+export type WardLastUpdatedResponse = {
+  updatedAt: string | null
+}
+

@@ -49,7 +49,8 @@ def move_room_to_room_new_patient_transaction(
     moved_device = move_device(
                                 device=device,
                                 hospital_id=hospital_id,
-                                status=status
+                                status=status,
+                                user_id=user_id
                               )
 
 

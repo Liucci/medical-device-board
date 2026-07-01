@@ -11,7 +11,7 @@ import RoomToRoomModal from "../components/modals/RoomToRoomModal"
 import StockInfoModal from "../components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
 import LowStockPanel from "../components/LowStockPanel"
-import { Device} from "../types/deviceTypes"
+import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
 import { normalizeRoom } from "../utils/roomsMapper"
@@ -46,6 +46,9 @@ import {getTasksFromApi} from "../api/tasks/fetchTasks"
 import {getMaintenanceTypesFromApi} from "../api/maintenanceTypes/fetchMaintenanceTypes"
 import {getHistoriesFromApi} from "../api/histories/fetchHistories"
 import { fetchInitDashboard } from "../api/transactions/fetchInitDashboard"
+import { fetchStockLastUpdated } from "../api/devices/fetchStockLastUpdated"
+import { fetchWardLastUpdated } from "../api/devices/fetchWardLastUpdated"
+
 import { deleteDeviceTransaction } from "../api/transactions/devices/deleteDeviceTransaction"
 import { updateManagementNumber } from "../api/transactions/devices/updateManagementNumber"
 import { updateSerialNumber } from "../api/transactions/devices/updateSerialNumber"
@@ -89,6 +92,14 @@ export default function Page() {
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
   const [serialNumber, setSerialNumber] = useState<string | undefined>(undefined)
+
+  const [stockLastUpdated, setStockLastUpdated] = useState<StockLastUpdatedResponse>({
+                                                                    updatedAt: null,
+                                                                  })
+
+const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>({
+                                                                            updatedAt: null,
+                                                                          })
 
   // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -146,72 +157,6 @@ export default function Page() {
         endDrag,
                       } = useDrag()
 
-
-
-/*   const startDrag = (
-                      target: HTMLElement,
-                      clientX: number,
-                      clientY: number,
-                      device: Device
-                    ) => {
-    
-    const rect = target.getBoundingClientRect()
-
-    setDragOffset({
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    })
-
-    setMousePos({
-      x: clientX,
-      y: clientY
-    })
-    //Dragイベント発生のフラグ
-    isDraggingRef.current = true
-    console.log("isDragging:",isDraggingRef)
-    //Drag対象の機器情報を格納
-    setDraggingDevice(device)
-
-  }
- */  
-
-
-/*   //auto scroll関連
-  const autoScroll = (container: HTMLElement,mouseX: number, mouseY: number) => {
-    const AUTO_SCROLL_MARGIN = 60  // 端の判定範囲(px)
-    const AUTO_SCROLL_SPEED = 10   // スクロール速度
-    const rect = container.getBoundingClientRect()
-        // ===== 縦スクロール =====
-    // 上端
-    if (mouseY < rect.top + AUTO_SCROLL_MARGIN) {
-      container.scrollTop -= AUTO_SCROLL_SPEED
-    }
-
-    // 下端
-    if (mouseY > rect.bottom - AUTO_SCROLL_MARGIN) {
-      container.scrollTop += AUTO_SCROLL_SPEED
-    }
-        // ===== 横スクロール =====
-        //左端
-    if (mouseX < rect.left + AUTO_SCROLL_MARGIN) {
-      container.scrollLeft -= AUTO_SCROLL_SPEED
-    }
-        //右端
-    if (mouseX > rect.right - AUTO_SCROLL_MARGIN) {
-      container.scrollLeft += AUTO_SCROLL_SPEED
-    }
-  }
-  //マウスがStockAreaまたはWardArea内にあるか判定するための関数
-  const isInside = (e: React.PointerEvent, el: HTMLElement) => {
-    const rect = el.getBoundingClientRect()
-    return (
-      e.clientX >= rect.left &&
-      e.clientX <= rect.right &&
-      e.clientY >= rect.top &&
-      e.clientY <= rect.bottom
-    )
-  }
- */
     // ドラッグ中の処理
   const handleMouseMove = (e: React.PointerEvent) => {
     // ✅ リサイズ優先
@@ -296,7 +241,6 @@ export default function Page() {
       )
     }
   }
-
   
   const handleDropToStock = async (
                                   device: Device,
@@ -986,6 +930,13 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     setTasks(data.tasks.map(normalizeMaintenanceTask))
     setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
     setHistories(data.histories.map(normalizeHistory))
+    //最終更新日を取得用APIをたたく
+    const stockLastUpdated = await fetchStockLastUpdated()
+    const wardLastUpdated = await fetchWardLastUpdated()
+    console.log("wardLastUpdated:",wardLastUpdated)
+    setStockLastUpdated(stockLastUpdated)
+    setWardLastUpdated(wardLastUpdated)
+
   }
   fetchData()}, [currentUser])
   
@@ -1030,6 +981,7 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
           currentUser={currentUser}
           scrollRef={wardScrollRef}
           isDragging={isDragging}
+          wardLastUpdated={wardLastUpdated}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1104,6 +1056,7 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
           currentUser={currentUser}
           scrollRef={stockScrollRef}
           isDragging={isDragging}
+          stockLastUpdated={stockLastUpdated}
         />
       </div>      
 
