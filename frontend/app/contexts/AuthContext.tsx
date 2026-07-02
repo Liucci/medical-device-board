@@ -29,15 +29,21 @@ const [currentUser,setCurrentUser] =
   )
 
 useEffect(() => {
+
+
 const restoreSession = async () => {
-  const user = await fetchCurrentUser()
+  try {
+    const user = await fetchCurrentUser()
 
-if (!user) {
-  setCurrentUser(null)
-  return
-}
+    if (!user) {
+      setCurrentUser(null)
+      return
+    }
 
-setCurrentUser(normalizeUser(user))
+    setCurrentUser(normalizeUser(user))
+  } catch (error) {
+    setCurrentUser(null)
+  }
 }
   restoreSession()
 

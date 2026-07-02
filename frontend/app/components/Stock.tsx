@@ -188,6 +188,7 @@ const isCurrentDragging = draggingDevice?.id === d.id
             isUnderMaintenance={d.isUnderMaintenance}
             standby={d.standby}
             standbyStartedAt={d.standbyStartedAt}
+            createAt={d.createAt}
           />
 
         </div>

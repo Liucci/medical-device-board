@@ -17,5 +17,7 @@ export async function getDevicesFromApi(): Promise<DeviceDB[]> {
                             }
                         )
 
+
+
     return await response.json()
 }

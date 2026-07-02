@@ -17,6 +17,7 @@ type Props = {
   isUnderMaintenance?: boolean
   standby?: boolean
   standbyStartedAt?: string
+  createAt?: string
 }
 
 export default function DeviceIcon({
@@ -31,9 +32,9 @@ export default function DeviceIcon({
   cellSize,
   isUnderMaintenance,
   standby,
-  standbyStartedAt
+  standbyStartedAt,
+  createAt,
 }: Props) {
-
   // ===== 表示レベル =====
   const displayLevel =
     cellSize >= 104
@@ -156,13 +157,19 @@ export default function DeviceIcon({
   rentalAlert === "red" ||
   isStandbyOverOneMonth
 
-
+  //新規登録から30秒以内はisNewがture
+  const isNew =
+    createAt
+      ? Date.now() - new Date(createAt+"Z").getTime() < 30 * 1000
+      : false
+ 
   return (
     <div
       className={`
         relative
         device-icon
         ${isBlink ? "blink" : ""}
+        ${isNew ? "new-glow" : ""}
       `}
     >
 

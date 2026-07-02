@@ -37,6 +37,25 @@ body {
   100% { opacity: 1.0; }
 }
 
+
+/* 機器アイコン光る */
+
+@keyframes newGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 0 10px rgba(59, 130, 246, 0.8),
+      0 0 20px rgba(59, 130, 246, 0.5);
+  }
+}
+
+.new-glow {
+  animation: newGlow 1.2s ease-in-out infinite;
+}
+
 /* ドラッグ開始時の機器アイコンのアニメーション */
 /*DragLayerで使用*/
 /*scale固定*/

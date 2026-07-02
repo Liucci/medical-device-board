@@ -176,7 +176,7 @@ return (
       >
 
       {roomDevices.slice(0, 6).map(d => {
-const isCurrentDragging = draggingDevice?.id === d.id
+        const isCurrentDragging = draggingDevice?.id === d.id
         const typeName =
           deviceTypes.find(t => t.id === d.type)?.name ?? "不明"
 
@@ -266,7 +266,6 @@ const isCurrentDragging = draggingDevice?.id === d.id
               isUnderMaintenance={d.isUnderMaintenance}
               standby={d.standby}
               standbyStartedAt={d.standbyStartedAt}
-
              />
           </div>
         )

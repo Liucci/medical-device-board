@@ -19,5 +19,5 @@ def fetch_stock_last_updated(
     )
 
    
-
+    print(response.data)
     return response.data[0]["updated_at"] if response.data else None
