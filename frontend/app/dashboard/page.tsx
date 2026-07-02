@@ -278,6 +278,7 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                         setRooms,
                                         setHistories,
                                         setTasks,
+                                        setRoomInfections,
                                         devices:deviceList
   })
 
@@ -395,6 +396,7 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                                     setRooms,
                                                     setHistories,
                                                     setTasks,
+                                                    setRoomInfections,
                                                     devices:deviceList
                                                   })
       }
@@ -944,6 +946,7 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
   const fetchData = async () => {
     if (!currentUser) {return}
     const data =await fetchInitDashboard()
+    console.log("infection_types:",data.infection_types)
     if (!data) {return}
     setDeviceList(data.devices.map(normalizeDevice))
     setStockAreas(data.stock_areas.map(normalizeStockArea))

@@ -13,6 +13,9 @@ import { authFetch } from "../../client"
 import{Device} from "../../../types/deviceTypes"
 import{RoomType} from "../../../types/roomTypes"
 import{MaintenanceType} from "../../../types/maintenanceTypeTypes"
+import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
+import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
+import { RoomInfectionType } from "../../../types/roomInfectionTypes"
 
 type MoveRoomToStockTransactionParams = {
                                           deviceId: number
@@ -22,6 +25,7 @@ type MoveRoomToStockTransactionParams = {
                                           setRooms: any
                                           setHistories: any
                                           setTasks: any
+                                          setRoomInfections:any
                                           devices: Device[]
                                           
                                         }
@@ -34,6 +38,7 @@ export async function moveRoomToStockTransaction({
                                                    setRooms,
                                                    setHistories,
                                                    setTasks,
+                                                   setRoomInfections,
                                                    devices,
                                                  }: MoveRoomToStockTransactionParams
                                                )
@@ -90,4 +95,6 @@ catch(error) {
 
   const tasks = await getTasksFromApi()
   setTasks(tasks.map(normalizeMaintenanceTask))
+  const roomInfections =await getRoomInfectionsFromApi()
+  setRoomInfections(roomInfections.map(normalizeRoomInfection))
 }

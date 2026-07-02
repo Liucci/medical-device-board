@@ -1,4 +1,8 @@
 import { Device } from "../types/deviceTypes"
+import { InfectionTypeType } from "../types/infectionTypeTypes"
+import { RoomInfectionType } from "../types/roomInfectionTypes"
+import { FaVirus } from "react-icons/fa"
+
 import DeviceIcon from "../utils/DeviceIcon"
 //import { deviceTypes, deviceModels } from "../types/deviceTypes"
 import {useRef} from "react"
@@ -30,6 +34,9 @@ type Props = {
   cellSize: number
   currentUser: any
   isDragging: boolean
+  infectionTypes:InfectionTypeType[]
+  roomInfections:RoomInfectionType[]
+  
 }
 
 export default function RoomContainer({
@@ -50,7 +57,9 @@ export default function RoomContainer({
                             managementNumber,
                             serialNumber,
                             currentUser,
-                            isDragging
+                            isDragging,
+                            infectionTypes,
+                            roomInfections
 
                             }: Props) {
 
@@ -65,7 +74,11 @@ const longPress = useRef(createLongPressState())
 //const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
 //const isLongPress = useRef(false)
 
-
+//病室の感染症を取得
+const roomInfectionsForRoom =
+  roomInfections.filter(
+    ri => ri.roomId === roomId
+  )
 
     // 病室に配置されている機器がない場合は病棟に何も表示しない
   if (roomDevices.length === 0) {
@@ -80,13 +93,18 @@ return (
         border: "1px solid #888",
         borderRadius: "8px",
         padding: "8px",
-        background: "#f9fafb",
+        //感染症時背景色変える
+        background:
+          roomInfectionsForRoom.length > 0
+            ? "#fff5f5"
+            : "#f9fafb",        
         minWidth: `${Math.max(cellSize + 24, 64)}px`,
         width: "fit-content"
         }}
-    >      
+    >   
+     {/* 病室名と感染マーク */}
     <div
-      className="font-bold mb-1"
+      className="flex items-center justify-between mb-1"
       style={{
         fontSize:
           cellSize >= 88
@@ -96,11 +114,38 @@ return (
             : cellSize >= 40
             ? "10px"
             : "8px",
-
         lineHeight: 1.1
       }}
     >
-      {roomName}
+
+      <div className="font-bold">
+        {roomName}
+      </div>
+
+      <div className="flex gap-1">
+
+        {roomInfectionsForRoom.map(ri => {
+
+          const infection =
+            infectionTypes.find(
+              i => i.id === ri.infectionTypeId
+            )
+
+          if (!infection) {return null}
+
+          return (
+            <FaVirus
+              key={ri.id}
+              size={12}
+              color={infection.color}
+              title={infection.name}
+            />
+          )
+
+        })}
+
+      </div>
+
     </div>
 
         {/* 🔥 患者名 */}

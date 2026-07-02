@@ -224,7 +224,6 @@ export default function InfectionSettingsModal({
         </button>
 
       </div>
-
       <LoadingOverlay loading={loading} />
     </>
   )

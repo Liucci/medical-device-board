@@ -2,7 +2,8 @@ import {
          RoomInfectionType,
          RoomInfectionDBType,
          CreateRoomInfectionType,
-         DeleteRoomInfectionsType
+         DeleteRoomInfectionsType,
+         UpdateRoomInfectionsType
        } from "../types/roomInfectionTypes"
 
 // DB → UI
@@ -29,3 +30,11 @@ export const toDeleteRoomInfectionsRequest = (
                                              ) => ({
                                                      ids: roomInfection.ids
                                                    })
+
+// Update
+export const toUpdateRoomInfectionsRequest = (
+                                                roomInfection: UpdateRoomInfectionsType
+                                              ) => ({
+                                                      room_id: roomInfection.roomId,
+                                                      infection_type_ids: roomInfection.infectionTypeIds
+                                                    })

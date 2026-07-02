@@ -26,7 +26,7 @@ import DeviceTypeSettingsModal from "./DeviceTypeSettingsModal"
 import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
-import InfectionModal from "./InfectionModal"
+import InfectionSettingModal from "./InfectionSettingModal"
 
 type Props = {
   onClose: () => void
@@ -216,7 +216,7 @@ export default function SettingsModal({
               戻る
             </button>
 
-            <InfectionModal
+            <InfectionSettingModal
               infectionTypes={infectionTypes}
               setInfectionTypes={setInfectionTypes}
             />

@@ -19,3 +19,8 @@ class AddRoomInfectionRequest(BaseModel):
 # Delete
 class DeleteRoomInfectionsRequest(BaseModel):
     ids: list[int]
+
+#backからDBへ
+class UpdateRoomInfectionsRequest(BaseModel):
+    room_id: int
+    infection_type_ids: list[int]

@@ -30,5 +30,5 @@ def fetch_infection_type(
         .single()
         .execute()
     )
-
+    print("infection_type:",response)
     return response.data

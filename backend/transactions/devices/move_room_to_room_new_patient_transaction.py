@@ -12,7 +12,7 @@ from rooms.update_rooms import (
                                )
 
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
-
+from room_infections.delete_room_infections import delete_room_infections_by_room_id
 from transactions.tasks.create_device_tasks_transaction import (create_device_tasks_transaction)
 from transactions.histories.create_device_history import (create_device_history)
 from schemas.device_schemas import (
@@ -97,12 +97,20 @@ def move_room_to_room_new_patient_transaction(
                                             room_id=pre_room.id,
                                             hospital_id=hospital_id
                                         )
-    if len(room_devices) == 0:
+    room_devices_count = len(room_devices)
+    print("病室機器数 =", room_devices_count)
+    if room_devices_count == 0:
          clear_room_patientname(
                             room=pre_room,
                             hospital_id=hospital_id,
                             patient_name=""
                           )
+         #感染情報削除
+         delete_room_infections_by_room_id(
+                                          room_id=pre_room.id,
+                                          hospital_id=hospital_id
+                                       )
+
 
 
     # task再生成

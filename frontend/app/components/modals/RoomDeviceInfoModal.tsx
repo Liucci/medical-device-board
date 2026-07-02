@@ -14,7 +14,11 @@ import { createPortal } from "react-dom"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
+import { InfectionTypeType } from "../../types/infectionTypeTypes"
+import { RoomInfectionType } from "../../types/roomInfectionTypes"
+import InfectionSelectModal from "./InfectionSelectModal"
 
+import { FaVirus } from "react-icons/fa"
 
 //page.tsxから
 //stateレス化
@@ -49,6 +53,9 @@ type Props = {
 cancelTask: (
               task: CancelMaintenanceTask
             ) => Promise<boolean>
+infectionTypes:InfectionTypeType[]
+roomInfections:RoomInfectionType[]
+setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export default function RoomDeviceInfoModal({
@@ -70,8 +77,12 @@ export default function RoomDeviceInfoModal({
   renameRentalDates,
   renameMaintenanceTaskDueAt,
   cancelTask,
+  infectionTypes,
+  roomInfections,
+  setRoomInfections
 }: Props) {
 const [loading, setLoading] = useState(false)
+const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
 
 
 if (!isOpen || !selectedRoomDevice) return null
@@ -351,6 +362,70 @@ return createPortal(
                 
               }}
             />
+            {/* 感染症 */}
+            
+            <div className="flex items-start justify-between py-2">
+              <div className="flex">
+
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  感染症：
+                </span>
+
+                <div className="ml-2 flex flex-col gap-1">
+
+                  {room &&
+                  roomInfections.filter(
+                    ri => ri.roomId === room.id
+                  ).length > 0 ? (
+
+                    roomInfections
+                      .filter(
+                        ri => ri.roomId === room.id
+                      )
+                      .map(ri => {
+                        const infection =
+                          infectionTypes.find(
+                            i => i.id === ri.infectionTypeId
+                          )
+
+                        return (
+                          <div
+                            key={ri.id}
+                            className="flex items-center gap-1 text-sm"
+                          >
+                            <FaVirus
+                              size={12}
+                              color={infection?.color}
+                            />
+
+                            <span>
+                              {infection?.name}
+                            </span>
+                          </div>
+                        )
+                      })
+
+                  ) : (
+
+                    <span className="text-sm text-gray-400">
+                      （なし）
+                    </span>
+
+                  )}
+
+                </div>
+
+              </div>
+              <button
+                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={() => setIsInfectionModalOpen(true)}
+              >
+                編集
+              </button>
+            </div>
+
+
+
 
             <InfoRow
               label="管理番号"
@@ -764,6 +839,18 @@ return createPortal(
     </div>
 
   </div>
+    <InfectionSelectModal
+      isOpen={isInfectionModalOpen}
+      onClose={() => setIsInfectionModalOpen(false)}
+      infectionTypes={infectionTypes}
+      roomInfections={roomInfections}
+      roomId={room?.id ?? 0}
+      setRoomInfections={setRoomInfections}
+    />
+
+
+
+
       <LoadingOverlay loading={loading} />
   </>
 

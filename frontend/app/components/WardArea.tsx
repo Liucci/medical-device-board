@@ -7,6 +7,9 @@ import { WardType } from "../types/wardTypes"
 import {CurrentUser  } from "../types/userTypes"
 import { RoomType } from "../types/roomTypes"
 import { WardLastUpdatedResponse} from "../types/deviceTypes"
+import { InfectionTypeType } from "../types/infectionTypeTypes"
+import { RoomInfectionType } from "../types/roomInfectionTypes"
+
 import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateUtils"
 
@@ -32,6 +35,9 @@ type Props = {
   scrollRef: React.RefObject<HTMLDivElement | null>
   isDragging: boolean
   wardLastUpdated: WardLastUpdatedResponse
+  infectionTypes:InfectionTypeType[]
+  roomInfections:RoomInfectionType[]
+
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -57,7 +63,9 @@ export default function WardArea({
                                   currentUser,
                                   scrollRef,
                                   isDragging,
-                                  wardLastUpdated
+                                  wardLastUpdated,
+                                  infectionTypes,
+                                  roomInfections
 
                                 }: Props) {
   
@@ -242,6 +250,8 @@ return (
                       serialNumber={serialNumber}
                       currentUser={currentUser}
                       isDragging={isDragging}
+                      roomInfections={roomInfections}
+                      infectionTypes={infectionTypes}
                     />
                   ))
                 }

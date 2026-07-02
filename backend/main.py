@@ -159,6 +159,8 @@ from transactions.infection_types.delete_infection_types_transaction import dele
 from transactions.room_infections.create_room_infection_transaction import create_room_infection_transaction
 from transactions.room_infections.delete_room_infections_transaction import delete_room_infections_transaction
 
+from schemas.room_infection_schemas import UpdateRoomInfectionsRequest
+from transactions.room_infections.update_room_infections_transaction import update_room_infections_transaction
 
 from fastapi.responses import StreamingResponse
 
@@ -1264,6 +1266,18 @@ def delete_room_infections_route(
                                         room_infection,
                                         current_user["hospital_id"]
                                       )
+
+@app.post("/update-room-infections-transaction")
+def update_room_infections_route(
+    room_infection: UpdateRoomInfectionsRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user(auth_user_id)
+
+    print("update_room_infections_route")
+    hospital_id = current_user["hospital_id"]
+    
+    return update_room_infections_transaction(room_infection, hospital_id)
 
 
 

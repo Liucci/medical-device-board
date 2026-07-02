@@ -11,6 +11,8 @@ import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
 import { authFetch } from "../../client"
 import{Device} from "../../../types/deviceTypes"
+import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
+import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
 
 
 type MoveRoomToRoomNewPatientTransactionParams = {
@@ -22,6 +24,7 @@ type MoveRoomToRoomNewPatientTransactionParams = {
                                                     setRooms: any
                                                     setHistories: any
                                                     setTasks: any
+                                                    setRoomInfections:any
                                                     devices: Device[]
                                                   }
 
@@ -34,6 +37,7 @@ export async function moveRoomToRoomNewPatientTransaction({
                                                             setRooms,
                                                             setHistories,
                                                             setTasks,
+                                                            setRoomInfections,
                                                             devices
                                                           }: MoveRoomToRoomNewPatientTransactionParams
                                                         )
@@ -94,5 +98,6 @@ catch(error) {
 
   const tasks = await getTasksFromApi()
   setTasks(tasks.map(normalizeMaintenanceTask))
-  
+  const roomInfections =await getRoomInfectionsFromApi()
+  setRoomInfections(roomInfections.map(normalizeRoomInfection))
 }

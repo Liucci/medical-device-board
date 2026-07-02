@@ -14,7 +14,7 @@ def fetch_room_infections(hospital_id: str):
     return response.data
 
 
-def fetch_room_infection(
+def fetch_room_infections_by_room_id(
                             room_infection_id: int,
                             hospital_id: str
                         ):
@@ -27,7 +27,6 @@ def fetch_room_infection(
         .select("*")
         .eq("id", room_infection_id)
         .eq("hospital_id", hospital_id)
-        .single()
         .execute()
     )
 

@@ -24,3 +24,10 @@ export type CreateRoomInfectionType = {
 export type DeleteRoomInfectionsType = {
                                         ids: number[]
                                       }
+
+
+// Update専用
+export type UpdateRoomInfectionsType = {
+                                         roomId: number
+                                         infectionTypeIds: number[]
+                                       }

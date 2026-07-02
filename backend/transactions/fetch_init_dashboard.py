@@ -7,6 +7,8 @@ from device_models.fetch_device_models import fetch_device_models
 from tasks.fetch_maintenance_tasks import fetch_maintenance_tasks
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
 from histories.fetch_histories import fetch_device_histories
+from infection_types.fetch_infection_types import fetch_infection_types
+from room_infections.fetch_room_infections import fetch_room_infections
 
 def fetch_init_dashboard(hospital_id: str,):
     print("fetch_init_dashboard")
@@ -19,6 +21,8 @@ def fetch_init_dashboard(hospital_id: str,):
     tasks = fetch_maintenance_tasks( hospital_id)
     maintenance_types = ( fetch_maintenance_types(hospital_id) )
     histories = fetch_device_histories( hospital_id)
+    infection_types=fetch_infection_types(hospital_id)
+    room_infections=fetch_room_infections(hospital_id)
     return {
         "devices": devices,
         "stock_areas": stock_areas,
@@ -29,4 +33,7 @@ def fetch_init_dashboard(hospital_id: str,):
         "tasks": tasks,
         "maintenance_types": maintenance_types,
         "histories": histories,
+        "infection_types": infection_types,
+        "room_infections": room_infections,
+
     }
