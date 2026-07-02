@@ -29,25 +29,16 @@ const [currentUser,setCurrentUser] =
   )
 
 useEffect(() => {
+const restoreSession = async () => {
+  const user = await fetchCurrentUser()
 
-  const restoreSession = async () => {
-    console.log("restoreSession start")
-    const user =
-      await fetchCurrentUser()
+if (!user) {
+  setCurrentUser(null)
+  return
+}
 
-/*     if (!user) {
-      localStorage.removeItem(
-        "access_token"
-      )
-      setCurrentUser(null)
-      return
-    } */
-
-    setCurrentUser(
-      normalizeUser(user)
-    )
-  }
-
+setCurrentUser(normalizeUser(user))
+}
   restoreSession()
 
 }, [])

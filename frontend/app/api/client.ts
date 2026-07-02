@@ -36,8 +36,10 @@ export async function authFetch(
   }
 
   const refreshed = await refreshPromise
-  if (!refreshed) {throw new Error("ログイン期限切れ")}
-
+if (!refreshed) {
+  console.log("ログイン期限切れ")
+  return null
+}
   token = localStorage.getItem("access_token")
 
   response = await fetch(

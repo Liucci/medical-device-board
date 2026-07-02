@@ -899,45 +899,9 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     router.push("/login")
   }
 
-  //未login時はlogin画面に遷移
-  useEffect(() => {
-    // session確認中
-    if (currentUser === undefined) {
-      return
-    }
-    // 未login
-    if (!currentUser) {
-      router.push("/login")
-    }
-  }, [currentUser, router])
-
-  //draggingDeviceの状態が変わるたびにコンソールに出力する
-  useEffect(() => {
-    console.log("selected draggingDevice", draggingDevice)
-  }, [draggingDevice])
 
 
     
-  //deviveListが更新されたら、更新されたdeviceだけ出力
-  const prevDeviceListRef = useRef<Device[]>([])
-  useEffect(() => {
-    const prev = prevDeviceListRef.current
-
-    // 更新されたdeviceだけ抽出
-    const updatedDevices = deviceList.filter(current => {
-      const old = prev.find(d => d.id === current.id)
-
-      // 新規 or 内容が変わった
-      return !old || JSON.stringify(old) !== JSON.stringify(current)
-    })
-
-    if (updatedDevices.length > 0) {
-      console.log("更新されたdevice:", updatedDevices)
-    }
-
-    // 次回のために保存
-    prevDeviceListRef.current = deviceList
-  }, [deviceList])
 
 
  
@@ -970,15 +934,22 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
   }
   fetchData()}, [currentUser])
   
-  useEffect(() => {
-  console.log("tasks updated", tasks)
-  }, [tasks])
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
-    if (!currentUser) {
-    return null
-    }
+  useEffect(() => {
+    if (currentUser === undefined) return
 
+    if (!currentUser) {
+      router.replace("/login")
+    }
+  }, [currentUser, router])
+
+  if (currentUser === undefined) {
+    return null // 認証確認中
+  }
+if (!currentUser) {
+  return null
+}
 
     return (
       <div
