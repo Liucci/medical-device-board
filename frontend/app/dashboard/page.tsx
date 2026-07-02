@@ -383,6 +383,7 @@ const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>(
                                         setDevices: setDeviceList,
                                         setRooms,
                                         setHistories,
+                                        setRoomInfections,
                                         devices:deviceList
                                       })
       } 

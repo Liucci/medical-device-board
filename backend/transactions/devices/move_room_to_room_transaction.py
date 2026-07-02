@@ -6,7 +6,7 @@ from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ( ClearRoomPatientRequest,
                                     UpdateRoomPatientRequest)
 from transactions.histories.create_device_history import (create_device_history)
-
+from transactions.room_infections.move_room_infections import move_room_infections
 def move_room_to_room_transaction(
                                     device: MoveDeviceRequest,
                                     pre_room: ClearRoomPatientRequest,
@@ -43,8 +43,12 @@ def move_room_to_room_transaction(
                               room=post_room,
                               hospital_id=hospital_id
                            )
-
-
+    #移動元感染情報削除、移動先感染情報追加
+    move_room_infections(
+                        from_room_id=pre_room.id,
+                        to_room_id=post_room.id,
+                        hospital_id=hospital_id
+                    )
     # 履歴作成
     create_device_history(
                               device_id=device.id,

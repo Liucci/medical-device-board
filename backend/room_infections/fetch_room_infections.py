@@ -15,7 +15,7 @@ def fetch_room_infections(hospital_id: str):
 
 
 def fetch_room_infections_by_room_id(
-                            room_infection_id: int,
+                            room_id: int,
                             hospital_id: str
                         ):
 
@@ -25,7 +25,7 @@ def fetch_room_infections_by_room_id(
         supabase
         .table("room_infections")
         .select("*")
-        .eq("id", room_infection_id)
+        .eq("room_id", room_id)
         .eq("hospital_id", hospital_id)
         .execute()
     )

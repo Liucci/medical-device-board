@@ -932,3 +932,62 @@ Transaction
 という統一パターンへ変更した。
 
 これによりTask系APIの保守性・可読性が向上した。
+
+
+## 2026-07-02 感染症管理機能追加
+
+### 感染症管理
+
+* `infection_types` テーブルによる感染症マスタ管理を実装
+* `room_infections` テーブルによる病室単位の感染症管理を実装
+* `fetchRoomInfections` API追加
+* `updateRoomInfectionsTransaction` を追加し、病室ごとの感染症を一括更新可能にした
+* InfectionType用 Mapper を追加
+* RoomInfection用 Mapper を追加
+
+### RoomDeviceInfoModal
+
+* 「感染症」項目を追加
+* 「編集」ボタンから `InfectionSelectModal` を表示
+* チェックボックスで複数感染症を選択可能
+* 保存時に `updateRoomInfectionsTransaction` を実行
+* 選択済み感染症を `FaVirus` アイコンと名称で表示
+* 感染症色をアイコンへ反映
+
+### InfectionSelectModal
+
+* 感染症一覧をチェックボックス形式で表示
+* `FaVirus` アイコンを使用
+* アイコン色は感染症マスタの `color` を反映
+* 保存ボタンから病室感染症を更新
+
+### RoomContainer
+
+* 病室名右側へ感染症アイコンを表示
+* `FaVirus` アイコンを使用
+* 感染症ごとの色を反映
+* 感染症が存在する病室は背景色を変更し、一覧画面でも一目で判別できるよう改善
+
+### Transaction改善
+
+* `moveRoomToStockTransaction`
+
+  * 病室内機器が0台になった場合、患者名をクリア
+  * あわせて `room_infections` を削除するよう変更
+  * Frontendの `roomInfections` State を再取得し、リロード不要で画面へ反映
+
+* `moveRoomToRoomNewPatientTransaction`
+
+  * 移動元病室の機器が0台になった場合、患者名をクリア
+  * あわせて `room_infections` を削除するよう変更
+  * Frontendの `roomInfections` State を再取得し、リロード不要で画面へ反映
+
+### 不具合修正
+
+* `move_room_to_room_new_patient_transaction.py` にて
+  `delete_room_infections_by_room_id(room_id=pre_room)` となっていたため500エラーが発生。
+  `room_id=pre_room.id` へ修正。
+
+### UI改善
+
+* 感染症表示を患者情報から病室一覧へも反映し、病棟全体で感染症病室を素早く判別できるよう改善。

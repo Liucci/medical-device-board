@@ -9,6 +9,8 @@ import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { authFetch } from "../../client"
 import{Device} from "../../../types/deviceTypes"
+import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
+import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
 
 type MoveRoomToRoomTransactionParams = {
                                           deviceId: number
@@ -18,6 +20,7 @@ type MoveRoomToRoomTransactionParams = {
                                           setDevices: any
                                           setRooms: any
                                           setHistories: any
+                                          setRoomInfections:any
                                           devices: Device[]
                                         }
 
@@ -29,6 +32,7 @@ export async function moveRoomToRoomTransaction({
                                                   setDevices,
                                                   setRooms,
                                                   setHistories,
+                                                  setRoomInfections,
                                                   devices
                                                 }: MoveRoomToRoomTransactionParams
                                               )
@@ -88,4 +92,7 @@ catch(error) {
 
   const histories = await getHistoriesFromApi()
   setHistories(histories.map(normalizeHistory))
+  const roomInfections =await getRoomInfectionsFromApi()
+  setRoomInfections(roomInfections.map(normalizeRoomInfection))
+  
 }
