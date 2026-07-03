@@ -154,7 +154,7 @@ const isCurrentDragging = draggingDevice?.id === d.id
                 cancelLongPress(longPress.current)
               }}
 
-
+/* 右クリック機能
               onContextMenu={(e) => {
               e.preventDefault()
               if (d.id === undefined) return
@@ -162,6 +162,8 @@ const isCurrentDragging = draggingDevice?.id === d.id
                 deleteDevice(d.id)
               }
             }}
+
+ */             
               /*draggingDeviceのidと現在のdeviceのidが同じ場合は、
               position:relativeでマウスに追従させる。
               それ以外はgridの位置に配置する。*/ 

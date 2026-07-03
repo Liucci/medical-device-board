@@ -11,6 +11,7 @@ import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
+import { FaTrashAlt } from "react-icons/fa"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
@@ -56,6 +57,8 @@ cancelTask: (
 infectionTypes:InfectionTypeType[]
 roomInfections:RoomInfectionType[]
 setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
+onDelete: (deviceId: number) => Promise<void>
+
 }
 
 export default function RoomDeviceInfoModal({
@@ -79,7 +82,8 @@ export default function RoomDeviceInfoModal({
   cancelTask,
   infectionTypes,
   roomInfections,
-  setRoomInfections
+  setRoomInfections,
+  onDelete
 }: Props) {
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
@@ -233,7 +237,20 @@ const deviceTasks =
     }
     })
   }  
+  const handleDelete = async () => {
+    if (!selectedRoomDevice?.id) return
 
+    if (!confirm("この機器を削除しますか？")) return
+
+    await executeWithLoading({
+        setLoading,
+        action: async () => {
+          await onDelete(selectedRoomDevice.id!)
+
+    onCancel()
+       }
+  })
+  }
 return createPortal(
   <>
   <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
@@ -263,6 +280,22 @@ return createPortal(
       >
         ✕
       </button>
+
+      <button
+      onClick={handleDelete}
+      className="
+        absolute
+        top-4
+        right-4
+        text-gray-400
+        hover:text-red-500
+        text-xl
+        transition-colors
+      "
+      title="機器を削除"
+    >
+      <FaTrashAlt size={18} />
+    </button>
 
       <h2 className="text-xl font-bold text-center">
         病棟機器情報

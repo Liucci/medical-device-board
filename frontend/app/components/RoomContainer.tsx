@@ -239,13 +239,18 @@ return (
 
 
 
-              onContextMenu={(e) => {
+/*  右クリック機能
+             onContextMenu={(e) => {
                 console.log("右クリック検知")
                 e.preventDefault()
                 if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
                   deleteDevice(d.id)
               }
             }}
+ */            
+
+
+
             //機器アイコンdrag中は元位置のアイコンは見えなくする
             style={{
               touchAction: "none",

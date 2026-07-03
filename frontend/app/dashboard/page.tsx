@@ -1154,6 +1154,7 @@ if (!currentUser) {
         renameRentalDates={renameRentalDates}
         renameMaintenanceDates={renameMaintenanceDates} 
         toggleDeviceMaintenance={toggleDeviceMaintenance}
+        onDelete={deleteDevice}
       />
        {/* 病室機器詳細モーダル表示 */}
       <RoomDeviceInfoModal
@@ -1178,6 +1179,7 @@ if (!currentUser) {
         infectionTypes={infectionTypes}
         roomInfections={roomInfections}
         setRoomInfections={setRoomInfections}
+        onDelete={deleteDevice}
 
       />
 

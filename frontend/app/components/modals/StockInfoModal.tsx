@@ -10,6 +10,8 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 
 import { createPortal } from "react-dom"
+import { FaTrashAlt } from "react-icons/fa"
+
 import {executeWithLoading} from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
@@ -28,6 +30,8 @@ type Props = {
   renameRentalDates:(id: number, startDate?: string, endDate?: string)=> Promise<boolean>
   renameMaintenanceDates:(id: number, maintenanceStartedAt?: string)=>Promise<boolean>
   toggleDeviceMaintenance: (deviceId: number, nextMaintenance: boolean) => Promise<boolean>
+  onDelete: (deviceId: number) => Promise<void>
+
 }
 
 export default function StockInfoModal({
@@ -42,7 +46,9 @@ export default function StockInfoModal({
   renameNote,
   renameRentalDates,
   renameMaintenanceDates,
-  toggleDeviceMaintenance
+  toggleDeviceMaintenance,
+  onDelete
+
 }: Props) {
   const [loading, setLoading] = useState(false)
   
@@ -108,12 +114,26 @@ export default function StockInfoModal({
                 ✏
               </button>
             </div>
-  )
+            )
+    const handleDelete = async () => {
+      if (!device?.id) return
+
+      if (!confirm("この機器を削除しますか？")) return
+
+      await executeWithLoading({
+          setLoading,
+          action: async () => {
+            await onDelete(device.id!)
+
+      onCancel()
+        }
+    })
+    }
 
   return createPortal(
     <>
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
         <button
           onClick={onCancel}
           className="
@@ -128,6 +148,24 @@ export default function StockInfoModal({
         >
           ✕
         </button>
+      <button
+      onClick={handleDelete}
+      className="
+        absolute
+        top-4
+        right-4
+        text-gray-400
+        hover:text-red-500
+        text-xl
+        transition-colors
+      "
+      title="機器を削除"
+    >
+      <FaTrashAlt size={18} />
+    </button>
+
+
+
         {/* 🔽 タイトル */}
         <h2 className="text-xl font-bold text-center">
           機器情報（Stock）
