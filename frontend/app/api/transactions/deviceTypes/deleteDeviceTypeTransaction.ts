@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { DeleteDeviceTypeType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
          toDeleteDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 type DeleteDeviceTypeTransactionParams = {
                                             deviceType: DeleteDeviceTypeType

@@ -1,10 +1,10 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { getTasksFromApi }from "../../tasks/fetchTasks"
 import {
          normalizeMaintenanceTask,
          toCompleteMaintenanceTaskRequest
        } from "../../../utils/taskMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 import { CompleteMaintenanceTask } from "../../../types/taskTypes"
 
 type Params = {

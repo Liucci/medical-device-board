@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL } from "../../client/apiClient"
 
 import { RegisterUserRequest } from "../../types/registerTypes"
 

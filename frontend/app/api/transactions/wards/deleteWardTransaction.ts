@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { DeleteWardsType } from "../../../types/wardTypes"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"

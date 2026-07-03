@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
@@ -9,7 +9,7 @@ import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 
 

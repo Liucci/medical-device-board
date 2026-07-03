@@ -1,5 +1,5 @@
 
-import { API_BASE_URL,authFetch  } from "../client"
+import { API_BASE_URL,authFetch  } from "../../client/apiClient"
 import { History } from "../../types/historyTypes"
 import { toDBHistory, normalizeHistory } from "../../utils/historyMapper"
 

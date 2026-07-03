@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { CreateInfectionTypeType } from "../../../types/infectionTypeTypes"
 import { getInfectionTypesFromApi } from "../../infectionTypes/fetchInfectionTypes"
 import {
          normalizeInfectionType,
          toCreateInfectionTypeRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 type CreateInfectionTypeTransactionParams = {
                                                infectionType: CreateInfectionTypeType

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getTasksFromApi } from "../../tasks/fetchTasks"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
@@ -10,7 +10,7 @@ import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfectio
 
 import { normalizeRoom } from "@/app/utils/roomsMapper"
 import { normalizeRoomInfection } from "@/app/utils/roomInfectionMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 
 type DeleteDeviceTransactionParams = {

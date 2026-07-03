@@ -1,8 +1,8 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import {
          toFinishStandbyRequest
        } from "../../../utils/deviceMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 export async function finishStandby(
                                       id: number

@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { CreateRoomType } from "../../../types/roomTypes"
 import { getRoomsFromApi } from "../../../api/rooms/fetchRooms"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 import {
          normalizeRoom,
          toCreateRoomRequest

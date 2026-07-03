@@ -1,4 +1,4 @@
-import { API_BASE_URL,authFetch } from "../client"
+import { API_BASE_URL,authFetch } from "../../client/apiClient"
 import { InviteFirstAdminRequestDB } from "../../types/inviteTypes"
 
 export const inviteFirstAdmin = async (

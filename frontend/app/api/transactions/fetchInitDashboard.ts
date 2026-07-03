@@ -1,5 +1,5 @@
-import { API_BASE_URL }from "../client"
-import { authFetch } from "../client"
+import { API_BASE_URL }from "../../client/apiClient"
+import { authFetch } from "../../client/apiClient"
 
 export const fetchInitDashboard =async () => {
 

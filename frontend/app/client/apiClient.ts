@@ -1,4 +1,4 @@
-import {refreshToken} from "./auth/refreshToken"
+import {refreshToken} from "../api/auth/refreshToken"
 
 export const API_BASE_URL =
   process.env.NODE_ENV === "development"

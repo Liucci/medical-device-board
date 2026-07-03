@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../../client/apiClient"
 import { DeleteRoomInfectionsType } from "../../../types/roomInfectionTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
 import {
          normalizeRoomInfection,
          toDeleteRoomInfectionsRequest
        } from "../../../utils/roomInfectionMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../../client/apiClient"
 
 type DeleteRoomInfectionsTransactionParams = {
                                                 roomInfections: DeleteRoomInfectionsType

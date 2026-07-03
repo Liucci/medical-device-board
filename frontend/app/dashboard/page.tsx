@@ -1,5 +1,5 @@
 "use client"
-import { API_BASE_URL } from "../api/client"
+import { API_BASE_URL } from "../client/apiClient"
 
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
@@ -94,6 +94,9 @@ import {
           cancelLongPress,
         } from "../drag/longPress"
 
+//real time
+import { subscribeDevicesRealtime } from "../realtime/devicesRealtime"
+
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
@@ -116,7 +119,7 @@ export default function Page() {
                                                                     updatedAt: null,
                                                                   })
 
-const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>({
+  const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>({
                                                                             updatedAt: null,
                                                                           })
 
@@ -901,10 +904,22 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     router.push("/login")
   }
 
+//Realtime購読前にも一度access tokenを設定しておく
+useEffect(() => {
 
+  const accessToken = localStorage.getItem("access_token")
 
-    
+  if (accessToken) {
+    supabase.realtime.setAuth(accessToken)
+  }
 
+  const unsubscribe = subscribeDevicesRealtime({
+    setDeviceList,
+  })
+
+  return unsubscribe
+
+}, [])
 
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る

@@ -1,6 +1,6 @@
 import {DeviceListExportUIType}from "@/app/types/exportTypes"
 import {DeviceListExportDBMapper}from "@/app/utils/exportMapper"
-import { API_BASE_URL,authFetch  }from "../client"
+import { API_BASE_URL,authFetch  }from "../../client/apiClient"
 
 
 export async function exportDeviceListPdfFromApi(

@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch } from "../client"
+import { API_BASE_URL, authFetch } from "../../client/apiClient"
 import { WardLastUpdatedResponse } from "@/app/types/deviceTypes"
 import { normalizeWardLastUpdated } from "../../utils/deviceMapper"
 

@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch} from "../client"
+import { API_BASE_URL, authFetch} from "../../client/apiClient"
 
 export const createInviteCode = async (
                                         email: string,
