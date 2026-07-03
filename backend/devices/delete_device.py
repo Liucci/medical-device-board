@@ -16,4 +16,3 @@ def delete_device(device: DeleteDeviceRequest,
         .eq("hospital_id",hospital_id)
         .execute()
     )
-

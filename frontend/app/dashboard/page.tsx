@@ -733,9 +733,11 @@ if (updatedDevice) {
       deviceId,
       setDeviceList,
       setTasks,
-      setHistories
-    })
-  } 
+      setHistories,
+      setRooms,
+      setRoomInfections  
+      })
+    } 
 
 
 

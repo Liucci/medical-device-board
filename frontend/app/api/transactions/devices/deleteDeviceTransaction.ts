@@ -5,6 +5,11 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import {toDeleteDeviceRequest,normalizeDevice} from "../../../utils/deviceMapper"
 import { normalizeMaintenanceTask } from "@/app/utils/taskMapper"
 import { normalizeHistory } from "@/app/utils/historyMapper"
+import { getRoomsFromApi } from "../../rooms/fetchRooms"
+import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
+
+import { normalizeRoom } from "@/app/utils/roomsMapper"
+import { normalizeRoomInfection } from "@/app/utils/roomInfectionMapper"
 import { authFetch } from "../../client"
 
 
@@ -13,6 +18,8 @@ type DeleteDeviceTransactionParams = {
     setDeviceList: any
     setTasks: any
     setHistories: any
+    setRooms: any
+    setRoomInfections: any
     onClose?: () => void
 }
 
@@ -21,6 +28,8 @@ export async function deleteDeviceTransaction({
     setDeviceList,
     setTasks,
     setHistories,
+    setRooms,
+    setRoomInfections,
     onClose
 }: DeleteDeviceTransactionParams) {
 
@@ -42,18 +51,17 @@ export async function deleteDeviceTransaction({
         }
     )
 
-    const devices =
-        await getDevicesFromApi()
-
-    const tasks =
-        await getTasksFromApi()
-
-    const histories =
-        await getHistoriesFromApi()
+    const devices =await getDevicesFromApi()
+    const tasks =await getTasksFromApi()
+    const histories =await getHistoriesFromApi()
+    const rooms = await getRoomsFromApi()
+    const roomInfections =await getRoomInfectionsFromApi()
 
     setDeviceList(devices.map(normalizeDevice))
     setTasks(tasks.map(normalizeMaintenanceTask))
     setHistories(histories.map(normalizeHistory))
+    setRooms(rooms.map(normalizeRoom))
+    setRoomInfections(roomInfections.map(normalizeRoomInfection))
 
     if (onClose) {
         onClose()
