@@ -89,7 +89,12 @@ const roomInfectionsForRoom =
    
 return (
     <div
-      style={{
+        className={
+                    roomInfectionsForRoom.length > 0
+                      ? "infection-glow"
+                      : ""
+                  }
+        style={{
         border: "1px solid #888",
         borderRadius: "8px",
         padding: "8px",

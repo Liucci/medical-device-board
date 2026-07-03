@@ -151,8 +151,8 @@ export default function DeviceIcon({
     return today >= limit
   })()
 
-    // ===== 点滅 =====
-  const isBlink =
+    // ===== 光る =====
+  const isGlow =
   mAlert === "red" ||
   rentalAlert === "red" ||
   isStandbyOverOneMonth
@@ -168,8 +168,8 @@ export default function DeviceIcon({
       className={`
         relative
         device-icon
-        ${isBlink ? "blink" : ""}
-        ${isNew ? "new-glow" : ""}
+        ${isGlow ? "new-glow" : ""}
+        ${isNew ?  "blink": ""}
       `}
     >
 
