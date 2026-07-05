@@ -96,6 +96,18 @@ import {
 
 //real time
 import { subscribeDevicesRealtime } from "../realtime/devicesRealtime"
+import { subscribeWardsRealtime } from "../realtime/wardsRealtime"
+import { subscribeRoomsRealtime } from "../realtime/roomsRealtime"
+import { subscribeStockAreasRealtime } from "../realtime/stockAreasRealtime"
+import { subscribeDeviceTypesRealtime } from "../realtime/deviceTypesRealtime"
+import { subscribeDeviceModelsRealtime } from "../realtime/deviceModelsRealtime"
+import { subscribeMaintenanceTypesRealtime } from "../realtime/maintenanceTypesRealtime"
+import { subscribeInfectionTypesRealtime } from "../realtime/infectionTypesRealtime"
+import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealtime"
+import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
+
+
+
 
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -904,7 +916,8 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     router.push("/login")
   }
 
-//Realtime購読前にも一度access tokenを設定しておく
+/*
+ //Realtime購読前にも一度access tokenを設定しておく
 useEffect(() => {
 
   const accessToken = localStorage.getItem("access_token")
@@ -920,7 +933,72 @@ useEffect(() => {
   return unsubscribe
 
 }, [])
+ */
 
+useEffect(() => {
+    const accessToken = localStorage.getItem("access_token")
+
+  if (accessToken) {
+    supabase.realtime.setAuth(accessToken)
+  }
+
+
+  const unsubscribeDevices = subscribeDevicesRealtime({
+    setDeviceList
+  })
+
+  const unsubscribeWards = subscribeWardsRealtime({
+    setWards
+  })
+
+  const unsubscribeRooms = subscribeRoomsRealtime({
+    setRooms
+  })
+
+  const unsubscribeStockAreas = subscribeStockAreasRealtime({
+    setStockAreas
+  })
+
+  const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({
+    setDeviceTypes
+  })
+
+  const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({
+    setDeviceModels
+  })
+
+  const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({
+    setMaintenanceTypes
+  })
+
+  const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({
+    setInfectionTypes
+  })
+
+  const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({
+    setRoomInfections
+  })
+
+  const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({
+    setTasks
+  })
+
+  return () => {
+
+    unsubscribeDevices()
+    unsubscribeWards()
+    unsubscribeRooms()
+    unsubscribeStockAreas()
+    unsubscribeDeviceTypes()
+    unsubscribeDeviceModels()
+    unsubscribeMaintenanceTypes()
+    unsubscribeInfectionTypes()
+    unsubscribeRoomInfections()
+    unsubscribeMaintenanceTasks()
+
+  }
+
+}, [])
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
