@@ -135,6 +135,9 @@ export default function Page() {
                                                                             updatedAt: null,
                                                                           })
 
+
+                                                                          
+
   // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   // const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
@@ -752,6 +755,10 @@ if (updatedDevice) {
       setRooms,
       setRoomInfections  
       })
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())
+
+    
     } 
 
 
@@ -805,39 +812,39 @@ if (updatedDevice) {
 
 
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
-const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
+  const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
 
-  if (!deviceId) return "green"
+    if (!deviceId) return "green"
 
-  const nearestTask =
-    tasks
-      .filter(
-        t =>
-          Number(t.deviceId) === Number(deviceId) &&
-          !t.completedAt
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.dueAt).getTime() -
-          new Date(b.dueAt).getTime()
-      )[0]
+    const nearestTask =
+      tasks
+        .filter(
+          t =>
+            Number(t.deviceId) === Number(deviceId) &&
+            !t.completedAt
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.dueAt).getTime() -
+            new Date(b.dueAt).getTime()
+        )[0]
 
-  if (!nearestTask) return "green"
+    if (!nearestTask) return "green"
 
-  const now = new Date()
+    const now = new Date()
 
-  const diff =
-    new Date(nearestTask.dueAt).getTime() - now.getTime()
+    const diff =
+      new Date(nearestTask.dueAt).getTime() - now.getTime()
 
-  const days =
-    Math.ceil(diff / (1000 * 60 * 60 * 24))
+    const days =
+      Math.ceil(diff / (1000 * 60 * 60 * 24))
 
-  if (days < 0) return "red"
+    if (days < 0) return "red"
 
-  if (days <= 2) return "yellow"
+    if (days <= 2) return "yellow"
 
-  return "green"
-}
+    return "green"
+  }
 
 
 
@@ -1190,6 +1197,8 @@ if (!currentUser) {
 
           infectionTypes={infectionTypes}
           setInfectionTypes={setInfectionTypes}
+          setStockLastUpdated={setStockLastUpdated}
+          setWardLastUpdated={setWardLastUpdated}
 
         />
       </div>
