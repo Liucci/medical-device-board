@@ -1,6 +1,5 @@
 "use client"
 
-import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
@@ -9,6 +8,7 @@ import {CurrentUser  } from "../types/userTypes"
 import { RoomType } from "../types/roomTypes"
 import {MaintenanceType } from "../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
+import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 
 
 import DeviceModal from "./modals/DeviceModal"
@@ -65,6 +65,8 @@ type Props = {
   role: string
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
+setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
+setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
 }
 
 export default function ButtonPanel({
@@ -92,7 +94,9 @@ export default function ButtonPanel({
   userName,
   role,
   infectionTypes,
-  setInfectionTypes
+  setInfectionTypes,
+  setStockLastUpdated,
+  setWardLastUpdated
 
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
@@ -209,6 +213,9 @@ export default function ButtonPanel({
           deviceModels={deviceModels}
           stockAreas={stockAreas}
           hospitalId={hospitalId}
+          setStockLastUpdated={setStockLastUpdated}
+          setWardLastUpdated={setWardLastUpdated}
+
         />
       }
 

@@ -1,5 +1,9 @@
 "use client"
+<<<<<<< HEAD
 import { API_BASE_URL } from "../api/client/apiClient"
+=======
+import { API_BASE_URL } from "../client/apiClient"
+>>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897
 
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
@@ -94,6 +98,21 @@ import {
           cancelLongPress,
         } from "../drag/longPress"
 
+//real time
+import { subscribeDevicesRealtime } from "../realtime/devicesRealtime"
+import { subscribeWardsRealtime } from "../realtime/wardsRealtime"
+import { subscribeRoomsRealtime } from "../realtime/roomsRealtime"
+import { subscribeStockAreasRealtime } from "../realtime/stockAreasRealtime"
+import { subscribeDeviceTypesRealtime } from "../realtime/deviceTypesRealtime"
+import { subscribeDeviceModelsRealtime } from "../realtime/deviceModelsRealtime"
+import { subscribeMaintenanceTypesRealtime } from "../realtime/maintenanceTypesRealtime"
+import { subscribeInfectionTypesRealtime } from "../realtime/infectionTypesRealtime"
+import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealtime"
+import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
+
+
+
+
 export default function Page() {
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
@@ -116,9 +135,12 @@ export default function Page() {
                                                                     updatedAt: null,
                                                                   })
 
-const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>({
+  const [wardLastUpdated, setWardLastUpdated] = useState<WardLastUpdatedResponse>({
                                                                             updatedAt: null,
                                                                           })
+
+
+                                                                          
 
   // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
   // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -737,6 +759,10 @@ if (updatedDevice) {
       setRooms,
       setRoomInfections  
       })
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())
+
+    
     } 
 
 
@@ -790,39 +816,39 @@ if (updatedDevice) {
 
 
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
-const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
+  const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
 
-  if (!deviceId) return "green"
+    if (!deviceId) return "green"
 
-  const nearestTask =
-    tasks
-      .filter(
-        t =>
-          Number(t.deviceId) === Number(deviceId) &&
-          !t.completedAt
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.dueAt).getTime() -
-          new Date(b.dueAt).getTime()
-      )[0]
+    const nearestTask =
+      tasks
+        .filter(
+          t =>
+            Number(t.deviceId) === Number(deviceId) &&
+            !t.completedAt
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.dueAt).getTime() -
+            new Date(b.dueAt).getTime()
+        )[0]
 
-  if (!nearestTask) return "green"
+    if (!nearestTask) return "green"
 
-  const now = new Date()
+    const now = new Date()
 
-  const diff =
-    new Date(nearestTask.dueAt).getTime() - now.getTime()
+    const diff =
+      new Date(nearestTask.dueAt).getTime() - now.getTime()
 
-  const days =
-    Math.ceil(diff / (1000 * 60 * 60 * 24))
+    const days =
+      Math.ceil(diff / (1000 * 60 * 60 * 24))
 
-  if (days < 0) return "red"
+    if (days < 0) return "red"
 
-  if (days <= 2) return "yellow"
+    if (days <= 2) return "yellow"
 
-  return "green"
-}
+    return "green"
+  }
 
 
 
@@ -901,11 +927,89 @@ const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
     router.push("/login")
   }
 
+/*
+ //Realtime購読前にも一度access tokenを設定しておく
+useEffect(() => {
+
+  const accessToken = localStorage.getItem("access_token")
+
+  if (accessToken) {
+    supabase.realtime.setAuth(accessToken)
+  }
+
+  const unsubscribe = subscribeDevicesRealtime({
+    setDeviceList,
+  })
+
+  return unsubscribe
+
+}, [])
+ */
+
+useEffect(() => {
+    const accessToken = localStorage.getItem("access_token")
+
+  if (accessToken) {
+    supabase.realtime.setAuth(accessToken)
+  }
 
 
-    
+  const unsubscribeDevices = subscribeDevicesRealtime({
+    setDeviceList
+  })
 
+  const unsubscribeWards = subscribeWardsRealtime({
+    setWards
+  })
 
+  const unsubscribeRooms = subscribeRoomsRealtime({
+    setRooms
+  })
+
+  const unsubscribeStockAreas = subscribeStockAreasRealtime({
+    setStockAreas
+  })
+
+  const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({
+    setDeviceTypes
+  })
+
+  const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({
+    setDeviceModels
+  })
+
+  const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({
+    setMaintenanceTypes
+  })
+
+  const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({
+    setInfectionTypes
+  })
+
+  const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({
+    setRoomInfections
+  })
+
+  const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({
+    setTasks
+  })
+
+  return () => {
+
+    unsubscribeDevices()
+    unsubscribeWards()
+    unsubscribeRooms()
+    unsubscribeStockAreas()
+    unsubscribeDeviceTypes()
+    unsubscribeDeviceModels()
+    unsubscribeMaintenanceTypes()
+    unsubscribeInfectionTypes()
+    unsubscribeRoomInfections()
+    unsubscribeMaintenanceTasks()
+
+  }
+
+}, [])
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
@@ -1097,6 +1201,8 @@ if (!currentUser) {
 
           infectionTypes={infectionTypes}
           setInfectionTypes={setInfectionTypes}
+          setStockLastUpdated={setStockLastUpdated}
+          setWardLastUpdated={setWardLastUpdated}
 
         />
       </div>

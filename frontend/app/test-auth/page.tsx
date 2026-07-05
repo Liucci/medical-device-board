@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { authFetch } from "../api/client/apiClient";
+=======
+import { authFetch } from "../client/apiClient";
+>>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897
 
 export default function TestAuthPage() {
   const testFetch = async () => {

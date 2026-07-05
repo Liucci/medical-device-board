@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import {AssetTypes } from "../../types/deviceTypes"
-import { Device } from "../../types/deviceTypes"
+import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
@@ -15,11 +15,14 @@ import { createPortal } from "react-dom"
 import {createDeviceTransaction} from "../../api/transactions/devices/createDeviceTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
-
+import {fetchStockLastUpdated} from "../../api/devices/fetchStockLastUpdated"
+import {fetchWardLastUpdated} from "../../api/devices/fetchWardLastUpdated"
 
 type Props = {
   deviceList: Device[]
   setDeviceList: React.Dispatch<React.SetStateAction<any[]>>
+setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
+setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
   onClose: () => void
   deviceTypes: DeviceTypeType[]
   deviceModels: DeviceModelType[]
@@ -35,7 +38,9 @@ export default function DeviceModal({
                                       hospitalId,
                                       deviceList,
                                       stockAreas,
-                                      setDeviceList
+                                      setDeviceList,
+                                      setStockLastUpdated,
+                                      setWardLastUpdated
                                     }: Props) 
   {
   const [selectedTypeID, setSelectedTypeID] = useState<number | "">("")
@@ -105,7 +110,8 @@ export default function DeviceModal({
                                           )
             }
     })
-
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())
   }
 
 return createPortal(

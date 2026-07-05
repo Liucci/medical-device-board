@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { API_BASE_URL } from "../client/apiClient"
 
+=======
+import { API_BASE_URL } from "../../client/apiClient"
+import { supabase } from "../../lib/supabase"
+>>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897
 export const refreshToken = async (): Promise<boolean> => {
   const refreshTokenValue =localStorage.getItem("refresh_token")
   if (!refreshTokenValue) {return false}
@@ -28,7 +33,8 @@ try {
   localStorage.setItem("refresh_token",data.refresh_token)
   console.log( "[SAVED ACCESS TOKEN]",localStorage.getItem("access_token")?.slice(0, 12))
   console.log("[SAVED REFRESH TOKEN]",localStorage.getItem("refresh_token")?.slice(0, 12))  
-
+  await supabase.realtime.setAuth(data.access_token)
+  console.log("[Realtime Auth Set]")
   return true
   }
   catch(error){
