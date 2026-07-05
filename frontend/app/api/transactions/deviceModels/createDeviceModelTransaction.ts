@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { CreateDeviceModelType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
 import {
          normalizeDeviceModel,
          toCreateDeviceModelRequest
        } from "../../../utils/deviceModelMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type CreateDeviceModelTransactionParams = {
                                              deviceModel: CreateDeviceModelType

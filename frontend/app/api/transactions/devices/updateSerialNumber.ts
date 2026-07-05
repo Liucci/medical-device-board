@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import {toUpdateSerialNumberRequest} from "../../../utils/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type Params = {
                 device: Device

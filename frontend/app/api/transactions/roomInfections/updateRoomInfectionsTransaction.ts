@@ -1,4 +1,4 @@
-import { API_BASE_URL,authFetch } from "../../client"
+import { API_BASE_URL,authFetch } from "../../client/apiClient"
 import { UpdateRoomInfectionsType } from "../../../types/roomInfectionTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
 import { normalizeRoomInfection,toUpdateRoomInfectionsRequest } from "../../../utils/roomInfectionMapper"

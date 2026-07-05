@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { UpdateInfectionTypeType } from "../../../types/infectionTypeTypes"
 import { getInfectionTypesFromApi } from "../../infectionTypes/fetchInfectionTypes"
 import {
          normalizeInfectionType,
          toUpdateInfectionTypeRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type UpdateInfectionTypeTransactionParams = {
                                                infectionType: UpdateInfectionTypeType

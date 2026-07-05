@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { UpdateWardType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 import {
          normalizeWard,

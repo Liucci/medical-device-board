@@ -1,4 +1,4 @@
-import { API_BASE_URL ,authFetch} from "../client"
+import { API_BASE_URL ,authFetch} from "../client/apiClient"
 import { Device, DeviceDB } from "@/app/types/deviceTypes"
 import { normalizeDevice } from "../../utils/deviceMapper"
 

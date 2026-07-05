@@ -7,7 +7,7 @@ import {
 } from "@/app/utils/exportMapper"
 
 import { API_BASE_URL ,authFetch}
-from "../client"
+from "../client/apiClient"
 
 export async function exportDeviceListCsvFromApi(
   rows: DeviceListExportUIType[]

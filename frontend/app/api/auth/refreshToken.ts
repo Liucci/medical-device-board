@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL } from "../client/apiClient"
 
 export const refreshToken = async (): Promise<boolean> => {
   const refreshTokenValue =localStorage.getItem("refresh_token")

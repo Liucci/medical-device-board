@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { CreateRoomInfectionType } from "../../../types/roomInfectionTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
 import {
          normalizeRoomInfection,
          toCreateRoomInfectionRequest
        } from "../../../utils/roomInfectionMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type CreateRoomInfectionTransactionParams = {
                                                 roomInfection: CreateRoomInfectionType

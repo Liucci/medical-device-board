@@ -1,8 +1,8 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { CreateMaintenanceType } from "../../../types/maintenanceTypeTypes"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toCreateMaintenanceTypeRequest } from "../../../utils/maintenanceTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type CreateMaintenanceTypeTransactionParams = {
                                                 maintenanceType: CreateMaintenanceType

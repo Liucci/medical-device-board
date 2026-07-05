@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL } from "../client/apiClient"
 import { normalizeWard } from "../../utils/wardsMapper"
-import { authFetch } from "../client"
+import { authFetch } from "../client/apiClient"
 
 export async function getWardsFromApi()
 {

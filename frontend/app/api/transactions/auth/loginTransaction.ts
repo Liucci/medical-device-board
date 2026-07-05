@@ -2,6 +2,8 @@ import { login } from "../../auth/login"
 import { fetchCurrentUser } from "../../auth/fetchCurrentUser"
 
 import { normalizeUser } from "../../../utils/userMapper"
+import { supabaseClient } from "../../client/supabaseClient"
+
 
 type LoginTransactionParams = {
                                   email:string

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../client"
+import { API_BASE_URL } from "../client/apiClient"
 import { RegisterUserRequestDB } from "../../types/registerTypes"
 
 export const registerFirstAdmin = async (

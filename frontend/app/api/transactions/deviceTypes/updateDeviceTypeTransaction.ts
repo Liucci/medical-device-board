@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { UpdateDeviceTypeType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
          toUpdateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type UpdateDeviceTypeTransactionParams = {
                                             deviceType: UpdateDeviceTypeType

@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
 
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 type MoveStockToStockTransactionParams = {
                                           deviceId: number

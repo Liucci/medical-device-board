@@ -1,11 +1,11 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { CreateDeviceTypeType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
          toCreateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type CreateDeviceTypeTransactionParams = {
                                             deviceType: CreateDeviceTypeType

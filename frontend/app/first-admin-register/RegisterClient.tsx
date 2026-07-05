@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { API_BASE_URL } from "../api/client"
+import { API_BASE_URL } from "../api/client/apiClient"
 import { registerFirstAdminTransaction } from "../api/transactions/invites/registerFirstAdminTransaction"
 
 import RegisterCompleteModal from "../components/modals/RegisterCompleteModal"

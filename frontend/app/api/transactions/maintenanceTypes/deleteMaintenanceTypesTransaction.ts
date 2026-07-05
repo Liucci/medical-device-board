@@ -1,7 +1,7 @@
-import { API_BASE_URL } from "../../client"
+import { API_BASE_URL } from "../../client/apiClient"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toDeleteMaintenanceTypesRequest } from "../../../utils/maintenanceTypeMapper"
-import { authFetch } from "../../client"
+import { authFetch } from "../../client/apiClient"
 
 type DeleteMaintenanceTypesTransactionParams = {
                                                  ids: number[]
