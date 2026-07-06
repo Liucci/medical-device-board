@@ -1102,7 +1102,8 @@ if (!currentUser) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          userSelect: "none"
+          userSelect: "none",
+          WebkitTouchCallout: "none",   // 長押しメニュー表示制限
         }}
             onPointerDown={() => {
                 startLongPress(
