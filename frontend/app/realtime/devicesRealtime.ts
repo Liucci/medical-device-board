@@ -48,11 +48,13 @@ export function subscribeDevicesRealtime({
             break
 
           case "DELETE":
-            handleDelete(payload,
+            handleDelete(
+                          payload,
                           setDeviceList,
+                          setStockLastUpdated,
+                          setWardLastUpdated
                         )
             break
-
         }
 
       }
@@ -99,8 +101,27 @@ function handleUpdate(
 function handleDelete(
                       payload:RealtimePostgresChangesPayload<DeviceDB>,
                       setDeviceList:React.Dispatch<React.SetStateAction<any[]>>,
+                      setStockLastUpdated?: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>,
+                      setWardLastUpdated?: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>            
                       )
 {
-const id=(payload.old as DeviceDB).id
-setDeviceList(prev=>prev.filter(d=>d.id!==id))
+//oldDeviceはidのみ持つ
+ const oldDevice = payload.old as DeviceDB
+  console.log("oldDevice:",oldDevice)
+
+  setDeviceList(prev => {
+      const deleted = prev.find(d => d.id === oldDevice.id)
+      if (deleted) {
+          const now = new Date().toISOString()
+
+          if (deleted.status === "stock") {
+              setStockLastUpdated?.({ updatedAt: now })
+          } else {
+              setWardLastUpdated?.({ updatedAt: now })
+          }
+      }
+
+      return prev.filter(d => d.id !== oldDevice.id)
+  }
+  )
 }

@@ -746,7 +746,10 @@ if (updatedDevice) {
   const deleteDevice = async (
     deviceId: number
   ) => {
-
+    //現時刻を取得
+    const now = new Date().toISOString()
+    //delete対象機器の情報を取得
+    const preDevice = deviceList.find(d => d.id === deviceId)
     await deleteDeviceTransaction({
       deviceId,
       setDeviceList,
@@ -755,10 +758,16 @@ if (updatedDevice) {
       setRooms,
       setRoomInfections  
       })
-      setStockLastUpdated(await fetchStockLastUpdated())
-      setWardLastUpdated(await fetchWardLastUpdated())
 
-    
+      if (preDevice.status === "stock") {
+        setStockLastUpdated({
+          updatedAt: now
+        })
+      } else {
+        setWardLastUpdated({
+          updatedAt: now
+        })
+      }
     } 
 
 
