@@ -23,7 +23,7 @@ export function subscribeWardsRealtime({
         table: "wards"
       },
       (payload: RealtimePostgresChangesPayload<WardDBType>) => {
-
+        console.log("WardRealtime", payload.eventType, payload)
         switch (payload.eventType) {
 
           case "INSERT":

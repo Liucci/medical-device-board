@@ -23,7 +23,7 @@ export function subscribeStockAreasRealtime({
         table: "stock_areas"
       },
       (payload: RealtimePostgresChangesPayload<StockAreaDBType>) => {
-
+        console.log("StockAreaRealtime", payload.eventType, payload)
         switch (payload.eventType) {
 
           case "INSERT":

@@ -27,7 +27,7 @@ export function subscribeDevicesRealtime({
         table:"devices"
       },
       (payload:RealtimePostgresChangesPayload<DeviceDB>)=>{
-
+        console.log("DeviceRealtime", payload.eventType, payload)
         switch(payload.eventType){
 
           case "INSERT":

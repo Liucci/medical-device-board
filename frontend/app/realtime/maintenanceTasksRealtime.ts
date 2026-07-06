@@ -23,7 +23,7 @@ export function subscribeMaintenanceTasksRealtime({
         table: "device_maintenance_tasks"
       },
       (payload: RealtimePostgresChangesPayload<MaintenanceTaskDB>) => {
-
+        console.log("MaintenanceTaskRealtime", payload.eventType, payload)
         switch (payload.eventType) {
 
           case "INSERT":

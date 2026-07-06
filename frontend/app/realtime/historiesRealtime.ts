@@ -23,7 +23,7 @@ export function subscribeHistoriesRealtime({
         table: "device_histories"
       },
       (payload: RealtimePostgresChangesPayload<HistoryDB>) => {
-
+        console.log("HistoryRealType", payload.eventType, payload)
         switch (payload.eventType) {
 
           case "INSERT":

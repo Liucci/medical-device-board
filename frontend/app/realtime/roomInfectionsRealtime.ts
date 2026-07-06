@@ -23,7 +23,7 @@ export function subscribeRoomInfectionsRealtime({
         table: "room_infections"
       },
       (payload: RealtimePostgresChangesPayload<RoomInfectionDBType>) => {
-
+        console.log("RoomInfectionRealtime", payload.eventType, payload)
         switch (payload.eventType) {
 
           case "INSERT":
