@@ -2,12 +2,14 @@ import {RealtimePostgresChangesPayload} from "@supabase/supabase-js"
 import {supabase} from "../lib/supabase"
 import {normalizeDevice} from "../utils/deviceMapper"
 import {DeviceDB} from "../types/deviceTypes"
-
+import {
+  StockLastUpdatedResponse,
+  WardLastUpdatedResponse
+} from "../types/deviceTypes"
 type Props={
   setDeviceList:React.Dispatch<React.SetStateAction<any[]>>
-  setStockLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>
-  setWardLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>
-}
+  setStockLastUpdated?: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
+  setWardLastUpdated?: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>}
 
 export function subscribeDevicesRealtime({
                                             setDeviceList,
@@ -37,7 +39,7 @@ export function subscribeDevicesRealtime({
             break
 
           case "UPDATE":
-            handleInsert(payload,
+            handleUpdate(payload,
                           setDeviceList,
                           setStockLastUpdated,
                           setWardLastUpdated
@@ -45,10 +47,8 @@ export function subscribeDevicesRealtime({
             break
 
           case "DELETE":
-            handleInsert(payload,
+            handleDelete(payload,
                           setDeviceList,
-                          setStockLastUpdated,
-                          setWardLastUpdated
                         )
             break
 
@@ -65,36 +65,34 @@ export function subscribeDevicesRealtime({
 function handleInsert(
             payload:RealtimePostgresChangesPayload<DeviceDB>,
             setDeviceList:React.Dispatch<React.SetStateAction<any[]>>,
-            setStockLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>,
-            setWardLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>
-            )
+            setStockLastUpdated?: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>,
+            setWardLastUpdated?: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>            
+          )
 {
   const device=normalizeDevice(payload.new as DeviceDB)
   //同じidのdeviceをinsertしないために、同じidが存在したらreturn
   setDeviceList(prev => {
-    if (prev.some(d => d.id === device.id)) {
-      return prev
-    }
-    return [...prev, device]
+      if (prev.some(d => d.id === device.id)) {
+        return prev
+      }
+      return [...prev, device]
   })
-  const updatedAt = device.updateAt ?? null
-  setStockLastUpdated?.(updatedAt)
-  setWardLastUpdated?.(updatedAt)
+  setStockLastUpdated?.({updatedAt: device.updateAt ?? null})
+  setWardLastUpdated?.({updatedAt: device.updateAt ?? null})
 }
 
 function handleUpdate(
                       payload:RealtimePostgresChangesPayload<DeviceDB>,
                       setDeviceList:React.Dispatch<React.SetStateAction<any[]>>,
-                      setStockLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>,
-                      setWardLastUpdated?: React.Dispatch<React.SetStateAction<string | null>>
+                      setStockLastUpdated?: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>,
+                      setWardLastUpdated?: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>            
                     )
 {
   const device=normalizeDevice(payload.new as DeviceDB)
   setDeviceList(prev=>prev.map(d=>d.id===device.id?device:d))
 
-  const updatedAt = device.updateAt ?? null
-  setStockLastUpdated?.(updatedAt)
-  setWardLastUpdated?.(updatedAt)
+  setStockLastUpdated?.({updatedAt: device.updateAt ?? null})
+  setWardLastUpdated?.({updatedAt: device.updateAt ?? null})
   }
 
 function handleDelete(

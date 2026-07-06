@@ -1,9 +1,5 @@
 "use client"
-<<<<<<< HEAD
-import { API_BASE_URL } from "../api/client/apiClient"
-=======
 import { API_BASE_URL } from "../client/apiClient"
->>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897
 
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
@@ -955,7 +951,9 @@ useEffect(() => {
 
 
   const unsubscribeDevices = subscribeDevicesRealtime({
-    setDeviceList
+    setDeviceList,
+    setStockLastUpdated,
+    setWardLastUpdated
   })
 
   const unsubscribeWards = subscribeWardsRealtime({

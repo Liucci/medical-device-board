@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:frontend/app/api/client/apiClient.ts
 import {refreshToken} from "../auth/refreshToken"
-========
-import {refreshToken} from "../api/auth/refreshToken"
->>>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897:frontend/app/client/apiClient.ts
 
 export const API_BASE_URL =
   process.env.NODE_ENV === "development"

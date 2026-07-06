@@ -1,4 +1,4 @@
-import {API_BASE_URL} from "../client"
+import { API_BASE_URL } from "../client/apiClient"
 
 //backendの/loginを呼び出す
 export async function login(

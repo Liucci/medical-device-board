@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import { API_BASE_URL } from "../client/apiClient"
 
-=======
-import { API_BASE_URL } from "../../client/apiClient"
 import { supabase } from "../../lib/supabase"
->>>>>>> d488112f89233e7453e5aaae1fea0d82b3528897
 export const refreshToken = async (): Promise<boolean> => {
   const refreshTokenValue =localStorage.getItem("refresh_token")
   if (!refreshTokenValue) {return false}
