@@ -55,8 +55,12 @@ function handleInsert(
 
   const infectionType = normalizeInfectionType(payload.new as InfectionTypeDBType)
 
-  setInfectionTypes(prev => [...prev, infectionType])
-
+      setInfectionTypes(prev => {
+        if (prev.some(i => i.id === infectionType.id)) {
+          return prev
+        }
+        return [...prev, infectionType]
+      })
 }
 
 function handleUpdate(

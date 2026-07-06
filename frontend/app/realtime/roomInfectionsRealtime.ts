@@ -55,8 +55,12 @@ function handleInsert(
 
   const roomInfection = normalizeRoomInfection(payload.new as RoomInfectionDBType)
 
-  setRoomInfections(prev => [...prev, roomInfection])
-
+    setRoomInfections(prev => {
+      if (prev.some(r => r.id === roomInfection.id)) {
+        return prev
+      }
+      return [...prev, roomInfection]
+    })
 }
 
 function handleUpdate(

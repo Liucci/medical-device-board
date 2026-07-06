@@ -55,8 +55,12 @@ function handleInsert(
 
   const ward = normalizeWard(payload.new as WardDBType)
 
-  setWards(prev => [...prev, ward])
-
+    setWards(prev => {
+      if (prev.some(w => w.id === ward.id)) {
+        return prev
+      }
+      return [...prev, ward]
+    })
 }
 
 function handleUpdate(

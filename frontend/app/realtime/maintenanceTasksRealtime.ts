@@ -55,8 +55,12 @@ function handleInsert(
 
   const maintenanceTask = normalizeMaintenanceTask(payload.new as MaintenanceTaskDB)
 
-  setTasks(prev => [...prev, maintenanceTask])
-
+    setTasks(prev => {
+      if (prev.some(t => t.id === maintenanceTask.id)) {
+        return prev
+      }
+      return [...prev, maintenanceTask]
+    })
 }
 
 function handleUpdate(

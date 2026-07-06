@@ -55,8 +55,12 @@ function handleInsert(
 
   const room = normalizeRoom(payload.new as RoomDBType)
 
-  setRooms(prev => [...prev, room])
-
+  setRooms(prev => {
+    if (prev.some(r => r.id === room.id)) {
+      return prev
+    }
+    return [...prev, room]
+  })
 }
 
 function handleUpdate(

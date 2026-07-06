@@ -55,8 +55,12 @@ function handleInsert(
 
   const stockArea = normalizeStockArea(payload.new as StockAreaDBType)
 
-  setStockAreas(prev => [...prev, stockArea])
-
+  setStockAreas(prev => {
+    if (prev.some(s => s.id === stockArea.id)) {
+      return prev
+    }
+    return [...prev, stockArea]
+  })
 }
 
 function handleUpdate(

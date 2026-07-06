@@ -55,8 +55,12 @@ function handleInsert(
 
   const deviceModel = normalizeDeviceModel(payload.new as DeviceModelDBType)
 
-  setDeviceModels(prev => [...prev, deviceModel])
-
+    setDeviceModels(prev => {
+      if (prev.some(d => d.id === deviceModel.id)) {
+        return prev
+      }
+      return [...prev, deviceModel]
+    })
 }
 
 function handleUpdate(

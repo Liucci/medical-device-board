@@ -55,8 +55,12 @@ function handleInsert(
 
   const deviceType = normalizeDeviceType(payload.new as DeviceTypeDBType)
 
-  setDeviceTypes(prev => [...prev, deviceType])
-
+    setDeviceTypes(prev => {
+      if (prev.some(d => d.id === deviceType.id)) {
+        return prev
+      }
+      return [...prev, deviceType]
+    })
 }
 
 function handleUpdate(
