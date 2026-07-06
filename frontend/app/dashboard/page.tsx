@@ -1094,6 +1094,7 @@ if (!currentUser) {
       </div>
       {/* ✅ 境界バー */}
       <div
+        className="no-touch-menu"
         style={{
           height: "6px",
           background: isResizing ? "#2563eb" : "#ccc",
@@ -1103,7 +1104,6 @@ if (!currentUser) {
           justifyContent: "center",
           alignItems: "center",
           userSelect: "none",
-          WebkitTouchCallout: "none",   // 長押しメニュー表示制限
         }}
             onPointerDown={() => {
                 startLongPress(
@@ -1118,6 +1118,7 @@ if (!currentUser) {
             }}      
       > 
       <div
+          className="no-touch-menu"
           style={{
             width: "48px",
             height: "20px",
