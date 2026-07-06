@@ -92,7 +92,7 @@ body {
 }
 
 /*タブレットの長押しメニュー制限*/
-* {
+.no-touch-menu {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
