@@ -1,19 +1,18 @@
 // Frontend標準型
-export type HospitalType = {
-  //frontはidはもっていない
-  id?: string
+export type HospitalManagementType = {
+  id: string
   hospitalName: string
   createdAt: string
   isActive: boolean
   updatedAt?: string
   pricePlan?: string
   note?: string
-  userCount?: number
-  deviceCount?: number
+  userCount: number
+  deviceCount: number
 }
 
 // Backend Response型
-export type HospitalDBType = {
+export type HospitalManagementDBType = {
   id: string
   hospital_name: string
   created_at: string
@@ -21,8 +20,8 @@ export type HospitalDBType = {
   updated_at?: string
   price_plan?: string
   note?: string
-  user_count?: number
-  device_count?: number
+  user_count: number
+  device_count: number
 }
 
 // Create専用

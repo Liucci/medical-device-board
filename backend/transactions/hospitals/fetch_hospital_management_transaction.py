@@ -1,6 +1,6 @@
 from hospitals.fetch_hospital import fetch_hospitals
 from users.fetch_users import fetch_users
-from devices.fetch_devices import fetch_devices
+from devices.fetch_devices import fetch_all_devices
 
 
 def fetch_hospital_management_transaction():
@@ -9,7 +9,7 @@ def fetch_hospital_management_transaction():
 
     hospitals = fetch_hospitals()
     users = fetch_users()
-    devices = fetch_devices()
+    devices = fetch_all_devices()
 
     response = []
 
