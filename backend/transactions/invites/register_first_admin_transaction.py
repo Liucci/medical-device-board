@@ -8,7 +8,7 @@ from schemas.invite_schemas import (
                                       RegisterUserResponse
                                     )
 from schemas.user_schemas import AddUserRequest
-
+from schemas.hospital_schemas import AddHospitalRequest
 def register_first_admin_transaction(
                                       register: RegisterUserRequest
                                     ):
@@ -33,9 +33,13 @@ def register_first_admin_transaction(
                                  )
     #hospital登録
     hospital = add_hospital(
-                              hospital_name=invite_code["hospital_name"]
-                           )
-    #user 登録
+                    AddHospitalRequest(
+                              hospital_name=invite_code["hospital_name"],
+                              price_plan="free",
+                              note=None
+                    )
+    )   
+ #user 登録
     add_user(
               AddUserRequest(
                               id=new_user.user.id,
@@ -46,7 +50,7 @@ def register_first_admin_transaction(
                               is_active=True
                             )
             )
-    #invite code使用済み登録
+  #invite code使用済み登録
     update_invite_code(
                         invite_code_id=invite_code["id"],
                         used=True
