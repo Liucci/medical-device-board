@@ -1,5 +1,5 @@
 from common.supabase_client import supabase
-#全device情報取得
+#特定のhospitalの全device情報取得
 def fetch_devices(hospital_id: str):
 
     print("fetch_devices")
@@ -50,5 +50,19 @@ def fetch_devices_by_room_id(
                   .eq("hospital_id", hospital_id)
                   .execute()
                )
+
+    return response.data
+
+#すべてのdevice情報を取得
+def fetch_all_devices():
+
+    print("fetch_all_devices")
+
+    response = (
+        supabase
+        .table("devices")
+        .select("*")
+        .execute()
+    )
 
     return response.data

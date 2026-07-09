@@ -1,7 +1,7 @@
 import os
 from common.supabase_client import (supabase)
 
-
+#単一病院取得
 def fetch_hospital(
                     hospital_id:str
                   ):
@@ -20,3 +20,22 @@ def fetch_hospital(
 
 
     return response.data[0]
+
+
+#全病院取得
+def fetch_hospitals():
+
+    print("fetch_hospitals")
+
+    response = (
+        supabase
+        .table("hospitals")
+        .select("*")
+        .order(
+            "created_at",
+            desc=True
+        )
+        .execute()
+    )
+
+    return response.data

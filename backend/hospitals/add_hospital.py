@@ -1,21 +1,22 @@
-from common.supabase_client import supabase
+from common.supabase_client import (supabase)
+
+from schemas.hospital_schemas import (AddHospitalRequest)
 
 
-def add_hospital(
-                  hospital_name: str
-                ):
+def add_hospital(hospital: AddHospitalRequest):
     print("add_hospital")
     response = (
-                  supabase
-                  .table("hospitals")
-                  .insert(
-                            {
-                              "hospital_name": hospital_name,
-                              "is_active": True,
-                              "price_plan": "free"
-                            }
-                          )
-                  .execute()
-               )
+        supabase
+        .table("hospitals")
+        .insert(
+            {
+                "hospital_name": hospital.hospital_name,
+                "price_plan": hospital.price_plan,
+                "note": hospital.note,
+                "is_active": True
+            }
+        )
+        .execute()
+    )
 
     return response.data[0]

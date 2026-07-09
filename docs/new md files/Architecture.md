@@ -197,52 +197,137 @@ UI
 
 ---
 
-## Types
+# Type / Mapper Rule
 
-責務
+## Type
 
-型定義のみ。
+Typeは型定義のみを責務とする。
+
+### Front標準型
+
+対象テーブルの全columnをcamelCaseで定義する。
+
+例
+
+```ts
+HospitalType
+DeviceType
+UserType
+```
+
+### DB標準型
+
+Backendから返却されるResponseをsnake_caseで定義する。
+
+例
+
+```ts
+HospitalDBType
+DeviceDBType
+UserDBType
+```
+
+### 操作型
+
+各操作(UI)で必要となる変数のみを定義する。
+
+例
+
+```ts
+CreateHospitalType
+UpdateHospitalType
+DeleteHospitalType
+```
+
+### Request型
+
+Backendへ送信するJSON(Request)をsnake_caseで定義する。
+
+例
+
+```ts
+AddHospitalRequest
+UpdateHospitalRequest
+DeleteHospitalRequest
+```
 
 ---
 
 ## Mapper
 
-責務
+Mapperは型変換のみを責務とする。
 
-変換のみ。
+### Response Mapper
 
-```
-DB
-
-↓
-
-Frontend
-```
+Backend Response(DB型)をFrontend標準型へ変換する。
 
 ```
-Frontend
+DBType
+    ↓
+normalizeXXX()
+    ↓
+Type
+```
 
-↓
+例
 
+```ts
+normalizeHospital()
+normalizeDevice()
+normalizeUser()
+```
+
+### Request Mapper
+
+Frontendの操作型をBackend Request型へ変換する。
+
+```
+CreateType
+        ↓
+toCreateXXXRequest()
+        ↓
+Request
+
+UpdateType
+        ↓
+toUpdateXXXRequest()
+        ↓
 Request
 ```
 
-Mapperは業務ロジックを書かない。
+Mapperでは業務ロジックを実装しない。
 
 ---
 
-## Fetch
+## Data Flow
 
-責務
+### Fetch
 
-API通信のみ。
+```
+Backend Response
+        ↓
+DBType
+        ↓
+normalize
+        ↓
+Type
+        ↓
+UI
+```
 
-禁止
+### Create / Update
 
-- State更新
-- Modal制御
-
----
+```
+UI
+        ↓
+CreateType / UpdateType
+        ↓
+Request Mapper
+        ↓
+Request
+        ↓
+Schema
+```
 
 ## Transaction
 

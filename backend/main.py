@@ -17,7 +17,7 @@ from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
 from schemas.invite_schemas import (RegisterUserRequest)
 
-from schemas.hospital_schemas import CreateHospitalRequest
+#from schemas.hospital_schemas import CreateHospitalRequest
 from schemas.invite_schemas import InviteFirstAdminRequest
 
 from transactions.invites.invite_first_admin_transaction import invite_first_admin_transaction
@@ -164,6 +164,8 @@ from transactions.room_infections.update_room_infections_transaction import upda
 
 from fastapi.responses import StreamingResponse
 
+#運営用
+from transactions.hospitals.fetch_hospital_management_transaction import (fetch_hospital_management_transaction)
 
 
 from dotenv import load_dotenv
@@ -1793,4 +1795,8 @@ def export_history_csv_route(
             "attachment; filename=histories.csv"
         }
 )
+#病院一覧取得
+@app.get("/fetch-hospital-management")
+def fetch_hospital_management_route():
 
+    return fetch_hospital_management_transaction()

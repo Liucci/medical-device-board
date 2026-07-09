@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import {inviteFirstAdminTransaction} from "../api/transactions/invites/inviteFirstAdminTransaction"
+import {inviteFirstAdminTransaction} from "../../api/transactions/invites/inviteFirstAdminTransaction"
 
 export default function FirstAdminInvitePage() {
 
