@@ -584,3 +584,69 @@ Loading中は画面全体を操作不可とする。
 - Realtime運用
 
 を理解できる状態を維持する。
+
+
+
+# Last Updated Rule
+
+## Purpose
+
+本ドキュメントは、Dashboardで表示する各エリアの最終更新日時の仕様を定義する。
+
+---
+
+## Basic Rule
+
+最終更新日時は `devices.updated_at` を利用する。
+
+---
+
+## Initial Load
+
+Dashboard初回表示時は
+
+* `fetchStockLastUpdated()`
+* `fetchWardLastUpdated()`
+
+を実行し、現在存在するDeviceの `updated_at` の最新日時を取得して表示する。
+
+---
+
+## Realtime
+
+Realtime受信時は `payload.old.status` と `payload.new.status` を利用して更新対象を判定する。
+
+* Room → Room
+
+  * Wardのみ更新
+* Stock → Stock
+
+  * Stockのみ更新
+* Room → Stock
+
+  * Ward・Stock両方更新
+* Stock → Room
+
+  * Ward・Stock両方更新
+
+通常運用時はRealtimeにより各エリアの最終更新日時を維持する。
+
+---
+
+## Refresh
+
+本システムはRealtime運用を前提とする。
+
+リロード時は `fetchStockLastUpdated()` および `fetchWardLastUpdated()` を実行し、現在存在するDeviceの `updated_at` を基に最新日時を取得する。
+
+そのため、Room → Stock、Stock → Room 実施後にリロードした場合、移動元エリアの最終更新日時は現在そのエリアに存在するDeviceの最新日時となる。
+
+これは現仕様とし、リロード後に移動イベント自体の最終更新日時は保持しない。
+
+---
+
+## Design Policy
+
+最終更新日時は画面表示用情報とする。
+
+永続的な管理は行わず、通常利用時はRealtimeにより最新状態を維持することを前提とする。
