@@ -1,34 +1,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
 import { HospitalManagementType } from "../../types/hospitalTypes"
-
 import {
          fetchHospitalManagementTransaction
        } from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
+import CreateHospitalModal from "./components/CreateHospitalModal"
 
 export default function HospitalManagementPage() {
 
 const [hospitals, setHospitals] = useState<HospitalManagementType[]>([])
 const [filteredHospitals, setFilteredHospitals] = useState<HospitalManagementType[]>([])
-
 const [hospitalName, setHospitalName] = useState("")
-
 const [pricePlans, setPricePlans] = useState<string[]>([
   "free",
   "standard",
   "enterprise"
 ])
-
 const [isActiveList, setIsActiveList] = useState<boolean[]>([
   true,
   false
 ])
-
 const [createdFrom, setCreatedFrom] = useState("")
 const [createdTo, setCreatedTo] = useState("")
-
+const [createOpen, setCreateOpen] = useState(false)
 useEffect(
             () => {
                     fetchHospitalManagementTransaction({
@@ -129,8 +124,16 @@ useEffect(
               </h1>
 
               <button
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              >
+                onClick={() => setCreateOpen(true)}
+                className="
+                  rounded
+                  bg-blue-500
+                  px-4
+                  py-2
+                  text-white
+                  hover:bg-blue-600
+                "
+              >              
                 新規病院登録
               </button>
 
@@ -371,7 +374,18 @@ useEffect(
               </table>
 
             </div>
+            
+            <CreateHospitalModal
+              isOpen={createOpen}
+              onClose={() => setCreateOpen(false)}
+              setHospitals={setHospitals}
+            />
+
 
           </div>
+
+
+
+
         )
 }
