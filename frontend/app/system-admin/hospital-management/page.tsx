@@ -33,7 +33,7 @@ useEffect(
             () => {
                     fetchHospitalManagementTransaction({
                                                           setHospitals,
-                                                          setFilteredHospitals
+                                                          //setFilteredHospitals
                                                         })
                   },
             []
