@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { HospitalManagementType } from "../../types/hospitalTypes"
-import {
-         fetchHospitalManagementTransaction
-       } from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
+import {fetchHospitalManagementTransaction} from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
+
+
 import CreateHospitalModal from "./components/CreateHospitalModal"
+import EditHospitalModal from "./components/EditHospitalModal"
 
 export default function HospitalManagementPage() {
 
@@ -17,6 +19,7 @@ const [pricePlans, setPricePlans] = useState<string[]>([
   "standard",
   "enterprise"
 ])
+const router = useRouter()
 const [isActiveList, setIsActiveList] = useState<boolean[]>([
   true,
   false
@@ -24,6 +27,14 @@ const [isActiveList, setIsActiveList] = useState<boolean[]>([
 const [createdFrom, setCreatedFrom] = useState("")
 const [createdTo, setCreatedTo] = useState("")
 const [createOpen, setCreateOpen] = useState(false)
+const [editOpen, setEditOpen] = useState(false)
+
+const [
+  selectedHospital,
+  setSelectedHospital
+] = useState<HospitalManagementType | null>(null)
+
+
 useEffect(
             () => {
                     fetchHospitalManagementTransaction({
@@ -119,9 +130,33 @@ useEffect(
 
             <div className="mb-6 flex items-center justify-between">
 
-              <h1 className="text-2xl font-bold">
-                病院管理
-              </h1>
+            <div className="mb-6 flex items-center justify-between">
+
+              <div className="flex items-center gap-3">
+
+                <button
+                  onClick={() => router.push("/system-admin")}
+                  className="
+                    rounded
+                    bg-gray-500
+                    px-3
+                    py-2
+                    text-white
+                    hover:bg-gray-600
+                  "
+                >
+                  ← 戻る
+                </button>
+
+                <h1 className="text-2xl font-bold">
+                  病院管理
+                </h1>
+
+              </div>
+
+
+
+            </div>
 
               <button
                 onClick={() => setCreateOpen(true)}
@@ -328,6 +363,10 @@ useEffect(
                                         <td className="border px-3 py-2">
 
                                           <button
+                                            onClick={() => {
+                                                              setSelectedHospital(hospital)
+                                                              setEditOpen(true)
+                                                            }}
                                             className="rounded bg-gray-600 px-3 py-1 text-white hover:bg-gray-700"
                                           >
                                             Open
@@ -381,6 +420,12 @@ useEffect(
               setHospitals={setHospitals}
             />
 
+            <EditHospitalModal
+              isOpen={editOpen}
+              hospital={selectedHospital}
+              onClose={() => setEditOpen(false)}
+              setHospitals={setHospitals}
+            />
 
           </div>
 

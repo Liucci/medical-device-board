@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { createPortal } from "react-dom"
+import { HospitalManagementType } from "../../../types/hospitalTypes"
+import { createHospitalTransaction }from "../../../api/transactions/hospitals/createHospitalTransaction"
 
 type Props = {
   isOpen: boolean
@@ -10,12 +12,50 @@ type Props = {
     React.SetStateAction<HospitalManagementType[]>
   >
 }
-export default function CreateHospitalModal() {
-
+export default function CreateHospitalModal({
+                                              isOpen,
+                                              onClose,
+                                              setHospitals,
+                                            }: Props) 
+{
   const [hospitalName, setHospitalName] = useState("")
   const [pricePlan, setPricePlan] = useState("Basic")
   const [note, setNote] = useState("")
+  const [loading, setLoading] = useState(false)
 
+  const handleSubmit = async () => {
+
+    if (hospitalName.trim() === "") {
+      alert("病院名を入力してください")
+      return
+    }
+
+    setLoading(true)
+
+    try {
+
+      await createHospitalTransaction({
+        hospital: {
+          hospitalName,
+          pricePlan,
+          note
+        },
+        setHospitals,
+        onClose
+      })
+
+    } finally {
+
+      setLoading(false)
+
+    }
+
+  }
+
+
+
+
+  if (!isOpen) return null
   return createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
 
@@ -23,6 +63,7 @@ export default function CreateHospitalModal() {
 
         {/* ×ボタン */}
         <button
+        onClick={onClose}
           className="
             absolute
             left-4
@@ -48,7 +89,9 @@ export default function CreateHospitalModal() {
             </div>
 
             <input
-              className="
+                value={hospitalName}
+                onChange={e => setHospitalName(e.target.value)}
+                className="                
                 border
                 border-gray-300
                 rounded
@@ -67,6 +110,8 @@ export default function CreateHospitalModal() {
             </div>
 
             <select
+              value={pricePlan}
+              onChange={e => setPricePlan(e.target.value)}
               className="
                 border
                 border-gray-300
@@ -76,10 +121,9 @@ export default function CreateHospitalModal() {
                 w-full
               "
             >
-              <option>Free</option>
-              <option>Basic</option>
-              <option>Standard</option>
-              <option>Professional</option>
+            <option value="free">Free</option>
+            <option value="standard">Standard</option>
+            <option value="enterprise">Enterprise</option>
             </select>
 
           </div>
@@ -91,6 +135,8 @@ export default function CreateHospitalModal() {
             </div>
 
             <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
               rows={5}
               className="
                 border
@@ -110,6 +156,7 @@ export default function CreateHospitalModal() {
         <div className="flex justify-end gap-4 mt-6">
 
           <button
+          onClick={onClose}
             className="
               px-4
               py-2
@@ -122,6 +169,8 @@ export default function CreateHospitalModal() {
           </button>
 
           <button
+            onClick={handleSubmit}
+            disabled={loading}
             className="
               px-4
               py-2
@@ -131,7 +180,7 @@ export default function CreateHospitalModal() {
               hover:bg-blue-600
             "
           >
-            登録
+            {loading ? "登録中..." : "登録"}
           </button>
 
         </div>

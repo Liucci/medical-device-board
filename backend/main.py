@@ -166,7 +166,9 @@ from fastapi.responses import StreamingResponse
 
 #運営用
 from transactions.hospitals.fetch_hospital_management_transaction import (fetch_hospital_management_transaction)
-
+from schemas.hospital_schemas import (AddHospitalRequest,UpdateHospitalRequest)
+from hospitals.add_hospital import add_hospital
+from hospitals.update_hospital import update_hospital
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1800,3 +1802,43 @@ def export_history_csv_route(
 def fetch_hospital_management_route():
 
     return fetch_hospital_management_transaction()
+
+
+
+@app.post("/create-hospital")
+def create_hospital(
+                            request: AddHospitalRequest,
+                            current_user=Depends(get_current_user),
+                        ):
+    # System Adminのみ許可
+    if current_user["role"] != "system_admin":
+        return {
+            "success": False,
+            "message": "Permission denied"
+        }
+
+    add_hospital(hospital=request)
+
+    return {
+        "success": True
+    }
+
+
+
+@app.post("/update-hospital")
+def update_hospital_route(
+                            request: UpdateHospitalRequest,
+                            current_user= Depends(get_current_user),
+                        ):
+
+    if current_user["role"] != "system_admin":
+        return {
+                "success": False,
+                "message": "Permission denied"
+        }
+
+    update_hospital(hospital=request)
+
+    return {
+        "message": "Hospital updated successfully"
+    }

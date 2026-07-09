@@ -26,7 +26,7 @@ export async function createHospitalTransaction({
   console.log("createHospitalTransaction")
 
   await authFetch(
-                    `${API_BASE_URL}/hospitals`,
+                    `${API_BASE_URL}/create-hospital`,
                     {
                     method: "POST",
                     headers: {
