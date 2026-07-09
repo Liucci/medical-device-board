@@ -1,5 +1,8 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { CreateHospitalType } from "../../../types/hospitalTypes"
+import { Dispatch, SetStateAction } from "react"
+import { HospitalManagementType } from "../../../types/hospitalTypes"
+
 import { getHospitalManagementFromApi } from "../../hospitals/fetchHospitalManagement"
 import {
   normalizeHospitalManagement,
@@ -9,7 +12,7 @@ import { authFetch } from "../../client/apiClient"
 
 type CreateHospitalTransactionParams = {
                                         hospital: CreateHospitalType
-                                        setHospitals: any
+                                        setHospitals: Dispatch<SetStateAction<HospitalManagementType[]>>
                                         onClose?: () => void
                                         }
 
@@ -17,7 +20,8 @@ export async function createHospitalTransaction({
                                                 hospital,
                                                 setHospitals,
                                                 onClose
-                                                }: CreateHospitalTransactionParams) {
+                                                }: CreateHospitalTransactionParams) 
+{
 
   console.log("createHospitalTransaction")
 
@@ -35,7 +39,6 @@ export async function createHospitalTransaction({
   )
 
   const hospitals = await getHospitalManagementFromApi()
-
   setHospitals( hospitals.map(normalizeHospitalManagement))
-
-  if (onClose) {onClose()}}
+  if (onClose) {onClose()}
+}

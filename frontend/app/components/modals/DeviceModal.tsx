@@ -21,8 +21,8 @@ import {fetchWardLastUpdated} from "../../api/devices/fetchWardLastUpdated"
 type Props = {
   deviceList: Device[]
   setDeviceList: React.Dispatch<React.SetStateAction<any[]>>
-setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
-setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
+  setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
+  setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
   onClose: () => void
   deviceTypes: DeviceTypeType[]
   deviceModels: DeviceModelType[]
@@ -110,8 +110,9 @@ export default function DeviceModal({
                                           )
             }
     })
+    //初期位置はstock area限定なので、wardは更新日更新しない
       setStockLastUpdated(await fetchStockLastUpdated())
-      setWardLastUpdated(await fetchWardLastUpdated())
+      //setWardLastUpdated(await fetchWardLastUpdated())
   }
 
 return createPortal(

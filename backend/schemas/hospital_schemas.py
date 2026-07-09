@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-
+#backend⇒DB
 class AddHospitalRequest(BaseModel):
     hospital_name: str
     price_plan: str
@@ -14,7 +14,7 @@ class UpdateHospitalRequest(BaseModel):
     is_active: bool
     note: str | None = None
 
-
+#DB⇒backend
 class HospitalResponse(BaseModel):
     id: str
     hospital_name: str

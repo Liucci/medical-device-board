@@ -301,7 +301,8 @@ export default function Page() {
   })
 
       setStockLastUpdated(await fetchStockLastUpdated())
-      setWardLastUpdated(await fetchWardLastUpdated())
+      //ward更新日にはstock更新日を格納する
+      setWardLastUpdated(await fetchStockLastUpdated())
       setDraggingDevice(null)
     return
   }
@@ -313,8 +314,9 @@ export default function Page() {
                                       setHistories,
                                       devices:deviceList
                                     })
+      //stock areaのみ更新日更新                              
       setStockLastUpdated(await fetchStockLastUpdated())
-      setWardLastUpdated(await fetchWardLastUpdated())                                  
+      //setWardLastUpdated(await fetchWardLastUpdated())                                  
       setDraggingDevice(null)
   }
 
@@ -366,8 +368,8 @@ export default function Page() {
                                       setTasks,
                                       devices:deviceList
                                     })
-
-    setStockLastUpdated(await fetchStockLastUpdated())
+    //stock area更新日はward更新日を格納                                
+    setStockLastUpdated(await fetchWardLastUpdated())
     setWardLastUpdated(await fetchWardLastUpdated())
     setTargetWardId(null)
   }
@@ -419,7 +421,8 @@ export default function Page() {
                                                     devices:deviceList
                                                   })
       }
-    setStockLastUpdated(await fetchStockLastUpdated())
+    //ward areaは更新しない  
+    //setStockLastUpdated(await fetchStockLastUpdated())
     setWardLastUpdated(await fetchWardLastUpdated())
     setTargetWardId(null)
   }

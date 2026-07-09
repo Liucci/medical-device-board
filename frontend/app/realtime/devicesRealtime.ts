@@ -15,7 +15,8 @@ export function subscribeDevicesRealtime({
                                             setDeviceList,
                                             setStockLastUpdated,
                                             setWardLastUpdated
-                                          }:Props){
+                                          }:Props)
+{
   console.log("subscribeDevicesRealtime")
   const channel=supabase
     .channel("devices")
@@ -80,8 +81,9 @@ function handleInsert(
       }
       return [...prev, device]
   })
+  //insertは新規登録のみなのでward areaは更新日更新しない
   setStockLastUpdated?.({updatedAt: device.updateAt ?? null})
-  setWardLastUpdated?.({updatedAt: device.updateAt ?? null})
+  //setWardLastUpdated?.({updatedAt: device.updateAt ?? null})
 }
 
 function handleUpdate(
@@ -91,11 +93,31 @@ function handleUpdate(
                       setWardLastUpdated?: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>            
                     )
 {
+  //device table更新前後の情報を取得
+  const oldDevice = payload.old as DeviceDB
+  const newDevice = payload.new as DeviceDB
   const device=normalizeDevice(payload.new as DeviceDB)
   setDeviceList(prev=>prev.map(d=>d.id===device.id?device:d))
 
-  setStockLastUpdated?.({updatedAt: device.updateAt ?? null})
-  setWardLastUpdated?.({updatedAt: device.updateAt ?? null})
+  //device table更新前後のstatus情報を比較して最終更新日の更新対象の場合分け
+  if (oldDevice.status === "room" && newDevice.status === "room") {
+      setWardLastUpdated?.({ updatedAt: device.updateAt ?? null })
+  }
+
+  if (oldDevice.status === "stock" && newDevice.status === "stock") {
+      setStockLastUpdated?.({ updatedAt: device.updateAt ?? null })
+  }
+
+  if (oldDevice.status === "stock" && newDevice.status === "room") {
+      setStockLastUpdated?.({ updatedAt: device.updateAt ?? null })
+      setWardLastUpdated?.({ updatedAt: device.updateAt ?? null })
+  }
+
+  if (oldDevice.status === "room" && newDevice.status === "stock") {
+      setWardLastUpdated?.({ updatedAt: device.updateAt ?? null })
+      setStockLastUpdated?.({ updatedAt: device.updateAt ?? null })
+  }
+
   }
 
 function handleDelete(
