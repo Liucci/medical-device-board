@@ -11,6 +11,7 @@ from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
+from auth.check_user_active import check_user_active
 
 
 from schemas.auth_schemas import RefreshTokenRequest
@@ -166,9 +167,14 @@ from fastapi.responses import StreamingResponse
 
 #運営用
 from transactions.hospitals.fetch_hospital_management_transaction import (fetch_hospital_management_transaction)
+from transactions.user_management.fetch_user_management_transaction import (fetch_user_management_transaction)
+
 from schemas.hospital_schemas import (AddHospitalRequest,UpdateHospitalRequest)
 from hospitals.add_hospital import add_hospital
 from hospitals.update_hospital import update_hospital
+from schemas.user_schemas import UpdateUserRequest
+from users.update_user import update_user
+from transactions.user_management.update_user_transaction import update_user_transaction
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -204,6 +210,7 @@ def login(body: LoginRequest):
                             password=body.password
                         )
     auth_user_id = (response.user.id)
+    check_user_active(auth_user_id)
     current_user = (fetch_current_user(auth_user_id))
     return {
                 "success": True,
@@ -1842,3 +1849,30 @@ def update_hospital_route(
     return {
         "message": "Hospital updated successfully"
     }
+
+#ユーザー一覧取得
+@app.get("/fetch-user-management")
+def fetch_user_management_route(
+    current_user=Depends(get_current_user),
+):
+
+    if current_user["role"] != "system_admin":
+        return {
+            "success": False,
+            "message": "Permission denied"
+        }
+
+    return fetch_user_management_transaction()
+
+
+@app.post("/update-user")
+def update_user_route(
+    request: UpdateUserRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    print("update_user_route")
+
+    update_user_transaction(
+        request=request,
+        auth_user_id=auth_user_id
+    )

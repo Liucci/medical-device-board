@@ -1,6 +1,6 @@
 "use client"
 import { CurrentUser }from "../types/userTypes"
-import { normalizeUser }from "../utils/userMapper"
+import { normalizeCurrentUser }from "../utils/userMapper"
 import {
           createContext,
           useContext,
@@ -40,7 +40,7 @@ const restoreSession = async () => {
       return
     }
 
-    setCurrentUser(normalizeUser(user))
+    setCurrentUser(normalizeCurrentUser(user))
   } catch (error) {
     setCurrentUser(null)
   }

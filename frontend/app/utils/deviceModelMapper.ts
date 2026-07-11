@@ -1,9 +1,12 @@
 import {
          DeviceModelType,
          DeviceModelDBType,
-         CreateDeviceModelType,
-         UpdateDeviceModelType,
-         DeleteDeviceModelsType
+         CreateDeviceModelFrontType,
+         CreateDeviceModelBackType,
+         UpdateDeviceModelFrontType,
+         UpdateDeviceModelBackType,
+         DeleteDeviceModelsFrontType,
+         DeleteDeviceModelsBackType
        } from "../types/deviceModelTypes"
 
 // DB → UI
@@ -18,23 +21,23 @@ export const normalizeDeviceModel = (
 
 // Create
 export const toCreateDeviceModelRequest = (
-                                             deviceModel: CreateDeviceModelType
-                                           ) => ({
+                                             deviceModel: CreateDeviceModelFrontType
+                                           ) :CreateDeviceModelBackType=> ({
                                                    device_type_id: deviceModel.deviceTypeId,
                                                    name: deviceModel.name
                                                  })
 
 // Update
 export const toUpdateDeviceModelRequest = (
-                                             deviceModel: UpdateDeviceModelType
-                                           ) => ({
+                                             deviceModel: UpdateDeviceModelFrontType
+                                           ) :UpdateDeviceModelBackType=> ({
                                                    id: deviceModel.id,
                                                    name: deviceModel.name
                                                  })
 
 // Delete
 export const toDeleteDeviceModelsRequest = (
-                                               deviceModels: DeleteDeviceModelsType
-                                             ) => ({
+                                               deviceModels: DeleteDeviceModelsFrontType
+                                             ) :DeleteDeviceModelsBackType=> ({
                                                      ids: deviceModels.ids
                                                    })

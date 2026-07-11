@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { CreateDeviceTypeType } from "../../../types/deviceTypeTypes"
+import { CreateDeviceTypeFrontType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
@@ -8,7 +8,7 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type CreateDeviceTypeTransactionParams = {
-                                            deviceType: CreateDeviceTypeType
+                                            deviceType: CreateDeviceTypeFrontType
                                             setDeviceTypes: any
                                             onClose?: () => void
                                           }

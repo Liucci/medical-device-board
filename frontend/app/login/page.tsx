@@ -40,14 +40,18 @@ const handleLogin = async () => {
 
             router.push("/dashboard")
 
-          } catch (err) {
+          } 
+          catch (err) {
+              console.error(err)
 
-            console.error(err)
-            setError("ログイン失敗")
+              if (err instanceof Error) {
+                  setError(err.message)
+                  return
+              }
 
-          } finally {
-
-
+              setError("ログイン失敗")
+          }          
+          finally {
           }
         }
         })

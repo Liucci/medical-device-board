@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { UpdateHospitalType } from "../../../types/hospitalTypes"
+import { UpdateHospitalFrontType } from "../../../types/hospitalTypes"
 import { getHospitalManagementFromApi } from "../../hospitals/fetchHospitalManagement"
 import { Dispatch, SetStateAction } from "react"
 import { HospitalManagementType } from "../../../types/hospitalTypes"
@@ -10,7 +10,7 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type UpdateHospitalTransactionParams = {
-                                        hospital: UpdateHospitalType
+                                        hospital: UpdateHospitalFrontType
                                         setHospitals:Dispatch<SetStateAction<HospitalManagementType[]>>
                                         onClose?: () => void
 }

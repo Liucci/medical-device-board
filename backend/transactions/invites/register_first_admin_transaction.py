@@ -2,7 +2,7 @@ from auth.register_auth_user import register_auth_user
 from invites.fetch_invite_code import fetch_invite_code
 from invites.update_invite_code import update_invite_code
 from hospitals.add_hospital import add_hospital
-from users.add_users import add_user
+from users.add_user import add_user
 from schemas.invite_schemas import (
                                       RegisterUserRequest,
                                       RegisterUserResponse

@@ -22,5 +22,11 @@ export async function login(
                                 }
                       )
 
-  return await response.json()
+  const data = await response.json()
+//login時のエラーを拾う
+  if (!response.ok) {
+    throw new Error(data.detail)
+  }
+
+  return data
 }

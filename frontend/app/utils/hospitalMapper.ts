@@ -1,9 +1,10 @@
 import { HospitalManagementType,
          HospitalManagementDBType,
-          CreateHospitalType, 
-          UpdateHospitalType,
-           AddHospitalRequest, 
-           UpdateHospitalRequest 
+          CreateHospitalFrontType, 
+          CreateHospitalBackType,
+          UpdateHospitalFrontType,
+          UpdateHospitalBackType
+          
           } from "../types/hospitalTypes"
 
 // DB → UI
@@ -22,8 +23,8 @@ export const normalizeHospitalManagement = (
                                                                           })
 // Create
 export const toAddHospitalRequest = (
-                                       hospital: CreateHospitalType
-                                     ): AddHospitalRequest => ({
+                                       hospital: CreateHospitalFrontType
+                                     ): CreateHospitalBackType => ({
                                                                  hospital_name: hospital.hospitalName,
                                                                  price_plan: hospital.pricePlan,
                                                                  note: hospital.note ?? null
@@ -31,8 +32,8 @@ export const toAddHospitalRequest = (
 
 // Update
 export const toUpdateHospitalRequest = (
-                                          hospital: UpdateHospitalType
-                                        ): UpdateHospitalRequest => ({
+                                          hospital: UpdateHospitalFrontType
+                                        ): UpdateHospitalBackType => ({
                                                                         hospital_id: hospital.id,
                                                                         hospital_name: hospital.hospitalName,
                                                                         price_plan: hospital.pricePlan,

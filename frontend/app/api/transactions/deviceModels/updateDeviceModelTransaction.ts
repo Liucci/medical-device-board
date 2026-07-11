@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { UpdateDeviceModelType } from "../../../types/deviceModelTypes"
+import { UpdateDeviceModelFrontType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
 import {
          normalizeDeviceModel,
@@ -8,7 +8,7 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type UpdateDeviceModelTransactionParams = {
-                                             deviceModel: UpdateDeviceModelType
+                                             deviceModel: UpdateDeviceModelFrontType
                                              setDeviceModels: any
                                            }
 
@@ -19,30 +19,18 @@ export async function updateDeviceModelTransaction({
                                                  )
 {
   console.log("updateDeviceModelTransaction")
-
-
   await authFetch(
-                `${API_BASE_URL}/update-device-model`,
-                {
-                  method: "POST",
-                  headers: {
-                            "Content-Type":
-                            "application/json"
-                            },
-                  body: JSON.stringify(
-                                          toUpdateDeviceModelRequest(
-                                                                        deviceModel
-                                                                      )
-                                        )
-                }
+                  `${API_BASE_URL}/update-device-model`,
+                  {
+                    method: "POST",
+                    headers: {
+                              "Content-Type":
+                              "application/json"
+                              },
+                    body: JSON.stringify(toUpdateDeviceModelRequest(deviceModel))
+                  }
               )
 
-  const deviceModels =
-    await getDeviceModelsFromApi()
-
-  setDeviceModels(
-                    deviceModels.map(
-                                      normalizeDeviceModel
-                                    )
-                  )
+  const deviceModels =await getDeviceModelsFromApi()
+  setDeviceModels(deviceModels.map(normalizeDeviceModel))
 }

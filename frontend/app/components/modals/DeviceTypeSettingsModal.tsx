@@ -58,7 +58,7 @@ export default function DeviceTypeSettingsModal({
         await createDeviceTypeTransaction({
                                             deviceType: {
                                                           name: trimmed,
-                                                          icon_color: newIconColor
+                                                          iconColor: newIconColor
                                                         },
                                             setDeviceTypes
                                           })
@@ -88,7 +88,7 @@ export default function DeviceTypeSettingsModal({
                                           deviceType: {
                                                         id: selectedTypeId,
                                                         name,
-                                                        icon_color: type.iconColor
+                                                        iconColor: type.iconColor
                                                         
                                                       },
                                           setDeviceTypes
@@ -110,7 +110,7 @@ export default function DeviceTypeSettingsModal({
                                             deviceType: {
                                               id: selectedTypeId,
                                               name: type.name,
-                                              icon_color: editIconColor
+                                              iconColor: editIconColor
                                             },
                                             setDeviceTypes
                                           })

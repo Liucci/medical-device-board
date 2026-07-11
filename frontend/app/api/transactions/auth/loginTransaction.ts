@@ -1,7 +1,7 @@
 import { login } from "../../auth/login"
 import { fetchCurrentUser } from "../../auth/fetchCurrentUser"
 
-import { normalizeUser } from "../../../utils/userMapper"
+import { normalizeCurrentUser } from "../../../utils/userMapper"
 import { supabaseClient } from "../../client/supabaseClient"
 
 
@@ -36,7 +36,7 @@ export const loginTransaction = async ({
   }
 
   const currentUser =
-    normalizeUser(
+    normalizeCurrentUser(
                     currentUserDB
                  )
 

@@ -77,11 +77,42 @@ export default function EditHospitalModal({
 
   return createPortal(
 
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+          <div
+            className="
+              fixed
+              inset-0
+              flex
+              items-center
+              justify-center
+              bg-black/30
+              z-50
+              p-4
+            "
+          >
+        <div
+          className="
+            bg-white
+            rounded-xl
+            shadow-xl
+            w-full
+            max-w-md
+            max-h-[70vh]
+            flex
+            flex-col
+            relative
+          "
+        >       
 
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8 relative">
-
-        {/* × */}
+          {/* × */}
+        <div
+          className="
+            px-8
+            pt-8
+            pb-6
+            border-b
+            relative
+          "
+        >
         <button
           onClick={onClose}
           className="
@@ -99,10 +130,20 @@ export default function EditHospitalModal({
         <h2 className="text-2xl font-bold mb-6 text-center">
           病院編集
         </h2>
-
-        <div className="space-y-4">
-
-          {/* 病院名 */}
+        </div>
+        <div
+          className="
+            flex-1
+            overflow-y-auto
+            [scrollbar-width:none]
+        [-ms-overflow-style:none]
+        [&::-webkit-scrollbar]:hidden
+            px-8
+            py-6
+            space-y-4
+          "
+        >
+        {/* 病院名 */}
 
           <div>
 
@@ -268,7 +309,17 @@ export default function EditHospitalModal({
             </div>
 
             <input
-                value={hospital?.createdAt ?? ""}
+                value={
+                        hospital?.createdAt
+                          ? new Date(hospital.createdAt).toLocaleString("ja-JP", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : ""
+                }                
                 readOnly
                 className="
                 w-full
@@ -291,7 +342,17 @@ export default function EditHospitalModal({
             </div>
 
             <input
-                value={hospital?.updatedAt ?? ""}
+                value={
+                        hospital?.updatedAt
+                          ? new Date(hospital.updatedAt).toLocaleString("ja-JP", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : ""
+                  }
                 readOnly
                 className="
                 w-full
@@ -310,8 +371,18 @@ export default function EditHospitalModal({
 
         </div>
 
-        <div className="flex justify-end gap-4 mt-6">
-
+          <div
+            className="
+              flex
+              justify-end
+              gap-4
+              px-8
+              py-6
+              border-t
+              bg-white
+              rounded-b-xl
+            "
+          >
           <button
             onClick={onClose}
             className="

@@ -1,9 +1,12 @@
 import {
          DeviceTypeType,
          DeviceTypeDBType,
-         CreateDeviceTypeType,
-         UpdateDeviceTypeType,
-         DeleteDeviceTypeType
+         CreateDeviceTypeFrontType,
+         CreateDeviceTypeBackType,
+         UpdateDeviceTypeFrontType,
+         UpdateDeviceTypeBackType,
+         DeleteDeviceTypeFrontType,
+         DeleteDeviceTypeBackType
        } from "../types/deviceTypeTypes"
 
 // DB → UI
@@ -18,24 +21,24 @@ export const normalizeDeviceType = (
 
 // Create
 export const toCreateDeviceTypeRequest = (
-                                            deviceType: CreateDeviceTypeType
-                                          ) => ({
+                                            deviceType: CreateDeviceTypeFrontType
+                                          ):CreateDeviceTypeBackType => ({
                                                   name: deviceType.name,
-                                                  icon_color: deviceType.icon_color
+                                                  icon_color: deviceType.iconColor
                                                 })
 
 // Update
 export const toUpdateDeviceTypeRequest = (
-                                            deviceType: UpdateDeviceTypeType
-                                          ) => ({
+                                            deviceType: UpdateDeviceTypeFrontType
+                                          ) :UpdateDeviceTypeBackType=> ({
                                                   id: deviceType.id,
                                                   name: deviceType.name,
-                                                  icon_color: deviceType.icon_color
+                                                  icon_color: deviceType.iconColor
                                                 })
 
 // Delete
 export const toDeleteDeviceTypeRequest = (
-                                            deviceType: DeleteDeviceTypeType
-                                          ) => ({
+                                            deviceType: DeleteDeviceTypeFrontType
+                                          ) :DeleteDeviceTypeBackType=> ({
                                                   id: deviceType.id
                                                 })

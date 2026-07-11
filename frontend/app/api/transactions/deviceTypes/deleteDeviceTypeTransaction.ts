@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { DeleteDeviceTypeType } from "../../../types/deviceTypeTypes"
+import { DeleteDeviceTypeFrontType } from "../../../types/deviceTypeTypes"
 import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
@@ -8,7 +8,7 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type DeleteDeviceTypeTransactionParams = {
-                                            deviceType: DeleteDeviceTypeType
+                                            deviceType: DeleteDeviceTypeFrontType
                                             setDeviceTypes: any
                                           }
 

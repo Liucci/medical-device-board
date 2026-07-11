@@ -78,14 +78,15 @@ useEffect(
                     }
 
                     // 利用状態
-                    result =
+                    if (isActiveList.length > 0)
+                    {result =
                       result.filter(
                                       hospital =>
                                         isActiveList.includes(
                                                                hospital.isActive
                                                              )
                                     )
-
+                    }
                     // 登録日 From
                     if (createdFrom !== "")
                     {
@@ -188,10 +189,11 @@ useEffect(
                     病院名
                   </div>
 
-                  <input
-                    className="w-full rounded border px-2 py-1"
-                  />
-
+                    <input
+                      value={hospitalName}
+                      onChange={e => setHospitalName(e.target.value)}
+                      className="w-full rounded border px-2 py-1"
+                    />
                 </div>
 
                 <div>
@@ -259,15 +261,34 @@ useEffect(
                   <div className="flex gap-4">
 
                     <label>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={isActiveList.includes(true)}
+                        onChange={e =>
+                          setIsActiveList(
+                            e.target.checked
+                              ? [...isActiveList.filter(v => v !== true), true]
+                              : isActiveList.filter(v => v !== true)
+                          )
+                        }
+                      />
                       利用中
                     </label>
-
+                    
                     <label>
-                      <input type="checkbox" />
+                      <input
+                          type="checkbox"
+                          checked={isActiveList.includes(false)}
+                          onChange={e =>
+                            setIsActiveList(
+                              e.target.checked
+                                ? [...isActiveList.filter(v => v !== false), false]
+                                : isActiveList.filter(v => v !== false)
+                            )
+                          }
+                      />
                       停止
                     </label>
-
                   </div>
 
                 </div>
@@ -282,18 +303,21 @@ useEffect(
 
                     <input
                       type="date"
-                      className="rounded border px-2 py-1"
+                      value={createdFrom}
+                      onChange={e => setCreatedFrom(e.target.value)}
+                      className="min-w-0 flex-1 rounded border px-2 py-1"
                     />
 
-                    ～
+                    <span>～</span>
 
                     <input
                       type="date"
-                      className="rounded border px-2 py-1"
+                      value={createdTo}
+                      onChange={e => setCreatedTo(e.target.value)}
+                      className="min-w-0 flex-1 rounded border px-2 py-1"
                     />
 
                   </div>
-
                 </div>
 
               </div>
@@ -302,8 +326,7 @@ useEffect(
 
             <div className="mb-3 font-bold">
 
-              検索結果：{hospitals.length}件
-
+              検索結果：{filteredHospitals.length}件
             </div>
 
             <div className="flex-1 overflow-auto rounded border">
@@ -394,14 +417,29 @@ useEffect(
                                           {hospital.deviceCount}
                                         </td>
 
-                                        <td className="border px-3 py-2">
-                                          {hospital.createdAt}
-                                        </td>
+                                            <td className="border px-3 py-2">
+                                              {
+                                                new Date(hospital.createdAt?? "").toLocaleString("ja-JP", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })
+                                              }
+                                            </td>
 
-                                        <td className="border px-3 py-2">
-                                          {hospital.updatedAt}
-                                        </td>
-
+                                            <td className="border px-3 py-2">
+                                              {
+                                                new Date(hospital.updatedAt?? "").toLocaleString("ja-JP", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })
+                                              }
+                                            </td>
                                       </tr>
 
                                     )

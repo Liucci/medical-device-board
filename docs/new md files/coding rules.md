@@ -479,3 +479,183 @@ UI orchestration
 になることを目的とする。
 
 本書は本プロジェクト唯一のコーディング規約とする。
+
+# Type Rule
+
+TypeはMapperによる変換前後のデータ構造を定義する。
+
+camelCase・snake_caseは命名規則であり、Request・Responseを表すものではない。
+
+RequestかResponseかは、APIの通信方向によって決定する。
+
+## Response
+
+GET系APIでBackendから取得したデータを表す。
+
+```
+Backend(JSON snake_case)
+        ↓
+XXXDBType
+        ↓ normalize
+XXXType(camelCase)
+        ↓
+UI
+```
+
+例
+
+* CurrentUserDB → CurrentUser
+* UserManagementDBType → UserManagementType
+* HospitalManagementDBType → HospitalManagementType
+
+DBTypeはBackendから受け取るJSON構造を定義する。
+
+TypeはFrontendで使用する標準型を定義する。
+
+## Request
+
+POST・PUT・DELETE系APIでBackendへ送信するデータを表す。
+
+```
+UI
+ ↓
+XXXType(camelCase)
+ ↓ Mapper
+XXXRequest(snake_case)
+ ↓
+Backend
+```
+
+例
+
+* CreateUserFrontType → AddUserRequest
+* UpdateUserType → UpdateUserRequest
+* CreateHospitalFrontType → AddHospitalRequest
+* UpdateHospitalFrontType → UpdateHospitalRequest
+
+TypeはUIで保持するデータ構造を定義する。
+
+RequestはBackendへ送信するJSON構造を定義する。
+
+## 共通ルール
+
+TypeはMapperの変換前後の型を定義する。
+
+* DBType：Backendとの通信で使用する型
+* Type：Frontend内部で使用する型
+* Request：Backendへ送信する型
+
+Request・Responseの区別は、camelCase・snake_caseではなく、APIの通信方向（取得か送信か）によって決定する。
+
+# Type / Mapper Reference
+
+DeviceModel を Type・Mapper の標準実装（リファレンスコード）とする。
+
+今後、新規作成・リファクタリングを行う際は、この実装パターンに従うこと。
+
+## 基本方針
+
+Type は Mapper の変換前後を明確に定義する。
+
+Mapper は必ず「型A → 型B」の変換のみを担当する。
+
+## Frontend標準型
+
+画面(UI)で扱う標準型を定義する。
+
+例
+
+```ts
+DeviceModelType
+```
+
+既に多数参照されているため、名称は変更しない。
+
+---
+
+## Backend標準型
+
+Backend(DB)との受け渡しで使用する標準型を定義する。
+
+例
+
+```ts
+DeviceModelDBType
+```
+
+---
+
+## 操作専用型
+
+Create・Update・Delete ごとに Mapper 前後の型を定義する。
+
+例
+
+```ts
+CreateDeviceModelFrontType
+CreateDeviceModelBackType
+
+UpdateDeviceModelFrontType
+UpdateDeviceModelBackType
+
+DeleteDeviceModelsFrontType
+DeleteDeviceModelsBackType
+```
+
+FrontType は Frontend が扱う型、
+
+BackType は Backend へ渡す型とする。
+
+型の内容が同一となる場合でも、省略せず両方定義する。
+
+これは Mapper の変換前後を明確にし、将来的な仕様変更に対応しやすくするためである。
+
+---
+
+## Mapper
+
+Mapper は必ず
+
+```text
+変換前Type
+        ↓
+Mapper
+        ↓
+変換後Type
+```
+
+となるよう実装する。
+
+例
+
+```ts
+normalizeDeviceModel(
+    d: DeviceModelDBType
+): DeviceModelType
+
+toCreateDeviceModelRequest(
+    deviceModel: CreateDeviceModelFrontType
+): CreateDeviceModelBackType
+
+toUpdateDeviceModelRequest(
+    deviceModel: UpdateDeviceModelFrontType
+): UpdateDeviceModelBackType
+
+toDeleteDeviceModelsRequest(
+    deviceModels: DeleteDeviceModelsFrontType
+): DeleteDeviceModelsBackType
+```
+
+Mapper は型変換のみを責務とし、業務ロジック・API呼び出し・State更新は実装しない。
+
+---
+
+## リファレンス
+
+`deviceModelTypes.ts`
+
+`deviceModelMapper.ts`
+
+を本プロジェクトにおける Type / Mapper の標準実装（Reference Implementation）とする。
+
+今後は、この実装パターンに従って Type・Mapper を作成すること。

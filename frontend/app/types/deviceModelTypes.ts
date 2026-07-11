@@ -15,18 +15,32 @@ export type DeviceModelDBType = {
                                 }
 
 // Create専用
-export type CreateDeviceModelType = {
+export type CreateDeviceModelFrontType = {
                                       deviceTypeId: number
                                       name: string
                                     }
+export type CreateDeviceModelBackType = {
+                                      device_type_id: number
+                                      name: string
+                                    }
+
+
 
 // Update専用
-export type UpdateDeviceModelType = {
+export type UpdateDeviceModelFrontType = {
+                                      id: number
+                                      name: string
+                                    }
+export type UpdateDeviceModelBackType = {
                                       id: number
                                       name: string
                                     }
 
 // Delete専用
-export type DeleteDeviceModelsType = {
+export type DeleteDeviceModelsFrontType = {
+                                       ids: number[]
+                                     }
+
+export type DeleteDeviceModelsBackType = {
                                        ids: number[]
                                      }
