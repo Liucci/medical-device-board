@@ -1210,6 +1210,8 @@ if (!currentUser) {
           userName={currentUser.displayName}
           role={currentUser.role}
           userId={currentUser.id}
+          email={currentUser.email}
+          hospitalName={currentUser.hospitalName}
 
           infectionTypes={infectionTypes}
           setInfectionTypes={setInfectionTypes}
