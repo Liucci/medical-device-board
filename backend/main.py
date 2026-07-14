@@ -176,15 +176,15 @@ from schemas.user_schemas import UpdateUserRequest
 from users.update_user import update_user
 from transactions.user_management.update_user_transaction import update_user_transaction
 
-from schemas.account_edit_code_schemas import (
+from schemas.account_edit_schemas import (
                                                 CreateAccountEditCodeRequest,
-                                                VerifyAccountEditCodeRequest,
-                                                UpdateMyAccountRequest
+                                                UpdateMyAccountRequest,
+                                                VerifyAccountEditCodeRequest
                                               )
 
-from transactions.account_edit_codes.create_account_edit_code_transaction import (create_account_edit_code_transaction)
-from transactions.account_edit_codes.verify_account_edit_code_transaction import (verify_account_edit_code_transaction)
-from transactions.account_edit_codes.update_my_account_transaction import (update_my_account_transaction)
+from transactions.account_edits.create_account_edit_transaction import (create_account_edit_code_transaction)
+from transactions.account_edits.verify_account_edit_transaction import (verify_account_edit_code_transaction)
+from transactions.account_edits.update_my_account_transaction import (update_my_account_transaction)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1900,7 +1900,7 @@ def create_account_edit_code(
 #codeの有効性を判定し、有効なcodeならuser情報を返す
 @app.post("/verify-account-edit-code")
 def verify_account_edit_code(
-                                request: VerifyAccountEditCodeRequest
+                               request: VerifyAccountEditCodeRequest
                             ):
     print("verify_account_edit_code")
 
@@ -1911,7 +1911,7 @@ def verify_account_edit_code(
     user = fetch_current_user(
                                 auth_user_id=account_edit_code["user_id"]
                              )
-
+    print("user:",user)
     return user
 
 @app.post("/update-my-account")

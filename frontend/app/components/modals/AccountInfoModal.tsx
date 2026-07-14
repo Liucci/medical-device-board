@@ -2,7 +2,7 @@
 
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
-import { createAccountEditCodeTransaction } from "../../api/transactions/accountEditCodes/createAccountEditCodeTransaction"
+import { createAccountEditCodeTransaction } from "../../api/transactions/accountEdits/createAccountEditTransaction"
 
 
 type Props = {

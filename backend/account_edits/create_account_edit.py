@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timedelta
 
 from common.supabase_client import supabase
-from schemas.account_edit_code_schemas import CreateAccountEditCodeRequest
+from schemas.account_edit_schemas import CreateAccountEditCodeRequest
 
 
 def create_account_edit_code(

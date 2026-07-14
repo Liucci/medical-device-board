@@ -1,18 +1,11 @@
 from datetime import datetime, timezone
-
-from account_edit_codes.fetch_account_edit_code import (
-                                                        fetch_account_edit_code
-                                                      )
+from account_edits.fetch_account_edit import (fetch_account_edit_code)
 
 
-def verify_account_edit_code_transaction(
-                                            code: str
-                                        ):
+def verify_account_edit_code_transaction(code: str):
     print("verify_account_edit_code_transaction")
 
-    account_edit_code = fetch_account_edit_code(
-                                                    code=code
-                                                )
+    account_edit_code = fetch_account_edit_code(code=code)
 
     if not account_edit_code:
         raise Exception(

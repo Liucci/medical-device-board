@@ -1,15 +1,9 @@
-from account_edit_codes.update_account_edit_code import (
-                                                            update_account_edit_code
-                                                        )
-from transactions.account_edit_codes.verify_account_edit_code_transaction import (
-                                                                                    verify_account_edit_code_transaction
-                                                                                )
+from account_edits.update_account_edit import (update_account_edit_code)
+from transactions.account_edits.verify_account_edit_transaction import (verify_account_edit_code_transaction)
 from users.update_my_account import update_my_account
 from auth.update_auth_user import update_auth_user
 
-from schemas.account_edit_code_schemas import (
-                                                    UpdateMyAccountRequest
-                                                )
+from schemas.account_edit_schemas import (UpdateMyAccountRequest)
 
 
 def update_my_account_transaction(

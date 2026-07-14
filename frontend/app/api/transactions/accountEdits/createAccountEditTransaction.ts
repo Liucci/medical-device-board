@@ -1,4 +1,4 @@
-import { createAccountEditCode } from "../../accountEditCodes/createAccountEditCode"
+import { createAccountEditCode } from "../../accountEdits/createAccountEdit"
 
 export const createAccountEditCodeTransaction = async () => {
   console.log("createAccountEditCodeTransaction")

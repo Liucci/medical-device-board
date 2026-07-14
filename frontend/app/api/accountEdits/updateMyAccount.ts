@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../client/apiClient"
 
-import { UpdateMyAccountBackType } from "../../types/accountEditCodeTypes"
+import { UpdateMyAccountBackType } from "../../types/accountEditTypes"
 
 export const updateMyAccount = async (
                                         request: UpdateMyAccountBackType

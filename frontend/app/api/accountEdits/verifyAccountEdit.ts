@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../client/apiClient"
 
-import { VerifyAccountEditCodeBackType } from "../../types/accountEditCodeTypes"
+import { VerifyAccountEditCodeBackType } from "../../types/accountEditTypes"
 
 export const verifyAccountEditCode = async (
                                               request: VerifyAccountEditCodeBackType

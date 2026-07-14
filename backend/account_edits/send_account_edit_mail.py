@@ -2,9 +2,7 @@ import os
 import requests
 
 from datetime import datetime
-from schemas.account_edit_code_schemas import (
-    SendAccountEditMailRequest
-)
+from schemas.account_edit_schemas import (SendAccountEditMailRequest)
 
 
 def send_account_edit_mail(
