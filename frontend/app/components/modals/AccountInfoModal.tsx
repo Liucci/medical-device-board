@@ -2,6 +2,8 @@
 
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
+import { createAccountEditCodeTransaction } from "../../api/transactions/accountEditCodes/createAccountEditCodeTransaction"
+
 
 type Props = {
   isOpen: boolean
@@ -33,24 +35,32 @@ export default function AccountInfoModal({
 
   if (!isOpen) return null
 
-  const handleEdit = async () => {
+const handleEdit = async () => {
+  console.log("handleEdit")
 
-    setLoading(true)
+  setLoading(true)
 
-    try {
+  try {
 
-      // sendAccountEditCodeTransaction()
+    await createAccountEditCodeTransaction()
 
-      onClose()
+    alert("編集用URLを登録済みメールアドレスへ送信しました。")
 
-    } finally {
+    onClose()
 
-      setLoading(false)
+  } catch (error) {
 
-    }
+    console.error(error)
+
+    alert("メール送信に失敗しました。")
+
+  } finally {
+
+    setLoading(false)
 
   }
 
+}
   return createPortal(
 
     <div

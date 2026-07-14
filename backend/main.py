@@ -176,6 +176,16 @@ from schemas.user_schemas import UpdateUserRequest
 from users.update_user import update_user
 from transactions.user_management.update_user_transaction import update_user_transaction
 
+from schemas.account_edit_code_schemas import (
+                                                CreateAccountEditCodeRequest,
+                                                VerifyAccountEditCodeRequest,
+                                                UpdateMyAccountRequest
+                                              )
+
+from transactions.account_edit_codes.create_account_edit_code_transaction import (create_account_edit_code_transaction)
+from transactions.account_edit_codes.verify_account_edit_code_transaction import (verify_account_edit_code_transaction)
+from transactions.account_edit_codes.update_my_account_transaction import (update_my_account_transaction)
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -1734,7 +1744,6 @@ async def export_device_list_pdf_route(
     print("auth_user_id:", auth_user_id)
 
     current_user = fetch_current_user(auth_user_id)
-
     hospital = fetch_hospital(
                                 current_user["hospital_id"]
                               )
@@ -1876,3 +1885,43 @@ def update_user_route(
         request=request,
         auth_user_id=auth_user_id
     )
+
+#アカウント情報編集用コード送信用
+@app.post("/create-account-edit-code")
+def create_account_edit_code(
+                            current_user=Depends(get_current_user),
+                            ):
+    print("create_account_edit_code")
+
+    return create_account_edit_code_transaction(
+                                                    request=CreateAccountEditCodeRequest(user_id=current_user["id"]),
+                                                    email=current_user["email"]
+                                                )
+#codeの有効性を判定し、有効なcodeならuser情報を返す
+@app.post("/verify-account-edit-code")
+def verify_account_edit_code(
+                                request: VerifyAccountEditCodeRequest
+                            ):
+    print("verify_account_edit_code")
+
+    account_edit_code = verify_account_edit_code_transaction(
+                                                                code=request.code
+                                                            )
+
+    user = fetch_current_user(
+                                auth_user_id=account_edit_code["user_id"]
+                             )
+
+    return user
+
+@app.post("/update-my-account")
+def update_my_account(
+                        request: UpdateMyAccountRequest
+                    ):
+    print("update_my_account")
+
+    update_my_account_transaction(request)
+
+    return {
+                "message": "success"
+           }
