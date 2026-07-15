@@ -1,4 +1,4 @@
-from common.supabase_client import (
+from common.supabase_admin_client import (
     supabase
 )
 from schemas.device_type_schemas import (DeleteDeviceTypeRequest)

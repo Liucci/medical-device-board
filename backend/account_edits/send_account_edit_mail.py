@@ -6,16 +6,12 @@ from schemas.account_edit_schemas import (SendAccountEditMailRequest)
 
 
 def send_account_edit_mail(
-    request: SendAccountEditMailRequest
-):
+                                request: SendAccountEditMailRequest,
+                            ):
     print("send_account_edit_mail")
 
-    expires_at = datetime.fromisoformat(
-        request.expires_at
-    )
-
+    expires_at = datetime.fromisoformat(request.expires_at,  )
     resend_api_key = os.getenv("RESEND_API_KEY")
-
     response = requests.post(
         "https://api.resend.com/emails",
         headers={

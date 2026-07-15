@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 #display nameのみ変更する
 def update_my_account(

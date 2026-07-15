@@ -7,7 +7,7 @@ from schemas.account_edit_schemas import (UpdateMyAccountRequest)
 
 
 def update_my_account_transaction(
-                                    request: UpdateMyAccountRequest
+                                    request: UpdateMyAccountRequest,
                                 ):
     print("update_my_account_transaction")
 

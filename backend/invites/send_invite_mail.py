@@ -5,7 +5,8 @@ from schemas.invite_schemas import (SendInviteMailRequest)
 
 
 def send_invite_mail(
-                        invite:SendInviteMailRequest
+                        invite:SendInviteMailRequest,
+                        invite_url: str
                     ):
     
     print("send_invite_mail")
@@ -36,13 +37,13 @@ def send_invite_mail(
                                         </p>
 
                                         <p>
-                                            <a href="{invite.invite_url}">
+                                            <a href="{invite_url}">
                                                 登録する
                                             </a>
                                         </p>
 
                                         <p>
-                                            {invite.invite_url}
+                                            {invite_url}
                                         </p>
 
                                         <hr>

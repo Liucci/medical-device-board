@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 from devices.move_device import move_device
 

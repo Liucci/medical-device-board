@@ -1,4 +1,18 @@
 from pydantic import BaseModel
+from datetime import datetime, date
+
+class InviteCode(BaseModel):
+    id: int
+    code: str
+    hospital_id: str | None
+    hospital_name: str | None
+    email: str
+    role: str
+    created_by: str | None
+    used: bool
+    expires_at: datetime
+    created_at: datetime
+
 
 class CreateInviteCodeRequest(BaseModel):
     email: str
@@ -7,20 +21,19 @@ class CreateInviteCodeRequest(BaseModel):
 
 class SendInviteMailRequest(BaseModel):
     email: str
-    invite_url: str
     expires_at: str
 
 
 class RegisterUserRequest(BaseModel):
     code: str
-    password: str
     display_name: str
+    password: str
 
 class RegisterUserResponse(BaseModel):
-    display_name:str
     email: str
     role:str
     hospital_name:str
+    display_name: str
 
 #register pageで使用
 class InviteInfoResponse(BaseModel):

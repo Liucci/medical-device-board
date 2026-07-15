@@ -1,4 +1,4 @@
-from common.supabase_client import (supabase)
+from common.supabase_admin_client import (supabase)
 
 def refresh_token(refresh_token: str):
     print("refresh_token")

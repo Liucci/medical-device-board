@@ -5,7 +5,7 @@ from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
 import os
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
@@ -306,18 +306,19 @@ def get_invite_info_route(
 #招待したユーザーをDB登録する
 @app.post("/register")
 def register(
-                register:RegisterUserRequest
+                register:RegisterUserRequest,
             ):
-    return register_user_transaction(register)
+    return register_user_transaction(register,
+                                    )
 
 #first admin userをDB登録する
 @app.post("/register-first-admin")
 def register_first_admin_route(
-                                register: RegisterUserRequest
+                                register: RegisterUserRequest,
                               ):
 
     return register_first_admin_transaction(
-                                              register
+                                              register,
                                            )
 
 
@@ -1894,8 +1895,10 @@ def create_account_edit_code(
     print("create_account_edit_code")
 
     return create_account_edit_code_transaction(
-                                                    request=CreateAccountEditCodeRequest(user_id=current_user["id"]),
-                                                    email=current_user["email"]
+                                                request=CreateAccountEditCodeRequest(
+                                                                    user_id=current_user["id"],
+                                                                    email=current_user["email"]                                                        
+                                                                    ),
                                                 )
 #codeの有効性を判定し、有効なcodeならuser情報を返す
 @app.post("/verify-account-edit-code")
@@ -1916,12 +1919,12 @@ def verify_account_edit_code(
 
 @app.post("/update-my-account")
 def update_my_account(
-                        request: UpdateMyAccountRequest
+                        request: UpdateMyAccountRequest,
                     ):
     print("update_my_account")
 
-    update_my_account_transaction(request)
+    update_my_account_transaction(
+                                  request,
+                                  )
 
-    return {
-                "message": "success"
-           }
+    return {"message": "success"}

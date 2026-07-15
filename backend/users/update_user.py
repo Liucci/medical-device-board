@@ -1,5 +1,5 @@
 from schemas.user_schemas import UpdateUserRequest
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 #system adminが変更可能なuser情報
 def update_user(request: UpdateUserRequest):

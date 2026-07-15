@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from stock_areas.add_stock_areas import add_stock_areas
 from schemas.stock_area_schemas import AddStockAreaRequest
 from stock_areas.fetch_stock_areas import get_max_stock_area_display_order

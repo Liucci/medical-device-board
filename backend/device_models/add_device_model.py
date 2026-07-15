@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from schemas.device_model_schemas import AddDeviceModelRequest
 
 def add_device_model(

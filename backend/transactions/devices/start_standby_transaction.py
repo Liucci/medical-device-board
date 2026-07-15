@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.start_standby import start_standby
 from schemas.device_schemas import StartStandbyRequest
 from transactions.histories.create_device_history import (create_device_history)

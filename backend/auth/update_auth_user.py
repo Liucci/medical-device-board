@@ -1,5 +1,5 @@
-from common.supabase_client import supabase
-from common.supabase_client import key
+from common.supabase_admin_client import supabase
+from common.supabase_admin_client import key
 
 print("service key =", key[:20])
 

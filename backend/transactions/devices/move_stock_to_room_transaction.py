@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.move_device import move_device
 from rooms.update_rooms import update_room_patientname
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types

@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 def fetch_room_infections(hospital_id: str):
     print("fetch_room_infections")

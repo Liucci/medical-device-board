@@ -1,5 +1,5 @@
 from datetime import datetime
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 
 def complete_maintenance_task(

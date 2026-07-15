@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 #特定のhospitalの全device情報取得
 def fetch_devices(hospital_id: str):
 

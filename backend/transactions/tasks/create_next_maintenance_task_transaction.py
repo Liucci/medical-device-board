@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 from tasks.add_maintenance_task import add_maintenance_task
 

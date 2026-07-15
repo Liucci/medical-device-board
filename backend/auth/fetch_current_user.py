@@ -1,4 +1,4 @@
-from common.supabase_client import (
+from common.supabase_admin_client import (
     supabase
 )
 #auth user idと紐づいたuser情報をDBから取得
