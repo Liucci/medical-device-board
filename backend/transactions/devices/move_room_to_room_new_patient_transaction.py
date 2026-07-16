@@ -82,7 +82,8 @@ def move_room_to_room_new_patient_transaction(
                                                             id=device.id,
                                                             serial_number=serial_number
                                                          ),
-                          hospital_id=hospital_id
+                          hospital_id=hospital_id,
+                          user_id=user_id
                         )
 
     # 備考クリア
@@ -91,7 +92,8 @@ def move_room_to_room_new_patient_transaction(
                                             id=device.id,
                                             note=note
                                          ),
-                  hospital_id=hospital_id
+                  hospital_id=hospital_id,
+                  user_id=user_id
                )
     #pre roomの機器台数が0台で移動元の患者名削除
     room_devices = fetch_devices_by_room_id(

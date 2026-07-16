@@ -16,3 +16,5 @@ def delete_device(device: DeleteDeviceRequest,
         .eq("hospital_id",hospital_id)
         .execute()
     )
+
+#deleteでdeviceが消えるので、LastUpdate系はfront側で作成

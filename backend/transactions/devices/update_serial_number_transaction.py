@@ -15,7 +15,8 @@ def update_serial_number_transaction(
 
     updated_device = update_serial_number(
                                             device=device,
-                                            hospital_id=hospital_id
+                                            hospital_id=hospital_id,
+                                            user_id=user_id
                                           )
 
     create_device_history(

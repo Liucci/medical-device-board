@@ -15,7 +15,8 @@ def start_maintenance_transaction(
 
     updated_device = start_maintenance(
                                           device=device,
-                                          hospital_id=hospital_id
+                                          hospital_id=hospital_id,
+                                          user_id=user_id
                                        )
 
     create_device_history(

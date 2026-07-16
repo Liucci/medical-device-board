@@ -1355,6 +1355,7 @@ def update_management_number_route(
 def update_serial_number_route(
                                  body: UpdateSerialNumberRequest,
                                  auth_user_id: str = Depends(get_auth_user_id)
+                               
                                ):
 
     current_user = fetch_current_user(auth_user_id)
@@ -1403,7 +1404,8 @@ def update_device_rental_dates_route(
 
     update_device_rental_dates_transaction(
                                               device=device,
-                                              hospital_id=current_user["hospital_id"]
+                                              hospital_id=current_user["hospital_id"],
+                                              user_id=current_user["id"]
                                            )
 
 @app.post("/update-maintenance-dates")

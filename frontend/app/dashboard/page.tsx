@@ -479,15 +479,8 @@ export default function Page() {
                                     value: string
                                   ): Promise<boolean> => {
 
-    const device =
-      deviceList.find(
-                      d => d.id === id
-                    )
-
-    if (!device) {
-      return false
-    }
-
+    const device =deviceList.find(d => d.id === id)
+    if (!device) {return false}
     await updateSerialNumber({
                               device: {
                                         ...device,
@@ -498,20 +491,19 @@ export default function Page() {
     const devices=await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                   d => d.id === id
-                  )
-if (updatedDevice) {
+    const updatedDevice =normalizedDevices.find(d => d.id === id)
+    if (updatedDevice) {
 
-  if (selectedRoomDevice?.id === id) {
-    setSelectedRoomDevice(updatedDevice)
-  }
+      if (selectedRoomDevice?.id === id) {
+        setSelectedRoomDevice(updatedDevice)
+      }
 
-  if (selectedDevice?.id === id) {
-    setSelectedDevice(updatedDevice)
-  }
-
-}
+      if (selectedDevice?.id === id) {
+        setSelectedDevice(updatedDevice)
+      }
+    }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -521,41 +513,29 @@ if (updatedDevice) {
                               value: string
                             ): Promise<boolean> => {
 
-    const device =
-      deviceList.find(
-                      d => d.id === id
-                    )
-
-    if (!device) {
-      return false
-    }
-
+    const device =deviceList.find(d => d.id === id)
+    if (!device) {return false}
     await updateNote({
                       device: {
                                 ...device,
                                 note: value.trim()
                               }
                     })
-
-
     const devices=await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                    d => d.id === id
-                  )
+    const updatedDevice =normalizedDevices.find(d => d.id === id)
 
-if (updatedDevice) {
-
-  if (selectedRoomDevice?.id === id) {
-    setSelectedRoomDevice(updatedDevice)
-  }
-
-  if (selectedDevice?.id === id) {
-    setSelectedDevice(updatedDevice)
-  }
-
-}
+    if (updatedDevice) {
+      if (selectedRoomDevice?.id === id) {
+        setSelectedRoomDevice(updatedDevice)
+      }
+      if (selectedDevice?.id === id) {
+        setSelectedDevice(updatedDevice)
+      }
+    }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -629,9 +609,15 @@ if (updatedDevice) {
     if (updatedDevice) {
       if (selectedRoomDevice?.id === deviceId) {
         setSelectedRoomDevice(updatedDevice)
+        //開始日更新がroomdeviceの時はward areaの最終更新日更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+
       }
       if (selectedDevice?.id === deviceId) {
         setSelectedDevice(updatedDevice)
+        //開始日更新がstockdeviceの時はstock areaの最終更新日更新
+        setStockLastUpdated(await fetchStockLastUpdated())
+
       }
     }
     return true
@@ -668,10 +654,14 @@ if (updatedDevice) {
 
       if (selectedRoomDevice?.id === deviceId) {
         setSelectedRoomDevice(updatedDevice)
+        //開始日更新がroomdeviceの時はward areaの最終更新日更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
       }
 
       if (selectedDevice?.id === deviceId) {
         setSelectedDevice(updatedDevice)
+        //開始日更新がstockdeviceの時はstock areaの最終更新日更新
+        setStockLastUpdated(await fetchStockLastUpdated())
       }
 
     }
@@ -686,9 +676,10 @@ if (updatedDevice) {
                                       standby: boolean,
                                     ): Promise<boolean> => {
 
-    if (standby) { await startStandby( deviceId)
-    } else {await finishStandby(deviceId)
-    }
+    if (standby) 
+      { await startStandby( deviceId)} 
+    else 
+      {await finishStandby(deviceId)}
     const devices =await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
@@ -699,6 +690,9 @@ if (updatedDevice) {
     if (updatedDevice) {
       setSelectedRoomDevice(updatedDevice)
     }
+    //standbyの開始終了は最終更新日を更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
+    
     return true
   }
 
@@ -726,6 +720,9 @@ if (updatedDevice) {
         {setSelectedDevice( updatedDevice)
       }
     }
+    //保守中の開始終了はstock areaの最終更新を更新
+    setStockLastUpdated(await fetchStockLastUpdated())
+
     return true
   }  
 

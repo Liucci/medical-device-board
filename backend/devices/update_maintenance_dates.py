@@ -1,9 +1,11 @@
 from common.supabase_admin_client import supabase
 from schemas.device_schemas import UpdateMaintenanceDatesRequest
+from datetime import datetime, timezone
 
 def update_maintenance_dates(
                                 device: UpdateMaintenanceDatesRequest,
-                                hospital_id: str
+                                hospital_id: str,
+                                user_id:str
                             ):
 
     print("update_maintenance_dates")
@@ -13,8 +15,9 @@ def update_maintenance_dates(
                         .table("devices")
                         .update(
                             {
-                                "maintenance_started_at":
-                                    device.maintenance_started_at or None,
+                                "maintenance_started_at":device.maintenance_started_at or None,
+                              "updated_by": user_id,
+                              "updated_at": datetime.now(timezone.utc).isoformat()
                             }
                         )
                         .eq("id",device.id)

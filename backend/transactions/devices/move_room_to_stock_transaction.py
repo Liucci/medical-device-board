@@ -33,7 +33,8 @@ def move_room_to_stock_transaction(
     # standby解除
     finish_standby(
                       device=device,
-                      hospital_id=hospital_id
+                      hospital_id=hospital_id,
+                      user_id=user_id
                   )
 
 
@@ -76,7 +77,8 @@ def move_room_to_stock_transaction(
                      )
     clear_standby(
                       device=device,
-                      hospital_id=hospital_id
+                      hospital_id=hospital_id,
+                      user_id=user_id
                   )
 
 
