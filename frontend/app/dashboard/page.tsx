@@ -595,6 +595,8 @@ if (updatedDevice) {
                             setSelectedDevice(updatedDevice)
                           }
       }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 

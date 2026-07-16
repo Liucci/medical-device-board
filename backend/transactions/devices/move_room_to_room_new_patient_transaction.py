@@ -72,7 +72,8 @@ def move_room_to_room_new_patient_transaction(
                                                                       id=device.id,
                                                                       management_number=management_number
                                                                    ),
-                              hospital_id=hospital_id
+                              hospital_id=hospital_id,
+                              user_id=user_id
                             )
 
     # シリアル番号クリア
