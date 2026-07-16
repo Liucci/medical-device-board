@@ -11,7 +11,6 @@ def fetch_devices(hospital_id: str):
                   .eq("hospital_id", hospital_id)
                   .execute()
                 )
-
     return response.data
 
 #device idで指定した情報を取得

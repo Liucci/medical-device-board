@@ -55,9 +55,13 @@ function handleInsert(
 
   const maintenanceType = normalizeMaintenanceType(payload.new as MaintenanceTypeDB)
 
-  setMaintenanceTypes(prev => [...prev, maintenanceType])
-
-}
+  setMaintenanceTypes(prev => {
+    if (prev.some(m => m.id === maintenanceType.id)) {
+      return prev
+    }
+    return [...prev, maintenanceType]
+  })
+  }
 
 function handleUpdate(
   payload: RealtimePostgresChangesPayload<MaintenanceTypeDB>,

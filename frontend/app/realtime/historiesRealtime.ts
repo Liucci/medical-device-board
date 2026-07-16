@@ -55,9 +55,13 @@ function handleInsert(
 
   const history = normalizeHistory(payload.new as HistoryDB)
 
-  setHistories(prev => [...prev, history])
-
-}
+  setHistories(prev => {
+    if (prev.some(h => h.id === history.id)) {
+      return prev
+    }
+    return [...prev, history]
+  })
+  }
 
 function handleUpdate(
   payload: RealtimePostgresChangesPayload<HistoryDB>,
