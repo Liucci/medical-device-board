@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { executeWithLoading } from "../components/common/executeWithLoading"
 import {LoadingOverlay} from "../components/common/LoadingOverlay"
 import {updateMyAccountTransaction} from "../api/transactions/accountEdits/updateMyAccountTransaction"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
 type Props = {
             code: string
@@ -39,7 +40,7 @@ export default function AccountEditForm({
 
     try {
 
-      await executeWithLoading({
+      await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 

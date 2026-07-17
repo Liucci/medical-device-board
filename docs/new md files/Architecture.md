@@ -841,7 +841,7 @@ export async function createDeviceModelTransaction({
     }
 
     if (!newModelName.trim()) return
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 
@@ -860,7 +860,7 @@ export async function createDeviceModelTransaction({
 
   const handleDeleteModels = async () => {
     if (checkedModelIds.length === 0) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
           await deleteDeviceModelsTransaction({
@@ -878,7 +878,7 @@ export async function createDeviceModelTransaction({
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 

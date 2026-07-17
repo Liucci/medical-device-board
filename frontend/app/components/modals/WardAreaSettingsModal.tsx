@@ -17,6 +17,7 @@ import { createRoomTransaction } from "../../api/transactions/rooms/createRoomTr
 import { updateRoomTransaction } from "../../api/transactions/rooms/updateRoomTransaction"
 import { deleteRoomsTransaction } from "../../api/transactions/rooms/deleteRoomsTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 
@@ -43,7 +44,7 @@ export default function WardAreaSettingsModal({
 // ===== Ward =====
 
   const handleAddWard = async () => {
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 
@@ -76,7 +77,7 @@ export default function WardAreaSettingsModal({
                         )
 
     if (!name) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
             await updateWardTransaction({
@@ -92,7 +93,7 @@ export default function WardAreaSettingsModal({
 
   const handleDeleteWard = async () => {
     if (!selectedWardId) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 
@@ -139,7 +140,7 @@ export default function WardAreaSettingsModal({
       alert("病棟を選択してください")
       return
     }
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
     
@@ -160,7 +161,7 @@ export default function WardAreaSettingsModal({
       alert("部屋を選択してください")
       return
     }
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 
@@ -185,7 +186,7 @@ export default function WardAreaSettingsModal({
                         )
 
     if (!name) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
           await updateRoomTransaction({

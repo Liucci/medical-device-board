@@ -3,6 +3,8 @@ import {createStockAreaTransaction} from "../../api/transactions/stockAreas/crea
 import { deleteStockAreaTransaction } from "../../api/transactions/stockAreas/deleteStockAreaTransaction"
 import { updateStockAreaTransaction } from "../../api/transactions/stockAreas/updateStockAreaTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 
@@ -32,7 +34,7 @@ export default function StockAreaSettingsModal({
 
   // 削除
   const handleDelete = async() => {
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
         await deleteStockAreaTransaction({
@@ -51,7 +53,7 @@ export default function StockAreaSettingsModal({
       const trimmed = newName.trim()
       if (!trimmed) {return}
       if (trimmed === currentName) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
             await updateStockAreaTransaction({
@@ -69,7 +71,7 @@ export default function StockAreaSettingsModal({
   // 追加
   const handleAdd = async() => {
     if (!newName.trim()) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
               await createStockAreaTransaction({

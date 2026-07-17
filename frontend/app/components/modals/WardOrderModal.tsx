@@ -6,6 +6,8 @@ import { WardType } from "../../types/wardTypes"
 import { updateWardDisplayOrderTransaction } from "../../api/transactions/wards/updateWardDisplayOrderTransaction"
 import {GripVertical} from "lucide-react"
 import {executeWithLoading} from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 //DnDライブラリー
@@ -74,7 +76,7 @@ export default function WardOrderModal({
 
   async function handleSave() {
   //loading表示
-  await executeWithLoading({
+  await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
                 await updateWardDisplayOrderTransaction({

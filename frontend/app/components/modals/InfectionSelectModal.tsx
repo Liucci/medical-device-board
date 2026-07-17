@@ -6,9 +6,12 @@ import { createPortal } from "react-dom"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
 import { RoomInfectionType } from "../../types/roomInfectionTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import { LoadingOverlay } from "../common/LoadingOverlay"
 import { updateRoomInfectionsTransaction } from "../../api/transactions/roomInfections/updateRoomInfectionsTransaction"
 import { FaVirus } from "react-icons/fa"
+
 type Props = {
   isOpen: boolean
   onClose: () => void
@@ -100,7 +103,7 @@ export default function InfectionSelectModal({
 
           <button
             onClick={async() => {
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 

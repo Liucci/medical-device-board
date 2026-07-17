@@ -4,6 +4,8 @@ import { createInfectionTypeTransaction } from "../../api/transactions/infection
 import { updateInfectionTypeTransaction } from "../../api/transactions/infectionTypes/updateInfectionTypeTransaction"
 import { deleteInfectionTypesTransaction } from "../../api/transactions/infectionTypes/deleteInfectionTypesTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import { LoadingOverlay } from "../common/LoadingOverlay"
 
 type Props = {
@@ -37,7 +39,7 @@ export default function InfectionSettingsModal({
 
     if (!trimmed) {return}
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 
@@ -75,7 +77,7 @@ export default function InfectionSettingsModal({
 
     if (trimmed === infectionType.name) {return}
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 
@@ -100,7 +102,7 @@ export default function InfectionSettingsModal({
 
     if (color === infectionType.color) {return}
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 
@@ -122,7 +124,7 @@ export default function InfectionSettingsModal({
 
     if (checkedIds.length === 0) {return}
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 

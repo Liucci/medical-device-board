@@ -17,6 +17,7 @@ import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 import {fetchStockLastUpdated} from "../../api/devices/fetchStockLastUpdated"
 import {fetchWardLastUpdated} from "../../api/devices/fetchWardLastUpdated"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 type Props = {
   deviceList: Device[]
@@ -65,8 +66,7 @@ export default function DeviceModal({
   const handleSubmit = async () => {
 
 
-    if (selectedTypeID === "") {
-      alert("機種を選択してください")
+    if (selectedTypeID === "") {alert("機種を選択してください")
       return
     }
 
@@ -79,7 +79,7 @@ export default function DeviceModal({
       return
     }
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 

@@ -358,8 +358,7 @@ console.log(rows[0])
 更新処理は
 
 ```
-executeWithLoading()
-```
+executeWithErrorAndLoading```
 
 を利用する。
 

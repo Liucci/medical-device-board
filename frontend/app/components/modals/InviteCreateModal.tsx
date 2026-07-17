@@ -5,6 +5,8 @@ import { createPortal } from "react-dom"
 import { createInviteCodeTransaction }from "../../api/transactions/invites/createInviteCodeTransaction"
 
 import {executeWithLoading} from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 //supabase
 import { supabase } from "../../lib/supabase"
@@ -23,7 +25,7 @@ export default function InviteCreateModal({
   const [isSuccess, setIsSuccess] = useState(false)
 
   const handleCreate = async () => {
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 

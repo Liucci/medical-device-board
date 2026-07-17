@@ -13,6 +13,7 @@ import { createPortal } from "react-dom"
 import { FaTrashAlt } from "react-icons/fa"
 
 import {executeWithLoading} from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 //page.tsxからpropsを受け取る
@@ -120,7 +121,7 @@ export default function StockInfoModal({
 
       if (!confirm("この機器を削除しますか？")) return
 
-      await executeWithLoading({
+      await executeWithErrorAndLoading({
           setLoading,
           action: async () => {
             await onDelete(device.id!)
@@ -229,7 +230,7 @@ export default function StockInfoModal({
                       managementNumber
                     )
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
                   const success =
@@ -258,7 +259,7 @@ export default function StockInfoModal({
                 serialNumber
               )
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
                   const success =
@@ -287,7 +288,7 @@ export default function StockInfoModal({
                 rentalStartDate
               )
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
 
@@ -316,7 +317,7 @@ export default function StockInfoModal({
                 rentalEndDate
               )
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
 
@@ -347,7 +348,7 @@ export default function StockInfoModal({
                 const val = prompt("保守開始日 (YYYY-MM-DD)",maintenanceStartedAt)
 
                 if (val === null) return
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
                       const success =await renameMaintenanceDates(deviceId,val)
@@ -374,7 +375,7 @@ export default function StockInfoModal({
               )
 
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
                     const success =
@@ -405,7 +406,7 @@ export default function StockInfoModal({
                     .toISOString()
                     .split("T")[0]
 
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 
@@ -428,7 +429,7 @@ export default function StockInfoModal({
                   .split("T")[0]
               )
               if (val === null) return
-              await executeWithLoading({
+              await executeWithErrorAndLoading({
                   setLoading,
                   action: async () => {
                           
