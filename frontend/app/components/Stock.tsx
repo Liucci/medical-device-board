@@ -185,7 +185,8 @@ const isCurrentDragging = draggingDevice?.id === d.id
             managementNumber={d.managementNumber}
             serialNumber={d.serialNumber}
             rentalEndDate={d.rentalEndDate}   
-            mAlert={getMAlert(d.id)}
+            //stock areaのインジケーターは非表示に
+            //mAlert={getMAlert(d.id)}
             cellSize={cellSize}
             isUnderMaintenance={d.isUnderMaintenance}
             standby={d.standby}

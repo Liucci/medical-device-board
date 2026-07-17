@@ -469,6 +469,8 @@ export default function Page() {
                                   setRooms
                                 })
 
+    setWardLastUpdated(await fetchWardLastUpdated()) 
+
     return true
   }
 
@@ -677,22 +679,25 @@ export default function Page() {
                                     ): Promise<boolean> => {
 
     if (standby) 
-      { await startStandby( deviceId)} 
+      { 
+        await startStandby( deviceId)
+        //standbyの開始終了は最終更新日を更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+      } 
     else 
-      {await finishStandby(deviceId)}
+      {
+        await finishStandby(deviceId)
+        //standbyの開始終了は最終更新日を更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+      }
     const devices =await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                                           d => d.id === deviceId
-                                        )
+    const updatedDevice =normalizedDevices.find(d => d.id === deviceId)
 
     if (updatedDevice) {
       setSelectedRoomDevice(updatedDevice)
-    }
-    //standbyの開始終了は最終更新日を更新
-    setWardLastUpdated(await fetchWardLastUpdated()) 
-    
+    }    
     return true
   }
 
@@ -783,6 +788,8 @@ export default function Page() {
                                               task,
                                               setTasks
                                             })
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
     }
 
@@ -795,28 +802,27 @@ export default function Page() {
         
     )
   }  
-  const renameMaintenanceTaskDueAt = async (
-  task: UpdateMaintenanceTaskDueAt
-  ): Promise<boolean> => {
+  const renameMaintenanceTaskDueAt = async (task: UpdateMaintenanceTaskDueAt): Promise<boolean> => {
 
-  await updateMaintenanceTaskDueAtTransaction({
-    task,
-    setTasks
-  })
-
-  return true
+    await updateMaintenanceTaskDueAtTransaction({
+                                                  task,
+                                                  setTasks
+    })
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
+    return true
   }
 
 
   const cancelTask = async (
-    task: CancelMaintenanceTask
-  ): Promise<boolean> => {
-
+                              task: CancelMaintenanceTask
+                            ): Promise<boolean> => {
     await cancelMaintenanceTaskTransaction({
-      task,
-      setTasks
+                                            task,
+                                            setTasks
     })
-
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -827,33 +833,24 @@ export default function Page() {
 
     if (!deviceId) return "green"
 
-    const nearestTask =
-      tasks
-        .filter(
-          t =>
-            Number(t.deviceId) === Number(deviceId) &&
-            !t.completedAt
-        )
-        .sort(
-          (a, b) =>
-            new Date(a.dueAt).getTime() -
-            new Date(b.dueAt).getTime()
-        )[0]
+    const nearestTask =tasks.filter(
+                                    t =>
+                                      Number(t.deviceId) === Number(deviceId) &&
+                                      !t.completedAt
+                            )
+                            .sort(
+                              (a, b) =>
+                                new Date(a.dueAt).getTime() -
+                                new Date(b.dueAt).getTime()
+                            )[0]
 
     if (!nearestTask) return "green"
 
     const now = new Date()
-
-    const diff =
-      new Date(nearestTask.dueAt).getTime() - now.getTime()
-
-    const days =
-      Math.ceil(diff / (1000 * 60 * 60 * 24))
-
-    if (days < 0) return "red"
-
-    if (days <= 2) return "yellow"
-
+    const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
+    const days =Math.ceil(diff / (1000 * 60 * 60 * 24))
+      if (days < 0) return "red"
+      if (days <= 2) return "yellow"
     return "green"
   }
 
@@ -934,24 +931,7 @@ export default function Page() {
     router.push("/login")
   }
 
-/*
- //Realtime購読前にも一度access tokenを設定しておく
-useEffect(() => {
 
-  const accessToken = localStorage.getItem("access_token")
-
-  if (accessToken) {
-    supabase.realtime.setAuth(accessToken)
-  }
-
-  const unsubscribe = subscribeDevicesRealtime({
-    setDeviceList,
-  })
-
-  return unsubscribe
-
-}, [])
- */
 
 useEffect(() => {
     const accessToken = localStorage.getItem("access_token")

@@ -12,7 +12,7 @@ from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
 from auth.check_user_active import check_user_active
-
+from auth.check_permission import check_permission
 
 from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
@@ -696,7 +696,8 @@ def update_room_patientname_route(
 
     update_room_patientname_transaction(
                                                  room=room,
-                                                 hospital_id=current_user["hospital_id"]
+                                                 hospital_id=current_user["hospital_id"],
+                                                 user_id=current_user["id"]
                                                )
 
 

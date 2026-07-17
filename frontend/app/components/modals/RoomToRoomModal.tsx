@@ -13,82 +13,56 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 
 
 type Props = {
-  deviceList: Device[]
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (
-              roomId: number,
-              patientName: string,
-              samePatient: boolean
-            ) => void
-  wards:WardType[]
-  rooms: RoomType[]
-  pendingDevice: Device | null
-  deviceTypes: DeviceTypeType[]
-  deviceModels: DeviceModelType[]
-  initialWardId: number | null
-}
+                deviceList: Device[]
+                isOpen: boolean
+                onClose: () => void
+                onSubmit: (
+                            roomId: number,
+                            patientName: string,
+                            samePatient: boolean
+                          ) => void
+                wards:WardType[]
+                rooms: RoomType[]
+                pendingDevice: Device | null
+                deviceTypes: DeviceTypeType[]
+                deviceModels: DeviceModelType[]
+                initialWardId: number | null
+              }
 
 export default function RoomToRoomModal({
-  deviceList,
-  isOpen,
-  onClose,
-  onSubmit,
-  wards,
-  rooms,
-  pendingDevice,
-  deviceTypes,
-  deviceModels,
-  initialWardId
-}: Props) {
+                                      deviceList,
+                                      isOpen,
+                                      onClose,
+                                      onSubmit,
+                                      wards,
+                                      rooms,
+                                      pendingDevice,
+                                      deviceTypes,
+                                      deviceModels,
+                                      initialWardId
+                                    }: Props) {
 
-  const [targetWardId, setTargetWardId] =
-    useState<number | null>(null)
-
-  const [selectedRoomId, setSelectedRoomId] =
-    useState<number | null>(null)
-
-  const [patientName, setPatientName] =
-    useState("")
+  const [targetWardId, setTargetWardId] =useState<number | null>(null)
+  const [selectedRoomId, setSelectedRoomId] =useState<number | null>(null)
+  const [patientName, setPatientName] =useState("")
 
   // ===== 現在room =====
 
-  const currentRoom =
-    rooms.find(
-      r => r.id === pendingDevice?.roomId
-    )
-
+  const currentRoom =rooms.find(r => r.id === pendingDevice?.roomId)
   // ===== 現在ward =====
-
-  const currentWard =
-    wards.find(
-      w => w.id === currentRoom?.wardId
-    )
-
+  const currentWard =wards.find(w => w.id === currentRoom?.wardId)
   // ===== 機種 =====
-
-  const typeName =
-    deviceTypes.find(
-      t => t.id === pendingDevice?.type
-    )?.name ?? "不明"
-
+  const typeName =deviceTypes.find(t => t.id === pendingDevice?.type)?.name ?? "不明"
   // ===== 型式 =====
-
-  const modelName =
-    deviceModels.find(
-      m => m.id === pendingDevice?.model
-    )?.name ?? "不明"
+  const modelName =deviceModels.find(m => m.id === pendingDevice?.model)?.name ?? "不明"
 
   // ===== 初期化 =====
-
   useEffect(() => {
 
     if (!isOpen) return
     setTargetWardId(initialWardId)
     setSelectedRoomId(null)
-    setPatientName(
-                    currentRoom?.patientName ?? ""
-                  )
+    setPatientName(currentRoom?.patientName ?? "")
     }, [
       isOpen,
       pendingDevice,
@@ -97,21 +71,15 @@ export default function RoomToRoomModal({
 
   // ===== 移動先room一覧 =====
 
-  const filteredRooms =
-    useMemo(() => {
-
+  const filteredRooms =useMemo(() => {
       return rooms
-        .filter(
-          r => r.wardId === targetWardId
-        )
-        .sort((a, b) =>
-          a.name.localeCompare(
-            b.name,
-            "ja",
-            { numeric: true }
+        .filter(r => r.wardId === targetWardId)
+        .sort((a, b) =>a.name.localeCompare(
+                                              b.name,
+                                              "ja",
+                                              { numeric: true }
           )
         )
-
     }, [rooms, targetWardId])
 
   // ===== room変更時 =====
@@ -385,11 +353,16 @@ export default function RoomToRoomModal({
                       )
 
                     if (existsDevice) {
-                      alert("別患者がいる病室には移動できません。")
-                      return
+                      const ok = window.confirm(
+                        "既に患者が存在します。\n移動先の患者に使用しますか？"
+                      )
+
+                      if (!ok) {
+                        return
+                      }
                     }
 
-                    setSelectedRoomId(roomId)
+                    setSelectedRoomId(roomId)                    
                   }}
 
                 >
