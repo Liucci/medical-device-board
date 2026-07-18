@@ -793,7 +793,10 @@ def cancel_maintenance_task_route(
                                     ):
 
     current_user = fetch_current_user(auth_user_id)
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     return cancel_maintenance_task_transaction(
                                                 task=task,
                                                 hospital_id=current_user["hospital_id"],

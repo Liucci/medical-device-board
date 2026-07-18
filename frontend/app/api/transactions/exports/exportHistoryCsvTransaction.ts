@@ -1,19 +1,10 @@
-import {
-  exportHistoryCsvFromApi
-}
-from "../../exports/exportHistoryCsv"
+import {exportHistoryCsvFromApi}from "../../exports/exportHistoryCsv"
+import { History }from "@/app/types/historyTypes"
 
-import { History }
-from "@/app/types/historyTypes"
+export async function exportHistoryCsvTransaction(histories: History[]) 
+{
 
-export async function exportHistoryCsvTransaction(
-  histories: History[]
-) {
-
-  const blob =
-    await exportHistoryCsvFromApi(
-      histories
-    )
+  const blob =await exportHistoryCsvFromApi(histories)
 
   if (!blob) { return }
 

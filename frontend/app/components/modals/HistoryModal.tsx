@@ -5,6 +5,8 @@ import { createPortal } from "react-dom"
 import { History }from "../../types/historyTypes"
 import {exportHistoryPdfTransaction}from "../../api/transactions/exports/exportHistoryPdfTransaction"
 import {exportHistoryCsvTransaction}from "../../api/transactions/exports/exportHistoryCsvTransaction"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 
 type Props = {
@@ -20,6 +22,7 @@ export default function HistoryModal({
 }: Props) {
 
   // ===== search =====
+  const [loading, setLoading] = useState(false)
 
   const [startDate, setStartDate]
     = useState("")
@@ -285,7 +288,7 @@ const created =
   if (!isOpen) return null
 
   return createPortal(
-
+  <>  
     <div
       className="
         fixed inset-0
@@ -322,27 +325,24 @@ const created =
           <div className="flex gap-2">
 
             <button
-                onClick={() =>
-                  exportHistoryCsvTransaction(
-                    filteredHistories
-                  )
-                }
-
-              className="
-                px-3 py-1
-                bg-green-600
-                text-white
-                rounded
-              "
+              onClick={() =>
+                executeWithErrorAndLoading({
+                                            setLoading,
+                                            action: () =>
+                                                  exportHistoryCsvTransaction(filteredHistories)
+                })
+              }            
             >
               CSV出力
             </button>
 
             <button
               onClick={() =>
-                exportHistoryPdfTransaction(
-                                              filteredHistories
-                                            )
+                executeWithErrorAndLoading({
+                                            setLoading,
+                                            action: () =>
+                                                    exportHistoryPdfTransaction(filteredHistories)
+                })
               }
                 className="
                 px-3 py-1
@@ -837,13 +837,13 @@ const created =
                     p-2
                     whitespace-nowrap
                   ">
-{
-  history.createdAt
-    ? new Date(
-        history.createdAt
-      ).toLocaleString("ja-JP")
-    : "-"
-}
+                    {
+                      history.createdAt
+                        ? new Date(
+                            history.createdAt
+                          ).toLocaleString("ja-JP")
+                        : "-"
+                    }
 
                   </td>
 
@@ -979,7 +979,11 @@ const created =
 
       </div>
 
-    </div>,
+    </div>
+  <LoadingOverlay loading={loading} />
+  </>
+
+    ,
     document.body
 
   )
