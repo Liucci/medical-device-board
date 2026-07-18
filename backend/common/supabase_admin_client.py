@@ -14,3 +14,7 @@ options = ClientOptions(
 
 
 supabase = create_client(url,key,options)
+CLIENT_NAME = "[admin_client]"
+# print("supabase_admin_client")
+# print("URL =", url)
+# print("KEY PREFIX =", key[:20], "...", key[-20:])

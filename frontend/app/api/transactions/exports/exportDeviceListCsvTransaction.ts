@@ -41,8 +41,6 @@ export async function exportDeviceListCsvTransaction(
 
   link.download = `device_list_${yyyy}${mm}${dd}_${hh}${min}.csv`
 
-  link.click()
-
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)

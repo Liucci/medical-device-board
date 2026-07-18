@@ -5,7 +5,6 @@ from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
 import os
-from common.supabase_admin_client import supabase
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
@@ -592,7 +591,7 @@ def update_room_patientname_route(
     current_user = fetch_current_user(auth_user_id)
     check_permission(
                         current_user=current_user,
-                        allowed_roles=["admin"]
+                        allowed_roles=["admin","normal"]
                     )
 
 
@@ -906,6 +905,11 @@ def create_stock_area_transaction_route(
                                         ):
     current_user = (fetch_current_user(auth_user_id))
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
     response = create_stock_area_transaction(
                                                 stock_area=stock_area,
                                                 hospital_id=hospital_id
@@ -921,6 +925,10 @@ def delete_stock_area_transaction_route(
                                         ):
     current_user = (fetch_current_user(auth_user_id))
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     delete_stock_area_transaction(
                                     stock_area=stock_area,
@@ -936,6 +944,10 @@ def update_stock_area_transaction_route(
 
     current_user = fetch_current_user(auth_user_id)
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
     update_stock_area_transaction(
                                     stock_area=stock_area,
                                     hospital_id=hospital_id
@@ -1022,13 +1034,8 @@ def delete_infection_types_route(
 def get_room_infections(
                             auth_user_id: str = Depends(get_auth_user_id)
                        ):
-
     current_user = fetch_current_user(auth_user_id)
-
     print("get_room_infections")
-
-
-
     return fetch_room_infections(current_user["hospital_id"])
 
 
@@ -1045,9 +1052,6 @@ def create_room_infection_route(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
-
-
-
     create_room_infection_transaction(
                                         room_infection,
                                         current_user["hospital_id"]
@@ -1091,10 +1095,6 @@ def update_room_infections_route(
 
     
     return update_room_infections_transaction(room_infection, hospital_id)
-
-
-
-
 
 @app.post("/update-stock-area-display-order")
 def update_stock_area_display_order_route(
@@ -1418,7 +1418,7 @@ def move_room_to_room_route(
                                             pre_patient_name=None,
                                             status="room",
                                             action_type="move",
-                                            message="Room moved"
+                                            message="room to room"
                                          )
     return moved_device
 
@@ -1451,7 +1451,7 @@ def move_room_to_room_new_patient_route(
                                                               note=None,
                                                               status="room",
                                                               action_type="move",
-                                                              message="Room moved new patient"
+                                                              message="room to room new patient"
                                                             )
 
     return moved_device
@@ -1507,7 +1507,7 @@ def complete_maintenance_task_api(
                                                     hospital_id=current_user["hospital_id"],
                                                     user_id=current_user["id"],
                                                     action_type="update",
-                                                    message="maintenance completed"
+                                                    message="maintenance task completed"
                                                 )
 
 
@@ -1542,12 +1542,12 @@ async def export_history_pdf_route(
                                                 )
 
     return StreamingResponse(
-        pdf_buffer,
-        media_type="application/pdf",
-        headers={
-                "Content-Disposition":
-                "attachment; filename=histories.pdf"
-        }
+                            pdf_buffer,
+                            media_type="application/pdf",
+                            headers={
+                                    "Content-Disposition":
+                                    "attachment; filename=histories.pdf"
+                            }
     )
 
 @app.post("/export-device-list-pdf")
@@ -1591,23 +1591,19 @@ def export_device_list_csv_route(
                                 request: DeviceListExportSchemaRequest,
                                 auth_user_id: str = Depends(get_auth_user_id)
 ):
-
     current_user = fetch_current_user(auth_user_id)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
-    csv_buffer = export_device_list_csv_transaction(
-        request.rows
-    )
-
+    csv_buffer = export_device_list_csv_transaction(request.rows)
     return StreamingResponse(
-        csv_buffer,
-        media_type="text/csv",
-        headers={
-            "Content-Disposition":"attachment; filename=device_list.csv"
-        }
+                            csv_buffer,
+                            media_type="text/csv",
+                            headers={
+                                "Content-Disposition":"attachment; filename=device_list.csv"
+                            }
     )
 
 @app.post("/export-history-csv")
@@ -1631,6 +1627,7 @@ def export_history_csv_route(
                                 "attachment; filename=histories.csv"
                             }
     )
+
 #病院一覧取得
 @app.get("/fetch-hospital-management")
 def fetch_hospital_management_route(auth_user_id: str = Depends(get_auth_user_id)):
@@ -1639,11 +1636,7 @@ def fetch_hospital_management_route(auth_user_id: str = Depends(get_auth_user_id
                         current_user=current_user,
                         allowed_roles=["system_admin"]
                     )
-
-
     return fetch_hospital_management_transaction()
-
-
 
 @app.post("/create-hospital")
 def create_hospital(
@@ -1695,12 +1688,20 @@ def fetch_user_management_route(auth_user_id: str = Depends(get_auth_user_id)):
     return fetch_user_management_transaction()
 
 
+#role,is activeを編集可能
 @app.post("/update-user")
 def update_user_route(
     request: UpdateUserRequest,
     auth_user_id: str = Depends(get_auth_user_id)
 ):
     print("update_user_route")
+    current_user = (fetch_current_user(auth_user_id))
+    print("role =", current_user["role"])
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
+
 
     update_user_transaction(
         request=request,
@@ -1734,6 +1735,7 @@ def verify_account_edit_code(
                              )
     print("user:",user)
     return user
+
 
 @app.post("/update-my-account")
 def update_my_account(

@@ -21,7 +21,7 @@ export default function InviteCreateModal({
   const [inviteCode,setInviteCode] =useState("")
   const [loading,setLoading] =useState(false)
   const [email, setEmail]= useState("")
-  const [role,setRole]=useState<"normal" | "admin">("normal")
+  const [role,setRole]=useState< "viewer" |"normal" | "admin">("normal")
   const [isSuccess, setIsSuccess] = useState(false)
 
   const handleCreate = async () => {
@@ -29,7 +29,7 @@ export default function InviteCreateModal({
         setLoading,
         action: async () => {
 
-        try {
+        
 
           const data =await createInviteCodeTransaction(
                                                         email,
@@ -37,22 +37,8 @@ export default function InviteCreateModal({
                                                         )
           setInviteCode(data.code)
           setIsSuccess(true)
-
-        } catch (err) {
-
-          console.error(
-                        "invite error:",
-                        err
-                      )
-          alert("招待失敗")
-        } finally {
-
-
-        }
-    }
+      }
     })
-
-
   }
 
 return createPortal(
@@ -197,7 +183,7 @@ return createPortal(
 
               onChange={(e) =>
                 setRole(
-                  e.target.value as "normal" | "admin"
+                  e.target.value as  "viewer" |"normal" | "admin"
                 )
               }
 
@@ -210,6 +196,9 @@ return createPortal(
               "
             >
 
+              <option value="viewer">
+                viewer
+              </option>
               <option value="normal">
                 normal
               </option>

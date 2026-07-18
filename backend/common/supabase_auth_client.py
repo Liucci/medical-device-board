@@ -20,3 +20,6 @@ supabase_auth = create_client(
     key,
     options
 )
+# print("supabase_auth_client")
+# print("URL =", url)
+# print("KEY PREFIX =", key[:20], "...", key[-20:])
