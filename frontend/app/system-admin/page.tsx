@@ -42,6 +42,15 @@ export default function SystemAdminPage() {
         </button>
 
         <button
+            onClick={() =>
+                router.push("/system-admin/announce-management")
+            }
+            className="rounded bg-gray-600 px-4 py-3 text-white hover:bg-gray-700"
+        >
+            お知らせ管理
+        </button>
+
+        <button
           onClick={() => router.push("/system-admin/subscription-management")}
           className="rounded bg-gray-600 px-4 py-3 text-white hover:bg-gray-700"
         >

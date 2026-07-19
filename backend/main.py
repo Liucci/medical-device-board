@@ -173,6 +173,7 @@ from schemas.user_schemas import UpdateUserRequest
 from users.update_user import update_user
 from transactions.user_management.update_user_transaction import update_user_transaction
 
+#useraccount編集用
 from schemas.account_edit_schemas import (
                                                 CreateAccountEditCodeRequest,
                                                 UpdateMyAccountRequest,
@@ -182,6 +183,16 @@ from schemas.account_edit_schemas import (
 from transactions.account_edits.create_account_edit_transaction import (create_account_edit_code_transaction)
 from transactions.account_edits.verify_account_edit_transaction import (verify_account_edit_code_transaction)
 from transactions.account_edits.update_my_account_transaction import (update_my_account_transaction)
+
+
+#announce用
+from schemas.announcement_schemas import (
+                                            AddAnnouncementRequest,
+                                            UpdateAnnouncementRequest
+                                        )
+from transactions.announcements.create_announcement_transaction import (create_announcement_transaction)
+from transactions.announcements.update_announcement_transaction import (update_announcement_transaction)
+from transactions.announcements.fetch_announcements_transaction import (fetch_announcements_transaction)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1751,3 +1762,42 @@ def update_my_account(
                                   )
 
     return {"message": "success"}
+
+
+#一覧取得
+@app.get("/fetch-announcements")
+def fetch_announcements_route(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+    return fetch_announcements_transaction()
+
+#announce新規作成
+@app.post("/create-announcement")
+def create_announcement_route(
+                            request: AddAnnouncementRequest,
+                            auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+
+    return create_announcement_transaction(request)
+
+#annouce編集更新
+@app.post("/update-announcement")
+def update_announcement_route(
+                                request: UpdateAnnouncementRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+
+    return update_announcement_transaction(request)
