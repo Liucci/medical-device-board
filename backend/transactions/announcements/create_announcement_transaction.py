@@ -10,9 +10,7 @@ from schemas.announcement_schemas import (
 )
 
 
-def create_announcement_transaction(
-    request: AddAnnouncementRequest
-):
+def create_announcement_transaction(request: AddAnnouncementRequest):
     print("create_announcement_transaction")
 
     announcement = add_announcement(
@@ -24,7 +22,6 @@ def create_announcement_transaction(
     )
 
     for hospital_id in request.hospital_ids:
-
         add_announcement_hospital(
             announcement["id"],
             hospital_id

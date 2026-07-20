@@ -62,3 +62,25 @@
   user-select: none;
   cursor: grabbing;
 }
+
+
+/* お知らせ表示が横に流れるためのクラス  */
+
+.announcementTicker {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: announcementTicker 25s linear infinite;
+}
+
+@keyframes announcementTicker {
+
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+
+}

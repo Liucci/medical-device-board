@@ -1,3 +1,4 @@
+import styles from "../page.module.css"
 import WardGrid from "./WardGrid"
 import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
@@ -12,6 +13,8 @@ import { RoomInfectionType } from "../types/roomInfectionTypes"
 
 import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateUtils"
+
+import { ActiveAnnouncementFrontType } from "../types/announcementType"
 
 //page.tsxより
 type Props = {
@@ -37,7 +40,7 @@ type Props = {
   wardLastUpdated: WardLastUpdatedResponse
   infectionTypes:InfectionTypeType[]
   roomInfections:RoomInfectionType[]
-
+  activeAnnouncements: ActiveAnnouncementFrontType[]
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -65,7 +68,8 @@ export default function WardArea({
                                   isDragging,
                                   wardLastUpdated,
                                   infectionTypes,
-                                  roomInfections
+                                  roomInfections,
+                                  activeAnnouncements
 
                                 }: Props) {
   
@@ -81,6 +85,7 @@ return (
     }}
   >
     {/* header */}
+    
     <div
       style={{
         flexShrink: 0,
@@ -93,8 +98,13 @@ return (
         borderBottom: "1px solid #ddd",
       }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="font-bold">
+<div
+    className="flex items-center"
+    style={{
+        flex: 1,
+        overflow: "hidden"
+    }}
+>        <h2 className="font-bold">
           病棟一覧
         </h2>
 
@@ -103,6 +113,27 @@ return (
           ? formatDateTime(wardLastUpdated.updatedAt)
           : "-"}
         </span>
+
+<div
+    style={{
+        flex: 1,
+        marginLeft: "16px",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        fontSize: "13px",
+        color: "#92400e"
+    }}
+>
+<div className={styles.announcementTicker}>
+    【お知らせ】📢 {
+        activeAnnouncements
+            .map(announcement => announcement.message)
+            .join("　◆　")
+    }
+</div>
+
+</div>
       </div>
       <div
         style={{

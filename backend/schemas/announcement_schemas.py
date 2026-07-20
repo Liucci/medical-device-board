@@ -52,3 +52,15 @@ class UpdateAnnouncementCRUDRequest(BaseModel):
     start_at: str | None = None
     end_at: str | None = None
     is_active: bool | None = None
+
+
+#dashboard表示専用
+class FetchActiveAnnouncementsRequest(BaseModel):
+    hospital_id: str
+
+
+class FetchActiveAnnouncementsResponse(BaseModel):
+    id: int
+    message: str
+    start_at: str
+    end_at: str

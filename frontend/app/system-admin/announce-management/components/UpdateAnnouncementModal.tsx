@@ -1,36 +1,54 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {AnnouncementFrontType,UpdateAnnouncementFrontType} from "../../../types/announcementType"
-import { updateAnnouncementTransaction } from "@/app/api/transactions/announcements/updateAnnouncementTransaction"
-import HospitalCheckList from "./HospitalCheckList"
+
+import {
+    AnnouncementFrontType,
+    UpdateAnnouncementFrontType
+} from "../../../types/announcementType"
+
 import { HospitalManagementType } from "../../../types/hospitalTypes"
 
+import { updateAnnouncementTransaction } from "@/app/api/transactions/announcements/updateAnnouncementTransaction"
+
+import HospitalCheckList from "./HospitalCheckList"
+
 type UpdateAnnouncementModalProps = {
-                                    open: boolean
-                                    onClose: () => void
-                                    announcement: AnnouncementFrontType
-                                    setAnnouncements: any
-                                    hospitals: HospitalManagementType[]
+    open: boolean
+    onClose: () => void
+    announcement: AnnouncementFrontType
+    hospitals: HospitalManagementType[]
+    setAnnouncements: any
 }
 
 export default function UpdateAnnouncementModal({
-                                                open,
-                                                onClose,
-                                                announcement,
-                                                setAnnouncements,
-                                                hospitals
-                                                }: UpdateAnnouncementModalProps)
+    open,
+    onClose,
+    announcement,
+    hospitals,
+    setAnnouncements
+}: UpdateAnnouncementModalProps)
 {
-    const [editAnnouncement, setEditAnnouncement] = 
+    const [editAnnouncement, setEditAnnouncement] =
         useState<UpdateAnnouncementFrontType>({
-                                                id: 0,
-                                                hospitalIds: [],
-                                                message: "",
-                                                startAt: "",
-                                                endAt: "",
-                                                isActive: true
-                                            })
+            id: 0,
+            hospitalIds: [],
+            message: "",
+            startAt: "",
+            endAt: "",
+            isActive: true
+        })
+
+const toDateTimeLocal = (value: string) => {
+    const date = new Date(value)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    const hour = String(date.getHours()).padStart(2, "0")
+    const minute = String(date.getMinutes()).padStart(2, "0")
+    return `${year}-${month}-${day}T${hour}:${minute}`
+}
+
 
     useEffect(() => {
 
@@ -40,8 +58,8 @@ export default function UpdateAnnouncementModal({
             id: announcement.id,
             hospitalIds: announcement.hospitalIds,
             message: announcement.message,
-            startAt: announcement.startAt,
-            endAt: announcement.endAt,
+            startAt: toDateTimeLocal(announcement.startAt),
+            endAt: toDateTimeLocal(announcement.endAt),
             isActive: announcement.isActive
         })
 
@@ -50,6 +68,7 @@ export default function UpdateAnnouncementModal({
     if (!open) return null
 
     return (
+
         <div className="fixed inset-0 flex items-center justify-center bg-black/40">
 
             <div className="w-[700px] rounded bg-white p-6">
@@ -59,7 +78,11 @@ export default function UpdateAnnouncementModal({
                 </h2>
 
                 <div className="mb-4">
-                    <label>開始日時</label>
+
+                    <label>
+                        開始日時
+                    </label>
+
                     <input
                         type="datetime-local"
                         className="w-full rounded border p-2"
@@ -71,10 +94,15 @@ export default function UpdateAnnouncementModal({
                             })
                         }
                     />
+
                 </div>
 
                 <div className="mb-4">
-                    <label>終了日時</label>
+
+                    <label>
+                        終了日時
+                    </label>
+
                     <input
                         type="datetime-local"
                         className="w-full rounded border p-2"
@@ -86,28 +114,34 @@ export default function UpdateAnnouncementModal({
                             })
                         }
                     />
+
                 </div>
-                <div className="mb-4">
-
-    <label className="mb-2 block font-semibold">
-        配信対象
-    </label>
-
-    <HospitalCheckList
-        hospitals={hospitals}
-        selectedHospitalIds={editAnnouncement.hospitalIds}
-        setSelectedHospitalIds={(hospitalIds) =>
-            setEditAnnouncement({
-                ...editAnnouncement,
-                hospitalIds
-            })
-        }
-    />
-
-</div>
 
                 <div className="mb-4">
-                    <label>お知らせ内容</label>
+
+                    <label className="mb-2 block font-semibold">
+                        配信対象
+                    </label>
+
+                    <HospitalCheckList
+                        hospitals={hospitals}
+                        selectedHospitalIds={editAnnouncement.hospitalIds}
+                        setSelectedHospitalIds={(hospitalIds: string[]) =>
+                            setEditAnnouncement({
+                                ...editAnnouncement,
+                                hospitalIds
+                            })
+                        }
+                    />
+
+                </div>
+
+                <div className="mb-4">
+
+                    <label>
+                        お知らせ内容
+                    </label>
+
                     <textarea
                         rows={6}
                         className="w-full rounded border p-2"
@@ -119,6 +153,7 @@ export default function UpdateAnnouncementModal({
                             })
                         }
                     />
+
                 </div>
 
                 <div className="mb-6 flex items-center gap-2">
@@ -134,7 +169,9 @@ export default function UpdateAnnouncementModal({
                         }
                     />
 
-                    <span>配信中</span>
+                    <span>
+                        配信中
+                    </span>
 
                 </div>
 
@@ -148,6 +185,7 @@ export default function UpdateAnnouncementModal({
                     </button>
 
                     <button
+                        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                         onClick={async () => {
 
                             await updateAnnouncementTransaction({
@@ -158,7 +196,6 @@ export default function UpdateAnnouncementModal({
                             onClose()
 
                         }}
-                        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                     >
                         保存
                     </button>
@@ -168,5 +205,6 @@ export default function UpdateAnnouncementModal({
             </div>
 
         </div>
+
     )
 }

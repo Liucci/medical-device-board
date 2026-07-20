@@ -14,13 +14,6 @@ export default function HospitalCheckList({
     setSelectedHospitalIds
 }: HospitalCheckListProps)
 {
-    console.log(hospitals)
-    const isAllSelected = selectedHospitalIds.length === 0
-
-    const toggleAll = () => {
-        setSelectedHospitalIds([])
-    }
-
     const toggleHospital = (hospitalId: string) => {
 
         if (selectedHospitalIds.includes(hospitalId)) {
@@ -40,20 +33,43 @@ export default function HospitalCheckList({
         ])
     }
 
+    const selectAll = () => {
+
+        setSelectedHospitalIds(
+            hospitals.map(hospital => hospital.id)
+        )
+
+    }
+
+    const clearAll = () => {
+
+        setSelectedHospitalIds([])
+
+    }
+
     return (
+
         <div className="rounded border p-3">
 
-            <label className="mb-3 flex items-center gap-2 border-b pb-2 font-semibold">
+            <div className="mb-3 flex gap-2">
 
-                <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    onChange={toggleAll}
-                />
+                <button
+                    type="button"
+                    onClick={selectAll}
+                    className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+                >
+                    すべて選択
+                </button>
 
-                全病院
+                <button
+                    type="button"
+                    onClick={clearAll}
+                    className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
+                >
+                    すべて解除
+                </button>
 
-            </label>
+            </div>
 
             <div className="max-h-60 overflow-y-auto">
 
@@ -67,18 +83,8 @@ export default function HospitalCheckList({
 
                             <input
                                 type="checkbox"
-                                checked={
-                                    !isAllSelected &&
-                                    selectedHospitalIds.includes(
-                                        hospital.id
-                                    )
-                                }
-                                disabled={isAllSelected}
-                                onChange={() =>
-                                    toggleHospital(
-                                        hospital.id
-                                    )
-                                }
+                                checked={selectedHospitalIds.includes(hospital.id)}
+                                onChange={() => toggleHospital(hospital.id)}
                             />
 
                             {hospital.hospitalName}
@@ -91,5 +97,6 @@ export default function HospitalCheckList({
             </div>
 
         </div>
+
     )
 }

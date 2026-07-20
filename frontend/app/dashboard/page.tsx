@@ -105,7 +105,12 @@ import { subscribeMaintenanceTypesRealtime } from "../realtime/maintenanceTypesR
 import { subscribeInfectionTypesRealtime } from "../realtime/infectionTypesRealtime"
 import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealtime"
 import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
+import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
+import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 
+//お知らせ表示用
+import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 
 
 
@@ -179,6 +184,8 @@ export default function Page() {
   //user情報を格納する関数
   const router = useRouter()
   const {currentUser,setCurrentUser} = useAuth()
+  //お知らせ表示用
+  const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
 
   const {
         draggingDevice,
@@ -934,8 +941,11 @@ export default function Page() {
 
 
 useEffect(() => {
-    const accessToken = localStorage.getItem("access_token")
-
+    
+  const accessToken = localStorage.getItem("access_token")
+  if (!currentUser) {
+    return
+  }
   if (accessToken) {
     supabase.realtime.setAuth(accessToken)
   }
@@ -983,6 +993,15 @@ useEffect(() => {
     setTasks
   })
 
+  const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({
+    hospitalId: currentUser.hospitalId,
+      setAnnouncements: setActiveAnnouncements
+  })
+
+  const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({
+      hospitalId: currentUser.hospitalId,
+      setAnnouncements: setActiveAnnouncements
+  })
   return () => {
 
     unsubscribeDevices()
@@ -995,10 +1014,11 @@ useEffect(() => {
     unsubscribeInfectionTypes()
     unsubscribeRoomInfections()
     unsubscribeMaintenanceTasks()
-
+    unsubscribeAnnouncements()
+    unsubscribeAnnouncementHospitals()
   }
 
-}, [])
+}, [currentUser])
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
@@ -1025,6 +1045,11 @@ useEffect(() => {
     console.log("wardLastUpdated:",wardLastUpdated)
     setStockLastUpdated(stockLastUpdated)
     setWardLastUpdated(wardLastUpdated)
+    //お知らせ表示
+    await fetchActiveAnnouncementsTransaction({
+                                                hospitalId: currentUser.hospitalId,
+                                                setAnnouncements: setActiveAnnouncements
+                                              })
 
   }
   fetchData()}, [currentUser])
@@ -1080,6 +1105,7 @@ if (!currentUser) {
           wardLastUpdated={wardLastUpdated}
           infectionTypes={infectionTypes}
           roomInfections={roomInfections}
+          activeAnnouncements={activeAnnouncements}
 
         />
       </div>

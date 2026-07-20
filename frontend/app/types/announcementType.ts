@@ -91,3 +91,18 @@ export type UpdateAnnouncementCRUDBackType = {
     end_at: string
     is_active: boolean
 }
+
+//dashboard表示用
+export type ActiveAnnouncementFrontType = {
+    id: number
+    message: string
+    startAt: string
+    endAt: string
+}
+
+export type ActiveAnnouncementBackType = {
+    id: number
+    message: string
+    start_at: string
+    end_at: string
+}

@@ -7,7 +7,10 @@ def fetch_announcements():
     response = (
         supabase
             .table("announcements")
-            .select("*")
+            .select("""
+                        *,
+                        announcement_hospitals(hospital_id)
+                    """)            
             .order("created_at", desc=True)
             .execute()
     )

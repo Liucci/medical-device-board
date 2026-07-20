@@ -193,6 +193,8 @@ from schemas.announcement_schemas import (
 from transactions.announcements.create_announcement_transaction import (create_announcement_transaction)
 from transactions.announcements.update_announcement_transaction import (update_announcement_transaction)
 from transactions.announcements.fetch_announcements_transaction import (fetch_announcements_transaction)
+from schemas.announcement_schemas import FetchActiveAnnouncementsRequest
+from transactions.announcements.fetch_active_announcements_transaction import fetch_active_announcements_transaction
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -1801,3 +1803,14 @@ def update_announcement_route(
     )
 
     return update_announcement_transaction(request)
+
+
+#dashboardお知らせ表示用
+@app.post("/fetch-active-announcements")
+def fetch_active_announcements_route(
+                                        request: FetchActiveAnnouncementsRequest,
+                                        current_user = Depends(get_current_user)
+                                    ):
+    return fetch_active_announcements_transaction(
+                                                    request
+                                                )

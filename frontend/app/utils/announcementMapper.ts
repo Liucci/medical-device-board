@@ -8,7 +8,9 @@ import {
         CreateAnnouncementCRUDFrontType,
         CreateAnnouncementCRUDBackType,
         UpdateAnnouncementCRUDFrontType,
-        UpdateAnnouncementCRUDBackType
+        UpdateAnnouncementCRUDBackType,
+        ActiveAnnouncementBackType,
+        ActiveAnnouncementFrontType
 } from "../types/announcementType"
 
 export const normalizeAnnouncement = (
@@ -23,6 +25,19 @@ export const normalizeAnnouncement = (
                             createdAt: announcement.created_at,
                             updatedAt: announcement.updated_at
 })
+
+//dashboard表示用
+export function normalizeActiveAnnouncement(
+    announcement: ActiveAnnouncementBackType
+): ActiveAnnouncementFrontType
+{
+    return {
+        id: announcement.id,
+        message: announcement.message,
+        startAt: announcement.start_at,
+        endAt: announcement.end_at
+    }
+}
 
 export const toCreateAnnouncementRequest = (
                 announcement: CreateAnnouncementFrontType
