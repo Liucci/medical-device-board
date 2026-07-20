@@ -41,8 +41,9 @@ export function subscribeAnnouncementsRealtime({
 
             }
         )
-        .subscribe()
-
+        .subscribe((status) => {
+            console.log("Announcements status:", status)
+        })
     return () => {
         supabase.removeChannel(channel)
     }

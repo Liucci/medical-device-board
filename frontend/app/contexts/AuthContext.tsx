@@ -8,7 +8,7 @@ import {
           useEffect
         } from "react"
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
-
+import {startAutoRefreshToken,stopAutoRefreshToken} from "../contexts/autoRefreshToken"
 
 type AuthContextType = {
                         currentUser:CurrentUser | null | undefined
@@ -48,6 +48,21 @@ const restoreSession = async () => {
   restoreSession()
 
 }, [])
+
+useEffect(() => {
+
+  if (!currentUser) {
+    stopAutoRefreshToken()
+    return
+  }
+
+  startAutoRefreshToken()
+
+  return () => {
+    stopAutoRefreshToken()
+  }
+
+}, [currentUser])
 
   return (
     <AuthContext.Provider

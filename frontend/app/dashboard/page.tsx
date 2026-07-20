@@ -115,6 +115,7 @@ import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announc
 
 
 export default function Page() {
+  //console.log("Dashboard render")
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
   //DBから各tableを取得するためのstate
@@ -140,15 +141,6 @@ export default function Page() {
                                                                             updatedAt: null,
                                                                           })
 
-
-                                                                          
-
-  // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
-  // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  // const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  //病室の情報を管理するstate,初期値はinitialRoomsから
-  //const [rooms, setRooms] = useState<Room[]>(initialRooms)  
-  //roomModalを開くためのstate
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [roomToRoomModalOpen,setRoomToRoomModalOpen] = useState(false)
 
@@ -187,6 +179,8 @@ export default function Page() {
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
 
+  //refresh token後realtime再登録用
+  const [realtimeVersion, setRealtimeVersion] = useState(0)
   const {
         draggingDevice,
         setDraggingDevice,
@@ -939,9 +933,9 @@ export default function Page() {
   }
 
 
-
+//リロード時やlogin時にrealtime開始
 useEffect(() => {
-    
+  console.log("Realtime useEffect");
   const accessToken = localStorage.getItem("access_token")
   if (!currentUser) {
     return
@@ -1018,7 +1012,7 @@ useEffect(() => {
     unsubscribeAnnouncementHospitals()
   }
 
-}, [currentUser])
+}, [currentUser, realtimeVersion])
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
@@ -1063,6 +1057,26 @@ useEffect(() => {
       router.replace("/login")
     }
   }, [currentUser, router])
+
+//refresh tokenが走ると発火する
+useEffect(() => {
+
+    const reconnect = () => {
+        console.log("[Reconnect Event Received]")
+
+        setRealtimeVersion(v => {
+            console.log("realtimeVersion:", v, "->", v + 1)
+            return v + 1
+        })
+    }
+    window.addEventListener("reconnect-realtime", reconnect)
+
+    return () => {
+        window.removeEventListener("reconnect-realtime", reconnect)
+    }
+
+}, [])
+
 
   if (currentUser === undefined) {
     return null // 認証確認中
