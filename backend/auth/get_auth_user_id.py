@@ -1,5 +1,5 @@
 from fastapi import Header, HTTPException
-from common.supabase_client import supabase
+from common.supabase_auth_client import supabase_auth
 
 def get_auth_user_id(authorization: str = Header(None)):
     print("get_auth_user_id")
@@ -13,7 +13,7 @@ def get_auth_user_id(authorization: str = Header(None)):
     token = authorization.replace("Bearer ", "")
 
     try:
-        response = supabase.auth.get_user(token)
+        response = supabase_auth.auth.get_user(token)
 
         if response.user is None:
             raise HTTPException(

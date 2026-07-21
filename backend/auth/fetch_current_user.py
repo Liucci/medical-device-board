@@ -1,4 +1,4 @@
-from common.supabase_client import (
+from common.supabase_admin_client import (
     supabase
 )
 #auth user idと紐づいたuser情報をDBから取得
@@ -10,15 +10,7 @@ def fetch_current_user(auth_user_id: str):
     response = (
                 supabase
                         .table("users")
-                        .select(
-                                """
-                                id,
-                                hospital_id,
-                                display_name,
-                                role,
-                                is_active
-                                """
-                                )
+                        .select("*")
                         .eq("id",auth_user_id)
                         .single()
                         .execute()

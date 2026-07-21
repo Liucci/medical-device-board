@@ -1,11 +1,11 @@
-from common.supabase_client import (supabase)
-
+#from common.supabase_admin_client import (supabase)
+from common.supabase_auth_client import supabase_auth
 def refresh_token(refresh_token: str):
     print("refresh_token")
-    print("received refresh token", refresh_token[:12])
+    #print("received refresh token", refresh_token[:12])
 
     try:
-        response = supabase.auth.refresh_session(refresh_token)
+        response = supabase_auth.auth.refresh_session(refresh_token)
         print("refresh_session success")
         return response
 

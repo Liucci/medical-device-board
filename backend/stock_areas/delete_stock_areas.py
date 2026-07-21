@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 def delete_stock_areas(
                          stock_area_ids: list[int],

@@ -1,4 +1,4 @@
-from common.supabase_client import (
+from common.supabase_admin_client import (
     supabase
 )
 #すべてのuser情報を一括取得用

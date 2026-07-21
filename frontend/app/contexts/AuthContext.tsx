@@ -1,6 +1,6 @@
 "use client"
 import { CurrentUser }from "../types/userTypes"
-import { normalizeUser }from "../utils/userMapper"
+import { normalizeCurrentUser }from "../utils/userMapper"
 import {
           createContext,
           useContext,
@@ -8,7 +8,7 @@ import {
           useEffect
         } from "react"
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
-
+import {startAutoRefreshToken,stopAutoRefreshToken} from "../contexts/autoRefreshToken"
 
 type AuthContextType = {
                         currentUser:CurrentUser | null | undefined
@@ -40,7 +40,7 @@ const restoreSession = async () => {
       return
     }
 
-    setCurrentUser(normalizeUser(user))
+    setCurrentUser(normalizeCurrentUser(user))
   } catch (error) {
     setCurrentUser(null)
   }
@@ -48,6 +48,21 @@ const restoreSession = async () => {
   restoreSession()
 
 }, [])
+
+useEffect(() => {
+
+  if (!currentUser) {
+    stopAutoRefreshToken()
+    return
+  }
+
+  startAutoRefreshToken()
+
+  return () => {
+    stopAutoRefreshToken()
+  }
+
+}, [currentUser])
 
   return (
     <AuthContext.Provider

@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.update_serial_number import update_serial_number
 from schemas.device_schemas import UpdateSerialNumberRequest
 from transactions.histories.create_device_history import (create_device_history)
@@ -15,7 +15,8 @@ def update_serial_number_transaction(
 
     updated_device = update_serial_number(
                                             device=device,
-                                            hospital_id=hospital_id
+                                            hospital_id=hospital_id,
+                                            user_id=user_id
                                           )
 
     create_device_history(

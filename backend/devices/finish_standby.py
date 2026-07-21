@@ -1,10 +1,11 @@
-from datetime import datetime
-from common.supabase_client import supabase
+from datetime import datetime, timezone
+from common.supabase_admin_client import supabase
 from schemas.device_schemas import FinishStandbyRequest
 
 def finish_standby(
                      device: FinishStandbyRequest,
-                     hospital_id: str
+                     hospital_id: str,
+                    user_id:str
                   ):
 
     print("finish_standby")
@@ -14,7 +15,9 @@ def finish_standby(
                   .table("devices")
                   .update({
                               "standby": False,
-                              "standby_finished_at": datetime.utcnow().isoformat()
+                              "standby_finished_at": datetime.utcnow().isoformat(),
+                              "updated_by": user_id,
+                              "updated_at": datetime.now(timezone.utc).isoformat()
                           })
                   .eq("id", device.id)
                   .eq("hospital_id", hospital_id)
@@ -26,7 +29,8 @@ def finish_standby(
 
 def clear_standby(
                       device: FinishStandbyRequest,
-                      hospital_id: str
+                      hospital_id: str,
+                      user_id:str
                   ):
     response = (
                 supabase
@@ -34,7 +38,9 @@ def clear_standby(
                 .update({
                         "standby": False,
                         "standby_started_at": None,
-                        "standby_finished_at": None
+                        "standby_finished_at": None,
+                        "updated_by": user_id,
+                        "updated_at": datetime.now(timezone.utc).isoformat()
                   })
                   .eq("id", device.id)
                   .eq("hospital_id", hospital_id)

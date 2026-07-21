@@ -4,6 +4,7 @@ import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../util
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { authFetch } from "../../client/apiClient"
 import { executeWithLoading } from "../../../components/common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 type CreateDeviceTransactionParams = {
     params: CreateDeviceType,
     setDeviceList: any
@@ -17,28 +18,25 @@ export async function createDeviceTransaction({
                                                 setLoading
                                               }: CreateDeviceTransactionParams) {
 
-  await executeWithLoading({
-                              setLoading,
-                              action: async () => {
 
-                                await authFetch(
-                                  `${API_BASE_URL}/create-device-transaction`,
-                                  {
-                                    method: "POST",
-                                    headers: {
-                                      "Content-Type":"application/json"
-                                    },
-                                    body: JSON.stringify(
-                                      toCreateDeviceRequest(params)
-                                    )
-                                  }
-                                )
 
-                                const devices = await getDevicesFromApi()
+      await authFetch(
+        `${API_BASE_URL}/create-device-transaction`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":"application/json"
+          },
+          body: JSON.stringify(
+            toCreateDeviceRequest(params)
+          )
+        }
+      )
 
-                                setDeviceList(devices.map(normalizeDevice))
+      const devices = await getDevicesFromApi()
 
-                                onClose()
-                              }
-                            })
+      setDeviceList(devices.map(normalizeDevice))
+
+      onClose()
+                          
 }

@@ -26,10 +26,15 @@ export async function authFetch(
                               }
                             )
 
-  if (response.status !== 401) {return response}
+if (response.status !== 401) {
 
-  console.log("[401]", url)
+    if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail)
+    }
 
+    return response
+}
   if (!refreshPromise) {
     refreshPromise = refreshToken()
       .finally(() => refreshPromise = null)
@@ -51,6 +56,11 @@ if (!refreshed) {
                                       }
                           }
                         )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail)
+  }                      
 
   return response
 } 

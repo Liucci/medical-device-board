@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.finish_maintenance import finish_maintenance
 from schemas.device_schemas import FinishMaintenanceRequest
 from transactions.histories.create_device_history import (create_device_history)
@@ -15,7 +15,8 @@ def finish_maintenance_transaction(
 
     updated_device = finish_maintenance(
                                            device=device,
-                                           hospital_id=hospital_id
+                                           hospital_id=hospital_id,
+                                           user_id=user_id
                                         )
 
     create_device_history(

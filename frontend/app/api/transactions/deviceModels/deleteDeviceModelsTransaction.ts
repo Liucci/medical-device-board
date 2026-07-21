@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { DeleteDeviceModelsType } from "../../../types/deviceModelTypes"
+import { DeleteDeviceModelsFrontType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
 import {
          normalizeDeviceModel,
@@ -7,7 +7,7 @@ import {
        } from "../../../utils/deviceModelMapper"
 import { authFetch } from "../../client/apiClient"
 type DeleteDeviceModelsTransactionParams = {
-                                              deviceModels: DeleteDeviceModelsType
+                                              deviceModels: DeleteDeviceModelsFrontType
                                               setDeviceModels: any
                                             }
 
@@ -28,20 +28,11 @@ export async function deleteDeviceModelsTransaction({
                 "Content-Type":
                 "application/json"
                             },
-                  body: JSON.stringify(
-                                          toDeleteDeviceModelsRequest(
-                                                                        deviceModels
-                                                                      )
-                                        )
+                  body: JSON.stringify(toDeleteDeviceModelsRequest(deviceModels))
                 }
               )
 
-  const deviceModelsResponse =
-    await getDeviceModelsFromApi()
+  const deviceModelsResponse =await getDeviceModelsFromApi()
 
-  setDeviceModels(
-                    deviceModelsResponse.map(
-                                             normalizeDeviceModel
-                                           )
-                  )
+  setDeviceModels(deviceModelsResponse.map(normalizeDeviceModel))
 }

@@ -10,12 +10,10 @@ import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
 import {exportDeviceListPdfTransaction}from "../../api/transactions/exports/exportDeviceListPdfTransaction"
-import {DeviceListExportUIType}
-from "../../types/exportTypes"
-import {
-  exportDeviceListCsvTransaction
-}
-from "../../api/transactions/exports/exportDeviceListCsvTransaction"
+import {DeviceListExportUIType}from "../../types/exportTypes"
+import {exportDeviceListCsvTransaction}from "../../api/transactions/exports/exportDeviceListCsvTransaction"
+import {LoadingOverlay} from "../common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 
 
@@ -49,6 +47,7 @@ export default function DeviceListModal({
 }: Props) {
 
   // ===== search =====
+  const [loading, setLoading] = useState(false)
 
   const [
     selectedStatuses,
@@ -487,7 +486,7 @@ const filteredDeviceLists = useMemo(() => {
   if (!isOpen) return null
 
   return createPortal(
-
+  <>
     <div
       className="
         fixed inset-0
@@ -525,9 +524,11 @@ const filteredDeviceLists = useMemo(() => {
 
             <button
                 onClick={() =>
-                  exportDeviceListCsvTransaction(
-                    filteredDeviceLists
-                  )
+                executeWithErrorAndLoading({
+                                            setLoading,
+                                            action: () =>
+                                                exportDeviceListCsvTransaction(filteredDeviceLists)
+                })
                 }
               className="
                 px-3 py-1
@@ -541,11 +542,12 @@ const filteredDeviceLists = useMemo(() => {
 
             <button
               onClick={() =>
-                exportDeviceListPdfTransaction(
-                                              filteredDeviceLists
-                                            )}
-
-
+                executeWithErrorAndLoading({
+                                            setLoading,
+                                            action: () =>
+                                                exportDeviceListPdfTransaction(filteredDeviceLists)
+                })
+              }
               className="
                 px-3 py-1
                 bg-blue-500
@@ -1070,7 +1072,10 @@ const filteredDeviceLists = useMemo(() => {
 
       </div>
 
-    </div>,
+    </div>
+  <LoadingOverlay loading={loading} />
+  </>
+    ,
     document.body
 
   )

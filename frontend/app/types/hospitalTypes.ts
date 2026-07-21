@@ -25,14 +25,23 @@ export type HospitalManagementDBType = {
                         }
 
 // Create専用
-export type CreateHospitalType = {
+export type CreateHospitalFrontType = {
                                   hospitalName: string
                                   pricePlan: string
                                   note?: string
                                 }
+// Request型
+export type CreateHospitalBackType = {
+                                    hospital_name: string
+                                    price_plan: string
+                                    note?: string | null
+                                  }
+
+
+
 
 // Update専用
-export type UpdateHospitalType = {
+export type UpdateHospitalFrontType = {
                                     id: string
                                     hospitalName: string
                                     pricePlan: string
@@ -40,14 +49,8 @@ export type UpdateHospitalType = {
                                     note?: string
                                   }
 
-// Request型
-export type AddHospitalRequest = {
-                                    hospital_name: string
-                                    price_plan: string
-                                    note?: string | null
-                                  }
 
-export type UpdateHospitalRequest = {
+export type UpdateHospitalBackType = {
                                       hospital_id: string
                                       hospital_name: string
                                       price_plan: string

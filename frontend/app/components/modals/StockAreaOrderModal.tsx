@@ -6,6 +6,8 @@ import { StockAreaType } from "../../types/stockTypes"
 import { updateStockAreaDisplayOrderTransaction } from "../../api/transactions/stockAreas/updateStockAreaDisplayOrderTransaction"
 import {GripVertical} from "lucide-react"
 import {executeWithLoading} from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 //DnDライブラリー
@@ -75,7 +77,7 @@ export default function StockAreaOrderModal({
   if (!isOpen) return null
 
   async function handleSave() {
-  await executeWithLoading({
+  await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 

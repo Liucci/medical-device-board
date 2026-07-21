@@ -169,6 +169,21 @@ export default function FirstAdminInvitePage() {
           }
         </button>
 
+          <button
+            onClick={() => router.push("/system-admin")}
+            className="
+              mt-4
+              w-full
+              border
+              py-2
+              rounded
+            "
+          >
+            メニュー画面へ戻る
+          </button>
+
+
+
         <button
           onClick={() => router.push("/login")}
           className="

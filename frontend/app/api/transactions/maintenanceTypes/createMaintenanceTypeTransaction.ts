@@ -35,9 +35,11 @@ export async function createMaintenanceTypeTransaction({
                 }
               )
 
-  const maintenanceTypes =
-    await getMaintenanceTypesFromApi()
-
+  const maintenanceTypes =await getMaintenanceTypesFromApi()
+  console.log(
+    maintenanceTypes.map((m: any) => m.id)
+  )
+  
   setMaintenanceTypes(
                         maintenanceTypes.map(
                                               normalizeMaintenanceType

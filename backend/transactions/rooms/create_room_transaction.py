@@ -1,4 +1,4 @@
-from common.supabase_client import (supabase)
+from common.supabase_admin_client import (supabase)
 from rooms.add_rooms import add_room
 from schemas.room_schemas import AddRoomRequest
 

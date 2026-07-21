@@ -15,6 +15,7 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 type Props = {
   deviceTypes: DeviceTypeType[]
@@ -52,13 +53,13 @@ export default function DeviceTypeSettingsModal({
           alert("同じ機種が既に存在します")
           return
       }
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
         await createDeviceTypeTransaction({
                                             deviceType: {
                                                           name: trimmed,
-                                                          icon_color: newIconColor
+                                                          iconColor: newIconColor
                                                         },
                                             setDeviceTypes
                                           })
@@ -81,14 +82,14 @@ export default function DeviceTypeSettingsModal({
 
     if (!name) return
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
     setLoading,
     action: async () => {
       await updateDeviceTypeTransaction({
                                           deviceType: {
                                                         id: selectedTypeId,
                                                         name,
-                                                        icon_color: type.iconColor
+                                                        iconColor: type.iconColor
                                                         
                                                       },
                                           setDeviceTypes
@@ -103,14 +104,14 @@ export default function DeviceTypeSettingsModal({
     const type =deviceTypes.find(t => t.id === selectedTypeId)
 
     if (!type) return
-  await executeWithLoading({
+  await executeWithErrorAndLoading({
     setLoading,
     action: async () => {
         await updateDeviceTypeTransaction({
                                             deviceType: {
                                               id: selectedTypeId,
                                               name: type.name,
-                                              icon_color: editIconColor
+                                              iconColor: editIconColor
                                             },
                                             setDeviceTypes
                                           })
@@ -121,7 +122,7 @@ export default function DeviceTypeSettingsModal({
 
   const handleDeleteType = async() => {
       if (!selectedTypeId) {return}
-  await executeWithLoading({
+  await executeWithErrorAndLoading({
     setLoading,
     action: async () => {
 
@@ -155,7 +156,7 @@ export default function DeviceTypeSettingsModal({
     }
 
     if (!newModelName.trim()) return
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
 
@@ -174,7 +175,7 @@ export default function DeviceTypeSettingsModal({
 
   const handleDeleteModels = async () => {
     if (checkedModelIds.length === 0) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
           await deleteDeviceModelsTransaction({
@@ -192,7 +193,7 @@ export default function DeviceTypeSettingsModal({
   const handleRenameModel = async(model: { id: number; name: string }) => {
     const name = prompt("新しい型式名", model.name)
     if (!name) {return}
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 

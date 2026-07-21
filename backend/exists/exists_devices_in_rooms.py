@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 
 #複数room内にdeviceが存在するか判定
 def exists_devices_in_rooms(

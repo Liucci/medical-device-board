@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
 import { loginTransaction } from "../api/transactions/auth/loginTransaction"
 import {executeWithLoading} from "../components/common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../components/common/LoadingOverlay"
 
 export default function LoginPage() {
@@ -20,7 +22,7 @@ export default function LoginPage() {
 const handleLogin = async () => {
 
   setError("")
-  await executeWithLoading({
+  await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
           
@@ -40,14 +42,18 @@ const handleLogin = async () => {
 
             router.push("/dashboard")
 
-          } catch (err) {
+          } 
+          catch (err) {
+              console.error(err)
 
-            console.error(err)
-            setError("ログイン失敗")
+              if (err instanceof Error) {
+                  setError(err.message)
+                  return
+              }
 
-          } finally {
-
-
+              setError("ログイン失敗")
+          }          
+          finally {
           }
         }
         })

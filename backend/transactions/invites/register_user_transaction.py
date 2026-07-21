@@ -1,14 +1,14 @@
 from auth.register_auth_user import register_auth_user
 from invites.fetch_invite_code import fetch_invite_code
 from invites.update_invite_code import update_invite_code
-from users.add_users import add_user
+from users.add_user import add_user
 from schemas.invite_schemas import (RegisterUserRequest,RegisterUserResponse)
 from schemas.user_schemas import AddUserRequest
 from hospitals.fetch_hospital import fetch_hospital
 from auth.fetch_current_user import fetch_current_user
 
 def register_user_transaction(
-                                register:RegisterUserRequest
+                                register:RegisterUserRequest,
                              ):
     print("register_user_transaction")
 
@@ -46,8 +46,7 @@ def register_user_transaction(
     )
     #紹介コード使用済み登録
     update_invite_code(
-                        invite_code_id=
-                            invite_code["id"],
+                        invite_code_id=invite_code["id"],
                         used=True
                       )
     #hospital nameを取得するためにfetch hospital実行
@@ -55,9 +54,13 @@ def register_user_transaction(
                                 invite_code["hospital_id"]
                             )
 
-    return RegisterUserResponse(
-                                display_name=register.display_name,
+    return (
+            RegisterUserResponse
+                                (
                                 email=invite_code["email"],
                                 role=invite_code["role"],
-                                hospital_name=hospital["hospital_name"]
-                                )
+                                hospital_name=hospital["hospital_name"],
+                                display_name=register.display_name
+            )
+                                
+    )

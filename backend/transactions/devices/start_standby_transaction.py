@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.start_standby import start_standby
 from schemas.device_schemas import StartStandbyRequest
 from transactions.histories.create_device_history import (create_device_history)
@@ -15,7 +15,8 @@ def start_standby_transaction(
 
     updated_device = start_standby(
                                      device=device,
-                                     hospital_id=hospital_id
+                                     hospital_id=hospital_id,
+                                     user_id=user_id
                                    )
 
     create_device_history(

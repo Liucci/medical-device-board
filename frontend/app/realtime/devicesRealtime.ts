@@ -60,7 +60,9 @@ export function subscribeDevicesRealtime({
 
       }
     )
-    .subscribe()
+.subscribe((status) => {
+    console.log("Devices status:", status)
+})
 
   return()=>{supabase.removeChannel(channel)}
 

@@ -105,11 +105,17 @@ import { subscribeMaintenanceTypesRealtime } from "../realtime/maintenanceTypesR
 import { subscribeInfectionTypesRealtime } from "../realtime/infectionTypesRealtime"
 import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealtime"
 import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
+import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
+import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 
+//お知らせ表示用
+import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 
 
 
 export default function Page() {
+  //console.log("Dashboard render")
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
   const [deviceList, setDeviceList] = useState<any[]>([])
   //DBから各tableを取得するためのstate
@@ -135,15 +141,6 @@ export default function Page() {
                                                                             updatedAt: null,
                                                                           })
 
-
-                                                                          
-
-  // const [draggingDevice, setDraggingDevice] = useState<Device | null>(null)
-  // const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  // const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  //病室の情報を管理するstate,初期値はinitialRoomsから
-  //const [rooms, setRooms] = useState<Room[]>(initialRooms)  
-  //roomModalを開くためのstate
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [roomToRoomModalOpen,setRoomToRoomModalOpen] = useState(false)
 
@@ -179,7 +176,11 @@ export default function Page() {
   //user情報を格納する関数
   const router = useRouter()
   const {currentUser,setCurrentUser} = useAuth()
+  //お知らせ表示用
+  const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
 
+  //refresh token後realtime再登録用
+  const [realtimeVersion, setRealtimeVersion] = useState(0)
   const {
         draggingDevice,
         setDraggingDevice,
@@ -469,6 +470,8 @@ export default function Page() {
                                   setRooms
                                 })
 
+    setWardLastUpdated(await fetchWardLastUpdated()) 
+
     return true
   }
 
@@ -479,15 +482,8 @@ export default function Page() {
                                     value: string
                                   ): Promise<boolean> => {
 
-    const device =
-      deviceList.find(
-                      d => d.id === id
-                    )
-
-    if (!device) {
-      return false
-    }
-
+    const device =deviceList.find(d => d.id === id)
+    if (!device) {return false}
     await updateSerialNumber({
                               device: {
                                         ...device,
@@ -498,20 +494,19 @@ export default function Page() {
     const devices=await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                   d => d.id === id
-                  )
-if (updatedDevice) {
+    const updatedDevice =normalizedDevices.find(d => d.id === id)
+    if (updatedDevice) {
 
-  if (selectedRoomDevice?.id === id) {
-    setSelectedRoomDevice(updatedDevice)
-  }
+      if (selectedRoomDevice?.id === id) {
+        setSelectedRoomDevice(updatedDevice)
+      }
 
-  if (selectedDevice?.id === id) {
-    setSelectedDevice(updatedDevice)
-  }
-
-}
+      if (selectedDevice?.id === id) {
+        setSelectedDevice(updatedDevice)
+      }
+    }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -521,41 +516,29 @@ if (updatedDevice) {
                               value: string
                             ): Promise<boolean> => {
 
-    const device =
-      deviceList.find(
-                      d => d.id === id
-                    )
-
-    if (!device) {
-      return false
-    }
-
+    const device =deviceList.find(d => d.id === id)
+    if (!device) {return false}
     await updateNote({
                       device: {
                                 ...device,
                                 note: value.trim()
                               }
                     })
-
-
     const devices=await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                    d => d.id === id
-                  )
+    const updatedDevice =normalizedDevices.find(d => d.id === id)
 
-if (updatedDevice) {
-
-  if (selectedRoomDevice?.id === id) {
-    setSelectedRoomDevice(updatedDevice)
-  }
-
-  if (selectedDevice?.id === id) {
-    setSelectedDevice(updatedDevice)
-  }
-
-}
+    if (updatedDevice) {
+      if (selectedRoomDevice?.id === id) {
+        setSelectedRoomDevice(updatedDevice)
+      }
+      if (selectedDevice?.id === id) {
+        setSelectedDevice(updatedDevice)
+      }
+    }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -595,6 +578,8 @@ if (updatedDevice) {
                             setSelectedDevice(updatedDevice)
                           }
       }
+    setStockLastUpdated(await fetchStockLastUpdated())
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -627,9 +612,15 @@ if (updatedDevice) {
     if (updatedDevice) {
       if (selectedRoomDevice?.id === deviceId) {
         setSelectedRoomDevice(updatedDevice)
+        //開始日更新がroomdeviceの時はward areaの最終更新日更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+
       }
       if (selectedDevice?.id === deviceId) {
         setSelectedDevice(updatedDevice)
+        //開始日更新がstockdeviceの時はstock areaの最終更新日更新
+        setStockLastUpdated(await fetchStockLastUpdated())
+
       }
     }
     return true
@@ -666,10 +657,14 @@ if (updatedDevice) {
 
       if (selectedRoomDevice?.id === deviceId) {
         setSelectedRoomDevice(updatedDevice)
+        //開始日更新がroomdeviceの時はward areaの最終更新日更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
       }
 
       if (selectedDevice?.id === deviceId) {
         setSelectedDevice(updatedDevice)
+        //開始日更新がstockdeviceの時はstock areaの最終更新日更新
+        setStockLastUpdated(await fetchStockLastUpdated())
       }
 
     }
@@ -684,19 +679,26 @@ if (updatedDevice) {
                                       standby: boolean,
                                     ): Promise<boolean> => {
 
-    if (standby) { await startStandby( deviceId)
-    } else {await finishStandby(deviceId)
-    }
+    if (standby) 
+      { 
+        await startStandby( deviceId)
+        //standbyの開始終了は最終更新日を更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+      } 
+    else 
+      {
+        await finishStandby(deviceId)
+        //standbyの開始終了は最終更新日を更新
+        setWardLastUpdated(await fetchWardLastUpdated()) 
+      }
     const devices =await getDevicesFromApi()
     const normalizedDevices =devices.map(normalizeDevice)
     setDeviceList(normalizedDevices)
-    const updatedDevice =normalizedDevices.find(
-                                           d => d.id === deviceId
-                                        )
+    const updatedDevice =normalizedDevices.find(d => d.id === deviceId)
 
     if (updatedDevice) {
       setSelectedRoomDevice(updatedDevice)
-    }
+    }    
     return true
   }
 
@@ -724,6 +726,9 @@ if (updatedDevice) {
         {setSelectedDevice( updatedDevice)
       }
     }
+    //保守中の開始終了はstock areaの最終更新を更新
+    setStockLastUpdated(await fetchStockLastUpdated())
+
     return true
   }  
 
@@ -784,6 +789,8 @@ if (updatedDevice) {
                                               task,
                                               setTasks
                                             })
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
     }
 
@@ -796,28 +803,27 @@ if (updatedDevice) {
         
     )
   }  
-  const renameMaintenanceTaskDueAt = async (
-  task: UpdateMaintenanceTaskDueAt
-  ): Promise<boolean> => {
+  const renameMaintenanceTaskDueAt = async (task: UpdateMaintenanceTaskDueAt): Promise<boolean> => {
 
-  await updateMaintenanceTaskDueAtTransaction({
-    task,
-    setTasks
-  })
-
-  return true
+    await updateMaintenanceTaskDueAtTransaction({
+                                                  task,
+                                                  setTasks
+    })
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
+    return true
   }
 
 
   const cancelTask = async (
-    task: CancelMaintenanceTask
-  ): Promise<boolean> => {
-
+                              task: CancelMaintenanceTask
+                            ): Promise<boolean> => {
     await cancelMaintenanceTaskTransaction({
-      task,
-      setTasks
+                                            task,
+                                            setTasks
     })
-
+    //最終更新日更新
+    setWardLastUpdated(await fetchWardLastUpdated()) 
     return true
   }
 
@@ -828,33 +834,24 @@ if (updatedDevice) {
 
     if (!deviceId) return "green"
 
-    const nearestTask =
-      tasks
-        .filter(
-          t =>
-            Number(t.deviceId) === Number(deviceId) &&
-            !t.completedAt
-        )
-        .sort(
-          (a, b) =>
-            new Date(a.dueAt).getTime() -
-            new Date(b.dueAt).getTime()
-        )[0]
+    const nearestTask =tasks.filter(
+                                    t =>
+                                      Number(t.deviceId) === Number(deviceId) &&
+                                      !t.completedAt
+                            )
+                            .sort(
+                              (a, b) =>
+                                new Date(a.dueAt).getTime() -
+                                new Date(b.dueAt).getTime()
+                            )[0]
 
     if (!nearestTask) return "green"
 
     const now = new Date()
-
-    const diff =
-      new Date(nearestTask.dueAt).getTime() - now.getTime()
-
-    const days =
-      Math.ceil(diff / (1000 * 60 * 60 * 24))
-
-    if (days < 0) return "red"
-
-    if (days <= 2) return "yellow"
-
+    const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
+    const days =Math.ceil(diff / (1000 * 60 * 60 * 24))
+      if (days < 0) return "red"
+      if (days <= 2) return "yellow"
     return "green"
   }
 
@@ -935,28 +932,14 @@ if (updatedDevice) {
     router.push("/login")
   }
 
-/*
- //Realtime購読前にも一度access tokenを設定しておく
-useEffect(() => {
 
+//リロード時やlogin時にrealtime開始
+useEffect(() => {
+  console.log("Realtime useEffect");
   const accessToken = localStorage.getItem("access_token")
-
-  if (accessToken) {
-    supabase.realtime.setAuth(accessToken)
+  if (!currentUser) {
+    return
   }
-
-  const unsubscribe = subscribeDevicesRealtime({
-    setDeviceList,
-  })
-
-  return unsubscribe
-
-}, [])
- */
-
-useEffect(() => {
-    const accessToken = localStorage.getItem("access_token")
-
   if (accessToken) {
     supabase.realtime.setAuth(accessToken)
   }
@@ -1004,6 +987,15 @@ useEffect(() => {
     setTasks
   })
 
+  const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({
+    hospitalId: currentUser.hospitalId,
+      setAnnouncements: setActiveAnnouncements
+  })
+
+  const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({
+      hospitalId: currentUser.hospitalId,
+      setAnnouncements: setActiveAnnouncements
+  })
   return () => {
 
     unsubscribeDevices()
@@ -1016,10 +1008,11 @@ useEffect(() => {
     unsubscribeInfectionTypes()
     unsubscribeRoomInfections()
     unsubscribeMaintenanceTasks()
-
+    unsubscribeAnnouncements()
+    unsubscribeAnnouncementHospitals()
   }
 
-}, [])
+}, [currentUser, realtimeVersion])
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
@@ -1046,6 +1039,11 @@ useEffect(() => {
     console.log("wardLastUpdated:",wardLastUpdated)
     setStockLastUpdated(stockLastUpdated)
     setWardLastUpdated(wardLastUpdated)
+    //お知らせ表示
+    await fetchActiveAnnouncementsTransaction({
+                                                hospitalId: currentUser.hospitalId,
+                                                setAnnouncements: setActiveAnnouncements
+                                              })
 
   }
   fetchData()}, [currentUser])
@@ -1059,6 +1057,26 @@ useEffect(() => {
       router.replace("/login")
     }
   }, [currentUser, router])
+
+//refresh tokenが走ると発火する
+useEffect(() => {
+
+    const reconnect = () => {
+        console.log("[Reconnect Event Received]")
+
+        setRealtimeVersion(v => {
+            console.log("realtimeVersion:", v, "->", v + 1)
+            return v + 1
+        })
+    }
+    window.addEventListener("reconnect-realtime", reconnect)
+
+    return () => {
+        window.removeEventListener("reconnect-realtime", reconnect)
+    }
+
+}, [])
+
 
   if (currentUser === undefined) {
     return null // 認証確認中
@@ -1101,6 +1119,7 @@ if (!currentUser) {
           wardLastUpdated={wardLastUpdated}
           infectionTypes={infectionTypes}
           roomInfections={roomInfections}
+          activeAnnouncements={activeAnnouncements}
 
         />
       </div>
@@ -1210,6 +1229,8 @@ if (!currentUser) {
           userName={currentUser.displayName}
           role={currentUser.role}
           userId={currentUser.id}
+          email={currentUser.email}
+          hospitalName={currentUser.hospitalName}
 
           infectionTypes={infectionTypes}
           setInfectionTypes={setInfectionTypes}

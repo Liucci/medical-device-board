@@ -14,6 +14,8 @@ import { createPortal } from "react-dom"
 import { FaTrashAlt } from "react-icons/fa"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
 import { RoomInfectionType } from "../../types/roomInfectionTypes"
@@ -209,7 +211,7 @@ const deviceTasks =
 
     const deviceId = selectedRoomDevice.id
     if (!deviceId) return
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
 
@@ -242,7 +244,7 @@ const deviceTasks =
 
     if (!confirm("この機器を削除しますか？")) return
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
           await onDelete(selectedRoomDevice.id!)
@@ -377,7 +379,7 @@ return createPortal(
                 )
 
                 if (val === null) return
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
       
@@ -474,7 +476,7 @@ return createPortal(
                 )
 
                 if (val === null) return
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 
@@ -503,7 +505,7 @@ return createPortal(
                 )
 
                 if (val === null) return
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 
@@ -539,7 +541,7 @@ return createPortal(
                     )
 
                     if (val === null) return
-                    await executeWithLoading({
+                    await executeWithErrorAndLoading({
                         setLoading,
                         action: async () => {
 
@@ -571,7 +573,7 @@ return createPortal(
                     )
 
                     if (val === null) return
-                    await executeWithLoading({
+                    await executeWithErrorAndLoading({
                         setLoading,
                         action: async () => {
           
@@ -603,7 +605,7 @@ return createPortal(
                 )
 
                 if (val === null) return
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 
@@ -746,7 +748,7 @@ return createPortal(
                         <button
                           className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
                           onClick={async () => {
-                            await executeWithLoading({
+                            await executeWithErrorAndLoading({
                                 setLoading,
                                 action: async () => {
                                   const success =
@@ -778,7 +780,7 @@ return createPortal(
                               alert("YYYY-MM-DD形式で入力してください")
                               return
                             }
-                            await executeWithLoading({
+                            await executeWithErrorAndLoading({
                                 setLoading,
                                 action: async () => {
                                 const success =
@@ -804,7 +806,7 @@ return createPortal(
                             )
 
                             if (!ok) return
-                            await executeWithLoading({
+                            await executeWithErrorAndLoading({
                                 setLoading,
                                 action: async () => {
                                 const success =
@@ -838,7 +840,7 @@ return createPortal(
                           )
 
                           if (!ok) return
-                          await executeWithLoading({
+                          await executeWithErrorAndLoading({
                               setLoading,
                               action: async () => {
                               const success =

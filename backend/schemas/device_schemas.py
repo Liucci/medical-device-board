@@ -111,3 +111,10 @@ class UpdateDeviceRentalDatesRequest(BaseModel):
     rental_end_date: str | None = None
 
 
+# =========================
+# task
+# =========================
+#maintenance tasks table更新でdevice tableのupdate atのみを更新する用
+class UpdateDeviceUpdateAtRequest(BaseModel):
+    id: int
+

@@ -599,3 +599,137 @@ Supabase Authは認証、
 public.usersは業務権限
 
 という責務を徹底する。
+
+# Supabase Client の運用ルール
+
+## 背景
+
+本プロジェクトでは、当初 `supabase_client.py` を1つだけ使用していた。
+
+```text
+supabase_client.py
+    ↓
+・login
+・CRUD
+・Transaction
+・auth.admin
+```
+
+しかし、この構成では重大な問題が発生した。
+
+---
+
+## 発生した問題
+
+`supabase.auth.sign_in_with_password()` を実行すると、その `supabase` インスタンス内部にログインユーザーのセッション（Access Token）が保持される。
+
+そのため、同じ `supabase` インスタンスを利用して
+
+```python
+supabase.auth.admin.update_user_by_id(...)
+```
+
+や
+
+```python
+supabase.table(...)
+```
+
+を実行すると、Service Role Key ではなくログインユーザー（Anon認証）の権限で実行される場合がある。
+
+その結果、
+
+* `User not allowed`
+* `new row violates row-level security policy`
+* `403 Forbidden`
+
+などのエラーが発生する。
+
+FastAPI を再起動すると正常に動作することからも、`supabase` インスタンス内の認証状態が上書きされていたことが確認できた。
+
+---
+
+## 原因
+
+1. `supabase_admin` は Service Role Key で生成される。
+2. 同じインスタンスで `sign_in_with_password()` を実行する。
+3. SDK が内部にログインユーザーのセッションを保持する。
+4. 以降の管理者API・CRUD処理にもその認証状態が影響する。
+
+つまり、**同一の Supabase Client を「認証」と「管理者処理」で共有してはいけない。**
+
+---
+
+## 対策
+
+Supabase Client を用途ごとに分離する。
+
+```text
+common
+├── supabase_admin_client.py
+└── supabase_auth_client.py
+```
+
+### supabase_admin_client.py
+
+使用するキー
+
+* SUPABASE_SERVICE_ROLE_KEY
+
+用途
+
+* CRUD
+* Transaction
+* auth.admin.*
+* システム管理処理
+
+認証API（`sign_in_with_password()` など）は使用しない。
+
+---
+
+### supabase_auth_client.py
+
+使用するキー
+
+* NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+用途
+
+* sign_in_with_password()
+* sign_out()
+* get_user()
+* refresh_session()
+
+DB更新・CRUD・auth.admin.* は使用しない。
+
+---
+
+## 運用ルール
+
+* `login.py` は `supabase_auth_client.py` を使用する。
+* `get_auth_user_id.py` など認証系APIは `supabase_auth_client.py` を使用する。
+* CRUD・Transaction・auth.admin.* は必ず `supabase_admin_client.py` を使用する。
+* 認証処理と管理者処理で同じ Supabase Client を共有しない。
+
+---
+
+## この構成を採用する理由
+
+認証用クライアントと管理者用クライアントを分離することで、
+
+* Service Role Key が一般ユーザーの認証状態で上書きされることを防止できる。
+* `User not allowed` や RLS エラーの再発を防げる。
+* 認証処理と管理者処理の責務が明確になり、保守性が向上する。
+
+
+
+Supabase Client が勝手にリフレッシュする
+独自の /refresh-token でもリフレッシュする
+
+という二重管理は避けるべきです。
+
+したがって、
+
+ClientOptions(
+    auto_refresh_token=False
+)

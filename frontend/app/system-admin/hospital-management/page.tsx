@@ -1,33 +1,39 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import { useRouter } from "next/navigation"
 import { HospitalManagementType } from "../../types/hospitalTypes"
+import {fetchHospitalManagementTransaction} from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
 
-import {
-         fetchHospitalManagementTransaction
-       } from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
+
+import CreateHospitalModal from "./components/CreateHospitalModal"
+import EditHospitalModal from "./components/EditHospitalModal"
 
 export default function HospitalManagementPage() {
 
 const [hospitals, setHospitals] = useState<HospitalManagementType[]>([])
 const [filteredHospitals, setFilteredHospitals] = useState<HospitalManagementType[]>([])
-
 const [hospitalName, setHospitalName] = useState("")
-
 const [pricePlans, setPricePlans] = useState<string[]>([
   "free",
   "standard",
   "enterprise"
 ])
-
+const router = useRouter()
 const [isActiveList, setIsActiveList] = useState<boolean[]>([
   true,
   false
 ])
-
 const [createdFrom, setCreatedFrom] = useState("")
 const [createdTo, setCreatedTo] = useState("")
+const [createOpen, setCreateOpen] = useState(false)
+const [editOpen, setEditOpen] = useState(false)
+
+const [
+  selectedHospital,
+  setSelectedHospital
+] = useState<HospitalManagementType | null>(null)
+
 
 useEffect(
             () => {
@@ -72,14 +78,15 @@ useEffect(
                     }
 
                     // 利用状態
-                    result =
+                    if (isActiveList.length > 0)
+                    {result =
                       result.filter(
                                       hospital =>
                                         isActiveList.includes(
                                                                hospital.isActive
                                                              )
                                     )
-
+                    }
                     // 登録日 From
                     if (createdFrom !== "")
                     {
@@ -124,13 +131,45 @@ useEffect(
 
             <div className="mb-6 flex items-center justify-between">
 
-              <h1 className="text-2xl font-bold">
-                病院管理
-              </h1>
+            <div className="mb-6 flex items-center justify-between">
+
+              <div className="flex items-center gap-3">
+
+                <button
+                  onClick={() => router.push("/system-admin")}
+                  className="
+                    rounded
+                    bg-gray-500
+                    px-3
+                    py-2
+                    text-white
+                    hover:bg-gray-600
+                  "
+                >
+                  ← 戻る
+                </button>
+
+                <h1 className="text-2xl font-bold">
+                  病院管理
+                </h1>
+
+              </div>
+
+
+
+            </div>
 
               <button
-                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-              >
+                onClick={() => setCreateOpen(true)}
+                className="
+                  rounded
+                  bg-blue-500
+                  px-4
+                  py-2
+                  text-white
+                  hover:bg-blue-600
+                "
+              >              
                 新規病院登録
               </button>
 
@@ -150,10 +189,11 @@ useEffect(
                     病院名
                   </div>
 
-                  <input
-                    className="w-full rounded border px-2 py-1"
-                  />
-
+                    <input
+                      value={hospitalName}
+                      onChange={e => setHospitalName(e.target.value)}
+                      className="w-full rounded border px-2 py-1"
+                    />
                 </div>
 
                 <div>
@@ -221,15 +261,34 @@ useEffect(
                   <div className="flex gap-4">
 
                     <label>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        checked={isActiveList.includes(true)}
+                        onChange={e =>
+                          setIsActiveList(
+                            e.target.checked
+                              ? [...isActiveList.filter(v => v !== true), true]
+                              : isActiveList.filter(v => v !== true)
+                          )
+                        }
+                      />
                       利用中
                     </label>
-
+                    
                     <label>
-                      <input type="checkbox" />
+                      <input
+                          type="checkbox"
+                          checked={isActiveList.includes(false)}
+                          onChange={e =>
+                            setIsActiveList(
+                              e.target.checked
+                                ? [...isActiveList.filter(v => v !== false), false]
+                                : isActiveList.filter(v => v !== false)
+                            )
+                          }
+                      />
                       停止
                     </label>
-
                   </div>
 
                 </div>
@@ -244,18 +303,21 @@ useEffect(
 
                     <input
                       type="date"
-                      className="rounded border px-2 py-1"
+                      value={createdFrom}
+                      onChange={e => setCreatedFrom(e.target.value)}
+                      className="min-w-0 flex-1 rounded border px-2 py-1"
                     />
 
-                    ～
+                    <span>～</span>
 
                     <input
                       type="date"
-                      className="rounded border px-2 py-1"
+                      value={createdTo}
+                      onChange={e => setCreatedTo(e.target.value)}
+                      className="min-w-0 flex-1 rounded border px-2 py-1"
                     />
 
                   </div>
-
                 </div>
 
               </div>
@@ -264,8 +326,7 @@ useEffect(
 
             <div className="mb-3 font-bold">
 
-              検索結果：{hospitals.length}件
-
+              検索結果：{filteredHospitals.length}件
             </div>
 
             <div className="flex-1 overflow-auto rounded border">
@@ -325,6 +386,10 @@ useEffect(
                                         <td className="border px-3 py-2">
 
                                           <button
+                                            onClick={() => {
+                                                              setSelectedHospital(hospital)
+                                                              setEditOpen(true)
+                                                            }}
                                             className="rounded bg-gray-600 px-3 py-1 text-white hover:bg-gray-700"
                                           >
                                             Open
@@ -352,14 +417,29 @@ useEffect(
                                           {hospital.deviceCount}
                                         </td>
 
-                                        <td className="border px-3 py-2">
-                                          {hospital.createdAt}
-                                        </td>
+                                            <td className="border px-3 py-2">
+                                              {
+                                                new Date(hospital.createdAt?? "").toLocaleString("ja-JP", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })
+                                              }
+                                            </td>
 
-                                        <td className="border px-3 py-2">
-                                          {hospital.updatedAt}
-                                        </td>
-
+                                            <td className="border px-3 py-2">
+                                              {
+                                                new Date(hospital.updatedAt?? "").toLocaleString("ja-JP", {
+                                                  year: "numeric",
+                                                  month: "2-digit",
+                                                  day: "2-digit",
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })
+                                              }
+                                            </td>
                                       </tr>
 
                                     )
@@ -371,7 +451,24 @@ useEffect(
               </table>
 
             </div>
+            
+            <CreateHospitalModal
+              isOpen={createOpen}
+              onClose={() => setCreateOpen(false)}
+              setHospitals={setHospitals}
+            />
+
+            <EditHospitalModal
+              isOpen={editOpen}
+              hospital={selectedHospital}
+              onClose={() => setEditOpen(false)}
+              setHospitals={setHospitals}
+            />
 
           </div>
+
+
+
+
         )
 }

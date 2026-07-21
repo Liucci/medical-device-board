@@ -1,4 +1,4 @@
-from common.supabase_client import (supabase)
+from common.supabase_admin_client import (supabase)
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest)
 
 def add_maintenance_type(

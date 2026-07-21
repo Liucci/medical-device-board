@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from devices.move_device import move_device
 from devices.fetch_devices import fetch_devices_by_room_id
 from devices.finish_standby import (finish_standby,clear_standby)
@@ -33,7 +33,8 @@ def move_room_to_stock_transaction(
     # standby解除
     finish_standby(
                       device=device,
-                      hospital_id=hospital_id
+                      hospital_id=hospital_id,
+                      user_id=user_id
                   )
 
 
@@ -76,7 +77,8 @@ def move_room_to_stock_transaction(
                      )
     clear_standby(
                       device=device,
-                      hospital_id=hospital_id
+                      hospital_id=hospital_id,
+                      user_id=user_id
                   )
 
 

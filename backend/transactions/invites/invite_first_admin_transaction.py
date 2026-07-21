@@ -36,9 +36,9 @@ def invite_first_admin_transaction(
     send_invite_mail(
                       SendInviteMailRequest(
                                               email=request.email,
-                                              invite_url=invite_url,
                                               expires_at=invite_code["expires_at"]
-                                            )
+                                            ),
+                                            invite_url=invite_url
                     )
 
     return invite_code

@@ -5,13 +5,13 @@ from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
 import os
-from common.supabase_client import supabase
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
-
+from auth.check_user_active import check_user_active
+from auth.check_permission import check_permission
 
 from schemas.auth_schemas import RefreshTokenRequest
 from schemas.invite_schemas import (CreateInviteCodeRequest)
@@ -129,7 +129,6 @@ from schemas.export_schemas import  ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import export_history_pdf_transaction
 from fastapi.responses import StreamingResponse
 from fastapi import Request
-from fastapi.responses import StreamingResponse
 from schemas.export_schemas import ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import (export_history_pdf_transaction)
 from schemas.export_schemas import (DeviceListExportSchemaRequest)
@@ -162,11 +161,40 @@ from transactions.room_infections.delete_room_infections_transaction import dele
 from schemas.room_infection_schemas import UpdateRoomInfectionsRequest
 from transactions.room_infections.update_room_infections_transaction import update_room_infections_transaction
 
-from fastapi.responses import StreamingResponse
 
 #運営用
 from transactions.hospitals.fetch_hospital_management_transaction import (fetch_hospital_management_transaction)
+from transactions.user_management.fetch_user_management_transaction import (fetch_user_management_transaction)
 
+from schemas.hospital_schemas import (AddHospitalRequest,UpdateHospitalRequest)
+from hospitals.add_hospital import add_hospital
+from hospitals.update_hospital import update_hospital
+from schemas.user_schemas import UpdateUserRequest
+from users.update_user import update_user
+from transactions.user_management.update_user_transaction import update_user_transaction
+
+#useraccount編集用
+from schemas.account_edit_schemas import (
+                                                CreateAccountEditCodeRequest,
+                                                UpdateMyAccountRequest,
+                                                VerifyAccountEditCodeRequest
+                                              )
+
+from transactions.account_edits.create_account_edit_transaction import (create_account_edit_code_transaction)
+from transactions.account_edits.verify_account_edit_transaction import (verify_account_edit_code_transaction)
+from transactions.account_edits.update_my_account_transaction import (update_my_account_transaction)
+
+
+#announce用
+from schemas.announcement_schemas import (
+                                            AddAnnouncementRequest,
+                                            UpdateAnnouncementRequest
+                                        )
+from transactions.announcements.create_announcement_transaction import (create_announcement_transaction)
+from transactions.announcements.update_announcement_transaction import (update_announcement_transaction)
+from transactions.announcements.fetch_announcements_transaction import (fetch_announcements_transaction)
+from schemas.announcement_schemas import FetchActiveAnnouncementsRequest
+from transactions.announcements.fetch_active_announcements_transaction import fetch_active_announcements_transaction
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -202,6 +230,7 @@ def login(body: LoginRequest):
                             password=body.password
                         )
     auth_user_id = (response.user.id)
+    check_user_active(auth_user_id)
     current_user = (fetch_current_user(auth_user_id))
     return {
                 "success": True,
@@ -265,6 +294,11 @@ def create_invite_code_route(
     current_user = fetch_current_user(
                                         auth_user_id
                                      )
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     frontend_url = (
         os.getenv("FRONTEND_URL")
@@ -287,29 +321,23 @@ def get_invite_info_route(
 #招待したユーザーをDB登録する
 @app.post("/register")
 def register(
-                register:RegisterUserRequest
+                register:RegisterUserRequest,
             ):
-    return register_user_transaction(register)
+    return register_user_transaction(register,
+                                    )
 
 #first admin userをDB登録する
 @app.post("/register-first-admin")
 def register_first_admin_route(
-                                register: RegisterUserRequest
+                                register: RegisterUserRequest,
                               ):
 
     return register_first_admin_transaction(
-                                              register
+                                              register,
                                            )
 
 
 
-#重複したroute使用してなさそうなのでコメントアウト
-""" @app.get("/current-user")
-def current_user(
-                    auth_user_id:str=Depends(get_auth_user_id)
-                ):
-    return fetch_current_user_transaction(auth_user_id)
- """
 
 @app.post("/invite-first-admin")
 def invite_first_admin_route(
@@ -319,11 +347,10 @@ def invite_first_admin_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "system_admin":
-        return {
-                  "success": False,
-                  "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
 
     return invite_first_admin_transaction(
                                             request=request,
@@ -356,27 +383,12 @@ def get_users():
 
 @app.get("/devices")
 def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    current_user = (fetch_current_user(auth_user_id))
     devices = (
-        fetch_devices(
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
+                fetch_devices(
+                                hospital_id=
+                                current_user["hospital_id"]
+                )
     )
     return devices
 
@@ -389,11 +401,10 @@ def create_device_transaction_route(
     print("auth_user_id =", auth_user_id)
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "success": False,
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     create_device_transaction(
                             device=body,
@@ -412,8 +423,11 @@ def delete_device_transaction_route(
                                    ):
     current_user = fetch_current_user(auth_user_id)
     print("current_user")
-    if current_user["role"] != "admin":
-        return {"error": "権限がありません"}
+
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     delete_device_transaction(
                             device=body,
@@ -435,19 +449,6 @@ def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
         )
     )
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-
-        return {
-
-            "success": False,
-
-            "error":
-            "権限がありません"
-        }
-
     stock_areas = (
         fetch_stock_areas(
 
@@ -462,31 +463,11 @@ def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
 
 @app.get("/wards")
 def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
-
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
-
-    wards = (
-        fetch_wards(
-
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
+    current_user = (fetch_current_user(auth_user_id))
+    wards = (fetch_wards(
+                        hospital_id=
+                        current_user["hospital_id"]
+                        )
     )
 
     return wards
@@ -497,16 +478,10 @@ def create_ward_route(
                         auth_user_id: str = Depends(get_auth_user_id)
                      ):
     current_user = (fetch_current_user(auth_user_id))
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     create_ward_transaction(
                                 ward=ward,
@@ -520,15 +495,11 @@ def delete_ward_route(
                      ):
 
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
     delete_ward_transaction(
                                 ward=ward,
                                 hospital_id=current_user["hospital_id"]
@@ -543,13 +514,11 @@ def update_ward_route(
     current_user = fetch_current_user(auth_user_id)
 
     print(current_user)
-    if (current_user["role"]
-        != "admin"):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_ward_transaction(
                                 ward=ward,
@@ -564,11 +533,11 @@ def update_ward_display_order_route(
     current_user = fetch_current_user(auth_user_id)
     print(current_user)
 
-    if current_user["role"] != "admin":
-        return {
-            "success": False,
-            "error": "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_ward_display_order_transaction(
                                         wards=wards,
@@ -583,34 +552,11 @@ def update_ward_display_order_route(
 
 @app.get("/rooms")
 def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
+    current_user = (fetch_current_user(auth_user_id))
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-
-        return {
-
-            "success": False,
-
-            "error":
-            "権限がありません"
-        }
-
-    rooms = (
-        fetch_rooms(
-
-            hospital_id=
-            current_user[
-                "hospital_id"
-            ]
-        )
-    )
+    rooms = (fetch_rooms(
+        hospital_id=current_user["hospital_id"]
+        ))
 
     return rooms
 
@@ -621,15 +567,11 @@ def create_room_route(
                      ):
 
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     create_room_transaction(
                                 room=room,
@@ -642,15 +584,11 @@ def update_room_route(
                         auth_user_id: str = Depends(get_auth_user_id)):
     
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_room_transaction(
                                      room=room,
@@ -664,19 +602,16 @@ def update_room_patientname_route(
                                     auth_user_id: str = Depends(get_auth_user_id)):
                                   
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     update_room_patientname_transaction(
                                                  room=room,
-                                                 hospital_id=current_user["hospital_id"]
+                                                 hospital_id=current_user["hospital_id"],
+                                                 user_id=current_user["id"]
                                                )
 
 
@@ -687,15 +622,11 @@ def update_device_type_route(
                             ):
     print("update_device_type")
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_device_type_transaction(
                                             device_type,
@@ -710,15 +641,11 @@ def delete_rooms_transaction_route(
                                   
     current_user = fetch_current_user(auth_user_id)
     print("delete room transaction route")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     delete_room_transaction(
                               room=room,
@@ -730,15 +657,6 @@ def get_device_types(auth_user_id: str = Depends(get_auth_user_id)):
                                   
     current_user = fetch_current_user(auth_user_id)
     print("get_device_types")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
 
     return fetch_device_types(current_user["hospital_id"])
 
@@ -749,15 +667,11 @@ def create_device_type_route(
                             ):
     print("create_device_type_route")
     current_user = fetch_current_user(auth_user_id)
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-            return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     create_device_type_transaction(
                                     device_type,
@@ -773,15 +687,11 @@ def delete_device_type_route(
     current_user = fetch_current_user(auth_user_id)
 
     print("delete_device_type_route")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-            return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     delete_device_type_transaction(
                                     device_type,
@@ -792,15 +702,6 @@ def delete_device_type_route(
 def get_device_models(auth_user_id: str = Depends(get_auth_user_id)):
     current_user = fetch_current_user(auth_user_id)
     print("get_device_models")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
 
     return fetch_device_models(current_user["hospital_id"])
 
@@ -812,15 +713,11 @@ def create_device_model(
 
     current_user = fetch_current_user(auth_user_id)
     print("create_device_model")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     create_device_model_transaction(
                                             device_model,
@@ -835,15 +732,11 @@ def delete_device_models_route(
 
     current_user = fetch_current_user(auth_user_id)
     print("delete_device_models")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     delete_device_models_transaction(
                                             device_model,
@@ -858,15 +751,11 @@ def update_device_model_route(
 
     current_user = fetch_current_user(auth_user_id)
     print("update_device_model")
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_device_model_transaction(
                                             device_model,
@@ -874,24 +763,10 @@ def update_device_model_route(
                                           )
 
 @app.get("/tasks")
-def get_tasks(
+def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = (fetch_current_user(auth_user_id))
 
-    auth_user_id: str = Depends(get_auth_user_id)
-):
-    current_user = (
-        fetch_current_user(
-            auth_user_id
-        )
-    )
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error": "権限がありません"
-        }
 
     tasks = (
         fetch_maintenance_tasks(
@@ -911,6 +786,10 @@ def update_maintenance_task_due_at_route(
                                         ):
 
     current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
     return update_maintenance_task_due_at_transaction(
                                                         task=task,
@@ -927,7 +806,10 @@ def cancel_maintenance_task_route(
                                     ):
 
     current_user = fetch_current_user(auth_user_id)
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     return cancel_maintenance_task_transaction(
                                                 task=task,
                                                 hospital_id=current_user["hospital_id"],
@@ -942,15 +824,7 @@ def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
 
     current_user = fetch_current_user(auth_user_id)
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+
 
     print("get_maintenance_types")
 
@@ -964,16 +838,10 @@ def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
 def create_maintenance_type_route(maintenance_type: AddMaintenanceTypeRequest, auth_user_id: str = Depends(get_auth_user_id)):
 
     current_user = fetch_current_user(auth_user_id)
-
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     print("create_maintenance_type")
 
@@ -989,15 +857,11 @@ def update_maintenance_type_route(maintenance_type: UpdateMaintenanceTypeRequest
 
     current_user = fetch_current_user(auth_user_id)
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     print("update_maintenance_type")
 
@@ -1012,15 +876,11 @@ def delete_maintenance_types_route(maintenance_types: DeleteMaintenanceTypesRequ
 
     current_user = fetch_current_user(auth_user_id)
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     print("delete_maintenance_types")
 
@@ -1061,6 +921,11 @@ def create_stock_area_transaction_route(
                                         ):
     current_user = (fetch_current_user(auth_user_id))
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
     response = create_stock_area_transaction(
                                                 stock_area=stock_area,
                                                 hospital_id=hospital_id
@@ -1076,6 +941,10 @@ def delete_stock_area_transaction_route(
                                         ):
     current_user = (fetch_current_user(auth_user_id))
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
     delete_stock_area_transaction(
                                     stock_area=stock_area,
@@ -1091,6 +960,10 @@ def update_stock_area_transaction_route(
 
     current_user = fetch_current_user(auth_user_id)
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
     update_stock_area_transaction(
                                     stock_area=stock_area,
                                     hospital_id=hospital_id
@@ -1105,16 +978,6 @@ def get_infection_types(
 
     print("get_infection_types")
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
-
     return fetch_infection_types(current_user["hospital_id"])
 
 
@@ -1128,15 +991,11 @@ def create_infection_type_route(
 
     print("create_infection_type")
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     create_infection_type_transaction(
                                         infection_type,
@@ -1153,16 +1012,11 @@ def update_infection_type_route(
     current_user = fetch_current_user(auth_user_id)
 
     print("update_infection_type")
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
 
     update_infection_type_transaction(
                                         infection_type,
@@ -1180,15 +1034,11 @@ def delete_infection_types_route(
 
     print("delete_infection_types")
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     delete_infection_types_transaction(
                                         infection_type,
@@ -1200,21 +1050,8 @@ def delete_infection_types_route(
 def get_room_infections(
                             auth_user_id: str = Depends(get_auth_user_id)
                        ):
-
     current_user = fetch_current_user(auth_user_id)
-
     print("get_room_infections")
-
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
-
     return fetch_room_infections(current_user["hospital_id"])
 
 
@@ -1227,17 +1064,10 @@ def create_room_infection_route(
     current_user = fetch_current_user(auth_user_id)
 
     print("create_room_infection")
-
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     create_room_infection_transaction(
                                         room_infection,
                                         current_user["hospital_id"]
@@ -1254,15 +1084,11 @@ def delete_room_infections_route(
 
     print("delete_room_infections")
 
-    if (
-        current_user["role"]
-        != "admin"
-    ):
-        return {
-            "success": False,
-            "error":
-            "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     delete_room_infections_transaction(
                                         room_infection,
@@ -1278,12 +1104,13 @@ def update_room_infections_route(
 
     print("update_room_infections_route")
     hospital_id = current_user["hospital_id"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
     
     return update_room_infections_transaction(room_infection, hospital_id)
-
-
-
-
 
 @app.post("/update-stock-area-display-order")
 def update_stock_area_display_order_route(
@@ -1294,11 +1121,11 @@ def update_stock_area_display_order_route(
     current_user = fetch_current_user(auth_user_id)
 
     print(current_user)
-    if current_user["role"] != "admin":
-        return {
-            "success": False,
-            "error": "権限がありません"
-        }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+
 
     update_stock_area_display_order_transaction(
                                             stock_areas=stock_areas,
@@ -1318,10 +1145,11 @@ def update_management_number_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     update_management_number_transaction(
                                             device=body,
@@ -1335,14 +1163,16 @@ def update_management_number_route(
 def update_serial_number_route(
                                  body: UpdateSerialNumberRequest,
                                  auth_user_id: str = Depends(get_auth_user_id)
+                               
                                ):
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     update_serial_number_transaction(
                                         device=body,
@@ -1360,10 +1190,11 @@ def update_note_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     update_note_transaction(
                               device=body,
@@ -1380,10 +1211,15 @@ def update_device_rental_dates_route(
                                     ):
 
     current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
     update_device_rental_dates_transaction(
                                               device=device,
-                                              hospital_id=current_user["hospital_id"]
+                                              hospital_id=current_user["hospital_id"],
+                                              user_id=current_user["id"]
                                            )
 
 @app.post("/update-maintenance-dates")
@@ -1392,11 +1228,16 @@ def update_maintenance_dates_route(
                                       auth_user_id: str = Depends(get_auth_user_id)
                                   ):
     current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
     return update_maintenance_dates_transaction(
                                                 device=device,
                                                 hospital_id=current_user["hospital_id"],
                                                 user_id=current_user["id"],
-                                                action_type="maintenance_started_at_updated",
+                                                action_type="update",
                                                 message="保守開始日変更"
                                                 )
 
@@ -1408,10 +1249,11 @@ def start_maintenance_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     start_maintenance_transaction(
                                     device=body,
@@ -1429,10 +1271,11 @@ def finish_maintenance_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     finish_maintenance_transaction(
                                      device=body,
@@ -1450,10 +1293,11 @@ def start_standby_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     start_standby_transaction(
                                 device=body,
@@ -1471,10 +1315,11 @@ def finish_standby_route(
 
     current_user = fetch_current_user(auth_user_id)
 
-    if current_user["role"] != "admin":
-        return {
-                    "error": "権限がありません"
-               }
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
 
     finish_standby_transaction(
                                  device=body,
@@ -1495,12 +1340,12 @@ def move_stock_to_room_route(
                               auth_user_id: str = Depends(get_auth_user_id)
                            ):
 
-    current_user = fetch_current_user(
-                                        auth_user_id
-                                     )
-
+    current_user = fetch_current_user(auth_user_id)
     print("move_stock_to_room")
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     moved_device = move_stock_to_room_transaction(
                                                     device=device,
                                                     room=room,
@@ -1520,12 +1365,12 @@ def move_stock_to_stock_route(
                                 auth_user_id: str = Depends(get_auth_user_id)
                              ):
 
-    current_user = fetch_current_user(
-                                        auth_user_id
-                                     )
-
+    current_user = fetch_current_user(auth_user_id)
     print("move_stock_to_stock")
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     moved_device = move_stock_to_stock_transaction(
                                                     device=device,
                                                     hospital_id=current_user["hospital_id"],
@@ -1544,11 +1389,13 @@ def move_room_to_stock_route(
                               auth_user_id: str = Depends(get_auth_user_id)
                             ):
 
-    current_user = fetch_current_user(
-                                        auth_user_id
-                                     )
+    current_user = fetch_current_user(auth_user_id)
 
     print("move_room_to_stock")
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
     moved_device = move_room_to_stock_transaction(
                                                     device=device,
@@ -1571,10 +1418,13 @@ def move_room_to_room_route(
                         auth_user_id: str = Depends(get_auth_user_id)
                     ):
 
-    current_user = fetch_current_user(
-                                        auth_user_id
-                                     )
+    current_user = fetch_current_user(auth_user_id)
     print("move_room_to_room")
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
     moved_device=move_room_to_room_transaction(
                                             device=device,
                                             pre_room=pre_room,
@@ -1584,7 +1434,7 @@ def move_room_to_room_route(
                                             pre_patient_name=None,
                                             status="room",
                                             action_type="move",
-                                            message="Room moved"
+                                            message="room to room"
                                          )
     return moved_device
 
@@ -1598,11 +1448,12 @@ def move_room_to_room_new_patient_route(
                                                                     )
                                        ):
 
-    current_user = fetch_current_user(
-                                        auth_user_id
-                                     )
-
+    current_user = fetch_current_user(auth_user_id)
     print("move_room_to_room_new_patient")
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
     moved_device = move_room_to_room_new_patient_transaction(
                                                               device=device,
@@ -1616,7 +1467,7 @@ def move_room_to_room_new_patient_route(
                                                               note=None,
                                                               status="room",
                                                               action_type="move",
-                                                              message="Room moved new patient"
+                                                              message="room to room new patient"
                                                             )
 
     return moved_device
@@ -1658,25 +1509,21 @@ def complete_maintenance_task_api(
                                     task: CompleteMaintenanceTaskRequest,
                                     auth_user_id: str = Depends(get_auth_user_id)
                                  ):
+    print("complete_maintenance_task_api")
+    current_user = fetch_current_user(auth_user_id)
 
-    current_user = (
-                      fetch_current_user(
-                                            auth_user_id
-                                        )
-                   )
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
-    if current_user["role"] != "admin":
-        return {
-                  "success": False,
-                  "error": "権限がありません"
-               }
 
     return complete_maintenance_task_transaction(
                                                     task=task,
                                                     hospital_id=current_user["hospital_id"],
                                                     user_id=current_user["id"],
                                                     action_type="update",
-                                                    message="maintenance completed"
+                                                    message="maintenance task completed"
                                                 )
 
 
@@ -1687,34 +1534,36 @@ def complete_maintenance_task_api(
 
 @app.post("/export-history-pdf")
 async def export_history_pdf_route(
-    request: ExportHistoryPdfRequest,
-    auth_user_id: str = Depends(get_auth_user_id)    
+                    request: ExportHistoryPdfRequest,
+                    auth_user_id: str = Depends(get_auth_user_id)    
 ):
     print("auth_user_id:", auth_user_id)
     current_user = fetch_current_user(auth_user_id)
     hospital = fetch_hospital(current_user["hospital_id"])
-    print("hospital:",hospital)
     hospital_name = hospital["hospital_name"]
-
-
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
     # debug
-    print("route called")
-    print("row count:", len(request.rows))
-    if request.rows:
-        for key, value in request.rows[0].model_dump().items():
-            print(f"・{key}: {value}")
+    """     print("route called")
+        print("row count:", len(request.rows))
+        if request.rows:
+            for key, value in request.rows[0].model_dump().items():
+                print(f"・{key}: {value}")
+    """
     pdf_buffer = export_history_pdf_transaction(
                                                 request.rows,
                                                 hospital_name
                                                 )
 
     return StreamingResponse(
-        pdf_buffer,
-        media_type="application/pdf",
-        headers={
-                "Content-Disposition":
-                "attachment; filename=histories.pdf"
-        }
+                            pdf_buffer,
+                            media_type="application/pdf",
+                            headers={
+                                    "Content-Disposition":
+                                    "attachment; filename=histories.pdf"
+                            }
     )
 
 @app.post("/export-device-list-pdf")
@@ -1722,25 +1571,21 @@ async def export_device_list_pdf_route(
     request: DeviceListExportSchemaRequest,
     auth_user_id: str = Depends(get_auth_user_id)
 ):
-    print("auth_user_id:", auth_user_id)
-
     current_user = fetch_current_user(auth_user_id)
-
-    hospital = fetch_hospital(
-                                current_user["hospital_id"]
-                              )
-
-    print("hospital:", hospital)
-
+    hospital = fetch_hospital(current_user["hospital_id"])
     hospital_name = hospital["hospital_name"]
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
     # debug
-    print("route called")
-    print("row count:", len(request.rows))
+    # print("route called")
+    # print("row count:", len(request.rows))
 
-    if request.rows:
-        for key, value in request.rows[0].model_dump().items():
-            print(f"・{key}: {value}")
+    # if request.rows:
+    #     for key, value in request.rows[0].model_dump().items():
+    #         print(f"・{key}: {value}")
 
     pdf_buffer = export_device_list_pdf_transaction(
                                                     request.rows,
@@ -1759,44 +1604,213 @@ async def export_device_list_pdf_route(
 
 @app.post("/export-device-list-csv")
 def export_device_list_csv_route(
-    request: DeviceListExportSchemaRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                                request: DeviceListExportSchemaRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
 ):
-
     current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
 
-    csv_buffer = export_device_list_csv_transaction(
-        request.rows
-    )
-
+    csv_buffer = export_device_list_csv_transaction(request.rows)
     return StreamingResponse(
-        csv_buffer,
-        media_type="text/csv",
-        headers={
-            "Content-Disposition":
-                "attachment; filename=device_list.csv"
-        }
+                            csv_buffer,
+                            media_type="text/csv",
+                            headers={
+                                "Content-Disposition":"attachment; filename=device_list.csv"
+                            }
     )
 
 @app.post("/export-history-csv")
 def export_history_csv_route(
-    request: ExportHistoryPdfRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                            request: ExportHistoryPdfRequest,
+                            auth_user_id: str = Depends(get_auth_user_id)
 ):
-    csv_buffer = export_history_csv_transaction(
-    request.rows
-)
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin","normal"]
+                    )
+
+    csv_buffer = export_history_csv_transaction(request.rows)
 
     return StreamingResponse(
-        csv_buffer,
-        media_type="text/csv",
-        headers={
-            "Content-Disposition":
-            "attachment; filename=histories.csv"
-        }
-)
+                            csv_buffer,
+                            media_type="text/csv",
+                            headers={
+                                "Content-Disposition":
+                                "attachment; filename=histories.csv"
+                            }
+    )
+
 #病院一覧取得
 @app.get("/fetch-hospital-management")
-def fetch_hospital_management_route():
-
+def fetch_hospital_management_route(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
     return fetch_hospital_management_transaction()
+
+@app.post("/create-hospital")
+def create_hospital(
+                            request: AddHospitalRequest,
+                            auth_user_id: str = Depends(get_auth_user_id),
+                        ):
+    current_user = fetch_current_user(auth_user_id)
+    # System Adminのみ許可
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
+
+
+    add_hospital(hospital=request)
+
+    return {
+        "success": True
+    }
+
+
+
+@app.post("/update-hospital")
+def update_hospital_route(
+                            request: UpdateHospitalRequest,
+                            auth_user_id: str = Depends(get_auth_user_id),
+                        ):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
+    update_hospital(hospital=request)
+
+    return {
+        "message": "Hospital updated successfully"
+    }
+
+#ユーザー一覧取得
+@app.get("/fetch-user-management")
+def fetch_user_management_route(auth_user_id: str = Depends(get_auth_user_id)):
+
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
+
+    return fetch_user_management_transaction()
+
+
+#role,is activeを編集可能
+@app.post("/update-user")
+def update_user_route(
+    request: UpdateUserRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    print("update_user_route")
+    current_user = (fetch_current_user(auth_user_id))
+    print("role =", current_user["role"])
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["system_admin"]
+                    )
+
+
+    update_user_transaction(
+        request=request,
+        auth_user_id=auth_user_id
+    )
+
+#アカウント情報編集用コード送信用
+@app.post("/create-account-edit-code")
+def create_account_edit_code(auth_user_id: str = Depends(get_auth_user_id)):
+    print("create_account_edit_code")
+    current_user = fetch_current_user(auth_user_id)
+    return create_account_edit_code_transaction(
+                                                request=CreateAccountEditCodeRequest(
+                                                                    user_id=current_user["id"],
+                                                                    email=current_user["email"]                                                        
+                                                                    ),
+                                                )
+#codeの有効性を判定し、有効なcodeならuser情報を返す
+@app.post("/verify-account-edit-code")
+def verify_account_edit_code(
+                               request: VerifyAccountEditCodeRequest
+                            ):
+    print("verify_account_edit_code")
+
+    account_edit_code = verify_account_edit_code_transaction(
+                                                                code=request.code
+                                                            )
+
+    user = fetch_current_user(
+                                auth_user_id=account_edit_code["user_id"]
+                             )
+    print("user:",user)
+    return user
+
+
+@app.post("/update-my-account")
+def update_my_account(
+                        request: UpdateMyAccountRequest,
+                    ):
+    print("update_my_account")
+
+    update_my_account_transaction(
+                                  request,
+                                  )
+
+    return {"message": "success"}
+
+
+#一覧取得
+@app.get("/fetch-announcements")
+def fetch_announcements_route(auth_user_id: str = Depends(get_auth_user_id)):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+    return fetch_announcements_transaction()
+
+#announce新規作成
+@app.post("/create-announcement")
+def create_announcement_route(
+                            request: AddAnnouncementRequest,
+                            auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+
+    return create_announcement_transaction(request)
+
+#annouce編集更新
+@app.post("/update-announcement")
+def update_announcement_route(
+                                request: UpdateAnnouncementRequest,
+                                auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user(auth_user_id)
+    check_permission(
+                    current_user=current_user,
+                    allowed_roles=["system_admin"]
+    )
+
+    return update_announcement_transaction(request)
+
+
+#dashboardお知らせ表示用
+@app.post("/fetch-active-announcements")
+def fetch_active_announcements_route(
+                                        request: FetchActiveAnnouncementsRequest,
+                                        current_user = Depends(get_current_user)
+                                    ):
+    return fetch_active_announcements_transaction(
+                                                    request
+                                                )

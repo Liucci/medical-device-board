@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from supabase import (create_client,ClientOptions)
 
+
+#supabase service keyで認証させるために必要
 load_dotenv()
 url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
@@ -12,3 +14,7 @@ options = ClientOptions(
 
 
 supabase = create_client(url,key,options)
+CLIENT_NAME = "[admin_client]"
+# print("supabase_admin_client")
+# print("URL =", url)
+# print("KEY PREFIX =", key[:20], "...", key[-20:])

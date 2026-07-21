@@ -14,6 +14,8 @@ import {createMaintenanceTypeTransaction} from "../../../app/api/transactions/ma
 import {deleteMaintenanceTypesTransaction} from "../../../app/api/transactions/maintenanceTypes/deleteMaintenanceTypesTransaction"
 import {updateMaintenanceTypeTransaction} from "../../../app/api/transactions/maintenanceTypes/updateMaintenanceTypeTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+
 import {LoadingOverlay} from "../common/LoadingOverlay"
 
 
@@ -54,7 +56,7 @@ export default function MaintenanceTypeSettingsModal({
       alert("メンテ名を入力してください")
       return
     }
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
           await createMaintenanceTypeTransaction({
@@ -96,7 +98,7 @@ export default function MaintenanceTypeSettingsModal({
     )
     if (!ok) return
 
-    await executeWithLoading({
+    await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
     
@@ -362,7 +364,7 @@ export default function MaintenanceTypeSettingsModal({
                     alert("数値を入力してください")
                     return
                   }
-                await executeWithLoading({
+                await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
                   

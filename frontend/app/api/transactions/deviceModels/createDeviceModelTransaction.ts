@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { CreateDeviceModelType } from "../../../types/deviceModelTypes"
+import { CreateDeviceModelFrontType } from "../../../types/deviceModelTypes"
 import { getDeviceModelsFromApi } from "../../deviceModels/fetchDeviceModels"
 import {
          normalizeDeviceModel,
@@ -8,11 +8,10 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type CreateDeviceModelTransactionParams = {
-                                             deviceModel: CreateDeviceModelType
+                                             deviceModel: CreateDeviceModelFrontType
                                              setDeviceModels: any
                                              onClose?: () => void
                                            }
-
 export async function createDeviceModelTransaction({
                                                      deviceModel,
                                                      setDeviceModels,
@@ -21,7 +20,6 @@ export async function createDeviceModelTransaction({
                                                  )
 {
   console.log("createDeviceModelTransaction")
-
   await authFetch(
                 `${API_BASE_URL}/device-models`,
                 {
@@ -30,21 +28,10 @@ export async function createDeviceModelTransaction({
                               "Content-Type":
                               "application/json"
                             },
-                  body: JSON.stringify(
-                                          toCreateDeviceModelRequest(
-                                                                        deviceModel
-                                                                      )
-                                        )
+                  body: JSON.stringify(toCreateDeviceModelRequest(deviceModel))
                 }
               )
-
   const deviceModels =await getDeviceModelsFromApi()
-
-  setDeviceModels(
-                    deviceModels.map(
-                                      normalizeDeviceModel
-                                    )
-                  )
-
+  setDeviceModels(deviceModels.map(normalizeDeviceModel))
   if (onClose) {onClose()}
 }

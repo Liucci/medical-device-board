@@ -16,6 +16,8 @@ import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
 import DeviceListModal from "./modals/DeviceListModal"
 import InviteCreateModal from "./modals/InviteCreateModal"
+import AccountInfoModal from "./modals/AccountInfoModal"
+
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 import {
@@ -63,6 +65,8 @@ type Props = {
   userId:string
   userName: string
   role: string
+  email: string
+  hospitalName: string
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
 setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
@@ -93,6 +97,8 @@ export default function ButtonPanel({
   userId,
   userName,
   role,
+  email,
+  hospitalName,
   infectionTypes,
   setInfectionTypes,
   setStockLastUpdated,
@@ -104,6 +110,7 @@ export default function ButtonPanel({
   const [openHistoryModal, setOpenHistoryModal] = useState(false)
   const [openDeviceListModal, setOpenDeviceListModal] = useState(false)
   const [openInviteModal,setOpenInviteModal] = useState(false)
+  const [openAccountInfoModal, setOpenAccountInfoModal] = useState(false)
 
   const OpenModal = () => {
     setOpenDeviceModal(true)
@@ -199,7 +206,10 @@ export default function ButtonPanel({
   </div>
 
     {/* 下部固定エリア */}
-    <div className="mt-auto pt-4 text-xs text-gray-600 border-t">
+    <div 
+        onClick={() => setOpenAccountInfoModal(true)}
+        className="mt-auto pt-4 text-xs text-gray-600 border-t"
+    >
       <div>{userName}</div>
       <div>{role}</div>
     </div>
@@ -268,6 +278,15 @@ export default function ButtonPanel({
         />
       }
 
+<AccountInfoModal
+    isOpen={openAccountInfoModal}
+    onClose={() => setOpenAccountInfoModal(false)}
+    userName={userName}
+    role={role}
+    hospitalName={hospitalName}
+    email={email}
+    userId={userId}
+/>
   </div>
   )
 }

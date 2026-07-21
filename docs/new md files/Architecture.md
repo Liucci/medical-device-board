@@ -234,8 +234,8 @@ UserDBType
 例
 
 ```ts
-CreateHospitalType
-UpdateHospitalType
+CreateHospitalFrontType
+UpdateHospitalFrontType
 DeleteHospitalType
 ```
 
@@ -274,7 +274,7 @@ Type
 ```ts
 normalizeHospital()
 normalizeDevice()
-normalizeUser()
+normalizeCurrentUser()
 ```
 
 ### Request Mapper
@@ -710,3 +710,269 @@ AIが本書だけを読めば、
 を迷わず実装できることを目的とする。
 
 本書は本プロジェクトにおける唯一の実装ガイドラインとする。
+
+Reference Implementation
+
+// Frontend標準型
+export type DeviceModelType = {
+    id: number
+    hospitalId: string
+    deviceTypeId: number
+    name: string
+}
+
+// Backend標準型
+export type DeviceModelDBType = {
+    id: number
+    hospital_id: string
+    device_type_id: number
+    name: string
+}
+
+// Create
+export type CreateDeviceModelFrontType = {
+    deviceTypeId: number
+    name: string
+}
+
+export type CreateDeviceModelBackType = {
+    device_type_id: number
+    name: string
+}
+
+// Update
+export type UpdateDeviceModelFrontType = {
+    id: number
+    name: string
+}
+
+export type UpdateDeviceModelBackType = {
+    id: number
+    name: string
+}
+
+// Delete
+export type DeleteDeviceModelsFrontType = {
+    ids: number[]
+}
+
+export type DeleteDeviceModelsBackType = {
+    ids: number[]
+}
+
+export const normalizeDeviceModel = (
+    d: DeviceModelDBType
+): DeviceModelType => ({
+    id: d.id,
+    hospitalId: d.hospital_id,
+    deviceTypeId: d.device_type_id,
+    name: d.name
+})
+
+export const toCreateDeviceModelRequest = (
+    deviceModel: CreateDeviceModelFrontType
+): CreateDeviceModelBackType => ({
+    device_type_id: deviceModel.deviceTypeId,
+    name: deviceModel.name
+})
+
+export const toUpdateDeviceModelRequest = (
+    deviceModel: UpdateDeviceModelFrontType
+): UpdateDeviceModelBackType => ({
+    id: deviceModel.id,
+    name: deviceModel.name
+})
+
+export const toDeleteDeviceModelsRequest = (
+    deviceModels: DeleteDeviceModelsFrontType
+): DeleteDeviceModelsBackType => ({
+    ids: deviceModels.ids
+})
+
+
+export async function getDeviceModelsFromApi()
+{
+    const response = await authFetch(
+        `${API_BASE_URL}/device-models`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    )
+
+    return await response.json()
+}
+
+
+export async function createDeviceModelTransaction({
+    deviceModel,
+    setDeviceModels,
+    onClose
+}: CreateDeviceModelTransactionParams)
+{
+    await authFetch(
+        `${API_BASE_URL}/device-models`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(
+                toCreateDeviceModelRequest(deviceModel)
+            )
+        }
+    )
+
+    const deviceModels = await getDeviceModelsFromApi()
+
+    setDeviceModels(
+        deviceModels.map(normalizeDeviceModel)
+    )
+
+    if (onClose) onClose()
+}
+
+
+  const handleAddModel = async() => {
+    if (!selectedTypeId) {alert("機種を選択してください")
+      return
+    }
+
+    if (!newModelName.trim()) return
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+
+      await createDeviceModelTransaction({
+                                          deviceModel: {
+                                                          deviceTypeId: selectedTypeId,
+                                                          name: newModelName.trim()
+                                                        },
+                                          setDeviceModels
+                                        })
+      }
+    })
+
+    setNewModelName("")
+  }
+
+  const handleDeleteModels = async () => {
+    if (checkedModelIds.length === 0) {return}
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+          await deleteDeviceModelsTransaction({
+                                                deviceModels: {
+                                                                ids: checkedModelIds
+                                                              },
+                                                setDeviceModels
+                                              })
+          }
+    })
+    setCheckedModelIds([])
+
+    }
+
+  const handleRenameModel = async(model: { id: number; name: string }) => {
+    const name = prompt("新しい型式名", model.name)
+    if (!name) {return}
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+
+        await updateDeviceModelTransaction({
+                                              deviceModel: {
+                                                            id: model.id,
+                                                            name
+                                                          },
+                                              setDeviceModels
+                                            }) 
+        }
+    })
+  }
+
+
+
+Schema Reference
+  class DeviceModelsResponse(BaseModel):
+    id: int
+    device_type_id: int
+    hospital_id: str
+    name: str
+
+
+    class AddDeviceModelRequest(BaseModel):
+    device_type_id: int
+    name: str
+
+class UpdateDeviceModelRequest(BaseModel):
+    id: int
+    name: str
+
+class DeleteDeviceModelsRequest(BaseModel):
+    ids: list[int]
+
+
+CRUD Reference
+def fetch_device_models(hospital_id: str):
+
+    response = (
+        supabase
+        .table("device_models")
+        .select("*")
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data
+
+def add_device_model(
+    device_model: AddDeviceModelRequest,
+    hospital_id: str
+):
+
+    response = (
+        supabase
+        .table("device_models")
+        .insert({
+            "hospital_id": hospital_id,
+            "device_type_id": device_model.device_type_id,
+            "name": device_model.name
+        })
+        .execute()
+    )
+
+    return response.data[0]
+
+def update_device_model(
+    device_model: UpdateDeviceModelRequest,
+    hospital_id: str
+):
+
+    response = (
+        supabase
+        .table("device_models")
+        .update({
+            "name": device_model.name
+        })
+        .eq("id", device_model.id)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data[0]
+def delete_device_models(
+    device_model: DeleteDeviceModelsRequest,
+    hospital_id: str
+):
+
+    (
+        supabase
+        .table("device_models")
+        .delete()
+        .in_("id", device_model.ids)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )

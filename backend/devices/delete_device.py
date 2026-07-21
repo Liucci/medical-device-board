@@ -1,4 +1,4 @@
-from common.supabase_client import supabase
+from common.supabase_admin_client import supabase
 from schemas.device_schemas import DeleteDeviceRequest
 
 
@@ -16,3 +16,5 @@ def delete_device(device: DeleteDeviceRequest,
         .eq("hospital_id",hospital_id)
         .execute()
     )
+
+#deleteでdeviceが消えるので、LastUpdate系はfront側で作成

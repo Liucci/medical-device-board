@@ -1,4 +1,4 @@
-from common.supabase_client import (supabase)
+from common.supabase_admin_client import (supabase)
 from schemas.device_schemas import (AddDeviceRequest)
 
 def add_device(
@@ -10,6 +10,7 @@ def add_device(
 
     print("add_device")
     #device_idはDBで自動付与なのでreturnでadd device後取得できるようにする
+    #DB側でcreate at,update atはnowで値が作成される
     response =(
               supabase
               .table("devices")

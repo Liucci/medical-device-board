@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { CreateHospitalType } from "../../../types/hospitalTypes"
+import { CreateHospitalFrontType } from "../../../types/hospitalTypes"
 import { Dispatch, SetStateAction } from "react"
 import { HospitalManagementType } from "../../../types/hospitalTypes"
 
@@ -11,7 +11,7 @@ import {
 import { authFetch } from "../../client/apiClient"
 
 type CreateHospitalTransactionParams = {
-                                        hospital: CreateHospitalType
+                                        hospital: CreateHospitalFrontType
                                         setHospitals: Dispatch<SetStateAction<HospitalManagementType[]>>
                                         onClose?: () => void
                                         }
@@ -26,7 +26,7 @@ export async function createHospitalTransaction({
   console.log("createHospitalTransaction")
 
   await authFetch(
-                    `${API_BASE_URL}/hospitals`,
+                    `${API_BASE_URL}/create-hospital`,
                     {
                     method: "POST",
                     headers: {

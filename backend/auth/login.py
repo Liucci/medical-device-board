@@ -1,7 +1,7 @@
 from supabase import Client
 
-from common.supabase_client import (
-    supabase
+from common.supabase_auth_client import (
+    supabase_auth
 )
 
 def login_user(
@@ -10,7 +10,7 @@ def login_user(
 ):
     print("login _user")
 
-    response = (supabase.auth.sign_in_with_password({
+    response = (supabase_auth.auth.sign_in_with_password({
                             "email": email,
                             "password": password
                         })
