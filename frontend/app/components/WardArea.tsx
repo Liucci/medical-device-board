@@ -114,26 +114,30 @@ return (
           : "-"}
         </span>
 
-<div
-    style={{
-        flex: 1,
-        marginLeft: "16px",
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-        fontSize: "13px",
-        color: "#92400e"
-    }}
->
-<div className={styles.announcementTicker}>
-    【お知らせ】📢 {
-        activeAnnouncements
-            .map(announcement => announcement.message)
-            .join("　◆　")
-    }
-</div>
+{
+    activeAnnouncements.length > 0 && (
+    <div
+        style={{
+            flex: 1,
+            marginLeft: "16px",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            fontSize: "13px",
+            color: "#92400e"
+        }}
+    >
+        <div className={styles.announcementTicker}>
+            【お知らせ】📢 {
+                activeAnnouncements
+                    .map(announcement => announcement.message)
+                    .join("　◆　")
+            }
+        </div>
 
-</div>
+    </div>
+    )}
+
       </div>
       <div
         style={{
