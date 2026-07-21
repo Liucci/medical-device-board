@@ -1237,7 +1237,7 @@ def update_maintenance_dates_route(
                                                 device=device,
                                                 hospital_id=current_user["hospital_id"],
                                                 user_id=current_user["id"],
-                                                action_type="maintenance_started_at_updated",
+                                                action_type="update",
                                                 message="保守開始日変更"
                                                 )
 

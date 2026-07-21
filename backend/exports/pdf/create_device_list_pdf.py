@@ -48,8 +48,13 @@ def create_device_list_pdf(
         if row["maintenance_name"]:
             maintenance_info = row["maintenance_name"]
         if row["due_at"]:
-            maintenance_info += f" {row['due_at']}"
-        
+            due_at = (
+                datetime
+                .fromisoformat(row["due_at"].replace("Z", "+00:00"))
+                .strftime("%Y/%m/%d")
+            )
+            maintenance_info += f" {due_at}"
+
         location_name = (
                           row["room_name"]
                           or
