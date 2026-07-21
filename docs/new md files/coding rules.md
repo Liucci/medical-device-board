@@ -479,3 +479,99 @@ UI orchestration
 になることを目的とする。
 
 本書は本プロジェクト唯一のコーディング規約とする。
+
+# Git Ignore Rules
+
+## 目的
+
+不要なキャッシュファイルや機密情報をGitHubへ登録しない。
+
+---
+
+## .gitignore の配置
+
+`.gitignore` はリポジトリルートに配置する。
+
+```
+medical-device-board/
+├── .gitignore
+├── backend/
+├── frontend/
+└── docs/
+```
+
+frontend内やbackend内には配置しない。
+
+---
+
+## 無視するファイル
+
+### Python
+
+```
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+```
+
+### Next.js
+
+```
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+```
+
+### IDE
+
+```
+.vscode/
+.idea/
+```
+
+### OS
+
+```
+.DS_Store
+Thumbs.db
+```
+
+### Environment
+
+```
+.env
+.env.*
+!.env.example
+```
+
+---
+
+## 注意事項
+
+.gitignore は「新しくGitへ追加するファイル」のみに有効。
+
+既にGit管理されているファイルは無視されない。
+
+---
+
+## 不要ファイルをGit管理から削除する方法
+
+```
+git rm -r --cached .
+git add .
+git commit -m "Update .gitignore"
+```
+
+これによりローカルファイルは残したまま、Git管理のみ解除できる。
+
+---
+
+## 開発ルール
+
+- pycをGitHubへ登録しない
+- __pycache__をGitHubへ登録しない
+- node_modulesをGitHubへ登録しない
+- .nextをGitHubへ登録しない

@@ -20,6 +20,8 @@
 │    │   ├─ add_devices.py
 │    │   ├─ delete_device.py
 │    │   ├─ fetch_devices.py
+│    │   ├─ fetch_stock_last_updated.py
+│    │   ├─ fetch_ward_last_updated.py
 │    │   ├─ finish_maintenance.py
 │    │   ├─ finish_standby.py
 │    │   ├─ move_device.py
@@ -171,14 +173,15 @@
 │    │   └─ fetch_init_dashboard.py
 │    └─ requirements.txt
 ├─ database/
-├─ frontend/
-│
-└─ app/
+└─ frontend/
+   │
+　 app/
    ├─ admin/
    │  └─ page.tsx
+   ├─client/
+   │  └─ apiClient.ts
    │
    ├─ api/
-   │  ├─client.ts
    │  ├─ admin/
    │  │   └─ create-hospital/
    │  │         └─ route.ts
@@ -310,6 +313,11 @@
    │
    ├─ dashboard/
    │  └─ page.tsx
+   ├─ drag/
+   │  ├─ autoScroll.ts
+   │  ├─ drop.ts
+   │  ├─ longPress.ts
+   │  └─ useDrag.ts
    ├─ first-admin-invite/
    │  └─ page.ts
    ├─ first-admin-register/
@@ -319,6 +327,18 @@
    │
    ├─ login/
    │  └─ page.tsx
+   ├─ realtime/
+   │  ├─ deviceModelsRealtime.ts
+   │  ├─ deviceRealtime.tsx
+   │  ├─ deviceTypesRealtime.ts
+   │  ├─ historiesRealtime.ts
+   │  ├─ infectionTypesRealtime.ts
+   │  ├─ maintenanceTasksRealtime.ts
+   │  ├─ maintenanceTypesRealtime.ts
+   │  ├─ roomInfectionsRealtime.ts
+   │  ├─ roomsRealtime.ts
+   │  ├─ stockAreasRealtime.ts
+   │  └─ wardsRealtime.ts
    │
    ├─ register/
    │  ├─ RegisterClient.ts

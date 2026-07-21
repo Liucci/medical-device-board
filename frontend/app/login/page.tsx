@@ -34,7 +34,7 @@ const handleLogin = async () => {
                                       })
 
             if (currentUser.role === "system_admin") {
-              router.push("/first-admin-invite")
+              router.push("/system-admin")
               return
             }
 
