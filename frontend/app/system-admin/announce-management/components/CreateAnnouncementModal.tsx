@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect,useState } from "react"
 
 import { CreateAnnouncementFrontType } from "../../../types/announcementType"
 import { HospitalManagementType } from "../../../types/hospitalTypes"
@@ -24,63 +24,85 @@ export default function CreateAnnouncementModal({
     setAnnouncements
 }: CreateAnnouncementModalProps)
 {
-    const [announcement, setAnnouncement] =
-        useState<CreateAnnouncementFrontType>({
-            hospitalIds: [],
-            message: "",
-            startAt: "",
-            endAt: ""
-        })
+    const initialAnnouncement: CreateAnnouncementFrontType = {
+        hospitalIds: [],
+        message: "",
+        startAt: "",
+        endAt: ""
+    }
 
+    const [announcement, setAnnouncement] =
+        useState<CreateAnnouncementFrontType>(initialAnnouncement)
+
+    useEffect(() => {
+        if (open) {
+            setAnnouncement(initialAnnouncement)
+        }
+    }, [open])
     if (!open) return null
 
-    return (
+  return (
 
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40">
+<div
+    className="fixed inset-0 flex items-center justify-center bg-black/40"
+    onClick={() => {
+        setAnnouncement(initialAnnouncement)
+        onClose()
+    }}
+>
 
-            <div className="w-[700px] rounded bg-white p-6">
+    <div
+        className="w-full max-w-3xl rounded-xl bg-white p-6"
+        onClick={(e) => e.stopPropagation()}
+    >
+        <div className="w-full max-w-3xl rounded-2xl bg-white p-6">
+            <h2 className="mb-6 text-xl font-bold">
+                お知らせ新規作成
+            </h2>
 
-                <h2 className="mb-6 text-xl font-bold">
-                    お知らせ新規作成
-                </h2>
+            <div className="mx-auto max-w-2xl">
 
-                <div className="mb-4">
+                <div className="mb-4 flex gap-4">
 
-                    <label>
-                        開始日時
-                    </label>
+                    <div className="flex-1">
 
-                    <input
-                        type="datetime-local"
-                        className="w-full rounded border p-2"
-                        value={announcement.startAt}
-                        onChange={(e) =>
-                            setAnnouncement({
-                                ...announcement,
-                                startAt: e.target.value
-                            })
-                        }
-                    />
+                        <label className="mb-1 block">
+                            開始日時
+                        </label>
 
-                </div>
+                        <input
+                            type="datetime-local"
+                            className="w-full rounded border p-2"
+                            value={announcement.startAt}
+                            onChange={(e) =>
+                                setAnnouncement({
+                                    ...announcement,
+                                    startAt: e.target.value
+                                })
+                            }
+                        />
 
-                <div className="mb-4">
+                    </div>
 
-                    <label>
-                        終了日時
-                    </label>
+                    <div className="flex-1">
 
-                    <input
-                        type="datetime-local"
-                        className="w-full rounded border p-2"
-                        value={announcement.endAt}
-                        onChange={(e) =>
-                            setAnnouncement({
-                                ...announcement,
-                                endAt: e.target.value
-                            })
-                        }
-                    />
+                        <label className="mb-1 block">
+                            終了日時
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            className="w-full rounded border p-2"
+                            value={announcement.endAt}
+                            onChange={(e) =>
+                                setAnnouncement({
+                                    ...announcement,
+                                    endAt: e.target.value
+                                })
+                            }
+                        />
+
+                    </div>
 
                 </div>
 
@@ -105,7 +127,7 @@ export default function CreateAnnouncementModal({
 
                 <div className="mb-6">
 
-                    <label>
+                    <label className="mb-1 block">
                         お知らせ内容
                     </label>
 
@@ -123,60 +145,66 @@ export default function CreateAnnouncementModal({
 
                 </div>
 
-                <div className="flex justify-end gap-2">
+            </div>
 
-                    <button
-                        className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                        onClick={onClose}
-                    >
-                        キャンセル
-                    </button>
+            <div className="flex justify-end gap-2">
 
-                    <button
-                        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                        onClick={async () => {
+                <button
+                    className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                    onClick={() => {
+                        setAnnouncement(initialAnnouncement)
+                        onClose()
+                    }}
+                >
+                    キャンセル
+                </button>
 
-                            if (announcement.hospitalIds.length === 0) {
-                                alert("配信対象を選択してください。")
-                                return
-                            }
+                <button
+                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    onClick={async () => {
 
-                            if (!announcement.startAt) {
-                                alert("開始日時を入力してください。")
-                                return
-                            }
+                        if (announcement.hospitalIds.length === 0) {
+                            alert("配信対象を選択してください。")
+                            return
+                        }
 
-                            if (!announcement.endAt) {
-                                alert("終了日時を入力してください。")
-                                return
-                            }
+                        if (!announcement.startAt) {
+                            alert("開始日時を入力してください。")
+                            return
+                        }
 
-                            if (new Date(announcement.startAt) >= new Date(announcement.endAt)) {
-                                alert("開始日時は終了日時より前にしてください。")
-                                return
-                            }
+                        if (!announcement.endAt) {
+                            alert("終了日時を入力してください。")
+                            return
+                        }
 
-                            if (!announcement.message.trim()) {
-                                alert("お知らせ内容を入力してください。")
-                                return
-                            }
+                        if (new Date(announcement.startAt) >= new Date(announcement.endAt)) {
+                            alert("開始日時は終了日時より前にしてください。")
+                            return
+                        }
 
-                            await createAnnouncementTransaction({
-                                announcement,
-                                setAnnouncements,
-                                onClose
-                            })
+                        if (!announcement.message.trim()) {
+                            alert("お知らせ内容を入力してください。")
+                            return
+                        }
 
-                        }}                    
-                        >
-                        登録
-                    </button>
+                        await createAnnouncementTransaction({
+                            announcement,
+                            setAnnouncements,
+                            onClose
+                        })
 
-                </div>
+                        setAnnouncement(initialAnnouncement)
+
+                    }}
+                >
+                    登録
+                </button>
 
             </div>
 
         </div>
 
-    )
-}
+    </div>
+</div>
+    )}

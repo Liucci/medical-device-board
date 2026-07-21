@@ -29,91 +29,107 @@ export default function UpdateAnnouncementModal({
     setAnnouncements
 }: UpdateAnnouncementModalProps)
 {
-    const [editAnnouncement, setEditAnnouncement] =
-        useState<UpdateAnnouncementFrontType>({
-            id: 0,
-            hospitalIds: [],
-            message: "",
-            startAt: "",
-            endAt: "",
-            isActive: true
-        })
+    const initialEditAnnouncement: UpdateAnnouncementFrontType = {
+                                    id: 0,
+                                    hospitalIds: [],
+                                    message: "",
+                                    startAt: "",
+                                    endAt: "",
+                                    isActive: true
+    }
+    const [editAnnouncement, setEditAnnouncement] =useState<UpdateAnnouncementFrontType>(initialEditAnnouncement)
 
-const toDateTimeLocal = (value: string) => {
-    const date = new Date(value)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, "0")
-    const day = String(date.getDate()).padStart(2, "0")
-    const hour = String(date.getHours()).padStart(2, "0")
-    const minute = String(date.getMinutes()).padStart(2, "0")
-    return `${year}-${month}-${day}T${hour}:${minute}`
+    const toDateTimeLocal = (value: string) => {
+            const date = new Date(value)
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, "0")
+            const day = String(date.getDate()).padStart(2, "0")
+            const hour = String(date.getHours()).padStart(2, "0")
+            const minute = String(date.getMinutes()).padStart(2, "0")
+            return `${year}-${month}-${day}T${hour}:${minute}`
 }
 
 
-    useEffect(() => {
+useEffect(() => {
 
-        if (!announcement) return
+    if (!open || !announcement) {
+        return
+    }
 
-        setEditAnnouncement({
-            id: announcement.id,
-            hospitalIds: announcement.hospitalIds,
-            message: announcement.message,
-            startAt: toDateTimeLocal(announcement.startAt),
-            endAt: toDateTimeLocal(announcement.endAt),
-            isActive: announcement.isActive
-        })
+    setEditAnnouncement({
+        id: announcement.id,
+        hospitalIds: [...announcement.hospitalIds],
+        message: announcement.message,
+        startAt: toDateTimeLocal(announcement.startAt),
+        endAt: toDateTimeLocal(announcement.endAt),
+        isActive: announcement.isActive
+    })
 
-    }, [announcement])
-
+}, [open, announcement])
     if (!open) return null
 
-    return (
+return (
 
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40">
+    <div
+        className="fixed inset-0 flex items-center justify-center bg-black/40"
+    onClick={() => {
+        setEditAnnouncement(initialEditAnnouncement)
+        onClose()
+    }}
+    >
 
-            <div className="w-[700px] rounded bg-white p-6">
+        <div
+            className="w-full max-w-3xl rounded-xl bg-white p-6"
+            onClick={(e) => e.stopPropagation()}
+        >
 
-                <h2 className="mb-6 text-xl font-bold">
-                    お知らせ編集
-                </h2>
+            <h2 className="mb-6 text-xl font-bold">
+                お知らせ編集
+            </h2>
 
-                <div className="mb-4">
+            <div className="mx-auto max-w-2xl">
 
-                    <label>
-                        開始日時
-                    </label>
+                <div className="mb-4 flex gap-4">
 
-                    <input
-                        type="datetime-local"
-                        className="w-full rounded border p-2"
-                        value={editAnnouncement.startAt}
-                        onChange={(e) =>
-                            setEditAnnouncement({
-                                ...editAnnouncement,
-                                startAt: e.target.value
-                            })
-                        }
-                    />
+                    <div className="flex-1">
 
-                </div>
+                        <label className="mb-1 block">
+                            開始日時
+                        </label>
 
-                <div className="mb-4">
+                        <input
+                            type="datetime-local"
+                            className="w-full rounded border p-2"
+                            value={editAnnouncement.startAt}
+                            onChange={(e) =>
+                                setEditAnnouncement({
+                                    ...editAnnouncement,
+                                    startAt: e.target.value
+                                })
+                            }
+                        />
 
-                    <label>
-                        終了日時
-                    </label>
+                    </div>
 
-                    <input
-                        type="datetime-local"
-                        className="w-full rounded border p-2"
-                        value={editAnnouncement.endAt}
-                        onChange={(e) =>
-                            setEditAnnouncement({
-                                ...editAnnouncement,
-                                endAt: e.target.value
-                            })
-                        }
-                    />
+                    <div className="flex-1">
+
+                        <label className="mb-1 block">
+                            終了日時
+                        </label>
+
+                        <input
+                            type="datetime-local"
+                            className="w-full rounded border p-2"
+                            value={editAnnouncement.endAt}
+                            onChange={(e) =>
+                                setEditAnnouncement({
+                                    ...editAnnouncement,
+                                    endAt: e.target.value
+                                })
+                            }
+                        />
+
+                    </div>
 
                 </div>
 
@@ -138,7 +154,7 @@ const toDateTimeLocal = (value: string) => {
 
                 <div className="mb-4">
 
-                    <label>
+                    <label className="mb-1 block">
                         お知らせ内容
                     </label>
 
@@ -175,36 +191,40 @@ const toDateTimeLocal = (value: string) => {
 
                 </div>
 
-                <div className="flex justify-end gap-2">
+            </div>
 
-                    <button
-                        onClick={onClose}
-                        className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                    >
-                        キャンセル
-                    </button>
+            <div className="flex justify-end gap-2">
 
-                    <button
-                        className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                        onClick={async () => {
+                <button
+                    className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                    onClick={() => {
+                        setEditAnnouncement(initialEditAnnouncement)
+                        onClose()
+                    }}
+                >
+                    キャンセル
+                </button>
 
-                            await updateAnnouncementTransaction({
-                                announcement: editAnnouncement,
-                                setAnnouncements
-                            })
+                <button
+                    className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    onClick={async () => {
 
-                            onClose()
+                        await updateAnnouncementTransaction({
+                            announcement: editAnnouncement,
+                            setAnnouncements
+                        })
+                        setEditAnnouncement(initialEditAnnouncement)
+                        onClose()
 
-                        }}
-                    >
-                        保存
-                    </button>
-
-                </div>
+                    }}
+                >
+                    保存
+                </button>
 
             </div>
 
         </div>
 
-    )
-}
+    </div>
+
+)}

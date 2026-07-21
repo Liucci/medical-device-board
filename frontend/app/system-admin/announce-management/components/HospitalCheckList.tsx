@@ -76,7 +76,7 @@ export default function HospitalCheckList({
                 {
                     hospitals.map((hospital) => (
 
-                        <label
+                        <div
                             key={hospital.id}
                             className="flex items-center gap-2 py-1"
                         >
@@ -87,10 +87,11 @@ export default function HospitalCheckList({
                                 onChange={() => toggleHospital(hospital.id)}
                             />
 
-                            {hospital.hospitalName}
+                            <span>
+                                {hospital.hospitalName}
+                            </span>
 
-                        </label>
-
+                        </div>
                     ))
                 }
 
