@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 import { createAccountEditCodeTransaction } from "../../api/transactions/accountEdits/createAccountEditTransaction"
+import CommonModal from "../common/CommonModal"
 
 
 type Props = {
@@ -26,6 +27,10 @@ export default function AccountInfoModal({
 }: Props) {
 
   const [loading, setLoading] = useState(false)
+
+  const closeModal = () => {
+    onClose()
+  }
 
   useEffect(() => {
 
@@ -61,34 +66,15 @@ const handleEdit = async () => {
   }
 
 }
-  return createPortal(
+return (
 
-    <div
-      className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-center
-        justify-center
-        bg-black/30
-        p-4
-      "
+    <CommonModal
+        open={isOpen}
+        onClose={closeModal}
+        maxWidth="max-w-md"
     >
 
-      <div
-        className="
-          relative
-          flex
-          max-h-[70vh]
-          w-full
-          max-w-md
-          flex-col
-          rounded-xl
-          bg-white
-          shadow-xl
-        "
-      >
+
 
         {/* Header */}
         <div
@@ -102,7 +88,7 @@ const handleEdit = async () => {
         >
 
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               absolute
               left-4
@@ -284,7 +270,7 @@ const handleEdit = async () => {
         >
 
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               rounded-lg
               bg-gray-300
@@ -313,11 +299,9 @@ const handleEdit = async () => {
           </button>
 
         </div>
+    
+    </CommonModal>
 
-      </div>
-
-    </div>,
-    document.body
 
   )
 
