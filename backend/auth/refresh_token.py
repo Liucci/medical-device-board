@@ -5,7 +5,9 @@ def refresh_token(refresh_token: str):
     #print("received refresh token", refresh_token[:12])
 
     try:
+        print("before refresh", supabase_auth.postgrest.headers)
         response = supabase_auth.auth.refresh_session(refresh_token)
+        print("after refresh", supabase_auth.postgrest.headers)
         print("refresh_session success")
         return response
 
