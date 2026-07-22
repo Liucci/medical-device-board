@@ -10,7 +10,7 @@ import { WardType } from "../../types/wardTypes"
 import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
-
+import CommonModal from "../common/CommonModal"
 import { createPortal } from "react-dom"
 import {createDeviceTransaction} from "../../api/transactions/devices/createDeviceTransaction"
 import { executeWithLoading } from "../common/executeWithLoading"
@@ -80,10 +80,8 @@ export default function DeviceModal({
     }
 
     await executeWithErrorAndLoading({
-        setLoading,
+                                    setLoading,
         action: async () => {
-
-
             await createDeviceTransaction(
                                             {
                                               params: {
@@ -115,147 +113,120 @@ export default function DeviceModal({
       //setWardLastUpdated(await fetchWardLastUpdated())
   }
 
-return createPortal(
-   <>
-  <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-    
-    <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
-      <h2 className="text-2xl font-bold mb-6 text-center">機器登録</h2>
+  return (
+    <>
+          <CommonModal
+                      open={true}
+                      onClose={onClose}
+                      maxWidth="max-w-md"
+                  >
 
-      <div className="space-y-4">
-        <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-          value={selectedTypeID}
-          onChange={(e) => setSelectedTypeID(Number(e.target.value))}
-        >
-          <option value="">機種選択</option>
-          {deviceTypes.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
+            <div className="p-8">
 
-        <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-          value={selectedModelID}
-          onChange={(e) => setSelectedModelID(Number(e.target.value))}
-          disabled={modelsForType.length === 0}
-        >
-          <option value="">型式選択</option>
-          {modelsForType.map(m => (
-            <option key={m.id} value={m.id}>{m.name}</option>
-          ))}
-        </select>
+                <h2 className="mb-6 text-center text-2xl font-bold">
+                    機器登録
+                </h2>
 
-        {/* stock areaを選択し初期位置を指定する */}
-        <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-          value={selectedStockAreaID}
-          onChange={(e) =>
-            setSelectedStockAreaID(Number(e.target.value))
-          }
-        >
-          <option value="">
-            保管場所選択
-          </option>
-
-          {stockAreas.map(area => (
-            <option
-              key={area.id}
-              value={area.id}
-            >
-              {area.name}
-            </option>
-          ))}
-        </select>
-        {/* 登録台数を指定する */}
-        <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-        >
-          {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-            <option
-              key={n}
-              value={n}
-            >
-              {n}台
-            </option>
-          ))}
-        </select>
-
-
-
-
-
-        <select
-          className="border border-gray-300 rounded px-3 py-2 w-full"
-          value={selectedAssetType}
-          onChange={(e) =>
-            setSelectedAssetType(e.target.value as typeof AssetTypes[number])
-          }
-        >
-          {AssetTypes.map(a => (
-            <option key={a} value={a}>{a}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex justify-end gap-4 mt-6">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
-        >
-          キャンセル
-        </button>
-
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-400"        >
-         {loading ? "登録中..." : "登録"}
-        </button>
-
-      </div>
-          {(selectedAssetType === "レンタル" ||
-            selectedAssetType === "代替機") && (
-
-            <div className="space-y-3 border-t pt-4 mt-4">
-
-              <div>
-                <div className="text-sm mb-1">開始日</div>
-
-                <input
-                  type="date"
-                  value={rentalStartDate}
-                  onChange={(e) => setRentalStartDate(e.target.value)}
+                <div className="space-y-4">
+                      
+                <select
                   className="border border-gray-300 rounded px-3 py-2 w-full"
-                />
-              </div>
+                  value={selectedTypeID}
+                  onChange={(e) => setSelectedTypeID(Number(e.target.value))}
+                >
+                  <option value="">機種選択</option>
+                  {deviceTypes.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
 
-              <div>
-                <div className="text-sm text-gray-500 mb-1">
-                  返却日（未設定可）
+                <select
+                  className="border border-gray-300 rounded px-3 py-2 w-full"
+                  value={selectedModelID}
+                  onChange={(e) => setSelectedModelID(Number(e.target.value))}
+                  disabled={modelsForType.length === 0}
+                >
+                  <option value="">型式選択</option>
+                  {modelsForType.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+
+                {/* stock areaを選択し初期位置を指定する */}
+                <select
+                  className="border border-gray-300 rounded px-3 py-2 w-full"
+                  value={selectedStockAreaID}
+                  onChange={(e) =>
+                    setSelectedStockAreaID(Number(e.target.value))
+                  }
+                >
+                  <option value="">
+                    保管場所選択
+                  </option>
+
+                  {stockAreas.map(area => (
+                    <option
+                      key={area.id}
+                      value={area.id}
+                    >
+                      {area.name}
+                    </option>
+                  ))}
+                </select>
+                {/* 登録台数を指定する */}
+                  <select
+                    className="border border-gray-300 rounded px-3 py-2 w-full"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                  >
+                    {[1,2,3,4,5,6,7,8,9,10].map((n) => (
+                      <option
+                        key={n}
+                        value={n}
+                      >
+                        {n}台
+                      </option>
+                    ))}
+                  </select>
+
+                    <select
+                      className="border border-gray-300 rounded px-3 py-2 w-full"
+                      value={selectedAssetType}
+                      onChange={(e) =>
+                        setSelectedAssetType(e.target.value as typeof AssetTypes[number])
+                      }
+                    >
+                      {AssetTypes.map(a => (
+                        <option key={a} value={a}>{a}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                <div className="mt-6 flex justify-end gap-4">
+
+                    <button
+                        onClick={onClose}
+                        className="rounded-lg bg-gray-300 px-4 py-2 hover:bg-gray-400"
+                    >
+                        キャンセル
+                    </button>
+
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400"
+                    >
+                        {loading ? "登録中..." : "登録"}
+                    </button>
+
                 </div>
-                <input
-                  type="date"
-                  value={rentalEndDate}
-                  onChange={(e) => setRentalEndDate(e.target.value)}
-                  className="border border-gray-300 rounded px-3 py-2 w-full"
-                />
-    </div>
 
-  </div>
-)}
+            </div>
 
+        </CommonModal>
 
+        <LoadingOverlay loading={loading} />
+          </>
 
-
-    </div>
-
-  </div>
-    <LoadingOverlay loading={loading} />
-  </>
-  ,
-  document.body
   
 )}

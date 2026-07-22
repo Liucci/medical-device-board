@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import { useRouter } from "next/navigation"
 import { AnnouncementFrontType } from "../../types/announcementType"
 
 import { fetchAnnouncementsTransaction } from "@/app/api/transactions/announcements/fetchAnnouncementsTransaction"
@@ -24,7 +24,7 @@ export default function AnnouncementManagementPage()
     const [startAt, setStartAt] = useState("")
     const [endAt, setEndAt] = useState("")
     const [hospitals, setHospitals] = useState<HospitalManagementType[]>([])
-    
+    const router = useRouter()
     const filteredAnnouncements = announcements.filter((announcement) => {
 
     if (
@@ -84,9 +84,27 @@ useEffect(() => {
     return (
         <div className="p-6">
 
-            <h1 className="mb-6 text-2xl font-bold">
-                お知らせ管理
-            </h1>
+            <div className="mb-6 flex items-center gap-3">
+
+                <button
+                    onClick={() => router.push("/system-admin")}
+                    className="
+                        rounded
+                        bg-gray-500
+                        px-3
+                        py-2
+                        text-white
+                        hover:bg-gray-600
+                    "
+                >
+                    ← 戻る
+                </button>
+
+                <h1 className="text-2xl font-bold">
+                    お知らせ管理
+                </h1>
+
+            </div>            
             <AnnouncementSearch
                 keyword={keyword}
                 setKeyword={setKeyword}

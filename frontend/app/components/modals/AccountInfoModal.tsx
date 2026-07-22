@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 import { createAccountEditCodeTransaction } from "../../api/transactions/accountEdits/createAccountEditTransaction"
+import CommonModal from "../common/CommonModal"
 
 
 type Props = {
@@ -16,21 +17,21 @@ type Props = {
 }
 
 export default function AccountInfoModal({
-  isOpen,
-  onClose,
-  userName,
-  userId,
-  role,
-  hospitalName,
-  email
-}: Props) {
+                                        isOpen,
+                                        onClose,
+                                        userName,
+                                        userId,
+                                        role,
+                                        hospitalName,
+                                        email
+                                      }: Props) {
 
   const [loading, setLoading] = useState(false)
 
+  const closeModal = () => {onClose()}
+
   useEffect(() => {
-
     if (!isOpen) return
-
   }, [isOpen])
 
   if (!isOpen) return null
@@ -61,65 +62,14 @@ const handleEdit = async () => {
   }
 
 }
-  return createPortal(
+return (
 
-    <div
-      className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-center
-        justify-center
-        bg-black/30
-        p-4
-      "
+    <CommonModal
+        open={isOpen}
+        onClose={closeModal}
+        title="アカウント情報"
+        maxWidth="max-w-md"
     >
-
-      <div
-        className="
-          relative
-          flex
-          max-h-[70vh]
-          w-full
-          max-w-md
-          flex-col
-          rounded-xl
-          bg-white
-          shadow-xl
-        "
-      >
-
-        {/* Header */}
-        <div
-          className="
-            relative
-            border-b
-            px-8
-            pt-8
-            pb-6
-          "
-        >
-
-          <button
-            onClick={onClose}
-            className="
-              absolute
-              left-4
-              top-4
-              text-2xl
-              text-gray-500
-              hover:text-black
-            "
-          >
-            ×
-          </button>
-
-          <h2 className="text-center text-2xl font-bold">
-            アカウント情報
-          </h2>
-
-        </div>
 
         {/* Body */}
         <div
@@ -276,15 +226,14 @@ const handleEdit = async () => {
             justify-end
             gap-4
             rounded-b-xl
-            border-t
+            
             bg-white
             px-8
-            py-6
           "
         >
 
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               rounded-lg
               bg-gray-300
@@ -313,11 +262,9 @@ const handleEdit = async () => {
           </button>
 
         </div>
+    
+    </CommonModal>
 
-      </div>
-
-    </div>,
-    document.body
 
   )
 

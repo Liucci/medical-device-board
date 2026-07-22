@@ -19,7 +19,7 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
-
+import CommonModal from "../common/CommonModal"
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
 import DeviceTypeSettingsModal from "./DeviceTypeSettingsModal"
@@ -115,20 +115,16 @@ export default function SettingsModal({
     }
   ]
 
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 z-[9999]">
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-8 shadow-xl">
-        <div className="sticky top-0 z-10 bg-white pb-2">
-          <button onClick={onClose}>
-            閉じる
-          </button>
-        </div>
-
+  return (
+    <>
+      <CommonModal
+          open={true}
+          onClose={onClose}
+          title="設定"
+          maxWidth="max-w-[500px]"
+      > 
         {mode === "menu" && (
           <>
-            <h2 className="mb-6 text-center text-2xl font-bold">
-              設定
-            </h2>
 
             <div className="grid grid-cols-2 gap-3">
               {menuButtons.map(({ label, mode, icon: Icon }) => (
@@ -155,9 +151,11 @@ export default function SettingsModal({
 
         {mode === "stock" && (
           <>
-            <button onClick={() => setMode("menu")} className="mb-4">
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
             <StockAreaSettingsModal
               stockAreas={stockAreas}
               setStockAreas={setStockAreas}
@@ -167,9 +165,12 @@ export default function SettingsModal({
 
         {mode === "ward" && (
           <>
-            <button onClick={() => setMode("menu")} className="mb-4">
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
+
             <WardAreaSettingsModal
               wards={wards}
               setWards={setWards}
@@ -181,9 +182,11 @@ export default function SettingsModal({
 
         {mode === "deviceType" && (
           <>
-            <button onClick={() => setMode("menu")} className="mb-4">
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
             <DeviceTypeSettingsModal
               deviceTypes={deviceTypes}
               setDeviceTypes={setDeviceTypes}
@@ -195,9 +198,11 @@ export default function SettingsModal({
 
         {mode === "maintenance" && (
           <>
-            <button onClick={() => setMode("menu")} className="mb-4">
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
             <MaintenanceSettingsModal
               maintenanceTypes={maintenanceTypes}
               setMaintenanceTypes={setMaintenanceTypes}
@@ -209,12 +214,11 @@ export default function SettingsModal({
 
         {mode === "infection" && (
           <>
-            <button
-              onClick={() => setMode("menu")}
-              className="mb-4"
-            >
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
 
             <InfectionSettingModal
               infectionTypes={infectionTypes}
@@ -225,12 +229,11 @@ export default function SettingsModal({
 
         {mode === "wardOrder" && (
           <>
-            <button
-              onClick={() => setMode("menu")}
-              className="mb-4"
-            >
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
 
             <WardOrderModal
               isOpen={true}
@@ -243,12 +246,11 @@ export default function SettingsModal({
 
         {mode === "stockAreaOrder" && (
           <>
-            <button
-              onClick={() => setMode("menu")}
-              className="mb-4"
-            >
-              戻る
+          <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+              ← 戻る
             </button>
+          </div>
 
             <StockAreaOrderModal
               isOpen={true}
@@ -260,8 +262,8 @@ export default function SettingsModal({
         )}
 
 
-      </div>
-    </div>,
-    document.body
+  </CommonModal>
+
+  </>
   )
 }

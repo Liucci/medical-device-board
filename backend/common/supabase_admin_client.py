@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from supabase import (create_client,ClientOptions)
 
+print("supabase_admin_client")
 
 #supabase service keyで認証させるために必要
 load_dotenv()
@@ -16,8 +17,8 @@ options = ClientOptions(
 
 supabase = create_client(url,key,options)
 CLIENT_NAME = "[admin_client]"
-print("supabase_admin_client")
-print("URL =", url)
-print("SERVICE KEY PREFIX =", key[:20], "...", key[-20:])
-print("admin client =", id(supabase))
-print("admin headers =", supabase.postgrest.headers)
+
+# print("URL =", url)
+# print("SERVICE KEY PREFIX =", key[:20], "...", key[-20:])
+# print("admin client =", id(supabase))
+# print("admin headers =", supabase.postgrest.headers)

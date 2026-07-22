@@ -7,9 +7,10 @@ from common.supabase_admin_client import (
 def fetch_current_user(auth_user_id: str):
     print("fetch_current_user")
 
-    print("headers =", supabase.postgrest.headers)
-    print(supabase.postgrest.session.headers)
-    print("client id =", id(supabase))
+    # print("headers =", supabase.postgrest.headers)
+    # print(supabase.postgrest.session.headers)
+    # print("client id =", id(supabase))
+    
     response = (
                 supabase
                         .table("users")

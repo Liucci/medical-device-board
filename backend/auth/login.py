@@ -15,13 +15,13 @@ def login_user(
                             "password": password
                         })
         )
-    print("login情報")
+    print("login情報:")
     for a in response:
         print(f"・{a}") 
 
 
 
-    print("login refresh token",response.session.refresh_token[:12])
-    print("auth headers =", supabase_auth.postgrest.headers)
-    print("auth client id =", id(supabase_auth))    
+    #print("login refresh token",response.session.refresh_token[:12])
+    #print("auth headers =", supabase_auth.postgrest.headers)
+    #print("auth client id =", id(supabase_auth))    
     return response

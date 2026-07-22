@@ -11,34 +11,34 @@ import HospitalCheckList from "./HospitalCheckList"
 
 
 type CreateAnnouncementModalProps = {
-    open: boolean
-    onClose: () => void
-    hospitals: HospitalManagementType[]
-    setAnnouncements: any
+                                    open: boolean
+                                    onClose: () => void
+                                    hospitals: HospitalManagementType[]
+                                    setAnnouncements: any
 }
 
 export default function CreateAnnouncementModal({
-    open,
-    onClose,
-    hospitals,
-    setAnnouncements
-}: CreateAnnouncementModalProps)
+                                                    open,
+                                                    onClose,
+                                                    hospitals,
+                                                    setAnnouncements
+                                                }: CreateAnnouncementModalProps)
 {
     const initialAnnouncement: CreateAnnouncementFrontType = {
-        hospitalIds: [],
-        message: "",
-        startAt: "",
-        endAt: ""
+                                                            hospitalIds: [],
+                                                            message: "",
+                                                            startAt: "",
+                                                            endAt: ""
     }
 
-    const [announcement, setAnnouncement] =
-        useState<CreateAnnouncementFrontType>(initialAnnouncement)
+    const [announcement, setAnnouncement] =useState<CreateAnnouncementFrontType>(initialAnnouncement)
 
     useEffect(() => {
         if (open) {
             setAnnouncement(initialAnnouncement)
         }
     }, [open])
+
     if (!open) return null
 
   return (
