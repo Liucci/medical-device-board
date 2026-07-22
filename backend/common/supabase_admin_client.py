@@ -9,12 +9,15 @@ url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 options = ClientOptions(
-    auto_refresh_token=False
+    auto_refresh_token=False,
+    persist_session=False
 )
 
 
 supabase = create_client(url,key,options)
 CLIENT_NAME = "[admin_client]"
-# print("supabase_admin_client")
-# print("URL =", url)
-# print("KEY PREFIX =", key[:20], "...", key[-20:])
+print("supabase_admin_client")
+print("URL =", url)
+print("SERVICE KEY PREFIX =", key[:20], "...", key[-20:])
+print("admin client =", id(supabase))
+print("admin headers =", supabase.postgrest.headers)

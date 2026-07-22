@@ -12,7 +12,8 @@ key = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
 
 
 options = ClientOptions(
-    auto_refresh_token=False
+    auto_refresh_token=False,
+    persist_session=False
 )
 
 supabase_auth = create_client(
@@ -20,6 +21,8 @@ supabase_auth = create_client(
     key,
     options
 )
-# print("supabase_auth_client")
-# print("URL =", url)
-# print("KEY PREFIX =", key[:20], "...", key[-20:])
+print("supabase_auth_client")
+print("URL =", url)
+print("ANON KEY PREFIX =", key[:20], "...", key[-20:])
+print("auth client =", id(supabase_auth))
+print("auth headers =", supabase_auth.postgrest.headers)
