@@ -6,11 +6,9 @@ import { HospitalManagementType } from "../../../types/hospitalTypes"
 import { createHospitalTransaction }from "../../../api/transactions/hospitals/createHospitalTransaction"
 
 type Props = {
-  isOpen: boolean
-  onClose: () => void
-  setHospitals: React.Dispatch<
-    React.SetStateAction<HospitalManagementType[]>
-  >
+              isOpen: boolean
+              onClose: () => void
+              setHospitals: React.Dispatch<React.SetStateAction<HospitalManagementType[]>>
 }
 export default function CreateHospitalModal({
                                               isOpen,
@@ -22,6 +20,19 @@ export default function CreateHospitalModal({
   const [pricePlan, setPricePlan] = useState("Basic")
   const [note, setNote] = useState("")
   const [loading, setLoading] = useState(false)
+  
+  const initialHospital = {
+      hospitalName: "",
+      pricePlan: "standard",
+      note: ""
+  }
+
+  const closeModal = () => {
+      setHospitalName(initialHospital.hospitalName)
+      setPricePlan(initialHospital.pricePlan)
+      setNote(initialHospital.note)
+      onClose()
+  }
 
   const handleSubmit = async () => {
 
@@ -41,7 +52,7 @@ export default function CreateHospitalModal({
           note
         },
         setHospitals,
-        onClose
+        onClose:closeModal
       })
 
     } finally {
@@ -57,13 +68,19 @@ export default function CreateHospitalModal({
 
   if (!isOpen) return null
   return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+    <div 
+      className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
+      onClick={closeModal}
+    >
 
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8 relative">
+      <div 
+        className="bg-white rounded-xl shadow-xl w-full max-w-md p-8 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* ×ボタン */}
         <button
-        onClick={onClose}
+        onClick={closeModal}
           className="
             absolute
             left-4
@@ -156,7 +173,7 @@ export default function CreateHospitalModal({
         <div className="flex justify-end gap-4 mt-6">
 
           <button
-          onClick={onClose}
+          onClick={closeModal}
             className="
               px-4
               py-2

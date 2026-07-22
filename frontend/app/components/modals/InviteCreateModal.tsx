@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { createPortal } from "react-dom"
 import { createInviteCodeTransaction }from "../../api/transactions/invites/createInviteCodeTransaction"
-
+import CommonModal from "../common/CommonModal"
 import {executeWithLoading} from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
@@ -41,33 +41,20 @@ export default function InviteCreateModal({
     })
   }
 
-return createPortal(
+return (
   <>
-  <div
-    className="
-      fixed inset-0
-      bg-black/40
-      flex
-      items-center
-      justify-center
-      z-[9999]
-    "
-  >
 
-    <div
-      className="
-        bg-white
-        rounded-xl
-        p-6
-        w-[400px]
-        shadow-xl
-      "
-    >
+
+        <CommonModal
+            open={true}
+            onClose={onClose}
+            maxWidth="max-w-[400px]"
+        >
 
       {
         isSuccess ? (
 
-          <div className="text-center">
+          <div className="p-6 text-center">
 
             <div
               className="
@@ -143,7 +130,8 @@ return createPortal(
 
         ) : (
 
-          <>
+          <div className="p-6">
+
 
             <h2
               className="
@@ -254,20 +242,18 @@ return createPortal(
 
             </div>
 
-          </>
+          </div>
 
         )
       }
 
-    </div>
 
-  </div>
+
+    </CommonModal>
       <LoadingOverlay loading={loading} /> 
 </>
 
   
-  ,
 
-  document.body
 )
 }

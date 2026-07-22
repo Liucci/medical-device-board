@@ -7,20 +7,19 @@ import { HospitalManagementType } from "../../../types/hospitalTypes"
 import { updateHospitalTransaction } from "../../../api/transactions/hospitals/updateHospitalTransaction"
 
 type Props = {
-  isOpen: boolean
-  onClose: () => void
-  hospital: HospitalManagementType | null
-  setHospitals: React.Dispatch<
-    React.SetStateAction<HospitalManagementType[]>
-  >
+              isOpen: boolean
+              onClose: () => void
+              hospital: HospitalManagementType | null
+              setHospitals: React.Dispatch<React.SetStateAction<HospitalManagementType[]>>
 }
 
 export default function EditHospitalModal({
-  isOpen,
-  onClose,
-  hospital,
-  setHospitals
-}: Props) {
+                                          isOpen,
+                                          onClose,
+                                          hospital,
+                                          setHospitals
+                                          }: Props)
+{
 
   const [hospitalName, setHospitalName] = useState("")
   const [pricePlan, setPricePlan] = useState("standard")
@@ -28,7 +27,19 @@ export default function EditHospitalModal({
   const [note, setNote] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const initialize = () => {
+      if (!hospital) return
 
+      setHospitalName(hospital.hospitalName)
+      setPricePlan(hospital.pricePlan ?? "standard")
+      setIsActive(hospital.isActive)
+      setNote(hospital.note ?? "")
+  }
+
+  const closeModal = () => {
+      initialize()
+      onClose()
+  }
   
 
   useEffect(() => {
@@ -79,28 +90,30 @@ export default function EditHospitalModal({
 
           <div
             className="
-              fixed
-              inset-0
-              flex
-              items-center
-              justify-center
-              bg-black/30
-              z-50
-              p-4
-            "
+                        fixed
+                        inset-0
+                        flex
+                        items-center
+                        justify-center
+                        bg-black/30
+                        z-50
+                        p-4
+                      "
+            onClick={closeModal}
           >
         <div
-          className="
-            bg-white
-            rounded-xl
-            shadow-xl
-            w-full
-            max-w-md
-            max-h-[70vh]
-            flex
-            flex-col
-            relative
-          "
+              className="
+                bg-white
+                rounded-xl
+                shadow-xl
+                w-full
+                max-w-md
+                max-h-[70vh]
+                flex
+                flex-col
+                relative
+              "
+        onClick={(e) => e.stopPropagation()}      
         >       
 
           {/* × */}
@@ -114,7 +127,7 @@ export default function EditHospitalModal({
           "
         >
         <button
-          onClick={onClose}
+          onClick={closeModal}
           className="
             absolute
             left-4
@@ -384,7 +397,7 @@ export default function EditHospitalModal({
             "
           >
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               px-4
               py-2

@@ -28,6 +28,17 @@ export default function EditUserModal({
   const [role, setRole] = useState<UserRole>("normal")
   const [isActive, setIsActive] = useState(true)
   const [loading, setLoading] = useState(false)
+const initialize = () => {
+                        if (!user) return
+                        setDisplayName(user.displayName)
+                        setRole(user.role)
+                        setIsActive(user.isActive)
+}
+const closeModal = () => {
+                        initialize()
+                        onClose()
+}
+
 
   useEffect(() => {
 
@@ -74,29 +85,31 @@ export default function EditUserModal({
 
     <div
       className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-center
-        justify-center
-        bg-black/30
-        p-4
+                fixed
+                inset-0
+                z-50
+                flex
+                items-center
+                justify-center
+                bg-black/30
+                p-4
       "
+       onClick={closeModal}
     >
 
       <div
         className="
-          relative
-          flex
-          max-h-[70vh]
-          w-full
-          max-w-md
-          flex-col
-          rounded-xl
-          bg-white
-          shadow-xl
+                  relative
+                  flex
+                  max-h-[70vh]
+                  w-full
+                  max-w-md
+                  flex-col
+                  rounded-xl
+                  bg-white
+                  shadow-xl
         "
+        onClick={(e) => e.stopPropagation()}
       >
 
         <div
@@ -110,7 +123,7 @@ export default function EditUserModal({
         >
 
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               absolute
               left-4
@@ -390,7 +403,7 @@ export default function EditUserModal({
         >
 
           <button
-            onClick={onClose}
+            onClick={closeModal}
             className="
               rounded-lg
               bg-gray-300
