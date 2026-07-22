@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-
+import CommonModal from "../common/CommonModal"
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
@@ -253,55 +253,25 @@ const deviceTasks =
        }
   })
   }
-return createPortal(
-  <>
-  <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+return (
+   <>
+<CommonModal
+    open={isOpen}
+    onClose={onCancel}
+    title="病棟機器情報"
+    maxWidth="max-w-[850px]"
+    height="h-[70vh]"
+    rightContent={
+        <button
+            onClick={handleDelete}
+            className="text-gray-400 hover:text-red-500"
+        >
+            <FaTrashAlt size={18}/>
+        </button>
+    }
+> 
 
-    <div className="relative
-                     bg-white 
-                    rounded-xl 
-                    shadow-xl 
-                    w-full
-                     max-w-5xl 
-                     max-w-[850px] 
-                     h-[70vh] 
-                     flex 
-                     flex-col p-6">
 
-      <button
-        onClick={onCancel}
-        className="
-          absolute
-          top-4
-          left-4
-          text-gray-500
-          hover:text-black
-          text-xl
-          font-bold
-        "
-      >
-        ✕
-      </button>
-
-      <button
-      onClick={handleDelete}
-      className="
-        absolute
-        top-4
-        right-4
-        text-gray-400
-        hover:text-red-500
-        text-xl
-        transition-colors
-      "
-      title="機器を削除"
-    >
-      <FaTrashAlt size={18} />
-    </button>
-
-      <h2 className="text-xl font-bold text-center">
-        病棟機器情報
-      </h2>
 
       <div className="flex gap-4 mt-4 flex-1 overflow-hidden">
 
@@ -871,9 +841,9 @@ return createPortal(
       </div>
 
 
-    </div>
+    
 
-  </div>
+  
     <InfectionSelectModal
       isOpen={isInfectionModalOpen}
       onClose={() => setIsInfectionModalOpen(false)}
@@ -884,12 +854,11 @@ return createPortal(
     />
 
 
-
+  </CommonModal>
 
       <LoadingOverlay loading={loading} />
   </>
 
-  
-  ,
-  document.body
+
+
 )}

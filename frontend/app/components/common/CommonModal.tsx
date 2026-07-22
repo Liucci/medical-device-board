@@ -2,20 +2,25 @@
 
 import { ReactNode, useEffect } from "react"
 import { createPortal } from "react-dom"
-
 type Props = {
-                open: boolean
-                onClose: () => void
-                children: ReactNode
-                maxWidth?: string
+    open: boolean
+    onClose: () => void
+    children: ReactNode
+    maxWidth?: string
+    title?: string
+    rightContent?: ReactNode
+    height?: string
 }
 
 export default function CommonModal({
-                                        open,
-                                        onClose,
-                                        children,
-                                        maxWidth = "max-w-md"
-                                    }: Props)
+    open,
+    onClose,
+    children,
+    maxWidth = "max-w-md",
+    title,
+    rightContent,
+    height
+}: Props)
 {
     useEffect(() => {
 
@@ -56,12 +61,35 @@ export default function CommonModal({
                     relative
                     w-full
                     ${maxWidth}
+                    ${height ?? ""}
                     rounded-xl
                     bg-white
                     shadow-xl
+                    p-6
+                    flex
+                    flex-col
                 `}
                 onClick={(e) => e.stopPropagation()}
             >
+
+                    <div className="flex items-center justify-between mb-4">
+
+                        <button
+                            onClick={onClose}
+                            className="text-xl text-gray-500 hover:text-black"
+                        >
+                            ✕
+                        </button>
+
+                        <h2 className="text-xl font-bold">
+                            {title}
+                        </h2>
+
+                        <div>
+                            {rightContent}
+                        </div>
+
+                    </div>
 
                 {children}
 

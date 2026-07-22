@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import CommonModal from "../common/CommonModal"
 
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -131,46 +132,23 @@ export default function StockInfoModal({
     })
     }
 
-  return createPortal(
+  return (
     <>
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+<CommonModal
+    open={isOpen}
+    onClose={onCancel}
+    title="機器情報（Stock）"
+    maxWidth="max-w-[500px]"
+    
+    rightContent={
         <button
-          onClick={onCancel}
-          className="
-            relative
-            top-3
-            left-3
-            text-gray-500
-            hover:text-black
-            text-xl
-            font-bold
-          "
+            onClick={handleDelete}
+            className="text-gray-400 hover:text-red-500"
         >
-          ✕
+            <FaTrashAlt size={18}/>
         </button>
-      <button
-      onClick={handleDelete}
-      className="
-        absolute
-        top-4
-        right-4
-        text-gray-400
-        hover:text-red-500
-        text-xl
-        transition-colors
-      "
-      title="機器を削除"
-    >
-      <FaTrashAlt size={18} />
-    </button>
-
-
-
-        {/* 🔽 タイトル */}
-        <h2 className="text-xl font-bold text-center">
-          機器情報（Stock）
-        </h2>
+    }
+>    
         {/* 🔽 機種 + 型式 */}
         <div>
           <div className="text-lg font-bold">
@@ -456,11 +434,9 @@ export default function StockInfoModal({
           </button>
         </div>
 
-      </div>
-    </div>
+  </CommonModal>
     <LoadingOverlay loading={loading} /> 
 </>
-    ,
-    document.body
+
   )
 }

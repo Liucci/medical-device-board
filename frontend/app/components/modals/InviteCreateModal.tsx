@@ -48,6 +48,7 @@ return (
         <CommonModal
             open={true}
             onClose={onClose}
+            title="ユーザー招待"
             maxWidth="max-w-[400px]"
         >
 
@@ -130,18 +131,7 @@ return (
 
         ) : (
 
-          <div className="p-6">
-
-
-            <h2
-              className="
-                text-xl
-                font-bold
-                mb-4
-              "
-            >
-              ユーザー招待
-            </h2>
+          <div className="p-2">
 
             <input
               type="email"
@@ -246,9 +236,6 @@ return (
 
         )
       }
-
-
-
     </CommonModal>
       <LoadingOverlay loading={loading} /> 
 </>

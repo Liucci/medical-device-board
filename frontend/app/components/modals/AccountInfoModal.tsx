@@ -17,25 +17,21 @@ type Props = {
 }
 
 export default function AccountInfoModal({
-  isOpen,
-  onClose,
-  userName,
-  userId,
-  role,
-  hospitalName,
-  email
-}: Props) {
+                                        isOpen,
+                                        onClose,
+                                        userName,
+                                        userId,
+                                        role,
+                                        hospitalName,
+                                        email
+                                      }: Props) {
 
   const [loading, setLoading] = useState(false)
 
-  const closeModal = () => {
-    onClose()
-  }
+  const closeModal = () => {onClose()}
 
   useEffect(() => {
-
     if (!isOpen) return
-
   }, [isOpen])
 
   if (!isOpen) return null
@@ -71,41 +67,9 @@ return (
     <CommonModal
         open={isOpen}
         onClose={closeModal}
+        title="アカウント情報"
         maxWidth="max-w-md"
     >
-
-
-
-        {/* Header */}
-        <div
-          className="
-            relative
-            border-b
-            px-8
-            pt-8
-            pb-6
-          "
-        >
-
-          <button
-            onClick={closeModal}
-            className="
-              absolute
-              left-4
-              top-4
-              text-2xl
-              text-gray-500
-              hover:text-black
-            "
-          >
-            ×
-          </button>
-
-          <h2 className="text-center text-2xl font-bold">
-            アカウント情報
-          </h2>
-
-        </div>
 
         {/* Body */}
         <div
@@ -262,10 +226,9 @@ return (
             justify-end
             gap-4
             rounded-b-xl
-            border-t
+            
             bg-white
             px-8
-            py-6
           "
         >
 

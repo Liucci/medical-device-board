@@ -5,6 +5,8 @@ import { createPortal } from "react-dom"
 
 import { HospitalManagementType } from "../../../types/hospitalTypes"
 import { updateHospitalTransaction } from "../../../api/transactions/hospitals/updateHospitalTransaction"
+import CommonModal from "../../../components/common/CommonModal"
+import {LoadingOverlay} from "../../../components/common/LoadingOverlay"
 
 type Props = {
               isOpen: boolean
@@ -86,64 +88,17 @@ export default function EditHospitalModal({
 
   }
 
-  return createPortal(
-
-          <div
-            className="
-                        fixed
-                        inset-0
-                        flex
-                        items-center
-                        justify-center
-                        bg-black/30
-                        z-50
-                        p-4
-                      "
-            onClick={closeModal}
-          >
-        <div
-              className="
-                bg-white
-                rounded-xl
-                shadow-xl
-                w-full
-                max-w-md
-                max-h-[70vh]
-                flex
-                flex-col
-                relative
-              "
-        onClick={(e) => e.stopPropagation()}      
-        >       
-
-          {/* × */}
-        <div
-          className="
-            px-8
-            pt-8
-            pb-6
-            border-b
-            relative
-          "
+  return (
+       <>
+    <CommonModal
+        open={isOpen}
+        onClose={onClose}
+        title="病院情報"
+        maxWidth="max-w-[450px]"
         >
-        <button
-          onClick={closeModal}
-          className="
-            absolute
-            left-4
-            top-4
-            text-2xl
-            text-gray-500
-            hover:text-black
-          "
-        >
-          ×
-        </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          病院編集
-        </h2>
-        </div>
+
+        
         <div
           className="
             flex-1
@@ -390,8 +345,8 @@ export default function EditHospitalModal({
               justify-end
               gap-4
               px-8
-              py-6
-              border-t
+              
+              
               bg-white
               rounded-b-xl
             "
@@ -427,9 +382,10 @@ export default function EditHospitalModal({
 
         </div>
 
-      </div>
+  
+  </CommonModal>
 
-    </div>,
-    document.body
+      <LoadingOverlay loading={loading} />
+  </>
   )
 }
