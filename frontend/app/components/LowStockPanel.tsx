@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react"
 import Draggable from "react-draggable"
+import { DeviceModelType } from "../types/deviceModelTypes"
 
 type Device = {
   id: number
@@ -13,7 +14,8 @@ type Device = {
 
 type Props = {
   devices: Device[]
-  isDragging?:boolean
+  deviceModels: DeviceModelType[]
+  isDragging?: boolean
 }
 
 type SummaryItem = {
@@ -28,14 +30,29 @@ type SummaryItem = {
 
 export default function LowStockPanel({
   devices,
+  deviceModels,
   isDragging = false
 }: Props) {
+
   const [collapsed, setCollapsed] = useState(true)
   const nodeRef = useRef<HTMLDivElement>(null)
+
   const summaries = useMemo(() => {
+
+    const displayMap = new Map(
+      deviceModels.map(model => [
+        model.name,
+        {
+          displayRemainingCount: model.displayRemainingCount,
+          remainingAlertCount: model.remainingAlertCount
+        }
+      ])
+    )
+
     const map = new Map<string, SummaryItem>()
 
     devices.forEach((device) => {
+
       const key = `${device.typeName}-${device.modelName}`
 
       if (!map.has(key)) {
@@ -46,83 +63,70 @@ export default function LowStockPanel({
           stockCount: 0,
           usingCount: 0,
           maintenanceCount: 0,
-          totalCount: 0,
+          totalCount: 0
         })
       }
 
       const item = map.get(key)!
 
-      // 保守中
       if (device.isUnderMaintenance) {
         item.maintenanceCount += 1
         item.totalCount += 1
       }
-      // 使用中（病棟配置）
       else if (device.currentWardId) {
         item.usingCount += 1
         item.totalCount += 1
       }
-      // 在庫
       else {
         item.stockCount += 1
         item.totalCount += 1
       }
+
     })
 
     return Array.from(map.values())
-    .filter((item) => {
+      .filter((item) => {
 
-    // 総数3以上
-    if (item.totalCount >= 3) {
-        return item.stockCount <= 2
-    }
+        const model = displayMap.get(item.modelName)
 
-    // 総数2
-    if (item.totalCount === 2) {
-        return item.stockCount <= 1
-    }
+        if (!model) {return false}
 
-    // 総数1
-    if (item.totalCount === 1) {
-        return item.stockCount === 0
-    }
+        return model.displayRemainingCount
 
-    return false
-    })
-    .sort((a, b) => a.stockCount - b.stockCount)
-    }, [devices])
+      })
+      .sort((a, b) => a.stockCount - b.stockCount)
 
-  if (summaries.length === 0) return null
+  }, [devices, deviceModels])
+
+  if (summaries.length === 0) {return null}
 
   return (
     <Draggable
-        handle=".low-stock-handle"
-        cancel=".no-drag"
-        nodeRef={nodeRef}
-    >      
-    <div
-        ref={nodeRef}
-className={`
-  fixed
-  top-4
-  right-4
-  z-[9999]
-  w-[260px]
-  rounded-lg
-  border
-  border-gray-300
-  bg-white/85
-  shadow-lg
-  backdrop-blur
-  overflow-hidden
-  transition-opacity
-  duration-150
-
-  ${isDragging ? "opacity-10 pointer-events-none" : "opacity-90"}
-    `}
-        
+      handle=".low-stock-handle"
+      cancel=".no-drag"
+      nodeRef={nodeRef}
     >
-        {/* Header */}
+      <div
+        ref={nodeRef}
+        className={`
+          fixed
+          top-4
+          right-4
+          z-[9999]
+          w-[260px]
+          rounded-lg
+          border
+          border-gray-300
+          bg-white/85
+          shadow-lg
+          backdrop-blur
+          overflow-hidden
+          transition-opacity
+          duration-150
+          ${isDragging ? "opacity-10 pointer-events-none" : "opacity-90"}
+        `}
+      >
+
         <div
           className="
             low-stock-handle
@@ -137,11 +141,11 @@ className={`
             select-none
           "
         >
-            <span className="text-xs">
+          <span className="text-xs">
             機器残数
-            </span>
+          </span>
 
-            <button
+          <button
             onClick={() => setCollapsed(!collapsed)}
             className="
               no-drag
@@ -156,7 +160,6 @@ className={`
           </button>
         </div>
 
-        {/* Body */}
         {!collapsed && (
           <div
             className="
@@ -165,21 +168,21 @@ className={`
               text-xs
             "
           >
-            {/* Table Header */}
+
             <div
-            className="
-            grid
-            grid-cols-[1fr_36px_36px_36px]
-            gap-2
-            border-b
-            bg-white
-            px-2
-            py-1
-            font-bold
-            sticky
-            top-0
-            z-10
-            "
+              className="
+                grid
+                grid-cols-[1fr_36px_36px_36px]
+                gap-2
+                border-b
+                bg-white
+                px-2
+                py-1
+                font-bold
+                sticky
+                top-0
+                z-10
+              "
             >
               <div>機種 / 型式</div>
               <div className="text-center">在庫</div>
@@ -187,12 +190,18 @@ className={`
               <div className="text-center">保守</div>
             </div>
 
-            {/* Rows */}
             {summaries.map((item) => {
+
+              const model = deviceModels.find(
+                m => m.name === item.modelName
+              )
+
+              const alertCount = model?.remainingAlertCount ?? 0
+
               const stockClass =
                 item.stockCount === 0
                   ? "text-red-600 font-bold animate-pulse"
-                  : item.stockCount <= 2
+                  : item.stockCount <= alertCount
                   ? "text-yellow-600 font-bold"
                   : ""
 
@@ -219,9 +228,7 @@ className={`
                     </div>
                   </div>
 
-                  <div
-                    className={`text-center ${stockClass}`}
-                  >
+                  <div className={`text-center ${stockClass}`}>
                     {item.stockCount}
                   </div>
 
@@ -232,11 +239,14 @@ className={`
                   <div className="text-center">
                     {item.maintenanceCount}
                   </div>
+
                 </div>
               )
             })}
+
           </div>
         )}
+
       </div>
     </Draggable>
   )

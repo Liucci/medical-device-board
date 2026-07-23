@@ -1242,7 +1242,9 @@ if (!currentUser) {
       {/*機器残数表示パネル */}
       <LowStockPanel
         devices={lowStockDevices}
+        deviceModels={deviceModels}
         isDragging={!!draggingDevice}
+
       />
 
 

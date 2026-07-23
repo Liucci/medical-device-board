@@ -16,8 +16,11 @@ import { RoomType } from "../../types/roomTypes"
 import { executeWithLoading } from "../common/executeWithLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
+import DeviceModelEditModal from "./DeviceModelEditModal"
 
 type Props = {
+  open: boolean
+  onClose: () => void
   deviceTypes: DeviceTypeType[]
   setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: DeviceModelType[]
@@ -25,6 +28,8 @@ type Props = {
 }
 
 export default function DeviceTypeSettingsModal({
+  open,
+  onClose,
   deviceTypes,
   setDeviceTypes,
   deviceModels,
@@ -38,6 +43,7 @@ export default function DeviceTypeSettingsModal({
   const [newIconColor, setNewIconColor] = useState("#BFDBFE")
   const [editIconColor, setEditIconColor] = useState("#BFDBFE")
   const [loading, setLoading] = useState(false)
+  const [editDeviceModel, setEditDeviceModel] = useState<DeviceModelType | null>(null)
   // ===== deviceType =====
   const handleAddType = async() => {
       const trimmed = newTypeName.trim()
@@ -97,6 +103,7 @@ export default function DeviceTypeSettingsModal({
     }
     })
   }
+  
   //色変更用確定実施hundle
   const handleChangeColor = async () => {
     if (!selectedTypeId) return
@@ -138,6 +145,8 @@ export default function DeviceTypeSettingsModal({
   setSelectedTypeId(null)
   }
 
+
+
   // ===== deviceModel =====
   const filteredModels = deviceModels
                                     .filter(m => m.deviceTypeId === selectedTypeId)
@@ -163,7 +172,9 @@ export default function DeviceTypeSettingsModal({
       await createDeviceModelTransaction({
                                           deviceModel: {
                                                           deviceTypeId: selectedTypeId,
-                                                          name: newModelName.trim()
+                                                          name: newModelName.trim(),
+                                                          displayRemainingCount: false,
+                                                          remainingAlertCount: 0
                                                         },
                                           setDeviceModels
                                         })
@@ -190,25 +201,32 @@ export default function DeviceTypeSettingsModal({
 
     }
 
-  const handleRenameModel = async(model: { id: number; name: string }) => {
-    const name = prompt("新しい型式名", model.name)
-    if (!name) {return}
+  const handleRenameModel = (
+                                model: DeviceModelType
+                            ) => {
+      setEditDeviceModel(model)
+  }
+
+  const handleSaveModel = async (
+                                  deviceModel: DeviceModelType
+                              ) => {
+
     await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
-
-        await updateDeviceModelTransaction({
-                                              deviceModel: {
-                                                            id: model.id,
-                                                            name
-                                                          },
-                                              setDeviceModels
-                                            }) 
+            await updateDeviceModelTransaction({
+                                                  deviceModel,
+                                                  setDeviceModels
+                                              })
         }
     })
+
+    setEditDeviceModel(null)
   }
+
   return (
     <>
+
     <div className="space-y-6">
 
       {/* ===== deviceType操作 ===== */}
@@ -327,7 +345,16 @@ export default function DeviceTypeSettingsModal({
       </div>
 
     </div>
-    <LoadingOverlay loading={loading} />
+   
+      <DeviceModelEditModal
+          isOpen={editDeviceModel !== null}
+          deviceModel={editDeviceModel}
+          onClose={() => setEditDeviceModel(null)}
+          onSave={handleSaveModel}
+      />
+
+      <LoadingOverlay loading={loading} />
+
   </>
   )
 }
