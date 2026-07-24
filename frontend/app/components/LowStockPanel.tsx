@@ -36,7 +36,10 @@ export default function LowStockPanel({
 
   const [collapsed, setCollapsed] = useState(true)
   const nodeRef = useRef<HTMLDivElement>(null)
-
+  const [defaultPosition] = useState({
+                                      x: -95,
+                                      y: 40
+  })
   const summaries = useMemo(() => {
 
     const displayMap = new Map(
@@ -50,9 +53,7 @@ export default function LowStockPanel({
     )
 
     const map = new Map<string, SummaryItem>()
-
-    devices.forEach((device) => {
-
+      devices.forEach((device) => {
       const key = `${device.typeName}-${device.modelName}`
 
       if (!map.has(key)) {
@@ -83,7 +84,6 @@ export default function LowStockPanel({
       }
 
     })
-
     return Array.from(map.values())
       .filter((item) => {
 
@@ -98,6 +98,18 @@ export default function LowStockPanel({
 
   }, [devices, deviceModels])
 
+      
+  const hasAlert = summaries.some((item) => {
+    const model = deviceModels.find(
+      m => m.name === item.modelName
+    )
+
+    if (!model) {return false}
+
+    return item.stockCount <= model.remainingAlertCount
+  })
+
+
   if (summaries.length === 0) {return null}
 
   return (
@@ -105,6 +117,7 @@ export default function LowStockPanel({
       handle=".low-stock-handle"
       cancel=".no-drag"
       nodeRef={nodeRef}
+      defaultPosition={defaultPosition}
     >
       <div
         ref={nodeRef}
@@ -112,7 +125,7 @@ export default function LowStockPanel({
           fixed
           top-4
           right-4
-          z-[9999]
+          z-[40]
           w-[260px]
           rounded-lg
           border
@@ -141,9 +154,30 @@ export default function LowStockPanel({
             select-none
           "
         >
+        <div className="flex items-center gap-2 flex-1">
           <span className="text-xs">
             機器残数
           </span>
+
+          {hasAlert && (
+            <span
+              className="
+                absolute
+                rounded
+                bg-red-100
+                left-1/2
+                -translate-x-1/2
+                text-sm
+                font-bold
+                text-red-600
+                animate-pulse
+              "
+            >
+              残数警告有
+            </span>
+          )}
+
+        </div>
 
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -199,25 +233,31 @@ export default function LowStockPanel({
               const alertCount = model?.remainingAlertCount ?? 0
 
               const stockClass =
-                item.stockCount === 0
+                item.stockCount <=alertCount
                   ? "text-red-600 font-bold animate-pulse"
-                  : item.stockCount <= alertCount
-                  ? "text-yellow-600 font-bold"
                   : ""
+
+              const rowClass =
+                item.stockCount <= alertCount
+                  ? `
+                      bg-red-100
+                      animate-pulse
+                    `
+                  : "hover:bg-gray-50"
 
               return (
                 <div
                   key={item.key}
-                  className="
+                  className={`
                     grid
                     grid-cols-[1fr_36px_36px_36px]
                     gap-2
                     border-b
                     px-3
                     py-2
-                    hover:bg-gray-50
-                  "
-                >
+                    ${rowClass}
+                  `}
+                  >
                   <div className="leading-tight">
                     <div className="font-semibold">
                       {item.typeName}
