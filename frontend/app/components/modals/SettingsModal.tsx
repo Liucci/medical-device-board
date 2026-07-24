@@ -188,6 +188,7 @@ export default function SettingsModal({
             </button>
           </div>
             <DeviceTypeSettingsModal
+            
               deviceTypes={deviceTypes}
               setDeviceTypes={setDeviceTypes}
               deviceModels={deviceModels}
