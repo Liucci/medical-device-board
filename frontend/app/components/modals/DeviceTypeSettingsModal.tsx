@@ -19,8 +19,6 @@ import { executeWithErrorAndLoading } from "../../components/common/executeWithE
 import DeviceModelEditModal from "./DeviceModelEditModal"
 
 type Props = {
-  open: boolean
-  onClose: () => void
   deviceTypes: DeviceTypeType[]
   setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: DeviceModelType[]
@@ -28,8 +26,6 @@ type Props = {
 }
 
 export default function DeviceTypeSettingsModal({
-  open,
-  onClose,
   deviceTypes,
   setDeviceTypes,
   deviceModels,
