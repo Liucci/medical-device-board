@@ -8,14 +8,16 @@ def add_device_model(
     print("insert device_model")
 
     response = (
-        supabase
-        .table("device_models")
-        .insert({
-            "hospital_id": hospital_id,
-            "device_type_id": device_model.device_type_id,
-            "name": device_model.name
-        })
-        .execute()
+                supabase
+                .table("device_models")
+                .insert({
+                        "hospital_id": hospital_id,
+                        "device_type_id": device_model.device_type_id,
+                        "name": device_model.name,
+                        "display_remaining_count": device_model.display_remaining_count,
+                        "remaining_alert_count": device_model.remaining_alert_count
+                })
+                .execute()
     )
 
     return response.data[0]

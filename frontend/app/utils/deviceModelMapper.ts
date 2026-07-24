@@ -16,25 +16,29 @@ export const normalizeDeviceModel = (
                                                               id: d.id,
                                                               hospitalId: d.hospital_id,
                                                               deviceTypeId: d.device_type_id,
-                                                              name: d.name
+                                                              name: d.name,
+                                                              displayRemainingCount: d.display_remaining_count,
+                                                              remainingAlertCount: d.remaining_alert_count
                                                             })
-
 // Create
 export const toCreateDeviceModelRequest = (
                                              deviceModel: CreateDeviceModelFrontType
                                            ) :CreateDeviceModelBackType=> ({
                                                    device_type_id: deviceModel.deviceTypeId,
-                                                   name: deviceModel.name
+                                                   name: deviceModel.name,
+                                                   display_remaining_count:deviceModel.displayRemainingCount,
+                                                   remaining_alert_count: deviceModel.remainingAlertCount
                                                  })
 
 // Update
 export const toUpdateDeviceModelRequest = (
                                              deviceModel: UpdateDeviceModelFrontType
-                                           ) :UpdateDeviceModelBackType=> ({
-                                                   id: deviceModel.id,
-                                                   name: deviceModel.name
-                                                 })
-
+                                           ): UpdateDeviceModelBackType => ({
+                                                                              id: deviceModel.id,
+                                                                              name: deviceModel.name,
+                                                                              display_remaining_count: deviceModel.displayRemainingCount,
+                                                                              remaining_alert_count: deviceModel.remainingAlertCount
+                                                                            })
 // Delete
 export const toDeleteDeviceModelsRequest = (
                                                deviceModels: DeleteDeviceModelsFrontType

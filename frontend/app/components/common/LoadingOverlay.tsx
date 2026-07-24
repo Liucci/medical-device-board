@@ -1,16 +1,21 @@
+"use client"
+
+import { createPortal } from "react-dom"
+
 type Props = {
   loading: boolean
   message?: string
 }
 
-export  function LoadingOverlay({
-  loading,
-  message = "処理中..."
-}: Props) {
+export function LoadingOverlay({
+                                  loading,
+                                  message = "処理中..."
+                                }: Props)
+{
+  if (!loading) {return null}
 
-  if (!loading) return null
+  return createPortal(
 
-  return (
     <div
       className="
         fixed
@@ -59,6 +64,9 @@ export  function LoadingOverlay({
         </div>
 
       </div>
-    </div>
+    </div>,
+
+    document.body
+
   )
 }
