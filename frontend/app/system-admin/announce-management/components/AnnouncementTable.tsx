@@ -1,6 +1,6 @@
 "use client"
 
-import { AnnouncementFrontType } from "../../../types/announcementType"
+import { AnnouncementFrontType } from "../../../types/announcementTypes"
 
 type AnnouncementTableProps = {
     announcements: AnnouncementFrontType[]

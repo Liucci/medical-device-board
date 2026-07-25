@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { AnnouncementFrontType } from "../../types/announcementType"
+import { AnnouncementFrontType } from "../../types/announcementTypes"
 
 import { fetchAnnouncementsTransaction } from "@/app/api/transactions/announcements/fetchAnnouncementsTransaction"
 

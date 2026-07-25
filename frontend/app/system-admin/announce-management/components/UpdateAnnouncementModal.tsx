@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import {
     AnnouncementFrontType,
     UpdateAnnouncementFrontType
-} from "../../../types/announcementType"
+} from "../../../types/announcementTypes"
 
 import { HospitalManagementType } from "../../../types/hospitalTypes"
 

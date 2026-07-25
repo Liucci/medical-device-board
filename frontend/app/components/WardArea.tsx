@@ -14,7 +14,7 @@ import { RoomInfectionType } from "../types/roomInfectionTypes"
 import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateUtils"
 
-import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 
 //page.tsxより
 type Props = {

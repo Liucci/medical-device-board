@@ -109,10 +109,11 @@ import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtim
 import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 
 //お知らせ表示用
-import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 
-
+import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 
 export default function Page() {
   //console.log("Dashboard render")
@@ -178,7 +179,9 @@ export default function Page() {
   const {currentUser,setCurrentUser} = useAuth()
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
-
+  //設定詳細用のstate
+  const [hospitalSettings, setHospitalSettings] =useState<HospitalSettingsType | null>(null)
+                                                                          
   //refresh token後realtime再登録用
   const [realtimeVersion, setRealtimeVersion] = useState(0)
   const {
@@ -1044,7 +1047,9 @@ useEffect(() => {
                                                 hospitalId: currentUser.hospitalId,
                                                 setAnnouncements: setActiveAnnouncements
                                               })
-
+    await fetchHospitalSettingsTransaction({
+        setHospitalSettings
+    })                                           
   }
   fetchData()}, [currentUser])
   
@@ -1236,7 +1241,8 @@ if (!currentUser) {
           setInfectionTypes={setInfectionTypes}
           setStockLastUpdated={setStockLastUpdated}
           setWardLastUpdated={setWardLastUpdated}
-
+          hospitalSettings={hospitalSettings}
+          setHospitalSettings={setHospitalSettings}
         />
       </div>
       {/*機器残数表示パネル */}

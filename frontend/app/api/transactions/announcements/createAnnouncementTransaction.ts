@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { authFetch } from "../../client/apiClient"
 
-import {CreateAnnouncementFrontType} from "../../../types/announcementType"
+import {CreateAnnouncementFrontType} from "../../../types/announcementTypes"
 
 import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
 

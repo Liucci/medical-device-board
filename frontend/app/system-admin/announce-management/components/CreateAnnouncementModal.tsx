@@ -2,7 +2,7 @@
 
 import { useEffect,useState } from "react"
 
-import { CreateAnnouncementFrontType } from "../../../types/announcementType"
+import { CreateAnnouncementFrontType } from "../../../types/announcementTypes"
 import { HospitalManagementType } from "../../../types/hospitalTypes"
 
 import { createAnnouncementTransaction } from "../../../../app/api/transactions/announcements/createAnnouncementTransaction"

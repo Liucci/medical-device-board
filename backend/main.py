@@ -196,6 +196,11 @@ from transactions.announcements.fetch_announcements_transaction import (fetch_an
 from schemas.announcement_schemas import FetchActiveAnnouncementsRequest
 from transactions.announcements.fetch_active_announcements_transaction import fetch_active_announcements_transaction
 
+#hospital setting用
+from schemas.hospital_settings_schemas import (UpdateHospitalSettingsRequest)
+from transactions.hospital_settings.fetch_hospital_settings_transaction import (fetch_hospital_settings_transaction)
+from transactions.hospital_settings.update_hospital_settings_transaction import (update_hospital_settings_transaction)
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -1814,3 +1819,30 @@ def fetch_active_announcements_route(
     return fetch_active_announcements_transaction(
                                                     request
                                                 )
+#hospital-settings
+@app.get("/hospital-settings")
+def get_hospital_settings(
+                            auth_user_id: str = Depends(get_auth_user_id)
+                         ):
+    current_user = fetch_current_user(auth_user_id)
+    print("get_hospital_settings")
+    return fetch_hospital_settings_transaction(
+                                                current_user["hospital_id"]
+                                              )
+
+@app.post("/update-hospital-settings")
+def update_hospital_settings_route(
+                                        hospital_settings: UpdateHospitalSettingsRequest,
+                                        auth_user_id: str = Depends(get_auth_user_id)
+                                  ):
+    current_user = fetch_current_user(auth_user_id)
+    print("update_hospital_settings")
+    check_permission(
+                        current_user=current_user,
+                        allowed_roles=["admin"]
+                    )
+    return update_hospital_settings_transaction(
+                                                    hospital_settings,
+                                                    current_user["hospital_id"]
+                                               )
+
