@@ -1049,7 +1049,7 @@ useEffect(() => {
                                               })
     await fetchHospitalSettingsTransaction({
         setHospitalSettings
-    })                                           
+    })                                        
   }
   fetchData()}, [currentUser])
   
@@ -1125,7 +1125,7 @@ if (!currentUser) {
           infectionTypes={infectionTypes}
           roomInfections={roomInfections}
           activeAnnouncements={activeAnnouncements}
-
+          hospitalSettings={hospitalSettings}
         />
       </div>
       {/* ✅ 境界バー */}

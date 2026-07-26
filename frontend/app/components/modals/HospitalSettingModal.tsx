@@ -60,19 +60,38 @@ export default function HospitalSettingsModal({
           <span>
             患者名表示
           </span>
-
+          <label className="relative inline-flex items-center cursor-pointer">
           <input
-            type="checkbox"
-            checked={settings.showPatientName}
-            onChange={(e) =>
-              setSettings({
-                ...settings,
-                showPatientName: e.target.checked
-              })
-            }
-            className="h-5 w-5"
-          />
-
+              type="checkbox"
+              className="sr-only peer"
+              checked={settings.showPatientName}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  showPatientName: e.target.checked,
+                })
+              }
+            />
+              <div
+              className="
+                        w-11 h-6
+                        bg-gray-300
+                        rounded-full
+                        peer-checked:bg-blue-600
+                        transition-colors
+                        after:content-['']
+                        after:absolute
+                        after:top-0.5
+                        after:left-0.5
+                        after:bg-white
+                        after:w-5
+                        after:h-5
+                        after:rounded-full
+                        after:transition-transform
+                        peer-checked:after:translate-x-5
+              "
+            />
+          </label>
         </div>
 
         {/* 定時Logout */}
@@ -82,20 +101,38 @@ export default function HospitalSettingsModal({
             定時Logout
           </span>
 
+          <label className="relative inline-flex items-center cursor-pointer">
           <input
-            type="checkbox"
-            checked={settings.autoLogoutEnabled}
-            onChange={(e) =>
-              setSettings({
-                ...settings,
-                autoLogoutEnabled: e.target.checked
-              })
-            }
-            className="h-5 w-5"
-          />
-
+              type="checkbox"
+              className="sr-only peer"
+              checked={settings.autoLogoutEnabled}              
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  autoLogoutEnabled: e.target.checked,                })
+              }
+            />
+              <div
+              className="
+                        w-11 h-6
+                        bg-gray-300
+                        rounded-full
+                        peer-checked:bg-blue-600
+                        transition-colors
+                        after:content-['']
+                        after:absolute
+                        after:top-0.5
+                        after:left-0.5
+                        after:bg-white
+                        after:w-5
+                        after:h-5
+                        after:rounded-full
+                        after:transition-transform
+                        peer-checked:after:translate-x-5
+              "
+            />
+          </label>
         </div>
-
         {/* Logout時刻 */}
         <div className="space-y-2">
 
