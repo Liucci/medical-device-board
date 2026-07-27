@@ -20,6 +20,7 @@ import {LoadingOverlay} from "../common/LoadingOverlay"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
 import { RoomInfectionType } from "../../types/roomInfectionTypes"
 import InfectionSelectModal from "./InfectionSelectModal"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
 
 import { FaVirus } from "react-icons/fa"
 
@@ -60,7 +61,7 @@ infectionTypes:InfectionTypeType[]
 roomInfections:RoomInfectionType[]
 setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
 onDelete: (deviceId: number) => Promise<void>
-
+hospitalSettings: HospitalSettingsType | null
 }
 
 export default function RoomDeviceInfoModal({
@@ -85,7 +86,8 @@ export default function RoomDeviceInfoModal({
   infectionTypes,
   roomInfections,
   setRoomInfections,
-  onDelete
+  onDelete,
+  hospitalSettings
 }: Props) {
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
@@ -336,6 +338,7 @@ return (
           {/* 詳細情報 */}
           <div className="border-t pt-2 mt-3 space-y-1">
 
+          {hospitalSettings?.showPatientName && (
             <InfoRow
               label="患者"
               value={patientName}
@@ -367,6 +370,8 @@ return (
                 
               }}
             />
+          )}
+
             {/* 感染症 */}
             
             <div className="flex items-start justify-between py-2">

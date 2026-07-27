@@ -1327,7 +1327,7 @@ if (!currentUser) {
         roomInfections={roomInfections}
         setRoomInfections={setRoomInfections}
         onDelete={deleteDevice}
-
+        hospitalSettings={hospitalSettings}
       />
 
 

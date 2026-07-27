@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { History }from "../../types/historyTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+
 import {exportHistoryPdfTransaction}from "../../api/transactions/exports/exportHistoryPdfTransaction"
 import {exportHistoryCsvTransaction}from "../../api/transactions/exports/exportHistoryCsvTransaction"
 import {LoadingOverlay} from "../common/LoadingOverlay"
@@ -13,12 +15,16 @@ type Props = {
   isOpen: boolean
   onClose: () => void
   histories: History[]
+  hospitalSettings: HospitalSettingsType | null
+
 }
 
 export default function HistoryModal({
   isOpen,
   onClose,
-  histories
+  histories,
+  hospitalSettings
+
 }: Props) {
 
   // ===== search =====
@@ -247,6 +253,8 @@ const created =
       // ===== patient =====
 
       if (
+        hospitalSettings?.showPatientName
+        &&
         patientKeyword
         &&
         !history.patientName
@@ -761,6 +769,9 @@ const created =
                   操作
                 </th>
 
+                <th className="border p-2">
+                  操作者
+                </th>
 
 
                 <th className="border p-2">
@@ -775,9 +786,11 @@ const created =
                   配置
                 </th>
 
-                <th className="border p-2">
-                  患者
-                </th>
+                  {hospitalSettings?.showPatientName && (
+                    <th className="border p-2">
+                      患者
+                    </th>
+                  )}
 
                 <th className="border p-2">
                   内容
@@ -865,6 +878,7 @@ const created =
                     }
                   </td>
 
+
                   <td className="
                     border
                     p-2
@@ -889,6 +903,14 @@ const created =
 
                   </td>
 
+                  <td
+                    className="
+                      border
+                      p-2
+                    "
+                  >
+                    {history.actionBy ?? "-"}
+                  </td>
 
                   <td className="
                     border
@@ -944,7 +966,7 @@ const created =
                     }
 
                   </td>
-
+                {hospitalSettings?.showPatientName && (
                   <td className="
                     border
                     p-2
@@ -954,8 +976,8 @@ const created =
                       history.patientName
                       ?? "-"
                     }
-
                   </td>
+                )}
 
                   <td className="
                     border
