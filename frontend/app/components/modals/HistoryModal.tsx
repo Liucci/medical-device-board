@@ -909,7 +909,7 @@ const created =
                       p-2
                     "
                   >
-                    {history.actionBy ?? "-"}
+                    {history.actionByName ?? "-"}
                   </td>
 
                   <td className="

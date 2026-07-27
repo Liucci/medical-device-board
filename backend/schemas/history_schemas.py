@@ -7,7 +7,7 @@ class HistoryResponse(BaseModel):
     hospital_id: str
     device_id: int
     action_by: str
-
+    action_by_name: str | None = None
     action_type: str
     message: str | None = None
 
