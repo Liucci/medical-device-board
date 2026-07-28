@@ -1559,7 +1559,8 @@ async def export_history_pdf_route(
     """
     pdf_buffer = export_history_pdf_transaction(
                                                 request.rows,
-                                                hospital_name
+                                                hospital_name,
+                                                show_patient_name=request.show_patient_name
                                                 )
 
     return StreamingResponse(

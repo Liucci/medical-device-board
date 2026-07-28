@@ -17,6 +17,7 @@ class HistoryExportRow(BaseModel):
 
 class ExportHistoryPdfRequest(BaseModel):
     rows: list[HistoryExportRow]
+    show_patient_name: bool
 
 
 
