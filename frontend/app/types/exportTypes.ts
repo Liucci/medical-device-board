@@ -4,6 +4,7 @@ export type HistoryExportRow = {
   deviceTypeName?: string | null
   deviceModelName?: string | null
   actionType: string
+  actionByName?: string | null
   maintenanceStartedAt?: string | null
   maintenanceFinishedAt?: string | null
   roomName?: string | null
@@ -19,6 +20,7 @@ export type HistoryExportRowDB = {
   device_type_name: string | null
   device_model_name: string | null
   action_type: string
+  action_by_name: string | null
   maintenance_started_at: string | null
   maintenance_finished_at: string | null
   room_name?: string | null
@@ -30,6 +32,7 @@ export type HistoryExportRowDB = {
 
 export type ExportHistoriesRequest = {
   rows: HistoryExportRowDB[]
+  show_patient_name: boolean
 }
 
 

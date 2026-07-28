@@ -7,6 +7,7 @@ class HistoryExportRow(BaseModel):
     device_type_name: str | None = None
     device_model_name: str | None = None
     action_type: str
+    action_by_name: str | None = None
     maintenance_started_at: str | None = None
     maintenance_finished_at: str | None = None
     room_name: str | None = None
@@ -17,7 +18,7 @@ class HistoryExportRow(BaseModel):
 
 class ExportHistoryPdfRequest(BaseModel):
     rows: list[HistoryExportRow]
-
+    show_patient_name: bool
 
 
 

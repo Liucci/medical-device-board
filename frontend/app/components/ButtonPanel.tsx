@@ -268,6 +268,7 @@ export default function ButtonPanel({
           isOpen={openHistoryModal}
           onClose={() => setOpenHistoryModal(false)}
           histories={histories}
+          hospitalSettings={hospitalSettings}
         />
       }
       {openDeviceListModal &&
@@ -281,6 +282,8 @@ export default function ButtonPanel({
           deviceModels={deviceModels}
           deviceList={deviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
+          hospitalSettings={hospitalSettings}
+
         />
       }
 

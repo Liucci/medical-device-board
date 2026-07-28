@@ -347,9 +347,11 @@ const created =
             <button
               onClick={() =>
                 executeWithErrorAndLoading({
-                                            setLoading,
-                                            action: () =>
-                                                    exportHistoryPdfTransaction(filteredHistories)
+                                  setLoading,
+                                  action: () =>
+                                          exportHistoryPdfTransaction(filteredHistories,
+                                                        hospitalSettings?.showPatientName ?? false
+                                                      )
                 })
               }
                 className="

@@ -18,7 +18,8 @@ export async function exportHistoryCsvFromApi(
                         },
                         body: JSON.stringify(
                           toExportHistoriesRequest(
-                            histories
+                            histories,
+                          
                           )
                         )
                       }

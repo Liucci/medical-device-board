@@ -7,6 +7,8 @@ import {
   DeviceListExportDBType,
   DeviceListExportTypeRequest
 } from "../types/exportTypes"
+
+console.log("exportMapper loaded")
 // UI → DB
 export const toHistoryExportRowRequest = (
   row: HistoryExportRow
@@ -16,6 +18,7 @@ export const toHistoryExportRowRequest = (
   device_type_name: row.deviceTypeName ?? null,
   device_model_name: row.deviceModelName ?? null,
   action_type: row.actionType,
+  action_by_name:row.actionByName ?? null,
   maintenance_started_at: row.maintenanceStartedAt ?? null,
   maintenance_finished_at: row.maintenanceFinishedAt ?? null,
   room_name: row.roomName ?? null,
@@ -25,9 +28,12 @@ export const toHistoryExportRowRequest = (
 
 // Request作成
 export const toExportHistoriesRequest = (
-  rows: HistoryExportRow[]
-): ExportHistoriesRequest => ({
-  rows: rows.map(toHistoryExportRowRequest)
+                                        rows: HistoryExportRow[],
+                                        showPatientName: boolean
+): ExportHistoriesRequest => 
+({
+  rows: rows.map(toHistoryExportRowRequest),
+  show_patient_name: showPatientName
 })
 
 
