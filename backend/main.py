@@ -1595,7 +1595,8 @@ async def export_device_list_pdf_route(
 
     pdf_buffer = export_device_list_pdf_transaction(
                                                     request.rows,
-                                                    hospital_name
+                                                    hospital_name,
+                                                    show_patient_name=request.show_patient_name
                                                    )
 
     return StreamingResponse(
@@ -1619,7 +1620,10 @@ def export_device_list_csv_route(
                         allowed_roles=["admin","normal"]
                     )
 
-    csv_buffer = export_device_list_csv_transaction(request.rows)
+    csv_buffer = export_device_list_csv_transaction(
+                                                    request.rows,
+                                                    show_patient_name=request.show_patient_name
+                                                    )
     return StreamingResponse(
                             csv_buffer,
                             media_type="text/csv",
@@ -1639,7 +1643,10 @@ def export_history_csv_route(
                         allowed_roles=["admin","normal"]
                     )
 
-    csv_buffer = export_history_csv_transaction(request.rows)
+    csv_buffer = export_history_csv_transaction(
+                                                request.rows,
+                                                show_patient_name=request.show_patient_name
+                                                )
 
     return StreamingResponse(
                             csv_buffer,

@@ -90,4 +90,6 @@ export type DeviceListExportDBType = {
 
 export type DeviceListExportTypeRequest = {
   rows: DeviceListExportDBType[]
+  show_patient_name: boolean
+
 }

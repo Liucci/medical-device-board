@@ -10,12 +10,14 @@ from schemas.export_schemas import (
 
 
 def export_device_list_csv_transaction(
-    rows: list[DeviceListExportSchema]
+    rows: list[DeviceListExportSchema],
+    show_patient_name: bool
 ) -> BytesIO:
 
     return create_device_list_csv(
         [
             row.model_dump()
             for row in rows
-        ]
+        ],
+        show_patient_name=show_patient_name 
     )

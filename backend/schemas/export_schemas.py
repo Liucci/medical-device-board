@@ -47,3 +47,4 @@ class DeviceListExportSchema(BaseModel):
     due_at: str | None = None
 class DeviceListExportSchemaRequest(BaseModel):
     rows: list[DeviceListExportSchema]
+    show_patient_name: bool

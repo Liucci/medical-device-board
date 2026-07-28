@@ -4,17 +4,15 @@ import { API_BASE_URL,authFetch  }from "../client/apiClient"
 
 
 export async function exportDeviceListPdfFromApi(
-                                                  rows:
-                                                  DeviceListExportUIType[]
+                                                  rows:DeviceListExportUIType[],
+                                                  showPatientName: boolean
                                                 )
 {
   console.log("exportDeviceListPdf")
 
   const request = {
-                    rows:
-                    rows.map(
-                              DeviceListExportDBMapper
-                            )
+                    rows:rows.map(DeviceListExportDBMapper),
+                    show_patient_name: showPatientName
                   }
 
   console.log("row count:",request.rows.length)

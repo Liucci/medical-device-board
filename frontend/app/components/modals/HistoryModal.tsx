@@ -337,7 +337,9 @@ const created =
                 executeWithErrorAndLoading({
                                             setLoading,
                                             action: () =>
-                                                  exportHistoryCsvTransaction(filteredHistories)
+                                                  exportHistoryCsvTransaction(filteredHistories,
+                                                                                hospitalSettings?.showPatientName ?? false
+                                                                              )
                 })
               }            
             >
@@ -350,8 +352,8 @@ const created =
                                   setLoading,
                                   action: () =>
                                           exportHistoryPdfTransaction(filteredHistories,
-                                                        hospitalSettings?.showPatientName ?? false
-                                                      )
+                                                                      hospitalSettings?.showPatientName ?? false
+                                                                    )
                 })
               }
                 className="

@@ -4,10 +4,9 @@ from schemas.export_schemas import (DeviceListExportSchema)
 
 
 def export_device_list_pdf_transaction(
-                                        rows: list[
-                                                  DeviceListExportSchema
-                                                 ],
-                                        hospital_name: str
+                                        rows: list[DeviceListExportSchema],
+                                        hospital_name: str,
+                                        show_patient_name: bool
                                       ) -> BytesIO:
 
     return create_device_list_pdf(
@@ -15,5 +14,6 @@ def export_device_list_pdf_transaction(
                                       row.model_dump()
                                       for row in rows
                                     ],
-                                    hospital_name
+                                    hospital_name,
+                                    show_patient_name=show_patient_name
                                  )

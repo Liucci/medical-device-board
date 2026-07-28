@@ -531,9 +531,11 @@ const filteredDeviceLists = useMemo(() => {
             <button
                 onClick={() =>
                 executeWithErrorAndLoading({
-                                            setLoading,
-                                            action: () =>
-                                                exportDeviceListCsvTransaction(filteredDeviceLists)
+                                  setLoading,
+                                  action: () =>
+                                      exportDeviceListCsvTransaction(filteredDeviceLists,
+                                                                      hospitalSettings?.showPatientName ?? false
+                                                                    )
                 })
                 }
               className="
@@ -551,7 +553,9 @@ const filteredDeviceLists = useMemo(() => {
                 executeWithErrorAndLoading({
                                             setLoading,
                                             action: () =>
-                                                exportDeviceListPdfTransaction(filteredDeviceLists)
+                                                exportDeviceListPdfTransaction(filteredDeviceLists,
+                                                            hospitalSettings?.showPatientName ?? false
+                                                )
                 })
               }
               className="

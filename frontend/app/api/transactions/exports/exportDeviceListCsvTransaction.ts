@@ -1,38 +1,21 @@
-import {
-  DeviceListExportUIType
-} from "@/app/types/exportTypes"
-
-import {
-  exportDeviceListCsvFromApi
-} from "../../exports/exportDeviceListCsv"
+import {DeviceListExportUIType} from "@/app/types/exportTypes"
+import {exportDeviceListCsvFromApi} from "../../exports/exportDeviceListCsv"
 
 export async function exportDeviceListCsvTransaction(
-  rows: DeviceListExportUIType[]
-) {
+                                                    rows: DeviceListExportUIType[],
+                                                    showPatientName: boolean
+                                                  ) 
+{
+  const blob =await exportDeviceListCsvFromApi(
+                                              rows,
+                                              showPatientName
+                                            )
+  if (!blob) {return}
 
-  const blob =
-    await exportDeviceListCsvFromApi(
-      rows
-    )
-
-  if (!blob) {
-    return
-  }
-
-  const url =
-    window.URL.createObjectURL(
-      blob
-    )
-
-  const link =
-    document.createElement( "a" )
-
+  const url =window.URL.createObjectURL(blob)
+  const link =document.createElement( "a" )
   link.href = url
-
-
-
   const now = new Date()
-
   const yyyy = now.getFullYear()
   const mm = String(now.getMonth() + 1).padStart(2, "0")
   const dd = String(now.getDate()).padStart(2, "0")

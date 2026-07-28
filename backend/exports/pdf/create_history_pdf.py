@@ -66,6 +66,7 @@ def create_history_pdf(
             "場所",
             "内容"
         ]]
+        
     for row in rows:
 
         created_at = ""
