@@ -22,6 +22,7 @@ class ExportHistoryPdfRequest(BaseModel):
 
 
 
+
 #deviceList表示用
 class DeviceListExportSchema(BaseModel):
     status: str
