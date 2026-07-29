@@ -1040,7 +1040,7 @@ useEffect(() => {
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
     const wardLastUpdated = await fetchWardLastUpdated()
-    console.log("wardLastUpdated:",wardLastUpdated)
+    console.log("currentUser:",currentUser)
     setStockLastUpdated(stockLastUpdated)
     setWardLastUpdated(wardLastUpdated)
     //お知らせ表示

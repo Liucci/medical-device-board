@@ -15,9 +15,11 @@ def login_user(
                             "password": password
                         })
         )
-    print("login情報:")
-    for a in response:
-        print(f"・{a}") 
+
+    
+    # print("login情報:")
+    # for a in response:
+    #     print(f"・{a}") 
 
 
 
