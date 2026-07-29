@@ -8,9 +8,9 @@ from exports.pdf.create_pdf_doc import create_pdf_doc
 
 
 def create_device_list_pdf(
-    rows: list[dict],
-    hospital_name: str,
-    show_patient_name: bool
+                            rows: list[dict],
+                            hospital_name: str,
+                            show_patient_name: bool
 ):
 
     doc, buffer = create_pdf_doc()

@@ -30,7 +30,7 @@ export const loginTransaction = async ({
   console.log( "[SAVED ACCESS TOKEN]",localStorage.getItem("access_token")?.slice(0, 12))
   console.log("[SAVED REFRESH TOKEN]",localStorage.getItem("refresh_token")?.slice(0, 12))  
   const currentUserDB =await fetchCurrentUser()
-
+  console.log(currentUserDB)
   if (!currentUserDB) {
     throw new Error("Failed to fetch current user")
   }

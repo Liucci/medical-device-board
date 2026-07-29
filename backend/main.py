@@ -250,8 +250,10 @@ def login(body: LoginRequest):
 def get_current_user(auth_user_id: str = Depends(get_auth_user_id)):
     if not auth_user_id:
         return None
-    return fetch_current_user(auth_user_id)
-
+    
+    #return fetch_current_user(auth_user_id)
+    #hospital nameが内包しているfetch_current_user_transactionを使用
+    return fetch_current_user_transaction(auth_user_id)
 
 @app.post("/refresh-token")
 def refresh_token_route(body: RefreshTokenRequest):
@@ -1484,7 +1486,7 @@ def fetch_stock_last_updated_route(
 
     print("fetch_last_updated_route")
 
-    hospital_id = current_user["hospital_id"]
+    hospital_id = current_user.hospital_id
     stock_updated_at=fetch_stock_last_updated(hospital_id=hospital_id)
     print("stock_updated_at:",stock_updated_at)
     
@@ -1499,7 +1501,7 @@ def fetch_ward_last_updated_route(
 
     print("fetch_ward_last_updated_route")
 
-    hospital_id = current_user["hospital_id"]
+    hospital_id = current_user.hospital_id
     ward_updated_at=fetch_ward_last_updated(hospital_id=hospital_id)
     print("ward_updated_at:",ward_updated_at)
     
