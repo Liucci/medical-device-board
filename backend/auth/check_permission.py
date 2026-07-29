@@ -1,16 +1,17 @@
 from fastapi import HTTPException
-
+from schemas.user_schemas import FetchCurrentUserResponse
 
 def check_permission(
-                        current_user: dict,
-                        allowed_roles: list[str]
-                    ):
+    current_user: FetchCurrentUserResponse,
+    allowed_roles: list[str]
+):
     print("check_permission")
-    print("user_role:",current_user["role"])
-    if current_user["role"] in allowed_roles:
+    print("user_role:", current_user.role)
+
+    if current_user.role in allowed_roles:
         return
 
     raise HTTPException(
-                        status_code=403,
-                        detail="Permission denied"
+        status_code=403,
+        detail="Permission denied"
     )
