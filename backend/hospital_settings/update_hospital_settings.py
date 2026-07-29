@@ -13,11 +13,14 @@ def update_hospital_settings(
                     supabase
                     .table("hospital_settings")
                     .update({
-                                "show_patient_name": hospital_settings.show_patient_name,
-                                "auto_logout_enabled": hospital_settings.auto_logout_enabled,
-                                "auto_logout_time": hospital_settings.auto_logout_time,
-                                "updated_at": updated_at
-                            })
+                        "show_patient_name": hospital_settings.show_patient_name,
+                        "auto_logout_enabled": hospital_settings.auto_logout_enabled,
+                        "auto_logout_time":
+                            hospital_settings.auto_logout_time.isoformat()
+                            if hospital_settings.auto_logout_time
+                            else None,
+                        "updated_at": updated_at
+                    })
                     .eq("hospital_id", hospital_id)
                     .execute()
                )

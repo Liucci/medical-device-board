@@ -27,14 +27,31 @@ export default function HospitalSettingsModal({
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    setSettings(hospitalSettings)
-  }, [hospitalSettings])
 
+    if (!hospitalSettings) {
+      setSettings(null)
+      return
+    }
+
+    setSettings({
+      ...hospitalSettings,
+      autoLogoutTime:
+        hospitalSettings.autoLogoutTime ?? "08:00"
+    })
+
+}, [hospitalSettings])
   if (!settings) {
     return null
   }
 
   const handleSave = async () => {
+    if (
+        settings.autoLogoutEnabled &&
+        !settings.autoLogoutTime
+    ) {
+        alert("Logout時刻を設定してください")
+        return
+    }
 
     await executeWithErrorAndLoading({
       setLoading,
@@ -140,19 +157,32 @@ export default function HospitalSettingsModal({
             Logout時刻
           </div>
 
-          <input
-            type="time"
-            value={settings.autoLogoutTime ?? ""}
-            disabled={!settings.autoLogoutEnabled}
-            onChange={(e) =>
-              setSettings({
-                ...settings,
-                autoLogoutTime: e.target.value
-              })
-            }
-            className="border rounded px-2 py-1 disabled:bg-gray-100 disabled:text-gray-400"
-          />
-
+<input
+  type="checkbox"
+  className="sr-only peer"
+  checked={settings.autoLogoutEnabled}
+  onChange={(e) =>
+    setSettings({
+      ...settings,
+      autoLogoutEnabled: e.target.checked,
+      autoLogoutTime: e.target.checked
+        ? (settings.autoLogoutTime ?? "08:00")
+        : settings.autoLogoutTime,
+    })
+  }
+/>
+<input
+  type="time"
+  value={settings.autoLogoutTime ?? ""}
+  disabled={!settings.autoLogoutEnabled}
+  onChange={(e) =>
+    setSettings({
+      ...settings,
+      autoLogoutTime: e.target.value,
+    })
+  }
+  className="border rounded px-2 py-1 disabled:bg-gray-100 disabled:text-gray-400"
+/>
         </div>
 
         {/* 保存 */}

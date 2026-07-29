@@ -30,7 +30,8 @@ import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
-
+//auto logout
+import {startAutoLogout,stopAutoLogout} from "../contexts/autoLogout"
 //supabase
 import { supabase } from "../lib/supabase"
 
@@ -1081,11 +1082,21 @@ useEffect(() => {
     }
 
 }, [])
+//auto logout機能
+useEffect(() => {
+          if (!hospitalSettings) {return}
+          startAutoLogout(
+                          hospitalSettings.autoLogoutEnabled,
+                          hospitalSettings.autoLogoutTime,
+                          handleLogout
+          )
+          return () => {stopAutoLogout()}
+}, [hospitalSettings])
 
 
-  if (currentUser === undefined) {
+if (currentUser === undefined) {
     return null // 認証確認中
-  }
+}
 if (!currentUser) {
   return null
 }
