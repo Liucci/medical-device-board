@@ -249,6 +249,7 @@ export default function SettingsModal({
             <HospitalSettingModal
               hospitalSettings={hospitalSettings}
               setHospitalSettings={setHospitalSettings}
+              onClose={() => setMode("menu")}
             />
           </>
         )}

@@ -14,11 +14,13 @@ type Props = {
   setHospitalSettings: React.Dispatch<
     React.SetStateAction<HospitalSettingsType | null>
   >
+  onClose: () => void
 }
 
 export default function HospitalSettingsModal({
   hospitalSettings,
   setHospitalSettings,
+  onClose
 }: Props) {
 
   const [settings, setSettings] =
@@ -61,7 +63,7 @@ export default function HospitalSettingsModal({
           hospitalSettings: settings,
           setHospitalSettings
         })
-
+        onClose()
       }
     })
 
@@ -157,32 +159,49 @@ export default function HospitalSettingsModal({
             Logout時刻
           </div>
 
-<input
-  type="checkbox"
-  className="sr-only peer"
-  checked={settings.autoLogoutEnabled}
-  onChange={(e) =>
-    setSettings({
-      ...settings,
-      autoLogoutEnabled: e.target.checked,
-      autoLogoutTime: e.target.checked
-        ? (settings.autoLogoutTime ?? "08:00")
-        : settings.autoLogoutTime,
-    })
-  }
-/>
-<input
-  type="time"
-  value={settings.autoLogoutTime ?? ""}
-  disabled={!settings.autoLogoutEnabled}
-  onChange={(e) =>
-    setSettings({
-      ...settings,
-      autoLogoutTime: e.target.value,
-    })
-  }
-  className="border rounded px-2 py-1 disabled:bg-gray-100 disabled:text-gray-400"
-/>
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={settings.autoLogoutEnabled}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  autoLogoutEnabled: e.target.checked,
+                  autoLogoutTime: e.target.checked
+                    ? (settings.autoLogoutTime ?? "08:00")
+                    : settings.autoLogoutTime,
+                })
+              }
+            />
+
+        <div className="flex items-center gap-2">
+
+          <input
+            type="number"
+            min={0}
+            max={23}
+            value={settings.autoLogoutTime?.slice(0, 2) ?? "8"}
+            disabled={!settings.autoLogoutEnabled}
+            onChange={(e) => {
+
+              const hour = Math.max(
+                0,
+                Math.min(23, Number(e.target.value))
+              )
+
+              setSettings({
+                ...settings,
+                autoLogoutTime:
+                  `${hour.toString().padStart(2, "0")}:00`,
+              })
+            }}
+            className="w-20 border rounded px-2 py-1 disabled:bg-gray-100"
+          />
+
+          <span>時</span>
+
+        </div>
+
         </div>
 
         {/* 保存 */}
