@@ -30,7 +30,8 @@ import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
-
+//auto logout
+import {startAutoLogout,stopAutoLogout} from "../contexts/autoLogout"
 //supabase
 import { supabase } from "../lib/supabase"
 
@@ -107,12 +108,14 @@ import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealt
 import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
 import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
 import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
+import { subscribeHospitalSettingsRealtime } from "../realtime/hospitalSettingsRealtime"
 
 //お知らせ表示用
-import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 
-
+import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 
 export default function Page() {
   //console.log("Dashboard render")
@@ -178,7 +181,9 @@ export default function Page() {
   const {currentUser,setCurrentUser} = useAuth()
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
-
+  //設定詳細用のstate
+  const [hospitalSettings, setHospitalSettings] =useState<HospitalSettingsType | null>(null)
+                                                                          
   //refresh token後realtime再登録用
   const [realtimeVersion, setRealtimeVersion] = useState(0)
   const {
@@ -937,65 +942,32 @@ export default function Page() {
 useEffect(() => {
   console.log("Realtime useEffect");
   const accessToken = localStorage.getItem("access_token")
-  if (!currentUser) {
-    return
-  }
-  if (accessToken) {
-    supabase.realtime.setAuth(accessToken)
-  }
-
-
+  if (!currentUser) {return}
+  if (accessToken) {supabase.realtime.setAuth(accessToken)}
   const unsubscribeDevices = subscribeDevicesRealtime({
-    setDeviceList,
-    setStockLastUpdated,
-    setWardLastUpdated
+                                                      setDeviceList,
+                                                      setStockLastUpdated,
+                                                      setWardLastUpdated
   })
-
-  const unsubscribeWards = subscribeWardsRealtime({
-    setWards
-  })
-
-  const unsubscribeRooms = subscribeRoomsRealtime({
-    setRooms
-  })
-
-  const unsubscribeStockAreas = subscribeStockAreasRealtime({
-    setStockAreas
-  })
-
-  const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({
-    setDeviceTypes
-  })
-
-  const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({
-    setDeviceModels
-  })
-
-  const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({
-    setMaintenanceTypes
-  })
-
-  const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({
-    setInfectionTypes
-  })
-
-  const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({
-    setRoomInfections
-  })
-
-  const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({
-    setTasks
-  })
-
+  const unsubscribeWards = subscribeWardsRealtime({setWards})
+  const unsubscribeRooms = subscribeRoomsRealtime({setRooms})
+  const unsubscribeStockAreas = subscribeStockAreasRealtime({setStockAreas})
+  const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({setDeviceTypes})
+  const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({setDeviceModels})
+  const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({setMaintenanceTypes})
+  const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({setInfectionTypes})
+  const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({setRoomInfections})
+  const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({setTasks})
   const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({
-    hospitalId: currentUser.hospitalId,
-      setAnnouncements: setActiveAnnouncements
+                                                                    hospitalId: currentUser.hospitalId,
+                                                                      setAnnouncements: setActiveAnnouncements
   })
-
   const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({
-      hospitalId: currentUser.hospitalId,
-      setAnnouncements: setActiveAnnouncements
-  })
+                                                                                    hospitalId: currentUser.hospitalId,
+                                                                                    setAnnouncements: setActiveAnnouncements
+    })
+  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
+
   return () => {
 
     unsubscribeDevices()
@@ -1010,6 +982,7 @@ useEffect(() => {
     unsubscribeMaintenanceTasks()
     unsubscribeAnnouncements()
     unsubscribeAnnouncementHospitals()
+    unsubscribeHospitalSettingRealtime()
   }
 
 }, [currentUser, realtimeVersion])
@@ -1036,7 +1009,7 @@ useEffect(() => {
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
     const wardLastUpdated = await fetchWardLastUpdated()
-    console.log("wardLastUpdated:",wardLastUpdated)
+    console.log("currentUser:",currentUser)
     setStockLastUpdated(stockLastUpdated)
     setWardLastUpdated(wardLastUpdated)
     //お知らせ表示
@@ -1044,7 +1017,7 @@ useEffect(() => {
                                                 hospitalId: currentUser.hospitalId,
                                                 setAnnouncements: setActiveAnnouncements
                                               })
-
+    await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
   }
   fetchData()}, [currentUser])
   
@@ -1060,27 +1033,36 @@ useEffect(() => {
 
 //refresh tokenが走ると発火する
 useEffect(() => {
-
     const reconnect = () => {
         console.log("[Reconnect Event Received]")
-
         setRealtimeVersion(v => {
-            console.log("realtimeVersion:", v, "->", v + 1)
-            return v + 1
+                                console.log("realtimeVersion:", v, "->", v + 1)
+                                return v + 1
         })
     }
+
     window.addEventListener("reconnect-realtime", reconnect)
-
-    return () => {
-        window.removeEventListener("reconnect-realtime", reconnect)
-    }
-
+    return () => {window.removeEventListener("reconnect-realtime", reconnect)}
 }, [])
 
+//auto logout機能
+useEffect(() => {
+      console.log("自動logout")
+      if (!hospitalSettings) {return}
+      if (!hospitalSettings.autoLogoutEnabled) {
+                                                stopAutoLogout()
+                                                return
+                                                }
+      startAutoLogout(
+                      hospitalSettings.autoLogoutTime,
+                      handleLogout
+                    )
+      return () => {stopAutoLogout()}
+}, [hospitalSettings])
 
-  if (currentUser === undefined) {
+if (currentUser === undefined) {
     return null // 認証確認中
-  }
+}
 if (!currentUser) {
   return null
 }
@@ -1120,7 +1102,7 @@ if (!currentUser) {
           infectionTypes={infectionTypes}
           roomInfections={roomInfections}
           activeAnnouncements={activeAnnouncements}
-
+          hospitalSettings={hospitalSettings}
         />
       </div>
       {/* ✅ 境界バー */}
@@ -1236,7 +1218,8 @@ if (!currentUser) {
           setInfectionTypes={setInfectionTypes}
           setStockLastUpdated={setStockLastUpdated}
           setWardLastUpdated={setWardLastUpdated}
-
+          hospitalSettings={hospitalSettings}
+          setHospitalSettings={setHospitalSettings}
         />
       </div>
       {/*機器残数表示パネル */}
@@ -1321,7 +1304,7 @@ if (!currentUser) {
         roomInfections={roomInfections}
         setRoomInfections={setRoomInfections}
         onDelete={deleteDevice}
-
+        hospitalSettings={hospitalSettings}
       />
 
 

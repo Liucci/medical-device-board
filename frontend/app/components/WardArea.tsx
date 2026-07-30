@@ -10,11 +10,12 @@ import { RoomType } from "../types/roomTypes"
 import { WardLastUpdatedResponse} from "../types/deviceTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { RoomInfectionType } from "../types/roomInfectionTypes"
+import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 
 import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateUtils"
 
-import { ActiveAnnouncementFrontType } from "../types/announcementType"
+import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 
 //page.tsxより
 type Props = {
@@ -41,6 +42,7 @@ type Props = {
   infectionTypes:InfectionTypeType[]
   roomInfections:RoomInfectionType[]
   activeAnnouncements: ActiveAnnouncementFrontType[]
+hospitalSettings: HospitalSettingsType | null
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -69,7 +71,8 @@ export default function WardArea({
                                   wardLastUpdated,
                                   infectionTypes,
                                   roomInfections,
-                                  activeAnnouncements
+                                  activeAnnouncements,
+                                  hospitalSettings
 
                                 }: Props) {
   
@@ -287,6 +290,7 @@ return (
                       isDragging={isDragging}
                       roomInfections={roomInfections}
                       infectionTypes={infectionTypes}
+                      hospitalSettings={hospitalSettings}
                     />
                   ))
                 }

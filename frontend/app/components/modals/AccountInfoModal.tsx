@@ -25,6 +25,8 @@ export default function AccountInfoModal({
                                         hospitalName,
                                         email
                                       }: Props) {
+//  console.log("AccountInfoModal")
+//  console.log("hospitalName:",hospitalName)
 
   const [loading, setLoading] = useState(false)
 

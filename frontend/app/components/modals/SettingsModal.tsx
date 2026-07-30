@@ -8,7 +8,8 @@ import {
   Settings2,
   Wrench,
   GripVertical,
-  Biohazard
+  Biohazard,
+  Shield
 } from "lucide-react"
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -27,7 +28,8 @@ import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
 import InfectionSettingModal from "./InfectionSettingModal"
-
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+import HospitalSettingModal from "./HospitalSettingModal"
 type Props = {
   onClose: () => void
   stockAreas: StockAreaType[]
@@ -44,7 +46,9 @@ type Props = {
   setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
-
+  hospitalSettings: HospitalSettingsType | null
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
+>
 }
 
 type Mode =
@@ -54,6 +58,7 @@ type Mode =
             | "deviceType"
             | "maintenance"
             | "infection"
+            | "hospitalSetting"
             | "wardOrder"
             | "stockAreaOrder"
 export default function SettingsModal({
@@ -71,10 +76,11 @@ export default function SettingsModal({
   maintenanceTypes,
   setMaintenanceTypes,
   infectionTypes,
-  setInfectionTypes
-
-
-}: Props) {
+  setInfectionTypes,
+  hospitalSettings,
+  setHospitalSettings
+}: Props) 
+{
   const [mode, setMode] = useState<Mode>("menu")
 
   const menuButtons = [
@@ -102,6 +108,11 @@ export default function SettingsModal({
       label: "感染症編集",
       mode: "infection" as const,
       icon: Biohazard
+    },
+    {
+      label: "管理",
+      mode: "hospitalSetting" as const,
+      icon: Shield
     },
     {
       label: "病棟レイアウト",
@@ -227,7 +238,21 @@ export default function SettingsModal({
             />
           </>
         )}
+        {mode === "hospitalSetting" && (
+          <>
+            <div className="flex justify-start mb-4">
+              <button onClick={() => setMode("menu")}>
+                ← 戻る
+              </button>
+            </div>
 
+            <HospitalSettingModal
+              hospitalSettings={hospitalSettings}
+              setHospitalSettings={setHospitalSettings}
+              onClose={() => setMode("menu")}
+            />
+          </>
+        )}
         {mode === "wardOrder" && (
           <>
           <div className="flex justify-start mb-4">

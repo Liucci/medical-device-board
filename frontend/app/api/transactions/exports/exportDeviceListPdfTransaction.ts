@@ -10,13 +10,13 @@ from "../../exports/exportDeviceListPdf"
 
 
 export async function exportDeviceListPdfTransaction(
-                                                      rows:
-                                                      DeviceListExportUIType[]
+                                                      rows:DeviceListExportUIType[],
+                                                      showPatientName: boolean
                                                     )
 {
-  const blob =
-    await exportDeviceListPdfFromApi(
-                                      rows
+  const blob =await exportDeviceListPdfFromApi(
+                                      rows,
+                                      showPatientName
                                     )
 
   if (!blob) {return}

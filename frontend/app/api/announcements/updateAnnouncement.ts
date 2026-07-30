@@ -1,6 +1,6 @@
 import { API_BASE_URL, authFetch } from "../client/apiClient"
 
-import { UpdateAnnouncementBackType } from "../../types/announcementType"
+import { UpdateAnnouncementBackType } from "../../types/announcementTypes"
 
 
 export const updateAnnouncement = async (

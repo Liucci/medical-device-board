@@ -9,6 +9,8 @@ import { RoomType } from "../types/roomTypes"
 import {MaintenanceType } from "../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
+import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 
 
 import DeviceModal from "./modals/DeviceModal"
@@ -27,7 +29,8 @@ import {
   FileText,
   LogOut,
   UserPlus,
-  TestTube
+  TestTube,
+   Shield
 } from "lucide-react"
 //テストボタン用
 
@@ -69,9 +72,13 @@ type Props = {
   hospitalName: string
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
-setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
-setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
+  setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
+  setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
+  hospitalSettings: HospitalSettingsType | null
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
+>
 }
+
 
 export default function ButtonPanel({
   deviceList,
@@ -102,7 +109,9 @@ export default function ButtonPanel({
   infectionTypes,
   setInfectionTypes,
   setStockLastUpdated,
-  setWardLastUpdated
+  setWardLastUpdated,
+  hospitalSettings,
+  setHospitalSettings
 
 }: Props) {
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
@@ -111,6 +120,7 @@ export default function ButtonPanel({
   const [openDeviceListModal, setOpenDeviceListModal] = useState(false)
   const [openInviteModal,setOpenInviteModal] = useState(false)
   const [openAccountInfoModal, setOpenAccountInfoModal] = useState(false)
+  const [openHospitalSettingsModal, setOpenHospitalSettingsModal] = useState(false)
 
   const OpenModal = () => {
     setOpenDeviceModal(true)
@@ -129,8 +139,9 @@ export default function ButtonPanel({
   const openInvite = () => {
     setOpenInviteModal(true)
   }
-
-
+ const openHospitalSettings = () => {
+    setOpenHospitalSettingsModal(true)
+}
   //supabaseのsend-email関数呼び出しテスト
   const testEmail = async () => {
      const { data, error } =
@@ -246,6 +257,8 @@ export default function ButtonPanel({
           setMaintenanceTypes={setMaintenanceTypes}
           infectionTypes={infectionTypes}
           setInfectionTypes={setInfectionTypes}
+          hospitalSettings={hospitalSettings}
+          setHospitalSettings={setHospitalSettings}
 
 
         />
@@ -255,6 +268,7 @@ export default function ButtonPanel({
           isOpen={openHistoryModal}
           onClose={() => setOpenHistoryModal(false)}
           histories={histories}
+          hospitalSettings={hospitalSettings}
         />
       }
       {openDeviceListModal &&
@@ -268,6 +282,8 @@ export default function ButtonPanel({
           deviceModels={deviceModels}
           deviceList={deviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
+          hospitalSettings={hospitalSettings}
+
         />
       }
 

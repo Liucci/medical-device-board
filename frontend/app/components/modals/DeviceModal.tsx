@@ -49,7 +49,7 @@ export default function DeviceModal({
   const [selectedAssetType, setSelectedAssetType] = useState<typeof AssetTypes[number]>("資産")
   //本日の日付を取得
   const today = new Date().toISOString().split("T")[0]
-    //レンタル開始日と終了日を管理するstateを追加
+  //レンタル開始日と終了日を管理するstateを追加
   const [rentalStartDate, setRentalStartDate] = useState(today)
   const [rentalEndDate, setRentalEndDate] = useState("")
 
@@ -118,15 +118,9 @@ export default function DeviceModal({
           <CommonModal
                       open={true}
                       onClose={onClose}
+                      title="機器登録"
                       maxWidth="max-w-md"
-                  >
-
-            <div className="p-8">
-
-                <h2 className="mb-6 text-center text-2xl font-bold">
-                    機器登録
-                </h2>
-
+          >
                 <div className="space-y-4">
                       
                 <select
@@ -220,13 +214,8 @@ export default function DeviceModal({
                     </button>
 
                 </div>
-
-            </div>
-
         </CommonModal>
-
         <LoadingOverlay loading={loading} />
-          </>
-
-  
+          
+    </>
 )}

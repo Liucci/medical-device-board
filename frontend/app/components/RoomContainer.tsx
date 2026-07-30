@@ -1,6 +1,8 @@
 import { Device } from "../types/deviceTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { RoomInfectionType } from "../types/roomInfectionTypes"
+import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+
 import { FaVirus } from "react-icons/fa"
 
 import DeviceIcon from "../utils/DeviceIcon"
@@ -36,7 +38,7 @@ type Props = {
   isDragging: boolean
   infectionTypes:InfectionTypeType[]
   roomInfections:RoomInfectionType[]
-  
+  hospitalSettings: HospitalSettingsType | null
 }
 
 export default function RoomContainer({
@@ -59,7 +61,8 @@ export default function RoomContainer({
                             currentUser,
                             isDragging,
                             infectionTypes,
-                            roomInfections
+                            roomInfections,
+                            hospitalSettings
 
                             }: Props) {
 
@@ -169,7 +172,11 @@ return (
         lineHeight: 1.1
       }}
     >
-      {patientName ? `患者: ${patientName}` : "患者なし"}
+        {
+            hospitalSettings?.showPatientName
+                ? (patientName ? `患者: ${patientName}` : "患者なし")
+                : ""
+      }
     </div>
           {/* 👇 flex配置 */}
       <div

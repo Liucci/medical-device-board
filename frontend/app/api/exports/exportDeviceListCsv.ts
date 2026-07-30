@@ -10,16 +10,15 @@ import { API_BASE_URL ,authFetch}from "../client/apiClient"
 
 
 export async function exportDeviceListCsvFromApi(
-  rows: DeviceListExportUIType[]
-) {
-
+                                                rows: DeviceListExportUIType[],
+                                                showPatientName: boolean
+                                                )
+ {
   console.log("exportDeviceListCsv")
 
   const request = {
-                    rows:
-                      rows.map(
-                        DeviceListExportDBMapper
-                      )
+                    rows:rows.map(DeviceListExportDBMapper),
+                    show_patient_name: showPatientName
                   }
 
   console.log("row count:",request.rows.length)

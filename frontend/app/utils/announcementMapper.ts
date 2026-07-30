@@ -11,7 +11,7 @@ import {
         UpdateAnnouncementCRUDBackType,
         ActiveAnnouncementBackType,
         ActiveAnnouncementFrontType
-} from "../types/announcementType"
+} from "../types/announcementTypes"
 
 export const normalizeAnnouncement = (
             announcement: AnnouncementBackType

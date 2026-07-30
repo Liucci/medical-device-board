@@ -13,7 +13,8 @@ from exports.pdf.create_pdf_doc import create_pdf_doc
 
 def create_history_pdf(
                             rows: list[dict],
-                             hospital_name:str
+                             hospital_name:str,
+                             show_patient_name: bool
                       ):
 
     doc, buffer = create_pdf_doc()
@@ -36,21 +37,36 @@ def create_history_pdf(
                                 20
                               )
                     )
-
-    table_data = [
-        [
+    if show_patient_name:
+        table_data = [
+            [
             "日時",
             "機器ID",
             "機種",
             "型式",
             "操作",
+            "操作者",
             "保守開始",
             "保守終了",
             "場所",
             "患者名",
             "内容"
+            ]
         ]
-    ]
+    else:
+        table_data = [[
+            "日時",
+            "機器ID",
+            "機種",
+            "型式",
+            "操作",
+            "操作者",
+            "保守開始",
+            "保守終了",
+            "場所",
+            "内容"
+        ]]
+        
     for row in rows:
 
         created_at = ""
@@ -68,36 +84,32 @@ def create_history_pdf(
                                 or row["stock_area_name"]
                                 or ""
                             )
-        table_data.append(
-            [
-                created_at,
-                str(row["device_id"]),
-                row["device_type_name"] or "",
-                row["device_model_name"] or "",
-                row["action_type"] or "",
-                row["maintenance_started_at"] or "",
-                row["maintenance_finished_at"] or "",
-                location_name ,
-                row["patient_name"] or "",
-                row["message"] or ""
-            ]
-        )
-    #table名を全ページに表示される
-    table = Table(
-        table_data,
-        repeatRows=1,
-        colWidths=[
-            70,  # 日時
-            30,  # ID
-            70,  # 機種
-            70,  # 型式
-            50,  # 操作
-            70,  # 保守開始
-            70,  # 保守終了
-            55,  # 場所
-            70,  # 患者名
-            150   # 内容
+        pdf_row = [
+            created_at,
+            str(row["device_id"]),
+            row["device_type_name"] or "",
+            row["device_model_name"] or "",
+            row["action_type"] or "",
+            row["action_by_name"] or "",
+            row["maintenance_started_at"] or "",
+            row["maintenance_finished_at"] or "",
+            location_name
         ]
+        if show_patient_name:
+            pdf_row.append(row["patient_name"] or "")
+        pdf_row.append(row["message"] or "")
+        table_data.append(pdf_row)         
+
+    #table名を全ページに表示される
+    if show_patient_name:
+        col_widths = [70, 30, 70, 70, 50, 60, 70, 70, 55, 70, 150 ]
+    else:
+        col_widths = [70, 30, 70, 70, 50, 60, 70, 70, 55, 150]
+
+    table = Table(
+                table_data,
+                repeatRows=1,
+                colWidths=col_widths
     )
     table.setStyle(
             TableStyle(

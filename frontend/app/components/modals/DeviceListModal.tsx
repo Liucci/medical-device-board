@@ -9,6 +9,8 @@ import { WardType } from "../../types/wardTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+
 import {exportDeviceListPdfTransaction}from "../../api/transactions/exports/exportDeviceListPdfTransaction"
 import {DeviceListExportUIType}from "../../types/exportTypes"
 import {exportDeviceListCsvTransaction}from "../../api/transactions/exports/exportDeviceListCsvTransaction"
@@ -32,6 +34,8 @@ type Props = {
       name: string
       due_at: string
     } | null
+    hospitalSettings: HospitalSettingsType | null
+
 }
 
 export default function DeviceListModal({
@@ -43,7 +47,8 @@ export default function DeviceListModal({
   stockAreas,
   deviceTypes,
   deviceModels,
-  getLatestMaintenanceTask
+  getLatestMaintenanceTask,
+  hospitalSettings
 }: Props) {
 
   // ===== search =====
@@ -449,6 +454,7 @@ const filteredDeviceLists = useMemo(() => {
           : "",
 
       patientName:
+        hospitalSettings?.showPatientName &&
         device.status === "room"
           ? room?.patientName ?? ""
           : "",
@@ -525,9 +531,11 @@ const filteredDeviceLists = useMemo(() => {
             <button
                 onClick={() =>
                 executeWithErrorAndLoading({
-                                            setLoading,
-                                            action: () =>
-                                                exportDeviceListCsvTransaction(filteredDeviceLists)
+                                  setLoading,
+                                  action: () =>
+                                      exportDeviceListCsvTransaction(filteredDeviceLists,
+                                                                      hospitalSettings?.showPatientName ?? false
+                                                                    )
                 })
                 }
               className="
@@ -545,7 +553,9 @@ const filteredDeviceLists = useMemo(() => {
                 executeWithErrorAndLoading({
                                             setLoading,
                                             action: () =>
-                                                exportDeviceListPdfTransaction(filteredDeviceLists)
+                                                exportDeviceListPdfTransaction(filteredDeviceLists,
+                                                            hospitalSettings?.showPatientName ?? false
+                                                )
                 })
               }
               className="
@@ -860,10 +870,12 @@ const filteredDeviceLists = useMemo(() => {
                   病室/保管場所
                 </th>
 
-                <th className="border p-2">
-                  患者名
-                </th>
-
+                {hospitalSettings?.showPatientName && (
+                  <th className="border p-2">
+                    患者名
+                  </th>
+                )}
+                
                 <th className="border p-2">
                   機種名
                 </th>
@@ -1020,6 +1032,7 @@ const filteredDeviceLists = useMemo(() => {
 
                     {/* ===== patient ===== */}
 
+                {hospitalSettings?.showPatientName && (
                     <td className="border p-2">
 
                       {
@@ -1029,6 +1042,7 @@ const filteredDeviceLists = useMemo(() => {
                       }
 
                     </td>
+                )}
 
                     {/* ===== type ===== */}
 

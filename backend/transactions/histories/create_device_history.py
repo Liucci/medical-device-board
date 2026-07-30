@@ -1,9 +1,10 @@
 from common.supabase_admin_client import supabase
 
 from devices.fetch_devices import fetch_device
-
+from auth.fetch_current_user import fetch_current_user
 from device_types.fetch_device_type import fetch_device_type
 from device_models.fetch_device_models import fetch_device_model
+from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
 
 from rooms.fetch_rooms import fetch_room
 from stock_areas.fetch_stock_areas import fetch_stock_area
@@ -16,7 +17,7 @@ def create_device_history(
                             action_type: str,
                             message: str | None = None
                          ):
-
+    current_user = fetch_current_user_transaction(action_by)    
     device = fetch_device(
                             device_id=device_id,
                             hospital_id=hospital_id
@@ -54,6 +55,7 @@ def create_device_history(
         "hospital_id": hospital_id,
         "device_id": device_id,
         "action_by": action_by,
+        "action_by_name": current_user.display_name,
         "action_type": action_type,
         "message": message,
         "device_type_name": device_type["name"],

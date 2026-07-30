@@ -5,11 +5,13 @@ import { History }
 from "@/app/types/historyTypes"
 
 export async function exportHistoryPdfTransaction(
-                                                    histories: History[]
+                                                   histories: History[],
+                                                   showPatientName: boolean
                                                   )
 {
   const blob = await exportHistoryPdfFromApi(
-                                               histories
+                                               histories,
+                                               showPatientName
                                              )
 
   if (!blob) {return}
