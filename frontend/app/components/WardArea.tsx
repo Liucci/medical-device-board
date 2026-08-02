@@ -10,6 +10,7 @@ import { RoomType } from "../types/roomTypes"
 import { WardLastUpdatedResponse} from "../types/deviceTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { RoomInfectionType } from "../types/roomInfectionTypes"
+import { WardInfectionType } from "../types/wardInfectionTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 
 import RoomContainer from "./RoomContainer"
@@ -32,6 +33,7 @@ type Props = {
   onDrop: (device: Device, id: number) => void
   rooms: RoomType[]
   openRoomDeviceInfoModal: (device: Device) => void
+  openWardInfoModal:(ward:WardType)=>void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
@@ -41,8 +43,10 @@ type Props = {
   wardLastUpdated: WardLastUpdatedResponse
   infectionTypes:InfectionTypeType[]
   roomInfections:RoomInfectionType[]
+  wardInfections:WardInfectionType[]
   activeAnnouncements: ActiveAnnouncementFrontType[]
-hospitalSettings: HospitalSettingsType | null
+  hospitalSettings: HospitalSettingsType | null
+
 }
 //WardAreaの役割は、病棟エリア全体を管理すること。
 // 病棟エリアのレイアウトを定義し、
@@ -60,6 +64,7 @@ export default function WardArea({
                                   onDrop,
                                   rooms,
                                   openRoomDeviceInfoModal,
+                                  openWardInfoModal,
                                   getMAlert,
                                   wardCellSize,
                                   managementNumber,
@@ -71,6 +76,7 @@ export default function WardArea({
                                   wardLastUpdated,
                                   infectionTypes,
                                   roomInfections,
+                                  wardInfections,
                                   activeAnnouncements,
                                   hospitalSettings
 
@@ -211,7 +217,8 @@ return (
 
         alignItems: "flex-start",
 
-        gap: "12px"
+        gap: "12px",
+        paddingTop: "6px"
       }}
     >       
     {
@@ -242,6 +249,12 @@ return (
                                   wardCellSize * 1
                                 )}
               cellSize={wardCellSize}
+              ward={ward}
+              onClick={() => openWardInfoModal(ward)}
+              infectionTypes={infectionTypes}
+              wardInfections={wardInfections}
+
+
             >
               <div
                 style={{

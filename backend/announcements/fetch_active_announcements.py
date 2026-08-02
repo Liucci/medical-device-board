@@ -31,7 +31,7 @@ def fetch_active_announcements(
                     .order("start_at")
                     .execute()
                 )
-    print("active_announcements:",response.data)
+    #print("active_announcements:",response.data)
     return [
                 FetchActiveAnnouncementsResponse(
                                                     id=row["id"],

@@ -5,7 +5,8 @@ import {
          UpdateWardType,
          DeleteWardsType,
          UpdateWardOrderType,
-         UpdateWardOrdersType
+         UpdateWardOrdersType,
+         UpdateWardInfoType
        } from "../types/wardTypes"
 
 // DB → UI
@@ -15,7 +16,9 @@ export const normalizeWard = (
                                                  id: w.id,
                                                  hospitalId: w.hospital_id,
                                                  name: w.name,
-                                                 displayOrder: w.display_order
+                                                 displayOrder: w.display_order,
+                                                 status: w.status,
+                                                 note: w.note,
                                                })
 
 // Create
@@ -49,3 +52,12 @@ export const toUpdateWardOrdersRequest = (
                                                                                     display_order: ward.displayOrder,
                                                                                   })),
                                                 })
+
+// Update WardInfo
+export const toUpdateWardInfoRequest = (
+                                          ward: UpdateWardInfoType
+                                        ) => ({
+                                                id: ward.id,
+                                                status: ward.status,
+                                                note: ward.note,
+                                        })

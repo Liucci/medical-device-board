@@ -10,7 +10,11 @@ import RoomModal from "../components/modals/RoomModal"
 import RoomToRoomModal from "../components/modals/RoomToRoomModal"
 import StockInfoModal from "../components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
+import WardInfoModal from "../components/modals/WardInfoModal"
 import LowStockPanel from "../components/LowStockPanel"
+
+import { WardType,UpdateWardInfoType} from "../types/wardTypes"
+
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 import { useEffect, useState,useRef } from "react"
 import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
@@ -24,7 +28,10 @@ import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
 import { normalizeMaintenanceTask } from "../utils/taskMapper"
 import { normalizeInfectionType} from "../utils/infectionTypeMapper"
 import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
+import { normalizeWardInfection } from "../utils/wardInfectionMapper"
 
+//check系
+import { checkWardWarning } from "../utils/checkWardWarning"
 
 
 //login logoutのためのlogin中user情報取得
@@ -72,9 +79,11 @@ import { updateMaintenanceTaskDueAtTransaction } from "../api/transactions/tasks
 import { cancelMaintenanceTaskTransaction } from "../api/transactions/tasks/cancelMaintenanceTaskTransaction"
 import { CompleteMaintenanceTask } from "../types/taskTypes"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTypes"
+
 //infection系
 import { getInfectionTypesFromApi } from "../api/infectionTypes/fetchInfectionTypes"
 import { getRoomInfectionsFromApi } from "../api/roomInfections/fetchRoomInfections"
+import { updateWardInfoTransaction } from "../api/transactions/wards/updateWardInfoTransaction"
 
 import { createInfectionTypeTransaction } from "../api/transactions/infectionTypes/createInfectionTypeTransaction"
 import { updateInfectionTypeTransaction } from "../api/transactions/infectionTypes/updateInfectionTypeTransaction"
@@ -130,7 +139,7 @@ export default function Page() {
   const [histories, setHistories] = useState<any[]>([])
   const [infectionTypes, setInfectionTypes] = useState<any[]>([])
   const [roomInfections, setRoomInfections] = useState<any[]>([])
-
+  const [wardInfections, setWardInfections] = useState<any[]>([])
 
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
@@ -152,6 +161,9 @@ export default function Page() {
   const [roomDeviceInfoModalOpen, setRoomDeviceInfoModalOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [selectedRoomDevice, setSelectedRoomDevice] = useState<Device | null>(null)
+  //wardInfoModal
+  const [wardInfoModalOpen, setWardInfoModalOpen] = useState(false)
+  const [selectedWard, setSelectedWard] = useState<WardType | null>(null)
   //どのデバイスをどの病棟に落としたかを保存するstate
   const [pendingDevice, setPendingDevice] = useState<Device | null>(null)
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
@@ -337,6 +349,11 @@ export default function Page() {
       alert("保守中機器は病棟へ配置できません")
       return
     }
+
+    const ward = wards.find(w => w.id === wardId)
+
+    if (!ward) {return}
+    if (!checkWardWarning(ward, wardInfections)) {return}
     // 共通
     setPendingDevice(device)
     setTargetWardId(wardId)
@@ -737,23 +754,18 @@ export default function Page() {
     return true
   }  
 
-
-
-
-
-
   const handleRoomDeviceInfoCancel = () => {
     if (!currentUser) {return}  
     setRoomDeviceInfoModalOpen(false)
   }
 
   //RoomDeviceInfoModal
-  const updateSelectedRoomDevice = (updater: (d: Device) => Device
+ /*  const updateSelectedRoomDevice = (updater: (d: Device) => Device
     ) => {
       setSelectedRoomDevice(prev =>
         prev ? updater(prev) : prev
       )
-  }
+  } */
 
   
   const deleteDevice = async (
@@ -860,12 +872,36 @@ export default function Page() {
     return "green"
   }
 
+  const handleSubmitWardInfo = async (
+                                      ward: UpdateWardInfoType,
+                                      infectionTypeIds: number[]
+                                    ) => 
+  {
+    await updateWardInfoTransaction({
+                                    ward,
+                                    infectionTypeIds,
+                                    setWards,
+                                    setWardInfections,
+                                    })
+    setWardInfoModalOpen(false)
+    setSelectedWard(null)
+  }
 
+
+  const openWardInfoModal = (ward: WardType) => {
+                                                setSelectedWard(ward)
+                                                setWardInfoModalOpen(true)
+  }
+
+  const closeWardInfoModal = () => {
+                                      setWardInfoModalOpen(false)
+                                      setSelectedWard(null)
+  }
 
   const fetchHistories = async () => {
     const histories = await getHistoriesFromApi()
     setHistories(
-      histories.map(normalizeHistory)
+                    histories.map(normalizeHistory)
     )
   }  
   
@@ -929,6 +965,8 @@ export default function Page() {
       currentWardId:device.roomId ?? null,
     }
   })
+
+
 
   //logout関数
   const handleLogout = async () => {
@@ -1006,6 +1044,9 @@ useEffect(() => {
     setHistories(data.histories.map(normalizeHistory))
     setInfectionTypes(data.infection_types.map(normalizeInfectionType))
     setRoomInfections(data.room_infections.map(normalizeRoomInfection))
+    setWardInfections(data.ward_infections.map(normalizeWardInfection))
+
+    //setWardInfections(data.ward_infections.map(normalizeWardInfection))
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
     const wardLastUpdated = await fetchWardLastUpdated()
@@ -1092,6 +1133,7 @@ if (!currentUser) {
           onDrop={handleDropToWard} 
           rooms={rooms}
           openRoomDeviceInfoModal={openRoomDeviceInfoModal}
+          openWardInfoModal={openWardInfoModal}
           getMAlert={getMAlert}
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
@@ -1101,6 +1143,7 @@ if (!currentUser) {
           wardLastUpdated={wardLastUpdated}
           infectionTypes={infectionTypes}
           roomInfections={roomInfections}
+          wardInfections={wardInfections}
           activeAnnouncements={activeAnnouncements}
           hospitalSettings={hospitalSettings}
         />
@@ -1306,7 +1349,18 @@ if (!currentUser) {
         onDelete={deleteDevice}
         hospitalSettings={hospitalSettings}
       />
+      <WardInfoModal
+        isOpen={wardInfoModalOpen}
+        ward={selectedWard}
+        onClose={closeWardInfoModal}
 
+        infectionTypes={infectionTypes}
+        wardInfections={wardInfections}
+        setWardInfections={setWardInfections}
+        onSubmit={handleSubmitWardInfo}
+        setWards={setWards}
+      />
+      
 
     </div>
   )

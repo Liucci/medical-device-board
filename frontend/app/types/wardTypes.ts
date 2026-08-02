@@ -4,6 +4,9 @@ export type WardType = {
                          hospitalId: string
                          name: string
                          displayOrder: number
+
+                         status:string | null
+                         note:string | null
                        }
 
 // Backend Response型
@@ -12,6 +15,8 @@ export type WardDBType = {
                            hospital_id: string
                            name: string
                            display_order: number
+                           status:string | null
+                           note:string | null
                          }
 
 // Create専用
@@ -40,3 +45,9 @@ export type UpdateWardOrderType = {
 export type UpdateWardOrdersType = {
                                     wards: UpdateWardOrderType[]
                                   }
+
+export type UpdateWardInfoType = {
+  id: number
+  status: string | null
+  note: string | null
+}
