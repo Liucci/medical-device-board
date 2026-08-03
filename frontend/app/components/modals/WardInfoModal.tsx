@@ -99,7 +99,7 @@ async function handleSave() {
 }
 
 function handleClear() {
-  if (!confirm("病棟情報をクリアしますか？")) {
+if (!confirm("病棟情報をクリアしますか？ \n\n「保存」を押すと最終確定します。")) {
     return
   }
 

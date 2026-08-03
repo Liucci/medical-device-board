@@ -847,30 +847,37 @@ export default function Page() {
 
 
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
-  const getMAlert = (deviceId?: number): "red" | "yellow" | "green" => {
+const getMAlert = (
+                    deviceId?: number
+                  ): "red" | "yellow" | "green" | null => {
 
-    if (!deviceId) return "green"
+  if (!deviceId) return null
 
-    const nearestTask =tasks.filter(
-                                    t =>
-                                      Number(t.deviceId) === Number(deviceId) &&
-                                      !t.completedAt
-                            )
-                            .sort(
-                              (a, b) =>
-                                new Date(a.dueAt).getTime() -
-                                new Date(b.dueAt).getTime()
-                            )[0]
+const activeTasks = tasks.filter(
+  t =>
+    Number(t.deviceId) === Number(deviceId) &&
+    t.isActive &&
+    !t.completedAt
+)
+//console.log(deviceId, activeTasks)
+    if (activeTasks.length === 0) {
+      return null
+    }
 
-    if (!nearestTask) return "green"
+        const nearestTask = activeTasks.sort(
+          (a, b) =>
+            new Date(a.dueAt).getTime() -
+            new Date(b.dueAt).getTime()
+        )[0]
 
-    const now = new Date()
-    const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
-    const days =Math.ceil(diff / (1000 * 60 * 60 * 24))
-      if (days < 0) return "red"
-      if (days <= 2) return "yellow"
-    return "green"
-  }
+  const now = new Date()
+  const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+
+  if (days < 0) return "red"
+  if (days <= 2) return "yellow"
+  return "green"
+}
 
   const handleSubmitWardInfo = async (
                                       ward: UpdateWardInfoType,

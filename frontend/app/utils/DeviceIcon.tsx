@@ -11,7 +11,7 @@ type Props = {
 
   rentalEndDate?: string
 
-  mAlert?: "red" | "yellow" | "green"
+  mAlert?: "red" | "yellow" | "green"| null
 
   cellSize: number
   isUnderMaintenance?: boolean

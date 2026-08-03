@@ -34,7 +34,7 @@ type Props = {
   rooms: RoomType[]
   openRoomDeviceInfoModal: (device: Device) => void
   openWardInfoModal:(ward:WardType)=>void
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   wardCellSize: number
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser:CurrentUser 

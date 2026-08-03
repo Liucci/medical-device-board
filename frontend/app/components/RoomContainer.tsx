@@ -32,7 +32,7 @@ type Props = {
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
   openRoomDeviceInfoModal: (device: Device) => void
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   cellSize: number
   currentUser: any
   isDragging: boolean
@@ -236,7 +236,6 @@ return (
               onPointerUp={(e) => {
                 // 左クリック以外排除
                 if (e.button !== 0) return
-                  e.stopPropagation()
                     finishLongPress(
                       longPress.current,
                       () => {

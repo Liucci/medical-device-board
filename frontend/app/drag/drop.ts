@@ -20,6 +20,7 @@ export const getDropTarget = (
                                             clientX,
                                             clientY
                                             )
+
   if (!element) return null
   const wardElement =element.closest("[data-ward-id]")
 

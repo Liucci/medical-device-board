@@ -23,7 +23,7 @@ type Props = {
   pendingDevice: Device | null
   onDrop:(device: Device, stockAreaId: number) => void
   openStockInfoModal: (device: Device) => void
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   stockCellSize: number
   setStockCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser: any

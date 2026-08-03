@@ -30,34 +30,41 @@ export default function WardGrid({
     wardInfections.filter(
       wi => wi.wardId === ward.id
   )
+  const statusFontSize =
+    cellSize >= 88
+      ? "16px"
+      : cellSize >= 64
+      ? "14px"
+      : cellSize >= 40
+      ? "12px"
+    : "10px"
 
   return (
           <div
-            className=
-                      {
-                        `rounded-lg p-2 flex flex-col bg-white shadow-xl cursor-pointer ${
-                          wardInfectionsForWard.length > 0
-                            ? "infection-glow"
-                            : ""
-                        }`
-                      }  
+            className={`
+                        rounded-lg
+                        p-2
+                        flex
+                        flex-col
+                        bg-white
+                        shadow-xl
+                        ${wardInfectionsForWard.length > 0 ? "infection-glow" : ""}
+            `} 
             style={{
-              minWidth,
-              background:
-                wardInfectionsForWard.length > 0
-                  ? "#fff5f5"
-                  : "#ffffff",
+                    minWidth,
+                    background:
+                      wardInfectionsForWard.length > 0
+                        ? "#fff5f5"
+                        : "#ffffff",
             }}            
-            onClick={(e) => {
-              const target = e.target as HTMLElement
-              {/* room-containerがクリックされたときはward info modalが開かないようにする*/}
-              if (target.closest("[data-room-container]")) {
-                return
-              }
-              console.log("ward click")
+          >
+            {/* ★ このヘッダーだけクリック可能にする */}
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              console.log("ward click", ward.name)
               onClick?.(ward)
-            }}
-          >      
+            }}          >   
             {/* 病棟名 */}
           <div
           className="flex items-center gap-2 mb-2"
@@ -76,14 +83,22 @@ export default function WardGrid({
                   : "10px"
             }}
           >
+        
+          
         <span>{title}</span>
-          {ward.status && (
-    <span
-      className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700"
-    >
-      {ward.status}
-    </span>
-  )}
+            {ward.status && (
+              <span
+              
+                className="rounded bg-red-100 text-red-700"
+                style={{
+                  fontSize: statusFontSize,
+                  padding: "2px 6px",
+                  lineHeight: 1.2,
+                }}
+              >
+                {ward.status}
+              </span>
+            )}
            <div className="flex gap-1">
             {wardInfectionsForWard.map(wi => {
               const infection =
@@ -104,6 +119,7 @@ export default function WardGrid({
             })}
           </div>
           </div>
+        </div>
                 {children}
           </div>
         )

@@ -7,7 +7,7 @@ type Props = {
 
   draggingDevice: Device | null
   mousePos: { x: number; y: number }
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
 }
 
 export default function DragLayer({ 
