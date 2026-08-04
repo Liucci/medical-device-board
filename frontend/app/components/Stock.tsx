@@ -28,7 +28,7 @@ type Props = {
   draggingDevice: Device | null
   pendingDevice: Device | null
   openStockInfoModal: (device: Device) => void
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   cellSize: number
   currentUser: any
   isDragging: boolean

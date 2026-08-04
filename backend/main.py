@@ -76,7 +76,12 @@ from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResp
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 from schemas.maintenance_task_schemas import (UpdateMaintenanceTaskDueAtRequest,CancelMaintenanceTaskRequest)
-
+from schemas.ward_infection_schemas import (
+                                            WardInfectionResponse,
+                                            AddWardInfectionRequest,
+                                            DeleteWardInfectionsRequest,
+                                            UpdateWardInfectionsRequest,
+                                        )
 
 from transactions.fetch_init_dashboard import (fetch_init_dashboard)
 
@@ -124,6 +129,8 @@ from transactions.maintenance_types.create_maintenance_type_transaction import c
 from transactions.maintenance_types.update_maintenance_type_transaction import update_maintenance_type_transaction
 from transactions.maintenance_types.delete_maintenance_type_transaction import delete_maintenance_type_transaction
 
+from schemas.ward_schemas import UpdateWardInfoRequest
+from transactions.wards.update_ward_info_transaction import (update_ward_info_transaction,)
 #exports
 from schemas.export_schemas import  ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import export_history_pdf_transaction
@@ -150,6 +157,7 @@ from schemas.room_infection_schemas import (
 
 from infection_types.fetch_infection_types import fetch_infection_types
 from room_infections.fetch_room_infections import fetch_room_infections
+from ward_infections.fetch_ward_infections import fetch_ward_infections
 
 from transactions.infection_types.create_infection_type_transaction import create_infection_type_transaction
 from transactions.infection_types.update_infection_type_transaction import update_infection_type_transaction
@@ -160,7 +168,9 @@ from transactions.room_infections.delete_room_infections_transaction import dele
 
 from schemas.room_infection_schemas import UpdateRoomInfectionsRequest
 from transactions.room_infections.update_room_infections_transaction import update_room_infections_transaction
-
+from transactions.ward_infections.create_ward_infection_transaction import (create_ward_infection_transaction)
+from transactions.ward_infections.delete_ward_infections_transaction import (delete_ward_infections_transaction)
+from transactions.ward_infections.update_ward_infections_transaction import (update_ward_infections_transaction)
 
 #運営用
 from transactions.hospitals.fetch_hospital_management_transaction import (fetch_hospital_management_transaction)
@@ -1836,3 +1846,86 @@ def update_hospital_settings_route(
                                                     current_user.hospital_id
                                                )
 
+@app.get("/ward-infections")
+def get_ward_infections(
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user_transaction(auth_user_id)
+
+    print("get_ward_infections")
+
+    return fetch_ward_infections(
+        current_user.hospital_id
+    )
+
+@app.post("/ward-infections")
+def create_ward_infection_route(
+    ward_infection: AddWardInfectionRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+
+    current_user = fetch_current_user_transaction(auth_user_id)
+
+    print("create_ward_infection")
+
+    check_permission(
+        current_user=current_user,
+        allowed_roles=["admin", "normal"]
+    )
+
+    return create_ward_infection_transaction(
+        ward_infection,
+        current_user.hospital_id
+    )
+
+@app.post("/delete-ward-infections")
+def delete_ward_infections_route(
+    ward_infection: DeleteWardInfectionsRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+
+    current_user = fetch_current_user_transaction(auth_user_id)
+
+    print("delete_ward_infections")
+
+    check_permission(
+        current_user=current_user,
+        allowed_roles=["admin", "normal"]
+    )
+
+    delete_ward_infections_transaction(
+        ward_infection,
+        current_user.hospital_id
+    )
+
+@app.post("/update-ward-infections-transaction")
+def update_ward_infections_route(
+    ward_infection: UpdateWardInfectionsRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+
+    current_user = fetch_current_user_transaction(auth_user_id)
+
+    print("update_ward_infections_route")
+
+    check_permission(
+        current_user=current_user,
+        allowed_roles=["admin", "normal"]
+    )
+
+    return update_ward_infections_transaction(
+        ward_infection,
+        current_user.hospital_id
+    )
+
+@app.post("/update-ward-info")
+def update_ward_info(
+    ward: UpdateWardInfoRequest,
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    current_user = fetch_current_user_transaction(auth_user_id)
+    print("update_ward_info")
+    return update_ward_info_transaction(
+                                        ward=ward,
+                                        hospital_id=current_user.hospital_id,
+    )

@@ -32,7 +32,7 @@ type Props = {
   pendingDevice: Device | null
   deleteDevice: (id: number) => void
   openRoomDeviceInfoModal: (device: Device) => void
-  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"
+  getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   cellSize: number
   currentUser: any
   isDragging: boolean
@@ -92,6 +92,7 @@ const roomInfectionsForRoom =
    
 return (
     <div
+        data-room-container
         className={
                     roomInfectionsForRoom.length > 0
                       ? "infection-glow"
@@ -208,6 +209,8 @@ return (
               onPointerDown={(e) => {
                 //左クリック以外は排除
                 if (e.button !== 0) return
+                 //e.preventDefault()
+
                     const target = e.currentTarget as HTMLElement
                     const clientX = e.clientX
                     const clientY = e.clientY
@@ -233,7 +236,6 @@ return (
               onPointerUp={(e) => {
                 // 左クリック以外排除
                 if (e.button !== 0) return
-                  
                     finishLongPress(
                       longPress.current,
                       () => {
