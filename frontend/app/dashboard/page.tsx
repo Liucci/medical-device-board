@@ -977,7 +977,12 @@ const activeTasks = tasks.filter(
 
   //logout関数
   const handleLogout = async () => {
+    if (!confirm("ログアウトしますか？")) {
+      return
+    }    
     await supabase.auth.signOut()
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
     setCurrentUser(null)
     router.push("/login")
   }

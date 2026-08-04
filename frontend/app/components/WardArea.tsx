@@ -208,17 +208,15 @@ return (
     <div
       style={{
         display: "flex",
-
         // ★ 横並び化
         flexDirection: "row",
-
         // ★ 横いっぱいで折返し
         flexWrap: "wrap",
-
         alignItems: "flex-start",
-
         gap: "12px",
-        paddingTop: "6px"
+        paddingTop: "6px",
+        paddingLeft: "8px",
+        paddingRight: "6px",
       }}
     >       
     {
