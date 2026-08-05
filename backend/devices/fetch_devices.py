@@ -1,5 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
+
 #特定のhospitalの全device情報取得
+
+"""
 def fetch_devices(hospital_id: str):
 
     print("fetch_devices")
@@ -12,6 +16,24 @@ def fetch_devices(hospital_id: str):
                   .execute()
                 )
     return response.data
+ """
+
+
+def fetch_devices(
+                    client: Client,
+                    hospital_id: str,
+                    ):
+    print("fetch_devices")
+    response = (
+                client
+                .table("devices")
+                .select("*")
+                .eq("hospital_id", hospital_id)
+                .execute()
+    )
+    return response.data
+
+
 
 #device idで指定した情報を取得
 def fetch_device(

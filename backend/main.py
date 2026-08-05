@@ -211,6 +211,8 @@ from schemas.hospital_settings_schemas import (UpdateHospitalSettingsRequest)
 from transactions.hospital_settings.fetch_hospital_settings_transaction import (fetch_hospital_settings_transaction)
 from transactions.hospital_settings.update_hospital_settings_transaction import (update_hospital_settings_transaction)
 
+from common.supabase_admin_provider import get_admin_client
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -400,8 +402,8 @@ def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
     current_user = (fetch_current_user_transaction(auth_user_id))
     devices = (
                 fetch_devices(
-                                hospital_id=
-                                current_user.hospital_id
+                                client = get_admin_client(),
+                                hospital_id=current_user.hospital_id
                 )
     )
     return devices

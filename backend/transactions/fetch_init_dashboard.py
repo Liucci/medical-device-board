@@ -1,3 +1,5 @@
+from common.supabase_admin_provider import get_admin_client
+
 from devices.fetch_devices import fetch_devices
 from stock_areas.fetch_stock_areas import fetch_stock_areas
 from wards.fetch_wards import fetch_wards
@@ -13,7 +15,10 @@ from ward_infections.fetch_ward_infections import fetch_ward_infections
 
 def fetch_init_dashboard(hospital_id: str,):
     print("fetch_init_dashboard")
-    devices = fetch_devices(hospital_id)
+    devices = fetch_devices(
+                            get_admin_client(),
+                            hospital_id,
+                            )
     stock_areas = fetch_stock_areas( hospital_id)
     wards = fetch_wards(hospital_id)
     rooms = fetch_rooms( hospital_id)
