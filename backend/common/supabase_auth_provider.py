@@ -1,6 +1,7 @@
 import os
+
 from dotenv import load_dotenv
-from supabase import create_client, ClientOptions
+from supabase import Client, ClientOptions, create_client
 
 load_dotenv()
 
@@ -12,10 +13,23 @@ options = ClientOptions(
     persist_session=False,
 )
 
-_auth_client = create_client(url, key, options)
-
 CLIENT_NAME = "[auth_client]"
 
 
-def get_auth_client():
-    return _auth_client
+def get_auth_client(access_token: str) -> Client:
+    """
+    JWT付きのSupabase Clientを生成する。
+    RLS(auth.uid())を有効にするため、
+    リクエスト毎に新しいClientを生成する。
+    """
+
+    client = create_client(
+        url,
+        key,
+        options,
+    )
+
+    # PostgRESTへJWTを設定（RLS用）
+    client.postgrest.auth(access_token)
+
+    return client

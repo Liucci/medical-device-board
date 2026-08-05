@@ -1,6 +1,7 @@
 from fastapi import FastAPI,Depends
 from fastapi import HTTPException
 
+
 from fastapi.middleware.cors import (CORSMiddleware)
 from fastapi import Header
 from pydantic import BaseModel
@@ -212,7 +213,7 @@ from transactions.hospital_settings.fetch_hospital_settings_transaction import (
 from transactions.hospital_settings.update_hospital_settings_transaction import (update_hospital_settings_transaction)
 
 from common.supabase_admin_provider import get_admin_client
-
+from common.supabase_auth_provider import get_auth_client
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -380,14 +381,19 @@ def invite_first_admin_route(
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
 def init_dashboard(
-                    auth_user_id: str = Depends(get_auth_user_id)
-                    ):
+                    auth_user_id: str = Depends(get_auth_user_id),
+                    authorization: str = Header(...),
+):
+    current_user = fetch_current_user_transaction(auth_user_id)
 
-    current_user = (fetch_current_user_transaction(auth_user_id))
+    access_token = authorization.removeprefix("Bearer ").strip()
+
+    client = get_auth_client(access_token)
 
     return fetch_init_dashboard(
-                                    hospital_id=current_user.hospital_id   
-                                )
+        client=client,
+        hospital_id=current_user.hospital_id,
+    )
 
 
 @app.get("/users")
@@ -398,16 +404,20 @@ def get_users():
     return response
 
 @app.get("/devices")
-def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    devices = (
-                fetch_devices(
-                                client = get_admin_client(),
-                                hospital_id=current_user.hospital_id
-                )
-    )
-    return devices
+def get_devices(
+    auth_user_id: str = Depends(get_auth_user_id),
+    authorization: str = Header(...),
+):
+    current_user = fetch_current_user_transaction(auth_user_id)
 
+    access_token = authorization.removeprefix("Bearer ").strip()
+
+    client = get_auth_client(access_token)
+
+    return fetch_devices(
+        client=client,
+        hospital_id=current_user.hospital_id,
+    )
 #機器アイコンの新規登録用のAPI
 @app.post("/create-device-transaction")
 def create_device_transaction_route(

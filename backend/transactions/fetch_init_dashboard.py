@@ -1,4 +1,4 @@
-from common.supabase_admin_provider import get_admin_client
+from supabase import Client
 
 from devices.fetch_devices import fetch_devices
 from stock_areas.fetch_stock_areas import fetch_stock_areas
@@ -13,10 +13,16 @@ from infection_types.fetch_infection_types import fetch_infection_types
 from room_infections.fetch_room_infections import fetch_room_infections
 from ward_infections.fetch_ward_infections import fetch_ward_infections
 
-def fetch_init_dashboard(hospital_id: str,):
+#transactionではclientの種類の情報は持たない
+def fetch_init_dashboard(
+                            client: Client,
+                            hospital_id: str,
+                            ):
+    
     print("fetch_init_dashboard")
+
     devices = fetch_devices(
-                            get_admin_client(),
+                            client,
                             hospital_id,
                             )
     stock_areas = fetch_stock_areas( hospital_id)

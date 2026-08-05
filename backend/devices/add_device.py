@@ -1,7 +1,9 @@
 from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.device_schemas import (AddDeviceRequest)
 
 def add_device(
+                client:Client,
                 device: AddDeviceRequest,
                 hospital_id:str,
                 #stock_area_id:int,
@@ -12,7 +14,7 @@ def add_device(
     #device_idはDBで自動付与なのでreturnでadd device後取得できるようにする
     #DB側でcreate at,update atはnowで値が作成される
     response =(
-              supabase
+              client
               .table("devices")
               .insert({
                           "hospital_id": hospital_id,
