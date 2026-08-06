@@ -1,3 +1,4 @@
+from supabase import Client
 from tasks.cancel_maintenance_task import cancel_maintenance_task
 from schemas.maintenance_task_schemas import CancelMaintenanceTaskRequest
 from transactions.histories.create_device_history import create_device_history
@@ -5,6 +6,7 @@ from schemas.device_schemas import UpdateDeviceUpdateAtRequest
 from devices.update_device_updated_at import update_device_updated_at
 
 def cancel_maintenance_task_transaction(
+                                        client:Client,
                                         task: CancelMaintenanceTaskRequest,
                                         hospital_id: str,
                                         user_id: str,
@@ -19,6 +21,7 @@ def cancel_maintenance_task_transaction(
                                                 hospital_id=hospital_id
                                             )
     update_device_updated_at(
+                              client=client,
                               device=UpdateDeviceUpdateAtRequest(id=cancelled_task["device_id"]),
                               hospital_id=hospital_id,
                               user_id=user_id

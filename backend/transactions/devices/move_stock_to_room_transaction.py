@@ -1,4 +1,5 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from devices.move_device import move_device
 from rooms.update_rooms import update_room_patientname
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
@@ -9,6 +10,7 @@ from schemas.maintenance_task_schemas import AddMaintenanceTaskRequest
 from transactions.histories.create_device_history import (create_device_history)
 
 def move_stock_to_room_transaction(
+                                     client:Client,
                                      device: MoveDeviceRequest,
                                      room: UpdateRoomPatientRequest,
                                      hospital_id: str,
@@ -26,7 +28,8 @@ def move_stock_to_room_transaction(
                               hospital_id=hospital_id
                            )
     # 機器移動
-    moved_device = move_device(
+    moved_device = move_device( 
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,

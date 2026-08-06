@@ -1,4 +1,36 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
+from schemas.device_schemas import (AddDeviceRequest)
+
+def add_device(
+                client:Client,
+                device: AddDeviceRequest,
+                hospital_id:str,
+                #stock_area_id:int,
+                status:str
+              ):
+
+    print("add_device")
+    #device_idはDBで自動付与なのでreturnでadd device後取得できるようにする
+    #DB側でcreate at,update atはnowで値が作成される
+    response =(
+              client
+              .table("devices")
+              .insert({
+                          "hospital_id": hospital_id,
+                          "type": device.type,
+                          "model": device.model,
+                          "asset_type": device.asset_type,
+                          "stock_area_id":device.stock_area_id,
+                          "status":status,
+                          "rental_start_date": device.rental_start_date or None,
+                          "rental_end_date": device.rental_end_date or None
+                          })
+              .execute()
+              )
+    return response.data[0]
+
+
+   from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.add_device import add_device
 from stock_areas.fetch_stock_areas import fetch_stock_area

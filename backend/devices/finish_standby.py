@@ -1,17 +1,19 @@
 from datetime import datetime, timezone
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import FinishStandbyRequest
 
 def finish_standby(
-                     device: FinishStandbyRequest,
-                     hospital_id: str,
+                    client:Client,
+                    device: FinishStandbyRequest,
+                    hospital_id: str,
                     user_id:str
                   ):
 
     print("finish_standby")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "standby": False,
@@ -28,12 +30,13 @@ def finish_standby(
 
 
 def clear_standby(
+                      client:Client,
                       device: FinishStandbyRequest,
                       hospital_id: str,
                       user_id:str
                   ):
     response = (
-                supabase
+                client
                 .table("devices")
                 .update({
                         "standby": False,

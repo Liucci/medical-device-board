@@ -422,10 +422,13 @@ def get_devices(
 @app.post("/create-device-transaction")
 def create_device_transaction_route(
                                     body: AddDeviceRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    auth_user_id: str = Depends(get_auth_user_id),
+                                    authorization: str = Header(...),
                                    ):
     print("auth_user_id =", auth_user_id)
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -433,6 +436,7 @@ def create_device_transaction_route(
                     )
 
     create_device_transaction(
+                            client=client,
                             device=body,
                             hospital_id=current_user.hospital_id,
                             user_id=current_user.id,
@@ -445,10 +449,13 @@ def create_device_transaction_route(
 @app.post("/delete-device-transaction")
 def delete_device_transaction_route(
                                         body: DeleteDeviceRequest,
-                                        auth_user_id: str = Depends(get_auth_user_id)
+                                        auth_user_id: str = Depends(get_auth_user_id),
+                                        authorization: str = Header(...),
                                    ):
+    
     current_user = fetch_current_user_transaction(auth_user_id)
-    print("current_user")
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -456,6 +463,7 @@ def delete_device_transaction_route(
                     )
 
     delete_device_transaction(
+                            client=client,
                             device=body,
                             hospital_id=current_user.hospital_id,
                             user_id=current_user.id,
@@ -1149,10 +1157,13 @@ def update_stock_area_display_order_route(
 @app.post("/update-management-number")
 def update_management_number_route(
                                      body: UpdateManagementNumberRequest,
-                                     auth_user_id: str = Depends(get_auth_user_id)
+                                     auth_user_id: str = Depends(get_auth_user_id),
+                                     authorization: str = Header(...),
                                    ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -1161,6 +1172,7 @@ def update_management_number_route(
 
 
     update_management_number_transaction(
+                                            client=client,
                                             device=body,
                                             hospital_id=current_user.hospital_id,
                                             user_id=current_user.id,
@@ -1171,12 +1183,14 @@ def update_management_number_route(
 @app.post("/update-serial-number")
 def update_serial_number_route(
                                  body: UpdateSerialNumberRequest,
-                                 auth_user_id: str = Depends(get_auth_user_id)
+                                 auth_user_id: str = Depends(get_auth_user_id),
+                                 authorization: str = Header(...),
                                
                                ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
@@ -1184,6 +1198,7 @@ def update_serial_number_route(
 
 
     update_serial_number_transaction(
+                                        client=client,  
                                         device=body,
                                         hospital_id=current_user.hospital_id,
                                         user_id=current_user.id,
@@ -1194,11 +1209,13 @@ def update_serial_number_route(
 @app.post("/update-note")
 def update_note_route(
                         body: UpdateNoteRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        auth_user_id: str = Depends(get_auth_user_id),
+                        authorization: str = Header(...),
                       ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
@@ -1206,6 +1223,7 @@ def update_note_route(
 
 
     update_note_transaction(
+                              client=client,  
                               device=body,
                               hospital_id=current_user.hospital_id,
                               user_id=current_user.id,
@@ -1215,34 +1233,44 @@ def update_note_route(
 
 @app.post("/update-device-rental-dates")
 def update_device_rental_dates_route(
-                                        device: UpdateDeviceRentalDatesRequest,
-                                        auth_user_id: str = Depends(get_auth_user_id)
+                                    device: UpdateDeviceRentalDatesRequest,
+                                    auth_user_id: str = Depends(get_auth_user_id),
+                                    authorization: str = Header(...),
                                     ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
     update_device_rental_dates_transaction(
-                                              device=device,
-                                              hospital_id=current_user.hospital_id,
-                                              user_id=current_user.id
+                                            client=client,      
+                                            device=device,
+                                            hospital_id=current_user.hospital_id,
+                                            user_id=current_user.id
                                            )
 
 @app.post("/update-maintenance-dates")
 def update_maintenance_dates_route(
                                       device: UpdateMaintenanceDatesRequest,
-                                      auth_user_id: str = Depends(get_auth_user_id)
+                                      auth_user_id: str = Depends(get_auth_user_id),
+                                      authorization: str = Header(...),
                                   ):
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
     return update_maintenance_dates_transaction(
+                                                client=client,
                                                 device=device,
                                                 hospital_id=current_user.hospital_id,
                                                 user_id=current_user.id,
@@ -1253,10 +1281,14 @@ def update_maintenance_dates_route(
 @app.post("/start-maintenance")
 def start_maintenance_route(
                               body: StartMaintenanceRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                              auth_user_id: str = Depends(get_auth_user_id),
+                              authorization: str = Header(...),
+
                             ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -1265,6 +1297,7 @@ def start_maintenance_route(
 
 
     start_maintenance_transaction(
+                                    client=client, 
                                     device=body,
                                     hospital_id=current_user.hospital_id,
                                     user_id=current_user.id,
@@ -1275,10 +1308,13 @@ def start_maintenance_route(
 @app.post("/finish-maintenance")
 def finish_maintenance_route(
                                body: FinishMaintenanceRequest,
-                               auth_user_id: str = Depends(get_auth_user_id)
+                               auth_user_id: str = Depends(get_auth_user_id),
+                               authorization: str = Header(...),
                              ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -1287,6 +1323,7 @@ def finish_maintenance_route(
 
 
     finish_maintenance_transaction(
+                                     client=client, 
                                      device=body,
                                      hospital_id=current_user.hospital_id,
                                      user_id=current_user.id,
@@ -1297,11 +1334,13 @@ def finish_maintenance_route(
 @app.post("/start-standby")
 def start_standby_route(
                           body: StartStandbyRequest,
-                          auth_user_id: str = Depends(get_auth_user_id)
+                          auth_user_id: str = Depends(get_auth_user_id),
+                          authorization: str = Header(...),
                         ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
@@ -1309,6 +1348,7 @@ def start_standby_route(
 
 
     start_standby_transaction(
+                                client=client, 
                                 device=body,
                                 hospital_id=current_user.hospital_id,
                                 user_id=current_user.id,
@@ -1319,10 +1359,13 @@ def start_standby_route(
 @app.post("/finish-standby")
 def finish_standby_route(
                            body: FinishStandbyRequest,
-                           auth_user_id: str = Depends(get_auth_user_id)
+                           auth_user_id: str = Depends(get_auth_user_id),
+                           authorization: str = Header(...),
                          ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
     check_permission(
                         current_user=current_user,
@@ -1331,6 +1374,7 @@ def finish_standby_route(
 
 
     finish_standby_transaction(
+                                 client=client, 
                                  device=body,
                                  hospital_id=current_user.hospital_id,
                                  user_id=current_user.id,
@@ -1346,16 +1390,20 @@ def finish_standby_route(
 def move_stock_to_room_route(
                               device: MoveDeviceRequest,
                               room: UpdateRoomPatientRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                              auth_user_id: str = Depends(get_auth_user_id),
+                              authorization: str = Header(...),
                            ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_stock_to_room")
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
     moved_device = move_stock_to_room_transaction(
+                                                    client=client, 
                                                     device=device,
                                                     room=room,
                                                     hospital_id=current_user.hospital_id,
@@ -1371,16 +1419,19 @@ def move_stock_to_room_route(
 @app.post("/move_stock_to_stock")
 def move_stock_to_stock_route(
                                 device: MoveDeviceRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                                auth_user_id: str = Depends(get_auth_user_id),
+                                authorization: str = Header(...),
                              ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_stock_to_stock")
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
     moved_device = move_stock_to_stock_transaction(
+                                                    client=client, 
                                                     device=device,
                                                     hospital_id=current_user.hospital_id,
                                                     user_id=current_user.id,
@@ -1395,18 +1446,21 @@ def move_stock_to_stock_route(
 def move_room_to_stock_route(
                               device: MoveDeviceRequest,
                               room: ClearRoomPatientRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                              auth_user_id: str = Depends(get_auth_user_id),
+                              authorization: str = Header(...),
                             ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
 
-    print("move_room_to_stock")
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device = move_room_to_stock_transaction(
+                                                    client=client, 
                                                     device=device,
                                                     room=room,
                                                     hospital_id=current_user.hospital_id,
@@ -1424,17 +1478,20 @@ def move_room_to_room_route(
                         device: MoveDeviceRequest,
                         pre_room: ClearRoomPatientRequest,
                         post_room: UpdateRoomPatientRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        auth_user_id: str = Depends(get_auth_user_id),
+                        authorization: str = Header(...),
                     ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_room_to_room")
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device=move_room_to_room_transaction(
+                                            client=client, 
                                             device=device,
                                             pre_room=pre_room,
                                             post_room=post_room,
@@ -1452,19 +1509,21 @@ def move_room_to_room_new_patient_route(
                                           device: MoveDeviceRequest,
                                           pre_room: ClearRoomPatientRequest,
                                           post_room: UpdateRoomPatientRequest,
-                                          auth_user_id: str = Depends(
-                                                                      get_auth_user_id
-                                                                    )
+                                          auth_user_id: str = Depends(get_auth_user_id),
+                                          authorization: str = Header(...),
                                        ):
 
     current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_room_to_room_new_patient")
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+
     check_permission(
                         current_user=current_user,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device = move_room_to_room_new_patient_transaction(
+                                                              client=client,  
                                                               device=device,
                                                               pre_room=pre_room,
                                                               post_room=post_room,
@@ -1674,7 +1733,7 @@ def fetch_hospital_management_route(auth_user_id: str = Depends(get_auth_user_id
 @app.post("/create-hospital")
 def create_hospital(
                             request: AddHospitalRequest,
-                            auth_user_id: str = Depends(get_auth_user_id),
+                            auth_user_id: str = Depends(get_auth_user_id),authorization: str = Header(...),
                         ):
     current_user = fetch_current_user_transaction(auth_user_id)
     # System Adminのみ許可
@@ -1695,7 +1754,7 @@ def create_hospital(
 @app.post("/update-hospital")
 def update_hospital_route(
                             request: UpdateHospitalRequest,
-                            auth_user_id: str = Depends(get_auth_user_id),
+                            auth_user_id: str = Depends(get_auth_user_id),authorization: str = Header(...),
                         ):
     current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(

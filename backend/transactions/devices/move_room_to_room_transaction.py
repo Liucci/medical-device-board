@@ -1,4 +1,5 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from devices.move_device import move_device
 from rooms.update_rooms import (  clear_room_patientname,
                                   update_room_patientname)
@@ -8,6 +9,7 @@ from schemas.room_schemas import ( ClearRoomPatientRequest,
 from transactions.histories.create_device_history import (create_device_history)
 from transactions.room_infections.move_room_infections import move_room_infections
 def move_room_to_room_transaction(
+                                    client:Client,
                                     device: MoveDeviceRequest,
                                     pre_room: ClearRoomPatientRequest,
                                     post_room: UpdateRoomPatientRequest,
@@ -22,6 +24,7 @@ def move_room_to_room_transaction(
     print("move_room_to_room_transaction")
     # 機器移動
     moved_device = move_device(
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,

@@ -1,4 +1,5 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from devices.move_device import move_device
 from devices.fetch_devices import fetch_devices_by_room_id
 from devices.finish_standby import (finish_standby,clear_standby)
@@ -10,6 +11,7 @@ from schemas.room_schemas import ClearRoomPatientRequest
 from transactions.histories.create_device_history import (create_device_history)
 from room_infections.delete_room_infections import delete_room_infections_by_room_id
 def move_room_to_stock_transaction(
+                                    client:Client,
                                     device: MoveDeviceRequest,
                                     room: ClearRoomPatientRequest,
                                     hospital_id: str,
@@ -24,6 +26,7 @@ def move_room_to_stock_transaction(
 
     # 機器移動
     moved_device = move_device(
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,
@@ -32,6 +35,7 @@ def move_room_to_stock_transaction(
 
     # standby解除
     finish_standby(
+                      client=client,
                       device=device,
                       hospital_id=hospital_id,
                       user_id=user_id
@@ -76,6 +80,7 @@ def move_room_to_stock_transaction(
                         message=message
                      )
     clear_standby(
+                      client=client,
                       device=device,
                       hospital_id=hospital_id,
                       user_id=user_id

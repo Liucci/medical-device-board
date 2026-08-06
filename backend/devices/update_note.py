@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import UpdateNoteRequest
 from datetime import datetime, timezone
 def update_note(
+                 client:Client,
                  device: UpdateNoteRequest,
                  hospital_id: str,
                  user_id:str
@@ -10,7 +12,7 @@ def update_note(
     print("update_note")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "note": device.note,

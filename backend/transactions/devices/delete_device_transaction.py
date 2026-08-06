@@ -1,3 +1,4 @@
+from supabase import Client
 from transactions.histories.create_device_history import create_device_history
 from devices.delete_device import delete_device
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
@@ -9,6 +10,7 @@ from room_infections.delete_room_infections import delete_room_infections_by_roo
 
 
 def delete_device_transaction(
+                                client:Client,
                                 device: DeleteDeviceRequest,
                                 hospital_id: str,
                                 user_id: str,
@@ -35,6 +37,7 @@ def delete_device_transaction(
                          )
 
              delete_device(
+                           client=client,
                            device=device,
                            hospital_id=hospital_id
                         )

@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import StartStandbyRequest
 
 def start_standby(
+                    client:Client,
                     device: StartStandbyRequest,
                     hospital_id: str,
                     user_id:str
@@ -11,7 +13,7 @@ def start_standby(
     print("start_standby")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "standby": True,

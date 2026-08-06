@@ -24,9 +24,9 @@ def get_auth_client(access_token: str) -> Client:
     """
 
     client = create_client(
-        url,
-        key,
-        options,
+                            url,
+                            key,
+                            options,
     )
 
     # PostgRESTへJWTを設定（RLS用）

@@ -1,10 +1,12 @@
 from datetime import datetime, timezone
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import UpdateDeviceUpdateAtRequest
 
 
 #device tableのupdate atを更新する用
 def update_device_updated_at(
+                            client:Client,
                             device: UpdateDeviceUpdateAtRequest,
                             hospital_id: str,
                             user_id: str
@@ -13,7 +15,7 @@ def update_device_updated_at(
     print("update_device_updated_at")
 
     response = (
-                supabase
+                client
                 .table("devices")
                 .update({
                         "updated_by": user_id,

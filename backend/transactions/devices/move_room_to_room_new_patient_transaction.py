@@ -1,5 +1,5 @@
 from common.supabase_admin_client import supabase
-
+from supabase import Client
 from devices.move_device import move_device
 
 from devices.update_management_number import update_management_number
@@ -28,7 +28,7 @@ from schemas.room_schemas import (
                                  )
 
 
-def move_room_to_room_new_patient_transaction(
+def move_room_to_room_new_patient_transaction(  client:Client,
                                                 device: MoveDeviceRequest,
                                                 pre_room: ClearRoomPatientRequest,
                                                 post_room: UpdateRoomPatientRequest,
@@ -46,7 +46,8 @@ def move_room_to_room_new_patient_transaction(
     print("move_room_to_room_new_patient_transaction")
 
     # 機器移動
-    moved_device = move_device(
+    moved_device = move_device( 
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,
