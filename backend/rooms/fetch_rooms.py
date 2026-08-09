@@ -1,11 +1,13 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
 
-def fetch_rooms(hospital_id: str):
+
+def fetch_rooms(
+                client:Client,
+                hospital_id: str
+                ):
     print("fetch_rooms")
     response = (
-                    supabase
+                    client
                     .table("rooms")
                     .select("*")
                     .eq(
@@ -18,6 +20,7 @@ def fetch_rooms(hospital_id: str):
 
 
 def fetch_room(
+                client:Client,
                 room_id: int,
                 hospital_id: str
               ):
@@ -25,7 +28,7 @@ def fetch_room(
     print("fetch_room")
 
     response = (
-                    supabase
+                    client
                     .table("rooms")
                     .select("*")
                     .eq("id", room_id)

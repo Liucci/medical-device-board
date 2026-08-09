@@ -1,14 +1,15 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
 def update_account_edit_code(
+                                client:Client,
                                 account_edit_code_id: int,
                                 used: bool
                             ):
     print("update_account_edit_code")
 
     response = (
-                    supabase
+                    client
                     .table("account_edit_codes")
                     .update(
                                 {

@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.add_device import add_device
 from stock_areas.fetch_stock_areas import fetch_stock_area
@@ -21,16 +20,21 @@ def create_device_transaction(
     print("create_device_transaction")
 
     stock_area = fetch_stock_area(
+                                    client,
                                     device.stock_area_id,
                                     hospital_id
                                  )
 
-    device_type = fetch_device_type(device.type,
-                                      hospital_id
+    device_type = fetch_device_type(
+                                    client,
+                                    device.type,
+                                    hospital_id
                                    )
 
-    device_model = fetch_device_model(device.model,
-                                        hospital_id
+    device_model = fetch_device_model(
+                                       client, 
+                                       device.model,
+                                       hospital_id
                                      )
    #frontのquantityで指定した台数分for inで回して複数台登録する
    #created_devices=[] listに格納しlistを返す 
@@ -44,18 +48,21 @@ def create_device_transaction(
                                   status=status
                                  )
 
-      supabase.table("device_histories").insert({
-                                                "hospital_id": hospital_id,
-                                                "device_id": created_device["id"],
-                                                "action_by": user_id,
-                                                "action_type": action_type,
-                                                "message": message,
-
-                                                "device_type_name": device_type["name"],
-                                                "device_model_name": device_model["name"],
-
-                                                "stock_area_name": stock_area["name"]
-                                              }).execute()
+      (
+         client
+            .table("device_histories")
+            .insert({
+                      "hospital_id": hospital_id,
+                      "device_id": created_device["id"],
+                      "action_by": user_id,
+                      "action_type": action_type,
+                      "message": message,
+                      "device_type_name": device_type["name"],
+                      "device_model_name": device_model["name"],
+                      "stock_area_name": stock_area["name"]
+                    })
+            .execute()
+        )
 
       created_devices.append(created_device)
     return created_device

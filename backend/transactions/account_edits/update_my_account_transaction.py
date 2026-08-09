@@ -4,18 +4,21 @@ from users.update_my_account import update_my_account
 from auth.update_auth_user import update_auth_user
 
 from schemas.account_edit_schemas import (UpdateMyAccountRequest)
-
+from supabase import Client
 
 def update_my_account_transaction(
+                                    client:Client,
                                     request: UpdateMyAccountRequest,
                                 ):
     print("update_my_account_transaction")
 
     account_edit_code = verify_account_edit_code_transaction(
+                                                                client=client, 
                                                                 code=request.code
                                                             )
 
     update_my_account(
+                        client=client, 
                         user_id=account_edit_code["user_id"],
                         display_name=request.display_name
                     )
@@ -27,6 +30,7 @@ def update_my_account_transaction(
                         )
 
     update_account_edit_code(
+                                client=client, 
                                 account_edit_code_id=account_edit_code["id"],
                                 used=True
                             )

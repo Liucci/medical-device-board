@@ -1,15 +1,16 @@
 from datetime import datetime
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 
 def complete_maintenance_task(
+                                client:Client,
                                 task: CompleteMaintenanceTaskRequest,
                                 hospital_id: str,
                                 user_id: str
                              ):
     print("complete_maintenance_task")
     response = (
-                  supabase
+                  client
                   .table("device_maintenance_tasks")
                   .update({
                               "completed_at": datetime.utcnow().isoformat(),

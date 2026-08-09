@@ -1,7 +1,9 @@
 from room_infections.add_room_infection import add_room_infection
 from schemas.room_infection_schemas import AddRoomInfectionRequest
+from supabase import Client
 
 def create_room_infection_transaction(
+                                        client:Client,
                                         room_infection: AddRoomInfectionRequest,
                                         hospital_id: str
                                      ):
@@ -9,6 +11,7 @@ def create_room_infection_transaction(
     print("create_room_infection_transaction")
 
     return add_room_infection(
+                                client=client, 
                                 room_infection=room_infection,
                                 hospital_id=hospital_id
                              )

@@ -17,6 +17,7 @@ def update_maintenance_task_due_at_transaction(
     print("update_maintenance_task_due_at_transaction")
 
     updated_task = update_maintenance_task_due_at(
+                                                    client=client,
                                                     task=task,
                                                     hospital_id=hospital_id
                                                 )
@@ -29,6 +30,7 @@ def update_maintenance_task_due_at_transaction(
 
 
     create_device_history(
+                            client=client, 
                             device_id=updated_task["device_id"],
                             hospital_id=hospital_id,
                             action_by=user_id,

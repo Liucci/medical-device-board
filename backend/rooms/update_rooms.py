@@ -1,4 +1,4 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.room_schemas import (
                                     UpdateRoomRequest,
                                     UpdateRoomPatientRequest,
@@ -6,6 +6,7 @@ from schemas.room_schemas import (
                                   )
 
 def update_room(
+                  client:Client,
                   room: UpdateRoomRequest,
                   hospital_id: str
                 ):
@@ -13,7 +14,7 @@ def update_room(
     print("update room")
 
     response = (
-                    supabase
+                    client
                     .table("rooms")
                     .update({"name": room.name})
                     .eq("id", room.id)
@@ -25,6 +26,7 @@ def update_room(
 
 "front UIから患者名取得できる操作専用"
 def update_room_patientname(
+                              client:Client,
                               room: UpdateRoomPatientRequest,
                               hospital_id: str
                             ):
@@ -32,7 +34,7 @@ def update_room_patientname(
     print("update room patient name")
 
     response = (
-                    supabase
+                    client
                     .table("rooms")
                     .update({"patient_name": room.patient_name})
                     .eq("id", room.id)
@@ -44,6 +46,7 @@ def update_room_patientname(
 
 "front UIから患者名取得できない操作だが、患者名を編集したいとき専用"
 def clear_room_patientname(
+                             client:Client,
                              room: ClearRoomPatientRequest,
                              hospital_id: str,
                              patient_name:str
@@ -52,7 +55,7 @@ def clear_room_patientname(
     print("clear_room_patientname")
 
     response = (
-                  supabase
+                  client
                   .table("rooms")
                   .update({
                               "patient_name": patient_name

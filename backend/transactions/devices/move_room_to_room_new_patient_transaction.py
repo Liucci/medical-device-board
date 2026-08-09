@@ -57,18 +57,21 @@ def move_room_to_room_new_patient_transaction(  client:Client,
 
     # 移動先患者名更新
     update_room_patientname(
+                              client=client, 
                               room=post_room,
                               hospital_id=hospital_id
                            )
 
     # task削除
     delete_tasks_by_device_id(
+                                client=client, 
                                 device_id=device.id,
                                 hospital_id=hospital_id
                              )
 
     # 管理番号クリア
     update_management_number(
+                              client=client, 
                               device=UpdateManagementNumberRequest(
                                                                       id=device.id,
                                                                       management_number=management_number
@@ -79,6 +82,7 @@ def move_room_to_room_new_patient_transaction(  client:Client,
 
     # シリアル番号クリア
     update_serial_number(
+                          client=client, 
                           device=UpdateSerialNumberRequest(
                                                             id=device.id,
                                                             serial_number=serial_number
@@ -89,6 +93,7 @@ def move_room_to_room_new_patient_transaction(  client:Client,
 
     # 備考クリア
     update_note(
+                  client=client, 
                   device=UpdateNoteRequest(
                                             id=device.id,
                                             note=note
@@ -98,19 +103,22 @@ def move_room_to_room_new_patient_transaction(  client:Client,
                )
     #pre roomの機器台数が0台で移動元の患者名削除
     room_devices = fetch_devices_by_room_id(
-                                            room_id=pre_room.id,
+                                             client=client, 
+                                             room_id=pre_room.id,
                                             hospital_id=hospital_id
                                         )
     room_devices_count = len(room_devices)
     print("病室機器数 =", room_devices_count)
     if room_devices_count == 0:
          clear_room_patientname(
+                            client=client, 
                             room=pre_room,
                             hospital_id=hospital_id,
                             patient_name=""
                           )
          #感染情報削除
          delete_room_infections_by_room_id(
+                                          client=client,
                                           room_id=pre_room.id,
                                           hospital_id=hospital_id
                                        )
@@ -119,12 +127,14 @@ def move_room_to_room_new_patient_transaction(  client:Client,
 
     # task再生成
     create_device_tasks_transaction(
+                                      client=client, 
                                       device_id=device.id,
                                       hospital_id=hospital_id
                                    )
 
     # 履歴作成
     create_device_history(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id,
                             action_by=user_id,

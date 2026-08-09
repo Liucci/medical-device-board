@@ -45,24 +45,28 @@ def move_room_to_stock_transaction(
 
     # task削除
     delete_tasks_by_device_id(
+                                client=client, 
                                 device_id=device.id,
                                 hospital_id=hospital_id
                              )
 
     #roomの機器台数が0台で移動元の患者名削除
     room_devices = fetch_devices_by_room_id(
+                                            client=client, 
                                             room_id=room.id,
                                             hospital_id=hospital_id)
     room_devices_count = len(room_devices)
     print("病室機器数 =", room_devices_count)
     if room_devices_count == 0:
          clear_room_patientname(
+                            client=client, 
                             room=room,
                             hospital_id=hospital_id,
                             patient_name=""
                           )
          #感染情報削除
          delete_room_infections_by_room_id(
+                                          client=client, 
                                           room_id=room.id,
                                           hospital_id=hospital_id
                                        )
@@ -73,6 +77,7 @@ def move_room_to_stock_transaction(
 
 # 履歴作成
     create_device_history(
+                        client=client, 
                         device_id=device.id,
                         hospital_id=hospital_id,
                         action_by=user_id,

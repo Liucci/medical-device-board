@@ -1,14 +1,15 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 #display nameのみ変更する
 def update_my_account(
+                        client:Client,
                         user_id: str,
                         display_name: str
                      ):
     print("update_my_account")
 
     response = (
-                    supabase
+                    client
                     .table("users")
                     .update(
                                 {

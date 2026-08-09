@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.infection_type_schemas import AddInfectionTypeRequest
 
 def add_infection_type(
+                        client:Client,
                         infection_type: AddInfectionTypeRequest,
                         hospital_id: str
                       ):
@@ -9,7 +11,7 @@ def add_infection_type(
     print("insert infection_type")
 
     response = (
-        supabase
+        client
         .table("infection_types")
         .insert({
             "hospital_id": hospital_id,

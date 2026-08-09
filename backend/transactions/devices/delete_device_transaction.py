@@ -21,6 +21,7 @@ def delete_device_transaction(
     print("delete_device_transaction")
     #device: DeleteDeviceRequestのidでdevice情報を取得
     device_info = fetch_device(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id
                           )
@@ -29,6 +30,7 @@ def delete_device_transaction(
     #room idが無い場合
     if room_id is None:
              create_device_history(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id,
                             action_by=user_id,
@@ -44,6 +46,7 @@ def delete_device_transaction(
              return
      
     create_device_history(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id,
                             action_by=user_id,
@@ -52,31 +55,36 @@ def delete_device_transaction(
                          )
 
     delete_tasks_by_device_id(
+                                client=client, 
                                 device_id=device.id,
                                 hospital_id=hospital_id
                              )
     delete_device(
-                    device=device,
-                    hospital_id=hospital_id
+                  client=client, 
+                  device=device,
+                  hospital_id=hospital_id
                  )
 
     
     #削除したdeviceのroom内で他機器が存在するか判定
     devices = fetch_devices_by_room_id(
-                                             room_id=room_id,
-                                             hospital_id=hospital_id
+                                       client=client, 
+                                       room_id=room_id,
+                                       hospital_id=hospital_id
                                           )
    #0台の時、患者名と感染情報削除する
     if len(devices) > 0:
             return
 
     clear_room_patientname(
+                           client=client,
                            room=ClearRoomPatientRequest(id=room_id),
                            hospital_id=hospital_id,
                            patient_name=""
                         )
 
     delete_room_infections_by_room_id(
+                                    client=client,
                                     room_id=room_id,
-                                          hospital_id=hospital_id
-                                       )
+                                    hospital_id=hospital_id
+                                    )

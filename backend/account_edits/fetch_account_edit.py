@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
 def fetch_account_edit_code(
+                                client:Client,
                                 code: str
                             ):
     print("fetch_account_edit_code")
 
     response = (
-                    supabase
+                    client
                     .table("account_edit_codes")
                     .select("*")
                     .eq(

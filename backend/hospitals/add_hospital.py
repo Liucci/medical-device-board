@@ -1,12 +1,14 @@
 from common.supabase_admin_client import (supabase)
+from supabase import Client
 
 from schemas.hospital_schemas import (AddHospitalRequest)
 
 
-def add_hospital(hospital: AddHospitalRequest):
+def add_hospital(client:Client,
+                 hospital: AddHospitalRequest):
     print("add_hospital")
     response = (
-        supabase
+        client
         .table("hospitals")
         .insert(
             {

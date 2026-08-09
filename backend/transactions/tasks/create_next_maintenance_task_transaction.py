@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
-
-from common.supabase_admin_client import supabase
-
+from supabase import Client
 from tasks.add_maintenance_task import add_maintenance_task
-
 from schemas.maintenance_task_schemas import AddMaintenanceTaskRequest
 
 
 def create_next_maintenance_task_transaction(
+                                                client:Client,
                                                 device_id: int,
                                                 maintenance_type_id: int,
                                                 hospital_id: str
@@ -16,7 +14,7 @@ def create_next_maintenance_task_transaction(
     print("create_next_maintenance_task_transaction")
 
     maintenance_type = (
-                            supabase
+                            client
                             .table("maintenance_types")
                             .select("*")
                             .eq("id", maintenance_type_id)
@@ -31,6 +29,7 @@ def create_next_maintenance_task_transaction(
              )
 
     return add_maintenance_task(
+                                  client=client,
                                   task=AddMaintenanceTaskRequest(
                                                                   device_id=device_id,
                                                                   maintenance_type_id=maintenance_type_id,

@@ -3,7 +3,7 @@ import requests
 from datetime import datetime
 from schemas.invite_schemas import (SendInviteMailRequest)
 
-
+#resendには認証機能持たせない
 def send_invite_mail(
                         invite:SendInviteMailRequest,
                         invite_url: str
@@ -14,7 +14,7 @@ def send_invite_mail(
                                         invite.expires_at
                                         )
     resend_api_key = os.getenv("RESEND_API_KEY")
-    print(resend_api_key)
+    #print(resend_api_key)
     response = requests.post(
                                 "https://api.resend.com/emails",
                                 headers={
@@ -67,9 +67,11 @@ def send_invite_mail(
     )
 
 
+    """
     print("RESEND_API_KEY =", resend_api_key)
     print("status =", response.status_code)
-    print("body =", response.text)
+    print("body =", response.text) 
+    """
 
     response.raise_for_status()
 

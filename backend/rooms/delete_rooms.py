@@ -1,15 +1,18 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.room_schemas import (DeleteRoomsRequest)
 from schemas.ward_schemas import (DeleteWardRequest)
 
 
 
 #直接roomを消す場合
-def delete_rooms(room:DeleteRoomsRequest,
-                hospital_id:str):
+def delete_rooms(
+                client:Client,
+                room:DeleteRoomsRequest,
+                hospital_id:str
+                ):
     print("delete room")
     (
-            supabase
+            client
             .table("rooms")
             .delete()
             .in_("id",room.ids)
@@ -24,14 +27,16 @@ def delete_rooms(room:DeleteRoomsRequest,
 
 
 #ward削除によって紐づいているroomが削除される場合
-def delete_rooms_by_ward_id(ward:DeleteWardRequest,
+def delete_rooms_by_ward_id(
+                            client:Client,
+                            ward:DeleteWardRequest,
                             hospital_id: str
                              ):
 
     print("delete rooms by ward ids")
 
     (
-        supabase
+        client
         .table("rooms")
         .delete()
         .eq("ward_id", ward.id)

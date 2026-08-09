@@ -18,11 +18,13 @@ def complete_maintenance_task_transaction(
     print("complete_maintenance_task_transaction")
 
     completed_task = complete_maintenance_task(
+                                                 client=client,
                                                  task=task,
                                                  hospital_id=hospital_id,
                                                  user_id=user_id
                                               )
     create_next_maintenance_task_transaction(
+                                                client=client,
                                                 device_id=completed_task["device_id"],
                                                 maintenance_type_id=completed_task["maintenance_type_id"],
                                                 hospital_id=hospital_id
@@ -34,6 +36,7 @@ def complete_maintenance_task_transaction(
                               user_id=user_id
     )
     create_device_history(
+                            client=client, 
                             device_id=completed_task["device_id"],
                             hospital_id=hospital_id,
                             action_by=user_id,

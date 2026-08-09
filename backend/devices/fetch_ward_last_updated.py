@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 def fetch_ward_last_updated(
-    hospital_id:str
-):
+                            client:Client,
+                            hospital_id:str
+                        ):
 
     print("fetch_ward_last_updated")
 
     response = (
-        supabase
+        client
         .table("devices")
         .select("updated_at")
         .eq("hospital_id",hospital_id)

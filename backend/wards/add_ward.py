@@ -1,15 +1,17 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.ward_schemas import (AddWardRequest)
 
-def add_ward(ward: AddWardRequest,
-              hospital_id: str,
-              display_order: int              
-            ):
+def add_ward(
+            client:Client,
+            ward: AddWardRequest,
+            hospital_id: str,
+            display_order: int              
+        ):
 
     print("insert ward")
 
-    response = (
-        supabase
+    (
+        client
         .table("wards")
         .insert({
                  "hospital_id": hospital_id,

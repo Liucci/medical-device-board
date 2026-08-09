@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
 from tasks.add_maintenance_task import add_maintenance_task
@@ -9,6 +9,7 @@ from schemas.maintenance_task_schemas import AddMaintenanceTaskRequest
 
 
 def create_device_tasks_transaction(
+                                      client:Client,
                                       device_id: int,
                                       hospital_id: str
                                    ):
@@ -16,7 +17,7 @@ def create_device_tasks_transaction(
     print("create_device_tasks_transaction")
 
     device_response = (
-                          supabase
+                          client
                           .table("devices")
                           .select("*")
                           .eq("id", device_id)
@@ -28,6 +29,7 @@ def create_device_tasks_transaction(
     device = device_response.data
 
     maintenance_types = fetch_maintenance_types(
+                                                  client=client, 
                                                   hospital_id=hospital_id
                                                )
 
@@ -49,6 +51,7 @@ def create_device_tasks_transaction(
                  )
 
         add_maintenance_task(
+                              client=client, 
                               task=AddMaintenanceTaskRequest(
                                                               device_id=device_id,
                                                               maintenance_type_id=maintenance_type["id"],

@@ -1,11 +1,12 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from datetime import datetime, timezone
 from schemas.announcement_schemas import UpdateAnnouncementCRUDRequest
 
 
 def update_announcement(
-    request: UpdateAnnouncementCRUDRequest
-):
+                        client:Client,
+                        request: UpdateAnnouncementCRUDRequest
+                    ):
     print("update_announcement")
 
     start_at = (
@@ -24,7 +25,7 @@ def update_announcement(
 
 
     response = (
-        supabase
+        client
             .table("announcements")
             .update(
                 {

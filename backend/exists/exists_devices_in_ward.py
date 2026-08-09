@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
 def exists_devices_in_ward(
+    client:Client,
     ward_id: int,
     hospital_id: str
 ) -> bool:
     print("exists_devices_in_ward")
     response = (
-        supabase
+        client
         .table("devices")
         .select("id, rooms!inner(id)")
         .eq("hospital_id", hospital_id)

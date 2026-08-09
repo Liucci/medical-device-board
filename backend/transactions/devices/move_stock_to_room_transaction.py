@@ -24,6 +24,7 @@ def move_stock_to_room_transaction(
 
     # 病室患者情報更新
     update_room_patientname(
+                              client=client, 
                               room=room,
                               hospital_id=hospital_id
                            )
@@ -37,12 +38,14 @@ def move_stock_to_room_transaction(
                               )
     # task生成
     create_device_tasks_transaction(
+                                  client=client, 
                                   device_id=device.id,
                                   hospital_id=hospital_id
                                )
 
 # 履歴作成
     create_device_history(
+                        client=client, 
                         device_id=device.id,
                         hospital_id=hospital_id,
                         action_by=user_id,

@@ -1,21 +1,23 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 
 def update_invite_code(
-    invite_code_id:str,
-    used:bool
-):
+                            client:Client,
+                            invite_code_id:str,
+                            used:bool
+                        ):
     print("update_invite_code")
     response = (
-        supabase
-        .table("invite_codes")
-        .update({
-                    "used": used
-                })
-        .eq(
-            "id",
-            invite_code_id
-        )
-        .execute()
+                client
+                .table("invite_codes")
+                .update({
+                            "used": used
+                        })
+                .eq(
+                    "id",
+                    invite_code_id
+                )
+                .execute()
     )
 
     return response.data

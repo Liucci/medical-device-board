@@ -1,11 +1,17 @@
 from datetime import datetime, timezone
 from account_edits.fetch_account_edit import (fetch_account_edit_code)
+from supabase import Client
 
-
-def verify_account_edit_code_transaction(code: str):
+def verify_account_edit_code_transaction(
+                                        client:Client,
+                                        code: str
+                                        ):
     print("verify_account_edit_code_transaction")
 
-    account_edit_code = fetch_account_edit_code(code=code)
+    account_edit_code = fetch_account_edit_code(
+                                                client=client,
+                                                code=code
+                                                )
 
     if not account_edit_code:
         raise Exception(

@@ -1,12 +1,13 @@
 import uuid
 from datetime import datetime, timedelta
 
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.account_edit_schemas import CreateAccountEditCodeRequest
 
 
 def create_account_edit_code(
-    request: CreateAccountEditCodeRequest
+                            client:Client,
+                            request: CreateAccountEditCodeRequest
 ):
     print("create_account_edit_code")
 
@@ -18,7 +19,7 @@ def create_account_edit_code(
     )
 
     response = (
-        supabase
+        client
         .table("account_edit_codes")
         .insert(
             {

@@ -1,13 +1,15 @@
 from schemas.user_schemas import UpdateUserRequest
-from common.supabase_admin_client import (supabase,CLIENT_NAME)
+from supabase import Client
 
 #system adminが変更可能なuser情報
-def update_user(request: UpdateUserRequest):
+def update_user(
+                client:Client,
+                request: UpdateUserRequest
+                ):
     print("update_user")
-    #print(f"{CLIENT_NAME}")
 
     response = (
-        supabase
+        client
         .table("users")
         .update({
             "role": request.role,

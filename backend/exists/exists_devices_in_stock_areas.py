@@ -1,14 +1,15 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 #複数stock area内にdeviceが存在するか判定
 def exists_devices_in_stock_areas(
+    client:Client,
     stock_area_ids: list[int],
     hospital_id: str
 ) -> bool:
     print("exists_devices_in_stock areas")
 
     response = (
-        supabase
+        client
         .table("devices")
         .select("id")
         .eq("hospital_id", hospital_id)

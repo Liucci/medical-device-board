@@ -23,6 +23,7 @@ def update_note_transaction(
                                 )
 
     create_device_history(
+                        client=client, 
                         device_id=device.id,
                         hospital_id=hospital_id,
                         action_by=user_id,

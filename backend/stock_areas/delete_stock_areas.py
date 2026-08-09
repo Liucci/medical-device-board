@@ -1,6 +1,7 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 def delete_stock_areas(
+                         client:Client,
                          stock_area_ids: list[int],
                          hospital_id:str
                        ):
@@ -8,7 +9,7 @@ def delete_stock_areas(
     print(f"delete stock_areas")
 
     response = (
-                  supabase
+                  client
                   .table("stock_areas")
                   .delete()
                   .in_("id", stock_area_ids)

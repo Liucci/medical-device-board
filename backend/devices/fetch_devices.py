@@ -37,6 +37,7 @@ def fetch_devices(
 
 #device idで指定した情報を取得
 def fetch_device(
+                  client: Client,
                   device_id: int,
                   hospital_id: str
                 ):
@@ -44,7 +45,7 @@ def fetch_device(
     print("fetch_device")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .select("*")
                   .eq("id", device_id)
@@ -57,6 +58,7 @@ def fetch_device(
 #特定のroom内のdevice情報を取得
     
 def fetch_devices_by_room_id(
+                              client:Client,
                               room_id: str,
                               hospital_id: str
                             ):
@@ -64,7 +66,7 @@ def fetch_devices_by_room_id(
     print("fetch_devices_by_room_id")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .select("*")
                   .eq("room_id", room_id)
@@ -75,12 +77,12 @@ def fetch_devices_by_room_id(
     return response.data
 
 #すべてのdevice情報を取得
-def fetch_all_devices():
+def fetch_all_devices(client:Client,):
 
     print("fetch_all_devices")
 
     response = (
-        supabase
+        client
         .table("devices")
         .select("*")
         .execute()

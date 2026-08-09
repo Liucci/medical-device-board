@@ -2,14 +2,15 @@ from hospitals.fetch_hospital import fetch_hospitals
 from users.fetch_users import fetch_users
 from schemas.user_schemas import UserResponse
 from schemas.user_schemas import UserManagementResponse
+from supabase import Client
 
 
-def fetch_user_management_transaction():
+def fetch_user_management_transaction(client:Client):
 
     print("fetch_user_management_transaction")
 
-    users = fetch_users()
-    hospitals = fetch_hospitals()
+    users = fetch_users(client=client,)
+    hospitals = fetch_hospitals(client=client,)
 
     hospital_map = {
                     hospital["id"]: hospital["hospital_name"]

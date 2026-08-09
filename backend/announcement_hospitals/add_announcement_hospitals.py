@@ -1,14 +1,15 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
 def add_announcement_hospital(
-    announcement_id: int,
-    hospital_id: str
-):
+                                client:Client,
+                                announcement_id: int,
+                                hospital_id: str
+                            ):
     print("add_announcement_hospital")
 
     response = (
-        supabase
+        client
             .table("announcement_hospitals")
             .insert(
                 {

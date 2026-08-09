@@ -1,9 +1,12 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.ward_schemas import (WardResponse)
-def fetch_wards(hospital_id:str):
+def fetch_wards(
+          client:Client,
+          hospital_id:str
+          ):
     print("fetch_wards")
     response = (
-                supabase
+                client
                 .table("wards")
                 .select("*")
                 .eq(
@@ -16,6 +19,7 @@ def fetch_wards(hospital_id:str):
     return response.data
 
 def fetch_ward(
+                client:Client,
                 ward_id: int,
                 hospital_id: str
               ):
@@ -23,7 +27,7 @@ def fetch_ward(
     print("fetch_ward")
 
     response = (
-                    supabase
+                    client
                     .table("wards")
                     .select("*")
                     .eq("id", ward_id)
@@ -37,10 +41,12 @@ def fetch_ward(
 
 #並び替え用、display orderの最後の値を取り出す
 def get_max_ward_display_order(
+                            client:Client,
                             hospital_id: str
                         ) -> int:
         result = (
-                supabase.table("wards")
+                client.
+                table("wards")
                 .select("display_order")
                 .eq("hospital_id", hospital_id)
                 .order("display_order", desc=True)

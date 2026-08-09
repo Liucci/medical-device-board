@@ -1,10 +1,11 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from datetime import datetime, timezone
 from schemas.announcement_schemas import AddAnnouncementCRUDRequest
 
 
 def add_announcement(
-    request: AddAnnouncementCRUDRequest
+                    client:Client,
+                    request: AddAnnouncementCRUDRequest
 ):
     print("add_announcement")
     start_at = (
@@ -21,7 +22,7 @@ def add_announcement(
                 .isoformat()
             )
     response = (
-        supabase
+        client
             .table("announcements")
             .insert(
                 {
@@ -32,6 +33,4 @@ def add_announcement(
             )
             .execute()
     )
-    print(request.start_at)
-    print(start_at)
     return response.data[0]

@@ -1,10 +1,16 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from rooms.add_rooms import add_room
 from schemas.room_schemas import AddRoomRequest
 
-def create_room_transaction(room: AddRoomRequest,
-             hospital_id:str):
+def create_room_transaction(
+                            client:Client,
+                            room: AddRoomRequest,
+                            hospital_id:str
+             ):
     
     print("insert room")
-    add_room(room,
-             hospital_id)
+    add_room(
+             client,
+             room,
+             hospital_id
+             )

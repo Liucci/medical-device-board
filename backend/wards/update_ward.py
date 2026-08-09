@@ -1,15 +1,16 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.ward_schemas import (UpdateWardRequest,UpdateWardOrderRequest,UpdateWardInfoRequest)
 
 #名前更新用
 def update_ward(
+                client:Client,
                 ward:UpdateWardRequest,
                 hospital_id:str
                 ):
     print("update_ward")
 
     (
-                supabase
+                client
                 .table("wards")
                 .update({"name": ward.name,})
                 .eq("id",ward.id)
@@ -20,12 +21,13 @@ def update_ward(
 
 #並び順更新用
 def update_ward_display_order(
+                                client:Client,
                                 ward:UpdateWardOrderRequest,
                                 hospital_id:str
                             ):
     print("update_ward_display_order")
     (
-        supabase
+        client
         .table("wards")
         .update({
             "display_order": ward.display_order
@@ -38,11 +40,12 @@ def update_ward_display_order(
 
 #ward info modal専用CRUD
 def update_ward_info(
-    ward: UpdateWardInfoRequest,
-    hospital_id: str
+                    client:Client,
+                    ward: UpdateWardInfoRequest,
+                    hospital_id: str
 ):
     (
-        supabase
+        client
         .table("wards")
         .update({
             "status": ward.status,

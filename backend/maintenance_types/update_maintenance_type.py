@@ -1,7 +1,8 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.maintenance_type_schemas import (UpdateMaintenanceTypeRequest)
 
 def update_maintenance_type(
+                                client:Client,
                                 maintenance_type: UpdateMaintenanceTypeRequest,
                                 hospital_id
                             ):
@@ -9,7 +10,7 @@ def update_maintenance_type(
     print("update_maintenance_type")
 
     response = (
-        supabase
+        client
         .table("maintenance_types")
         .update({
             "name": maintenance_type.name,

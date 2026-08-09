@@ -1,4 +1,5 @@
 import os
+import time
 
 from dotenv import load_dotenv
 from supabase import Client, ClientOptions, create_client
@@ -22,14 +23,26 @@ def get_auth_client(access_token: str) -> Client:
     RLS(auth.uid())を有効にするため、
     リクエスト毎に新しいClientを生成する。
     """
+    print("start get_auth_client")
 
-    client = create_client(
-                            url,
-                            key,
-                            options,
-    )
+    client = create_client(url, key, options)
 
+    for i in range(3):
+        start = time.perf_counter()
+
+        client.postgrest.auth(access_token)
+
+        print(
+            i,
+            time.perf_counter() - start
+        )
+        
+    print("before postgrest.auth")
     # PostgRESTへJWTを設定（RLS用）
+    start = time.perf_counter()
     client.postgrest.auth(access_token)
+    elapsed = time.perf_counter() - start
 
+    print(f"postgrest.auth: {elapsed:.6f}s")
+    print("end get_auth_client")
     return client

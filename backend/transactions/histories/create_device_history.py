@@ -1,4 +1,5 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 
 from devices.fetch_devices import fetch_device
 from auth.fetch_current_user import fetch_current_user
@@ -11,22 +12,29 @@ from stock_areas.fetch_stock_areas import fetch_stock_area
 
 
 def create_device_history(
+                            client:Client,
                             device_id: int,
                             hospital_id: str,
                             action_by: str,
                             action_type: str,
                             message: str | None = None
                          ):
-    current_user = fetch_current_user_transaction(action_by)    
+    current_user = fetch_current_user_transaction(
+                                                client,
+                                                action_by
+                                                )    
     device = fetch_device(
+                            client=client, 
                             device_id=device_id,
                             hospital_id=hospital_id
                          )
     device_type = fetch_device_type(
+                                        client=client, 
                                         device_type_id=device["type"],
                                         hospital_id=hospital_id
                                     )
     device_model = fetch_device_model(
+                                        client=client, 
                                         device_model_id=device["model"],
                                         hospital_id=hospital_id
                                         )
@@ -38,6 +46,7 @@ def create_device_history(
     #room idあれば抽出、なければNoneまま
     if device["room_id"]:
         room = fetch_room(
+                            client=client,
                             room_id=device["room_id"],
                             hospital_id=hospital_id
                         )
@@ -46,6 +55,7 @@ def create_device_history(
     #stock area idあれば抽出、なければNoneのまま
     if device["stock_area_id"]:
         stock_area = fetch_stock_area(
+                                        client=client,
                                         stock_area_id=device["stock_area_id"],
                                         hospital_id=hospital_id
                                     )

@@ -1,12 +1,14 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
+
 
 #hospital_idを軸にstock_areas一覧を取得
-def fetch_stock_areas(hospital_id: str):
+def fetch_stock_areas(
+                      client:Client,
+                      hospital_id: str
+                      ):
     print("fetch_stock_areas")
     response = (
-        supabase
+        client
         .table("stock_areas")
         .select("*")
         .eq(
@@ -21,6 +23,7 @@ def fetch_stock_areas(hospital_id: str):
 
 #任意のstock_area_idから該当する情報を取得
 def fetch_stock_area(
+                        client:Client,
                         stock_area_id:int,
                         hospital_id: str
                      ):
@@ -28,7 +31,7 @@ def fetch_stock_area(
     print("fetch_stock_area")
 
     response = (
-                    supabase
+                    client
                     .table("stock_areas")
                     .select("*")
                     .eq("id", stock_area_id)
@@ -42,10 +45,12 @@ def fetch_stock_area(
 
 #disply orderの最大値を取得する関数
 def get_max_stock_area_display_order(
+                                client:Client,
                                 hospital_id: str
                             ) -> int:
     result = (
-                    supabase.table("stock_areas")
+                    client
+                    .table("stock_areas")
                     .select("display_order")
                     .eq("hospital_id", hospital_id)
                     .order("display_order", desc=True)

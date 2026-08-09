@@ -1,19 +1,21 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 
 def fetch_invite_code(
-    code:str
-):
+                        client:Client,
+                        code:str
+                    ):
     print("fetch_invite_code")
     response = (
-        supabase
-        .table("invite_codes")
-        .select("*")
-        .eq(
-            "code",
-            code
-        )
-        .single()
-        .execute()
-    )
+                    client
+                    .table("invite_codes")
+                    .select("*")
+                    .eq(
+                        "code",
+                        code
+                    )
+                    .single()
+                    .execute()
+                )
 
     return response.data

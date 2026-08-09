@@ -1,15 +1,16 @@
 from hospitals.fetch_hospital import fetch_hospitals
 from users.fetch_users import fetch_users
 from devices.fetch_devices import fetch_all_devices
+from supabase import Client
 
 
-def fetch_hospital_management_transaction():
+def fetch_hospital_management_transaction(client:Client,):
 
     print("fetch_hospital_management_transaction")
 
-    hospitals = fetch_hospitals()
-    users = fetch_users()
-    devices = fetch_all_devices()
+    hospitals = fetch_hospitals(client=client,)
+    users = fetch_users(client=client)
+    devices = fetch_all_devices(client=client,)
 
     response = []
 

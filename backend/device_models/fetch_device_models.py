@@ -1,9 +1,11 @@
 from common.supabase_admin_client import (supabase)
+from supabase import Client
 
-def fetch_device_models(hospital_id: str):
+def fetch_device_models( client:Client,
+                        hospital_id: str):
     print("fetch_device_models")
     response = (
-            supabase
+            client
             .table("device_models")
             .select("*")
             .eq(
@@ -16,14 +18,15 @@ def fetch_device_models(hospital_id: str):
 
 
 def fetch_device_model(
-                         device_model_id: int,
+                          client:Client,
+                          device_model_id: int,
                          hospital_id: str
                       ):
 
     print("fetch_device_model")
 
     response = (
-                    supabase
+                    client
                     .table("device_models")
                     .select("*")
                     .eq("id", device_model_id)

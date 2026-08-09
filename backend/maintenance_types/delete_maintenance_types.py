@@ -1,15 +1,15 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
+
 from schemas.maintenance_type_schemas import (DeleteMaintenanceTypesRequest)
 
 def delete_maintenance_types(
+                                client:Client,
                                 maintenance_types: DeleteMaintenanceTypesRequest,
                                 hospital_id: str
                             ):
 
     response = (
-        supabase
+        client
         .table("maintenance_types")
         .delete()
         .eq("hospital_id", hospital_id)

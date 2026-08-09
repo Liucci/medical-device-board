@@ -1,13 +1,15 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
 
-def delete_user(user_id: str):
+
+def delete_user(
+                client:Client,
+                user_id: str
+                ):
 
     print("delete user")
 
     response = (
-        supabase
+        client
         .table("users")
         .delete()
         .eq(

@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 def fetch_maintenance_tasks_by_device_id(
-    device_id: int,
-    hospital_id: str
-):
+                                        client:Client,
+                                        device_id: int,
+                                        hospital_id: str
+                                    ):
     print("fetch_maintenance_tasks_by_device_id")
 
     response = (
-        supabase
+        client
         .table("device_maintenance_tasks")
         .select("*")
         .eq(

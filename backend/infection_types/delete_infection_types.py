@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.infection_type_schemas import DeleteInfectionTypesRequest
 
 def delete_infection_types(
+                            client:Client,
                             infection_type: DeleteInfectionTypesRequest,
                             hospital_id: str
                           ):
@@ -9,7 +11,7 @@ def delete_infection_types(
     print("delete infection_types")
 
     (
-        supabase
+        client
         .table("infection_types")
         .delete()
         .in_("id", infection_type.ids)

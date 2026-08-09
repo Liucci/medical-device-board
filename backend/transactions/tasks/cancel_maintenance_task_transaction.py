@@ -17,6 +17,7 @@ def cancel_maintenance_task_transaction(
     print("cancel_maintenance_task_transaction")
 
     cancelled_task = cancel_maintenance_task(
+                                                client=client,
                                                 task=task,
                                                 hospital_id=hospital_id
                                             )
@@ -28,6 +29,7 @@ def cancel_maintenance_task_transaction(
     )
 
     create_device_history(
+                            client=client, 
                             device_id=cancelled_task["device_id"],
                             hospital_id=hospital_id,
                             action_by=user_id,
