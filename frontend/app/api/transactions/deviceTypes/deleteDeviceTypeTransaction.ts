@@ -5,7 +5,7 @@ import {
          normalizeDeviceType,
          toDeleteDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type DeleteDeviceTypeTransactionParams = {
                                             deviceType: DeleteDeviceTypeFrontType

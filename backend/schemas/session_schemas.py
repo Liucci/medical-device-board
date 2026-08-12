@@ -23,3 +23,4 @@ class CurrentUserResponse(BaseModel):
     role: str
     email: str
     display_name: str
+    access_token: str

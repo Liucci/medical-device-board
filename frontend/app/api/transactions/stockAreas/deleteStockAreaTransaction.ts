@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import {
          normalizeStockArea,

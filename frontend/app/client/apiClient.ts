@@ -7,7 +7,7 @@ export const API_BASE_URL =
 
 let refreshPromise: Promise<boolean> | null = null
 
-export async function authFetch(
+export async function (
                                   url: string,
                                   options: RequestInit = {}
                                 ) {

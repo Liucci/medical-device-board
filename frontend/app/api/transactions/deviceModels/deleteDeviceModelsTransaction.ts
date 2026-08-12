@@ -5,7 +5,7 @@ import {
          normalizeDeviceModel,
          toDeleteDeviceModelsRequest
        } from "../../../utils/deviceModelMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 type DeleteDeviceModelsTransactionParams = {
                                               deviceModels: DeleteDeviceModelsFrontType
                                               setDeviceModels: any

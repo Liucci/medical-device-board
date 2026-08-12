@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../../client/apiClient"
 import { MaintenanceType } from "../../../types/maintenanceTypeTypes"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toUpdateMaintenanceTypeRequest } from "../../../utils/maintenanceTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type UpdateMaintenanceTypeTransactionParams = {
                                                 maintenanceType: MaintenanceType

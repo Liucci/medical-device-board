@@ -1,5 +1,4 @@
 import { API_BASE_URL } from "../client/apiClient"
-import { authFetch } from "../client/apiClient"
 import { UpdateHospitalSettingsBackType } from "../../types/hospitalSettingTypes"
 
 export async function updateHospitalSettings(

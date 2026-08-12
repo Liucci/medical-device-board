@@ -10,7 +10,7 @@ import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfectio
 
 import { normalizeRoom } from "@/app/utils/roomsMapper"
 import { normalizeRoomInfection } from "@/app/utils/roomInfectionMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 
 type DeleteDeviceTransactionParams = {

@@ -1,4 +1,4 @@
-import { API_BASE_URL , authFetch} from "../client/apiClient"
+import { API_BASE_URL , } from "../client/apiClient"
 
 import { UpdateMaintenanceTaskDueAt } from "../../types/taskTypes"
 import { toUpdateMaintenanceTaskDueAtRequest } from "../../utils/taskMapper"

@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch } from "../client/apiClient"
+import { API_BASE_URL,  } from "../client/apiClient"
 
 import { UpdateAnnouncementBackType } from "../../types/announcementTypes"
 

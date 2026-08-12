@@ -1,5 +1,4 @@
 import { API_BASE_URL } from "../client/apiClient"
-import { authFetch } from "../client/apiClient"
 
 export async function getHospitalManagementFromApi() 
 {

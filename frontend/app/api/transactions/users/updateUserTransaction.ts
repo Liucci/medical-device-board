@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react"
-import { API_BASE_URL, authFetch } from "../../client/apiClient"
+import { API_BASE_URL,  } from "../../client/apiClient"
 import { getUserManagementFromApi } from "../../users/fetchUserManagement"
 import {
   UserManagementType,

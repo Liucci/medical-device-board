@@ -8,7 +8,7 @@ import {
   normalizeHospitalManagement,
   toAddHospitalRequest
 } from "../../../utils/hospitalMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateHospitalTransactionParams = {
                                         hospital: CreateHospitalFrontType

@@ -5,7 +5,7 @@ import {
          normalizeRoomInfection,
          toCreateRoomInfectionRequest
        } from "../../../utils/roomInfectionMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateRoomInfectionTransactionParams = {
                                                 roomInfection: CreateRoomInfectionType

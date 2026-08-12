@@ -5,7 +5,7 @@ import {
          normalizeDeviceType,
          toUpdateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type UpdateDeviceTypeTransactionParams = {
                                             deviceType: UpdateDeviceTypeFrontType

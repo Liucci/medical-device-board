@@ -5,7 +5,7 @@ import {
          normalizeRoomInfection,
          toDeleteRoomInfectionsRequest
        } from "../../../utils/roomInfectionMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type DeleteRoomInfectionsTransactionParams = {
                                                 roomInfections: DeleteRoomInfectionsType

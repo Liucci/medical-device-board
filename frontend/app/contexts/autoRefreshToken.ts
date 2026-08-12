@@ -2,24 +2,27 @@ import { refreshToken } from "../api/auth/refreshToken"
 
 let timer: ReturnType<typeof setTimeout> | null = null
 
-type JwtPayload = {exp: number}
+type JwtPayload = {
+  exp: number
+}
 
 function decodeJwt(token: string): JwtPayload | null {
   try {
     const payload = token.split(".")[1]
     const json = JSON.parse(atob(payload))
     return json
-  }
-  catch {
+  } catch {
     return null
   }
 }
 
-export function startAutoRefreshToken() {
+export function startAutoRefreshToken(
+  accessToken: string,
+  setAccessToken: (token: string) => void
+) {
   console.log("startAutoRefreshToken")
-  stopAutoRefreshToken()
 
-  const accessToken = localStorage.getItem("access_token")
+  stopAutoRefreshToken()
 
   if (!accessToken) {
     return
@@ -33,40 +36,44 @@ export function startAutoRefreshToken() {
 
   const now = Math.floor(Date.now() / 1000)
 
-console.log("now:", now)
-console.log("exp:", payload.exp)
-console.log("remaining:", payload.exp - now)
+  console.log("now:", now)
+  console.log("exp:", payload.exp)
+  console.log("remaining:", payload.exp - now)
 
   const refreshAfterSec = Math.max(
-                                    payload.exp - now - 60,
-                                    30
-                                    )
+    payload.exp - now - 60,
+    30
+  )
 
   console.log(
-                "[Auto Refresh]",
-                refreshAfterSec,
-                "sec later"
-            )
+    "[Auto Refresh]",
+    refreshAfterSec,
+    "sec later"
+  )
 
   timer = setTimeout(async () => {
 
-        const success = await refreshToken()
+    const newAccessToken =
+      await refreshToken()
 
-        if (success) {
-        startAutoRefreshToken()
-        return
-        }
+    if (newAccessToken) {
 
-        console.log("[Auto Refresh Failed] Logout")
+      setAccessToken(
+        newAccessToken
+      )
 
-        stopAutoRefreshToken()
+      return
+    }
 
-        localStorage.removeItem("access_token")
-        localStorage.removeItem("refresh_token")
+    console.log(
+      "[Auto Refresh Failed] Logout"
+    )
 
-        window.location.href = "/login"
- }, refreshAfterSec * 1000)
+    stopAutoRefreshToken()
 
+    window.location.href = "/login"
+
+  }, refreshAfterSec * 1000)
 }
 
 export function stopAutoRefreshToken() {
@@ -76,5 +83,4 @@ export function stopAutoRefreshToken() {
     clearTimeout(timer)
     timer = null
   }
-
 }

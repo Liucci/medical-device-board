@@ -5,7 +5,7 @@ import {
          normalizeDeviceType,
          toCreateDeviceTypeRequest
        } from "../../../utils/deviceTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateDeviceTypeTransactionParams = {
                                             deviceType: CreateDeviceTypeFrontType

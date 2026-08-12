@@ -1,13 +1,12 @@
 "use client";
 
-import { authFetch } from "../api/client/apiClient";
 
 export default function TestAuthPage() {
   const testFetch = async () => {
     try {
-      console.log("before authFetch");
+      console.log("before ");
 
-      const res = await authFetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/current-user`
       );
 
@@ -76,7 +75,7 @@ const showTokenInfo = () => {
         style={{ padding: "12px", fontSize: "16px", cursor: "pointer" }}
         onClick={testFetch}
       >
-        authFetch実行
+        実行
       </button>
     </div>
   );

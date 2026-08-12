@@ -13,8 +13,9 @@ def fetch_hospital_settings(client:Client,
                     .table("hospital_settings")
                     .select("*")
                     .eq("hospital_id", hospital_id)
-                    .single()
+                    .maybe_single()
                     .execute()
                )
-
+    if response is None:
+        return None
     return response.data

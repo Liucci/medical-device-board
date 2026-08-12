@@ -3,7 +3,7 @@ from "@/app/types/historyTypes"
 
 import { toExportHistoriesRequest }
 from "@/app/utils/exportMapper"
-import { API_BASE_URL,authFetch} from "../client/apiClient"
+import { API_BASE_URL,} from "../client/apiClient"
 
 export async function exportHistoryPdfFromApi(
                                                 histories: History[],

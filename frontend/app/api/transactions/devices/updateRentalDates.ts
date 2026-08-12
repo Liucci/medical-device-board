@@ -3,7 +3,7 @@ import {
          toUpdateDeviceRentalDatesRequest
        } from "../../../utils/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type Params = {
                 device: Device

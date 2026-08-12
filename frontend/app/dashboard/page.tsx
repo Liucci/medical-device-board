@@ -190,14 +190,17 @@ export default function Page() {
   
   //user情報を格納する関数
   const router = useRouter()
-  const {currentUser,setCurrentUser} = useAuth()
+  const {
+          currentUser,
+          setCurrentUser,
+          accessToken,
+        } = useAuth()  
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
   //設定詳細用のstate
   const [hospitalSettings, setHospitalSettings] =useState<HospitalSettingsType | null>(null)
                                                                           
   //refresh token後realtime再登録用
-  const [realtimeVersion, setRealtimeVersion] = useState(0)
   const {
         draggingDevice,
         setDraggingDevice,
@@ -990,10 +993,16 @@ const activeTasks = tasks.filter(
 
 //リロード時やlogin時にrealtime開始
 useEffect(() => {
-  console.log("Realtime useEffect");
-  const accessToken = localStorage.getItem("access_token")
+  console.log("[Realtime] initialize");
   if (!currentUser) {return}
-  if (accessToken) {supabase.realtime.setAuth(accessToken)}
+
+  if (!accessToken) {
+    console.log("[Realtime] accessToken is not ready")
+    return
+  }
+  console.log( "[Realtime] setAuth")
+  supabase.realtime.setAuth(accessToken)
+  
   const unsubscribeDevices = subscribeDevicesRealtime({
                                                       setDeviceList,
                                                       setStockLastUpdated,
@@ -1019,7 +1028,7 @@ useEffect(() => {
   const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
 
   return () => {
-
+    console.log("[Realtime] unsubscribe")
     unsubscribeDevices()
     unsubscribeWards()
     unsubscribeRooms()
@@ -1034,8 +1043,17 @@ useEffect(() => {
     unsubscribeAnnouncementHospitals()
     unsubscribeHospitalSettingRealtime()
   }
+}, [currentUser])
 
-}, [currentUser, realtimeVersion])
+//refresh tokenしaccess tokenが変更したときrealtimeに渡しているaccess tokenだけ更新
+useEffect(() => {
+  if (!accessToken) {
+    return
+  }
+  console.log("[Realtime] update auth:")
+  supabase.realtime.setAuth(accessToken)
+}, [accessToken])
+
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
@@ -1084,19 +1102,6 @@ useEffect(() => {
     }
   }, [currentUser, router])
 
-//refresh tokenが走ると発火する
-useEffect(() => {
-    const reconnect = () => {
-        console.log("[Reconnect Event Received]")
-        setRealtimeVersion(v => {
-                                console.log("realtimeVersion:", v, "->", v + 1)
-                                return v + 1
-        })
-    }
-
-    window.addEventListener("reconnect-realtime", reconnect)
-    return () => {window.removeEventListener("reconnect-realtime", reconnect)}
-}, [])
 
 //auto logout機能
 useEffect(() => {

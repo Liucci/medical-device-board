@@ -5,7 +5,7 @@ import {
          normalizeInfectionType,
          toCreateInfectionTypeRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateInfectionTypeTransactionParams = {
                                                infectionType: CreateInfectionTypeType

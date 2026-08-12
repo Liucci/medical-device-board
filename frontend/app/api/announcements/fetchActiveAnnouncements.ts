@@ -1,5 +1,5 @@
 import { ActiveAnnouncementBackType } from "@/app/types/announcementTypes"
-import { API_BASE_URL, authFetch } from "../client/apiClient"
+import { API_BASE_URL,  } from "../client/apiClient"
 
 type FetchActiveAnnouncementsParams = {hospitalId: string}
 

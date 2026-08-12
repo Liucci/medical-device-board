@@ -5,7 +5,7 @@ import {
          normalizeInfectionType,
          toDeleteInfectionTypesRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type DeleteInfectionTypesTransactionParams = {
                                                 infectionTypes: DeleteInfectionTypesType

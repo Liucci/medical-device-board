@@ -4,7 +4,7 @@ import {
          normalizeMaintenanceTask,
          toCompleteMaintenanceTaskRequest
        } from "../../../utils/taskMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import { CompleteMaintenanceTask } from "../../../types/taskTypes"
 
 type Params = {

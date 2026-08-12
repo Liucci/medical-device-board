@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Depends, Response
+from fastapi import FastAPI, HTTPException, Header, Depends, Response,Cookie
 from fastapi.middleware.cors import (CORSMiddleware)
 from pydantic import BaseModel
 import os
@@ -290,6 +290,7 @@ def login(body: LoginRequest,
     return {
                 "success": True,
                 "current_user":current_user,
+                "access_token": auth_response.session.access_token,
             }
 
 @app.get("/current-user")
@@ -303,6 +304,7 @@ def get_current_user(
         "role": session.role,
         "hospital_id": session.hospital_id,
         "hospital_name": session.hospital_name,
+        "access_token": session.access_token,
     }
 
 
@@ -329,24 +331,25 @@ def get_current_user(
 
 
 @app.post("/refresh-token")
-def refresh_token_route(body: RefreshTokenRequest):
+def refresh_token_route(
+    session_id: str | None = Cookie(default=None),
+):
     print("refresh_token_route")
+
+    if not session_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Session not found"
+        )
+
     try:
         response = refresh_token(
-            body.refresh_token
+            session_id
         )
-        #current user返す必要ないのでは？不要なら削除
-        auth_user_id = response.user.id
-        client = get_auth_client( response.session.access_token)
-        current_user = fetch_current_user_transaction(client,auth_user_id)
 
         return {
             "access_token":
                 response.session.access_token,
-            "refresh_token":
-                response.session.refresh_token,
-            "current_user":
-                current_user
         }
 
     except Exception as e:
@@ -1716,10 +1719,10 @@ def update_user_route(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
-
+    client = get_admin_client()
 
     update_user_transaction(
-        client=session.client, 
+        client = client,
         request=request,
         auth_user_id=session.user_id
     )
@@ -1825,6 +1828,8 @@ def fetch_active_announcements_route(
 def get_hospital_settings(
                         session: BackendSession = Depends(get_current_session),
                          ):
+    print("role =", session.role)
+    print("hospital_id =", session.hospital_id)
     return fetch_hospital_settings_transaction(
                                                 session.client, 
                                                 session.hospital_id

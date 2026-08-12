@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import { UpdateWardInfoType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getWardInfectionsFromApi } from "../../wardInfections/fetchWardInfections"

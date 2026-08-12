@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toUpdateRoomPatientRequest
