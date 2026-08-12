@@ -4,14 +4,15 @@ export async function getAnnouncementsFromApi()
 {
     console.log("fetchAnnouncements")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/fetch-announcements`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                   }
+                                   },
+                        credentials: "include",
                         }
                       )
 

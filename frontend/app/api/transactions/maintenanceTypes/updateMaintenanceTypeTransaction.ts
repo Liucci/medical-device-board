@@ -17,14 +17,14 @@ export async function updateMaintenanceTypeTransaction({
 {
   console.log("updateMaintenanceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-maintenance-type`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateMaintenanceTypeRequest(
                                                                             maintenanceType

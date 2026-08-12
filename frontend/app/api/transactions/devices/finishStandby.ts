@@ -8,7 +8,7 @@ export async function finishStandby(
                                       id: number
                                     ) {
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/finish-standby`,
                 {
                     method: "POST",
@@ -16,6 +16,7 @@ export async function finishStandby(
                 "Content-Type":
                 "application/json"
                              },
+                credentials: "include",
                     body: JSON.stringify(
                                             toFinishStandbyRequest(
                                                                      id

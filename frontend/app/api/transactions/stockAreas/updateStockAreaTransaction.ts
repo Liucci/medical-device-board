@@ -22,14 +22,14 @@ export async function updateStockAreaTransaction({
 {
   console.log("updateStockAreaTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateStockAreaRequest(
                                                                        stockArea

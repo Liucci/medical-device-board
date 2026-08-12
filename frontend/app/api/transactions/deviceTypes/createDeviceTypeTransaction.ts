@@ -22,14 +22,14 @@ export async function createDeviceTypeTransaction({
 {
   console.log("createDeviceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/device-types`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateDeviceTypeRequest(
                                                                       deviceType

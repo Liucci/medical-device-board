@@ -50,7 +50,7 @@ export default function RegisterClient({
       try {
 
         const response = await fetch(
-          `${API_BASE_URL}/invite-info/${code}`
+          `${API_BASE_URL}/invite-info/${code}`,
         )
 
         if (!response.ok) {

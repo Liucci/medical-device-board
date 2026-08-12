@@ -20,11 +20,12 @@ export async function updateStockAreaDisplayOrderTransaction({
 {
   console.log("updateStockAreaDisplayOrderTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-stock-area-display-order`,
                 {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
+                    credentials: "include",
                     body: JSON.stringify(toUpdateStockAreaOrdersRequest(stockAreas)),
                 }
   )

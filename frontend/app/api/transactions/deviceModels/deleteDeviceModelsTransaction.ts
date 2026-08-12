@@ -20,7 +20,7 @@ export async function deleteDeviceModelsTransaction({
   console.log("deleteDeviceModelsTransaction")
 
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/delete-device-models`,
                 {
                   method: "POST",
@@ -28,6 +28,7 @@ export async function deleteDeviceModelsTransaction({
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(toDeleteDeviceModelsRequest(deviceModels))
                 }
               )

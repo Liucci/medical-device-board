@@ -25,18 +25,26 @@ def get_auth_client(access_token: str) -> Client:
     """
     print("start get_auth_client")
 
+    start = time.perf_counter()
+
     client = create_client(url, key, options)
 
-    for i in range(3):
-        start = time.perf_counter()
+    print(
+        f"create_client: {time.perf_counter() - start:.6f}s"
+    )
 
-        client.postgrest.auth(access_token)
 
-        print(
-            i,
-            time.perf_counter() - start
-        )
-        
+    """
+        for i in range(3):
+            start = time.perf_counter()
+
+            client.postgrest.auth(access_token)
+
+            print(
+                i,
+                time.perf_counter() - start
+            )
+    """       
     print("before postgrest.auth")
     # PostgRESTへJWTを設定（RLS用）
     start = time.perf_counter()

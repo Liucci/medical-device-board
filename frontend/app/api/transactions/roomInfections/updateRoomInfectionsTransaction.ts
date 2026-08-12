@@ -16,7 +16,7 @@ export async function updateRoomInfectionsTransaction({
 {
   console.log("updateRoomInfectionsTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/update-room-infections-transaction`,
                     {
                       method: "POST",
@@ -24,6 +24,7 @@ export async function updateRoomInfectionsTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toUpdateRoomInfectionsRequest(
                                                                                 roomInfection

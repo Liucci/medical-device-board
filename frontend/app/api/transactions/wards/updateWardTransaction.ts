@@ -22,14 +22,14 @@ export async function updateWardTransaction({
   console.log("updateWardTransaction")
 
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-ward`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateWardRequest(
                                                                ward

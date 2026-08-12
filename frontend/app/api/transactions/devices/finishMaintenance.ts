@@ -5,7 +5,7 @@ export async function finishMaintenance(
     id: number
 ) {
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/finish-maintenance`,
         {
             method: "POST",
@@ -15,6 +15,7 @@ export async function finishMaintenance(
                 "application/json"
             
             },
+            credentials: "include",
             body: JSON.stringify({
                 id
             })

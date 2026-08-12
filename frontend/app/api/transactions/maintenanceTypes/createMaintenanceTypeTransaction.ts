@@ -19,14 +19,14 @@ export async function createMaintenanceTypeTransaction({
 {
   console.log("createMaintenanceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/maintenance-types`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateMaintenanceTypeRequest(
                                                                             maintenanceType

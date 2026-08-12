@@ -20,14 +20,14 @@ export async function deleteDeviceTypeTransaction({
 {
   console.log("deleteDeviceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/delete-device-type`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteDeviceTypeRequest(
                                                                       deviceType

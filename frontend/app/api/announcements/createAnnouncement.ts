@@ -9,7 +9,7 @@ export const createAnnouncement = async (
     console.log("createAnnouncement")
 
     const response =
-        await authFetch(
+        await fetch(
                             `${API_BASE_URL}/create-announcement`,
                             {
                                 method: "POST",
@@ -17,6 +17,7 @@ export const createAnnouncement = async (
                                             "Content-Type":
                                             "application/json"
                                          },
+                                credentials: "include",
                                 body: JSON.stringify(request)
                             }
                         )

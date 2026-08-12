@@ -11,7 +11,7 @@ def update_stock_area(
     print("update_stock_area")
 
     response = (
-                  supabase
+                  client
                   .table("stock_areas")
                   .update({"name": stock_area.name})
                   .eq("id", stock_area.id)

@@ -22,7 +22,7 @@ export async function createInfectionTypeTransaction({
 {
   console.log("createInfectionTypeTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/infection-types`,
                     {
                       method: "POST",
@@ -30,6 +30,7 @@ export async function createInfectionTypeTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toCreateInfectionTypeRequest(
                                                                             infectionType

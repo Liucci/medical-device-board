@@ -10,7 +10,7 @@ type Params = {device: Device}
 export async function updateManagementNumber({device}: Params) 
 {
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/update-management-number`,
                 {
                     method: "POST",
@@ -18,6 +18,7 @@ export async function updateManagementNumber({device}: Params)
                               "Content-Type":
                               "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(
                                             toUpdateManagementNumberRequest(
                                                                                device

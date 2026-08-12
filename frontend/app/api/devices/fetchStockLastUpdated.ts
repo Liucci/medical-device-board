@@ -6,14 +6,15 @@ export async function fetchStockLastUpdated(): Promise<StockLastUpdatedResponse>
 
     console.log("fetchStockLastUpdated")
 
-    const response = await authFetch(
+    const response = await fetch(
                             `${API_BASE_URL}/stock-last-updated`,
                             {
                                 method: "GET",
                                 headers: {
                                         "Content-Type":
                                         "application/json"
-                                }
+                                },
+                                credentials: "include",
                             }
                         )
 

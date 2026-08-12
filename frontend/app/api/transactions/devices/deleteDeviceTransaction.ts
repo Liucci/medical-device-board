@@ -37,7 +37,7 @@ export async function deleteDeviceTransaction({
 
 
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/delete-device-transaction`,
         {
             method: "POST",
@@ -45,6 +45,7 @@ export async function deleteDeviceTransaction({
                 "Content-Type":
                 "application/json"
             },
+            credentials: "include",
             body: JSON.stringify(
             toDeleteDeviceRequest(deviceId)
             )        

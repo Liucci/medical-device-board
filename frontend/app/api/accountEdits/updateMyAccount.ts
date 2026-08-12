@@ -15,6 +15,7 @@ export const updateMyAccount = async (
                     headers: {
                                 "Content-Type": "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(request)
                   }
                 )

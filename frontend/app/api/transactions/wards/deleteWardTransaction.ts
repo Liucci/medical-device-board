@@ -34,14 +34,14 @@ export async function deleteWardTransaction({
      ) {return}
 
 
-  const response=await authFetch(
+  const response=await fetch(
                 `${API_BASE_URL}/delete-ward`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteWardsRequest(
                                                                  ward

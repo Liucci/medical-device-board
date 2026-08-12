@@ -53,7 +53,7 @@ setDevices((prev: Device[]) =>
   )
 )
 try {
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_room_to_room`,
                 {
                   method: "POST",
@@ -61,6 +61,7 @@ try {
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           device: {
                                                     id: deviceId,

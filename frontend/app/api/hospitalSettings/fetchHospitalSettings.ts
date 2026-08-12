@@ -5,13 +5,14 @@ export async function fetchHospitalSettings()
 {
     console.log("fetchHospitalSettings")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/hospital-settings`,
                         {
                             method: "GET",
                             headers: {
                                 "Content-Type": "application/json"
-                            }
+                            },
+                            credentials: "include",
                         }
                       )
 

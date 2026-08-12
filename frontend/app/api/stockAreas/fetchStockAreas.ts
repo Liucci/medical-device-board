@@ -5,14 +5,15 @@ export async function getStockAreasFromApi()
 {
     console.log("fetchStockAreas")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/stock-areas`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

@@ -23,14 +23,14 @@ export async function createStockAreaTransaction({
 {
   console.log("createStockAreaTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/create-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateStockAreaRequest(
                                                                        stockArea

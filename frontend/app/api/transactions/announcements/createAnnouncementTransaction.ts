@@ -23,7 +23,7 @@ export async function createAnnouncementTransaction({
                                                 }: CreateAnnouncementTransactionParams)
 {
     console.log("createAnnouncementTransaction")
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/create-announcement`,
         {
             method: "POST",
@@ -31,6 +31,7 @@ export async function createAnnouncementTransaction({
                         "Content-Type":
                         "application/json"
                      },
+            credentials: "include",
             body: JSON.stringify(toCreateAnnouncementRequest(announcement))
         }
     )

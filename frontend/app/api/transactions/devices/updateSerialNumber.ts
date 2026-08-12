@@ -10,7 +10,7 @@ type Params = {
 export async function updateSerialNumber({
                                             device
                                          }: Params) {
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/update-serial-number`,
                 {
                     method: "POST",
@@ -18,6 +18,7 @@ export async function updateSerialNumber({
                               "Content-Type":
                               "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(
                                             toUpdateSerialNumberRequest(
                                                                            device

@@ -9,13 +9,14 @@ export async function fetchActiveAnnouncements(
 {
     console.log("fetchActiveAnnouncements")
     const token = localStorage.getItem("access_token")
-    const response = await authFetch(
+    const response = await fetch(
                                     `${API_BASE_URL}/fetch-active-announcements`,                                    {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/json",
                                             Authorization: `Bearer ${token}`
                                         },
+                                        credentials: "include",
                                         body: JSON.stringify({hospital_id: hospitalId})
                                     }
                                 )

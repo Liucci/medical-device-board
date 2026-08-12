@@ -18,7 +18,7 @@ export async function exportHistoryPdfFromApi(
                                           )
 
 
-  const response = await authFetch(
+  const response = await fetch(
                                 `${API_BASE_URL}/export-history-pdf`,
                                 {
                                   method: "POST",
@@ -26,6 +26,7 @@ export async function exportHistoryPdfFromApi(
                                             "Content-Type":
                                             "application/json"
                                             },
+                                  credentials: "include",
                                   body: JSON.stringify(
                                                           toExportHistoriesRequest(
                                                                                     histories,

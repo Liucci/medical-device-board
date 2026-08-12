@@ -8,13 +8,14 @@ export async function updateHospitalSettings(
 {
     console.log("updateHospitalSettings")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/update-hospital-settings`,
                         {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
                             },
+                            credentials: "include",
                             body: JSON.stringify(hospitalSettings)
                         }
                       )

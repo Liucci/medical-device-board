@@ -9,7 +9,7 @@ export async function startStandby(
                                    ) {
 
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/start-standby`,
                 {
                     method: "POST",
@@ -17,6 +17,7 @@ export async function startStandby(
                               "Content-Type":
                               "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(
                                             toStartStandbyRequest(
                                                                     id

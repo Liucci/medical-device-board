@@ -4,14 +4,15 @@ export async function getRoomInfectionsFromApi()
 {
     console.log("fetchRoomInfections")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/room-infections`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

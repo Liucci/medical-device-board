@@ -4,14 +4,15 @@ export async function getTasksFromApi()
 {
     console.log("fetchTasks")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/tasks`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

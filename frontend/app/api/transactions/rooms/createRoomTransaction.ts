@@ -21,7 +21,7 @@ export async function createRoomTransaction({
                                            )
 {
   console.log("createRoomTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/rooms`,
                 {
                   method: "POST",
@@ -29,6 +29,7 @@ export async function createRoomTransaction({
                             "Content-Type":
                             "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(
                                           toCreateRoomRequest(
                                                                room

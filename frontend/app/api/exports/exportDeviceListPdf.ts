@@ -17,7 +17,7 @@ export async function exportDeviceListPdfFromApi(
 
   console.log("row count:",request.rows.length)
 
-  const response = await authFetch(
+  const response = await fetch(
                                 `${API_BASE_URL}/export-device-list-pdf`,
                                 {
                                   method: "POST",
@@ -25,6 +25,7 @@ export async function exportDeviceListPdfFromApi(
                                             "Content-Type":
                                             "application/json"
                                             },
+                                  credentials: "include",
                                   body:
                                     JSON.stringify(
                                                     request

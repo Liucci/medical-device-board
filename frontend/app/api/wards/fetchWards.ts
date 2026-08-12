@@ -6,14 +6,15 @@ export async function getWardsFromApi()
 {
     console.log("fetchWards")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/wards`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
     return await response.json()

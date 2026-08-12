@@ -14,7 +14,7 @@ export async function addHistoryFromApi(
 {
     console.log("addHistories")
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/histories`,
                 {
                     method: "POST",
@@ -22,6 +22,7 @@ export async function addHistoryFromApi(
                                     "Content-Type":
                                     "application/json"
                             },
+                    credentials: "include",
                     body: JSON.stringify(
                             toDBHistory(params)
                         )

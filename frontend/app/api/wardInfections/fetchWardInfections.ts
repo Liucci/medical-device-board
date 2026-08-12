@@ -4,14 +4,15 @@ export async function getWardInfectionsFromApi()
 {
     console.log("fetchWardInfections")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/ward-infections`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                   }
+                                   },
+                          credentials: "include",
                         }
                       )
 

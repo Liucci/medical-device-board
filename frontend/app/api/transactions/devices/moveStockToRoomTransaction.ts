@@ -53,7 +53,7 @@ export async function moveStockToRoomTransaction({
 
 
 try{
-      const response =await authFetch(
+      const response =await fetch(
                     `${API_BASE_URL}/move_stock_to_room`,
                     {
                       method: "POST",
@@ -61,6 +61,7 @@ try{
                                 "Content-Type":
                                 "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify({
                                               device: {
                                                         id: deviceId,

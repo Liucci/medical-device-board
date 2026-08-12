@@ -13,7 +13,7 @@ export async function updateNote({
                                    device
                                  }: Params) {
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/update-note`,
                 {
                     method: "POST",
@@ -21,6 +21,7 @@ export async function updateNote({
                               "Content-Type":
                               "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(
                                             toUpdateNoteRequest(
                                                                   device

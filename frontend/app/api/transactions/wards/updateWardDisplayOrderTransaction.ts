@@ -20,11 +20,12 @@ export async function updateWardDisplayOrderTransaction({
 {
   console.log("updateWardDisplayOrderTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/update-ward-display-order`,
                                 {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json",},
+                                    credentials: "include",
                                     body: JSON.stringify(toUpdateWardOrdersRequest(wards))
                                 }
                 )

@@ -22,7 +22,7 @@ export async function createRoomInfectionTransaction({
 {
   console.log("createRoomInfectionTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/room-infections`,
                     {
                       method: "POST",
@@ -30,6 +30,7 @@ export async function createRoomInfectionTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toCreateRoomInfectionRequest(
                                                                               roomInfection

@@ -21,7 +21,7 @@ export async function updateRoomTransaction({
 {
   console.log("updateRoomTransaction")
 
-  const response = await authFetch(
+  const response = await fetch(
                                  `${API_BASE_URL}/update-room`,
                                  {
                                    method: "POST",
@@ -29,6 +29,7 @@ export async function updateRoomTransaction({
                                               "Content-Type":
                                               "application/json"
                                              },
+                                  credentials: "include",
                                    body: JSON.stringify(
                                                            toUpdateRoomRequest(
                                                                                  room

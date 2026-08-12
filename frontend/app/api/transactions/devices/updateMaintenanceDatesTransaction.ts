@@ -13,7 +13,7 @@ export async function updateMaintenanceDatesTransaction({
                                                     device
                                                   }: Params) {
 
-    await authFetch(
+    await fetch(
                       `${API_BASE_URL}/update-maintenance-dates`,
                       {
                         method: "POST",
@@ -21,6 +21,7 @@ export async function updateMaintenanceDatesTransaction({
                                     "Content-Type":
                                     "application/json"
                                   },
+                        credentials: "include",
                         body: JSON.stringify(
                                               toUpdateMaintenanceDatesRequest(
                                                                                    device

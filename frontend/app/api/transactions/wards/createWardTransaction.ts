@@ -23,14 +23,14 @@ export async function createWardTransaction({
 {
   console.log("createWardTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/wards`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateWardRequest(
                                                                ward

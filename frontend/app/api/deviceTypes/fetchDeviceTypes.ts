@@ -4,14 +4,15 @@ export async function getDeviceTypesFromApi()
 {
     console.log("fetchDeviceTypes")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/device-types`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

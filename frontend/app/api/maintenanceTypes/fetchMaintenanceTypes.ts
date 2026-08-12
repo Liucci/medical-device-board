@@ -3,14 +3,15 @@ export async function getMaintenanceTypesFromApi()
  {
     console.log("fetchMiantenance")  
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/maintenance-types`,
                         {
                           method: "GET",
                          headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
     return  await response.json()

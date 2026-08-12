@@ -4,8 +4,11 @@ import { API_BASE_URL, authFetch } from "../client/apiClient"
 export const fetchCurrentUser = async () => {
     console.log("fetchCurrentUser")
 
-    const response = await authFetch(
-        `${API_BASE_URL}/current-user`
+    const response = await fetch(
+        `${API_BASE_URL}/current-user`,
+        {
+        credentials: "include",
+        }
     )
 
     if (!response) {

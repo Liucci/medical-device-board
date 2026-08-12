@@ -22,11 +22,12 @@ export async function updateUserTransaction({
                                             }: UpdateUserTransactionParams)
 {
   console.log("updateUserTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-user`,
                                 {
                                 method: "POST",
                                 headers: {"Content-Type": "application/json"},
+                                credentials: "include",
                                 body: JSON.stringify(toUpdateUserRequest(user))
                 }
   )

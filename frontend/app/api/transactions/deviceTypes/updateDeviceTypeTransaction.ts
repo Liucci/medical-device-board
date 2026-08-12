@@ -20,14 +20,14 @@ export async function updateDeviceTypeTransaction({
 {
   console.log("updateDeviceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-device-type`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateDeviceTypeRequest(
                                                                       deviceType

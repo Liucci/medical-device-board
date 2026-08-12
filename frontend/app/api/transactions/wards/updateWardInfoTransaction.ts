@@ -24,11 +24,12 @@ export async function updateWardInfoTransaction({
                                               }: UpdateWardInfoTransactionParams) 
 {
   console.log("updateWardInfoTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-ward-info`,
                             {
                               method: "POST",
                               headers: {"Content-Type": "application/json",},
+                              credentials: "include",
                               body: JSON.stringify({
                                                     ...toUpdateWardInfoRequest(ward),
                                                     infection_type_ids: infectionTypeIds,

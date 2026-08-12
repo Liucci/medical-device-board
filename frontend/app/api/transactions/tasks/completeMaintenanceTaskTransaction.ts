@@ -20,7 +20,7 @@ export async function completeMaintenanceTaskTransaction({
 {
   console.log("completeMaintenanceTaskTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/complete_maintenance_task`,
                 {
                   method: "POST",
@@ -28,6 +28,7 @@ export async function completeMaintenanceTaskTransaction({
                             "Content-Type":
                             "application/json"
                                               },
+                  credentials: "include",
                   body: JSON.stringify(
                     toCompleteMaintenanceTaskRequest(
                       task

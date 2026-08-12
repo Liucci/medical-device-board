@@ -4,10 +4,11 @@ export const createAccountEditCode = async () => {
   console.log("createAccountEditCode")
 
   const response =
-    await authFetch(
+    await fetch(
                     `${API_BASE_URL}/create-account-edit-code`,
                     {
-                      method: "POST"
+                      method: "POST",
+                      credentials: "include",
                     }
                   )
 

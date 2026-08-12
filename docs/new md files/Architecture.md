@@ -792,7 +792,7 @@ export const toDeleteDeviceModelsRequest = (
 
 export async function getDeviceModelsFromApi()
 {
-    const response = await authFetch(
+    const response = await fetch(
         `${API_BASE_URL}/device-models`,
         {
             method: "GET",
@@ -812,7 +812,7 @@ export async function createDeviceModelTransaction({
     onClose
 }: CreateDeviceModelTransactionParams)
 {
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/device-models`,
         {
             method: "POST",

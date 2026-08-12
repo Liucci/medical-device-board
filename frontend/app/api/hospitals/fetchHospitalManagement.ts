@@ -4,13 +4,14 @@ import { authFetch } from "../client/apiClient"
 export async function getHospitalManagementFromApi() 
 {
   console.log("fetchHospitalManagement")
-  const response = await authFetch(
+  const response = await fetch(
                                     `${API_BASE_URL}/fetch-hospital-management`,
                                     {
                                     method: "GET",
                                     headers: {
                                         "Content-Type": "application/json"
-                                    }
+                                    },
+                                    credentials: "include",
                                     }
   )
 

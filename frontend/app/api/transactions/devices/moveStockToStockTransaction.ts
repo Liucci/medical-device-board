@@ -41,7 +41,7 @@ export async function moveStockToStockTransaction({
 
 
 try{
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_stock_to_stock`,
                 {
                   method: "POST",
@@ -49,6 +49,7 @@ try{
                             "Content-Type":
                             "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           id: deviceId,
                                           stock_area_id: stockAreaId,

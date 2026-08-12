@@ -58,7 +58,7 @@ export async function moveRoomToRoomNewPatientTransaction({
   )
 
   try {
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_room_to_room_new_patient`,
                 {
                   method: "POST",
@@ -66,6 +66,7 @@ export async function moveRoomToRoomNewPatientTransaction({
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           device: {
                                                     id: deviceId,

@@ -19,7 +19,7 @@ export async function updateAnnouncementTransaction({
 {
     console.log("updateAnnouncementTransaction")
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/update-announcement`,
         {
             method: "POST",
@@ -27,6 +27,7 @@ export async function updateAnnouncementTransaction({
                         "Content-Type":
                         "application/json"
                      },
+            credentials: "include",
             body: JSON.stringify(toUpdateAnnouncementRequest(announcement))
         }
     )

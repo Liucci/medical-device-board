@@ -22,14 +22,14 @@ export async function deleteRoomsTransaction({
 {
   console.log("deleteRoomsTransaction")
 
-  const response =await authFetch(
+  const response =await fetch(
                 `${API_BASE_URL}/delete-rooms-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteRoomsRequest(
                                                                  rooms
