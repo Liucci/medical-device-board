@@ -17,9 +17,9 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const {
-    currentUser,
-    setCurrentUser,
-    setAccessToken,
+          currentUser,
+          setCurrentUser,
+          setAccessToken,
   } = useAuth()
 
   //backendの/loginを呼び出す

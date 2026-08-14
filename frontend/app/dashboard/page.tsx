@@ -930,8 +930,8 @@ const activeTasks = tasks.filter(
   const getLatestMaintenanceTask = (deviceId?: number) => {
         if (!deviceId) return null
             const deviceTasks =getDeviceTasks(deviceId)
-            console.log(deviceId)
-            console.log(deviceTasks)
+            //console.log(deviceId)
+            //console.log(deviceTasks)
               if (deviceTasks.length === 0) {
                 return null
             }
@@ -979,13 +979,14 @@ const activeTasks = tasks.filter(
 
 
   //logout関数
-  const handleLogout = async () => {
-    if (!confirm("ログアウトしますか？")) {
-      return
-    }    
+const handleLogout = async (showConfirm = true) => {
+    // 確認が必要な場合のみ表示
+    if (showConfirm) {
+        if (!confirm("ログアウトしますか？")) {
+            return
+        }
+    }
     await supabase.auth.signOut()
-    localStorage.removeItem("access_token")
-    localStorage.removeItem("refresh_token")
     setCurrentUser(null)
     router.push("/login")
   }
@@ -1113,7 +1114,7 @@ useEffect(() => {
                                                 }
       startAutoLogout(
                       hospitalSettings.autoLogoutTime,
-                      handleLogout
+                      () => handleLogout(false)
                     )
       return () => {stopAutoLogout()}
 }, [hospitalSettings])

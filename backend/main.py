@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Depends, Response,Cookie
+from fastapi import FastAPI, HTTPException, Header, Depends, Response,Request,Cookie
 from fastapi.middleware.cors import (CORSMiddleware)
 from pydantic import BaseModel
 import os
@@ -211,7 +211,7 @@ from common.supabase_admin_provider import get_admin_client
 from common.supabase_auth_provider import get_auth_client
 
 #session
-from session.session_provider import create_session,get_session
+from session.session_provider import create_session,get_session,delete_session
 from auth.session import get_current_session
 from schemas.session_schemas import BackendSession
 
@@ -245,8 +245,20 @@ class LoginRequest(BaseModel):
 #frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
 #emailと紐づいているauth_user_idからuser情報を取得する
 @app.post("/login")
-def login(body: LoginRequest,
-           response: Response,):
+def login(
+            body: LoginRequest,
+            request: Request,
+            response: Response,
+):
+        # 既存のBackend Sessionを削除
+    old_session_id = request.cookies.get("session_id")
+
+    if old_session_id:
+        delete_session(old_session_id)
+        response.delete_cookie(
+                                key="session_id",
+                                path="/",
+        )
     auth_response  = login_user(
                             email=body.email,
                             password=body.password
@@ -1650,7 +1662,8 @@ def fetch_hospital_management_route(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
-    return fetch_hospital_management_transaction(session.client)
+    client = get_admin_client()
+    return fetch_hospital_management_transaction(client)
 
 @app.post("/create-hospital")
 def create_hospital(
@@ -1662,8 +1675,9 @@ def create_hospital(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
+    client = get_admin_client()
 
-    add_hospital(client=session.client, 
+    add_hospital(client=client, 
                  hospital=request)
 
     return {
@@ -1681,7 +1695,9 @@ def update_hospital_route(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
-    update_hospital(session.client, 
+    client = get_admin_client()
+
+    update_hospital(client, 
                     hospital=request)
 
     return {
@@ -1698,14 +1714,14 @@ def fetch_user_management_route(
     ):
 
     #access_token = authorization.removeprefix("Bearer ").strip()
-    #client = get_auth_client(access_token)
+    client = get_admin_client()
     #current_user = fetch_current_user_transaction(client,auth_user_id)
     check_permission(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
 
-    return fetch_user_management_transaction(session.client, )
+    return fetch_user_management_transaction(client)
 
 
 #role,is activeを編集可能
@@ -1719,6 +1735,7 @@ def update_user_route(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
+    #service keyでDBアクセスできるclient
     client = get_admin_client()
 
     update_user_transaction(
@@ -1726,6 +1743,7 @@ def update_user_route(
         request=request,
         auth_user_id=session.user_id
     )
+
 
 #アカウント情報編集用コード送信用
 @app.post("/create-account-edit-code")
@@ -1769,7 +1787,8 @@ def update_my_account(
                                 session.client, 
                                 request,
                                   )
-
+    # Backend Sessionにも反映
+    session.display_name = request.display_name
     return {"message": "success"}
 
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { AnnouncementFrontType } from "../../types/announcementTypes"
 
 import { fetchAnnouncementsTransaction } from "@/app/api/transactions/announcements/fetchAnnouncementsTransaction"
+import {LoadingOverlay} from "../../components/common/LoadingOverlay"
 
 import AnnouncementSearch from "./components/AnnouncementSearch"
 import AnnouncementTable from "./components/AnnouncementTable"
@@ -25,63 +26,61 @@ export default function AnnouncementManagementPage()
     const [endAt, setEndAt] = useState("")
     const [hospitals, setHospitals] = useState<HospitalManagementType[]>([])
     const router = useRouter()
+    const [loading, setLoading] = useState(false)
+
     const filteredAnnouncements = announcements.filter((announcement) => {
+            if (
+                keyword &&
+                !announcement.message.includes(keyword)
+            ) {
+                return false
+            }
 
-    if (
-        keyword &&
-        !announcement.message.includes(keyword)
-    ) {
-        return false
-    }
+            if (
+                isActive === "true" &&
+                !announcement.isActive
+            ) {
+                return false
+            }
 
-    if (
-        isActive === "true" &&
-        !announcement.isActive
-    ) {
-        return false
-    }
+            if (
+                isActive === "false" &&
+                announcement.isActive
+            ) {
+                return false
+            }
 
-    if (
-        isActive === "false" &&
-        announcement.isActive
-    ) {
-        return false
-    }
+            if (
+                startAt &&
+                announcement.startAt.substring(0, 10) < startAt
+            ) {
+                return false
+            }
 
-    if (
-        startAt &&
-        announcement.startAt.substring(0, 10) < startAt
-    ) {
-        return false
-    }
-
-    if (
-        endAt &&
-        announcement.endAt.substring(0, 10) > endAt
-    ) {
-        return false
-    }
+            if (
+                endAt &&
+                announcement.endAt.substring(0, 10) > endAt
+            ) {
+                return false
+            }
 
     return true
 })
 
-useEffect(() => {
-        fetchAnnouncementsTransaction({
-            setAnnouncements
-        })
-    }, [])
 useEffect(() => {
 
     fetchAnnouncementsTransaction({
         setAnnouncements
     })
     fetchHospitalManagementTransaction({
-        setHospitals
+        setHospitals,
+        setLoading,
     })
 
 
 }, [])
     return (
+    <>
         <div className="p-6">
 
             <div className="mb-6 flex items-center gap-3">
@@ -149,5 +148,7 @@ useEffect(() => {
             }
 
         </div>
+<LoadingOverlay loading={loading} />
+</>
     )
 }

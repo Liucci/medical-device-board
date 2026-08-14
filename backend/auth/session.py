@@ -17,7 +17,7 @@ def get_current_session(
         )
 
     session = get_session(session_id)
-    print("session from store =", session)
+    #print("session from store =", session)
     if session is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

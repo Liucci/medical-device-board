@@ -16,8 +16,6 @@ def update_user_transaction(
                                                     client,
                                                     auth_user_id
                                                     )
-    if current_user.role!= "system_admin":
-        raise PermissionError("Permission denied")
 
     update_user(
                 client, 

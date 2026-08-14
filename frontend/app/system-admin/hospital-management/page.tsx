@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { HospitalManagementType } from "../../types/hospitalTypes"
 import {fetchHospitalManagementTransaction} from "@/app/api/transactions/hospitals/fetchHospitalManagementTransaction"
+import {LoadingOverlay} from "../../components/common/LoadingOverlay"
 
 
 import CreateHospitalModal from "./components/CreateHospitalModal"
@@ -28,7 +29,7 @@ const [createdFrom, setCreatedFrom] = useState("")
 const [createdTo, setCreatedTo] = useState("")
 const [createOpen, setCreateOpen] = useState(false)
 const [editOpen, setEditOpen] = useState(false)
-
+const [loading, setLoading] = useState(false)
 const [
   selectedHospital,
   setSelectedHospital
@@ -39,6 +40,7 @@ useEffect(
             () => {
                     fetchHospitalManagementTransaction({
                                                           setHospitals,
+                                                          setLoading
                                                           //setFilteredHospitals
                                                         })
                   },
@@ -127,6 +129,7 @@ useEffect(
          )
 
   return (
+    <>
           <div className="flex h-full flex-col p-6">
 
             <div className="mb-6 flex items-center justify-between">
@@ -466,9 +469,8 @@ useEffect(
             />
 
           </div>
-
-
-
+    <LoadingOverlay loading={loading} />
+</>
 
         )
 }

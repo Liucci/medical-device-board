@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import {
-  UserManagementType,
-  UserRole
+        UserManagementType,
+        UserRole
 } from "../../../types/userTypes"
 import { updateUserTransaction } from "../../../api/transactions/users/updateUserTransaction"
+import {LoadingOverlay} from "../../../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 
 type Props = {
-  isOpen: boolean
-  onClose: () => void
-  user: UserManagementType | null
-  setUsers: React.Dispatch<
-    React.SetStateAction<UserManagementType[]>
-  >
+              isOpen: boolean
+              onClose: () => void
+              user: UserManagementType | null
+              setUsers: React.Dispatch<React.SetStateAction<UserManagementType[]>>
 }
 
 export default function EditUserModal({
@@ -28,15 +28,15 @@ export default function EditUserModal({
   const [role, setRole] = useState<UserRole>("normal")
   const [isActive, setIsActive] = useState(true)
   const [loading, setLoading] = useState(false)
-const initialize = () => {
-                        if (!user) return
-                        setDisplayName(user.displayName)
-                        setRole(user.role)
-                        setIsActive(user.isActive)
+  const initialize = () => {
+                          if (!user) return
+                          setDisplayName(user.displayName)
+                          setRole(user.role)
+                          setIsActive(user.isActive)
 }
 const closeModal = () => {
-                        initialize()
-                        onClose()
+                          initialize()
+                          onClose()
 }
 
 
@@ -62,27 +62,27 @@ const closeModal = () => {
     setLoading(true)
 
     try {
-
-      await updateUserTransaction({
-        user: {
-          id: user.id,
-          role,
-          isActive
-        },
-        setUsers,
-        onClose
-      })
-
+          await executeWithErrorAndLoading({
+              setLoading,
+              action: async () => {
+              await updateUserTransaction({
+                user: {
+                  id: user.id,
+                  role,
+                  isActive
+                },
+                setUsers,
+                onClose
+              })
+            }
+        })
     } finally {
-
       setLoading(false)
-
     }
-
   }
 
   return createPortal(
-
+<>
     <div
       className="
                 fixed
@@ -435,7 +435,11 @@ const closeModal = () => {
 
       </div>
 
-    </div>,
+    </div>
+  <LoadingOverlay loading={loading} />
+  </>
+    ,    
     document.body
+
   )
 }
