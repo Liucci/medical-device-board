@@ -49,7 +49,6 @@ pythonは当然だが、type scriptでもインデントを付けて。
 OK
 
 ```ts
-const token = localStorage.getItem("access_token")
 const data = await response.json()
 setDevices(devices)
 ```

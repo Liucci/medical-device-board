@@ -55,8 +55,9 @@ class UpdateAnnouncementCRUDRequest(BaseModel):
 
 
 #dashboard表示専用
-class FetchActiveAnnouncementsRequest(BaseModel):
-    hospital_id: str
+#frontからhospital idを受け取ってはいけないのでこのrequestは削除
+#class FetchActiveAnnouncementsRequest(BaseModel):
+#    hospital_id: str
 
 
 class FetchActiveAnnouncementsResponse(BaseModel):

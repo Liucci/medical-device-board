@@ -32,7 +32,7 @@ export const loginTransaction = async ({
   const currentUserDB =
     await fetchCurrentUser()
 
-  console.log(currentUserDB)
+  //console.log(currentUserDB)
 
   if (!currentUserDB) {
     throw new Error(

@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from supabase import Client
-from schemas.announcement_schemas import FetchActiveAnnouncementsRequest, FetchActiveAnnouncementsResponse
+from schemas.announcement_schemas import  FetchActiveAnnouncementsResponse
 
 
 def fetch_active_announcements(
-                                 client:Client,
-                                 request: FetchActiveAnnouncementsRequest
+                                client:Client,
+                                hospital_id: str,
                             ) -> list[FetchActiveAnnouncementsResponse]:
 
     print("fetch_active_announcements")
@@ -24,7 +24,7 @@ def fetch_active_announcements(
                                     hospital_id
                                 )
                             """)
-                    .eq("announcement_hospitals.hospital_id", request.hospital_id)
+                    .eq("announcement_hospitals.hospital_id",hospital_id)
                     .eq("is_active", True)
                     .lte("start_at", now)
                     .gte("end_at", now)
