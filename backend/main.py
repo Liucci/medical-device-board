@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Header, Depends, Response,Request,Co
 from fastapi.middleware.cors import (CORSMiddleware)
 from pydantic import BaseModel
 import os
+from routes.inspection_routes import inspection_router
 
 from auth.login import (login_user)
 from auth.fetch_current_user import (fetch_current_user)
@@ -234,6 +235,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(inspection_router)
 
 class LoginRequest(BaseModel):
                                 email: str

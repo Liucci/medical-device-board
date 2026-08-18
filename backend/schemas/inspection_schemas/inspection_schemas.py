@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
-
+from schemas.inspection_schemas.inspection_result_schemas import AddInspectionResultRequest
 
 class InspectionResponse(BaseModel):
     id: int
@@ -38,3 +38,7 @@ class UpdateInspectionRequest(BaseModel):
 
 class DeleteInspectionsRequest(BaseModel):
     ids: list[int]
+
+class CreateInspectionTransactionRequest(BaseModel):
+    inspection: AddInspectionRequest
+    results: list[AddInspectionResultRequest]

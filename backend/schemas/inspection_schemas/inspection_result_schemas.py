@@ -9,7 +9,7 @@ class InspectionResultResponse(BaseModel):
 
 
 class AddInspectionResultRequest(BaseModel):
-    inspection_id: int
+    #inspection_id: int
     checklist_item_id: int
     value: str | None = None
 
