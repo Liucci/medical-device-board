@@ -1,5 +1,4 @@
 "use client"
-import { API_BASE_URL } from "../client/apiClient"
 
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
