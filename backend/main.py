@@ -219,7 +219,9 @@ from schemas.session_schemas import BackendSession
 
 from dotenv import load_dotenv
 load_dotenv()
-
+#本番環境、開発環境判定用APP_ENVを取得し判定する
+APP_ENV = os.getenv("APP_ENV", "development")
+IS_PRODUCTION = APP_ENV == "production"
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -289,14 +291,27 @@ def login(
     session_id = create_session(backend_session)
 
    # Session IDをHttpOnly Cookieへ保存
-    response.set_cookie(
-        key="session_id",
-        value=session_id,
-        httponly=True,
-        secure=False,       # localhostではFalse
-        samesite="lax",
-        path="/",
-    )
+   #　開発環境か本番でcookeiの設定を変える
+   # 本番はクロスサイトオリジンの設定
+    if APP_ENV == "development":
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+        )
+    else:
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+        )
+
     #print("session_id =", session_id)
     #print("session =", get_session(session_id))
     return {
@@ -305,6 +320,8 @@ def login(
                 "access_token": auth_response.session.access_token,
             }
 
+
+#リロード時にcurrent user情報を再取得することでlogin状態が維持される
 @app.get("/current-user")
 def get_current_user(
     session: BackendSession = Depends(get_current_session),
