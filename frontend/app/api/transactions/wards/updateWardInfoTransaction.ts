@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import { UpdateWardInfoType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getWardInfectionsFromApi } from "../../wardInfections/fetchWardInfections"
@@ -24,11 +24,12 @@ export async function updateWardInfoTransaction({
                                               }: UpdateWardInfoTransactionParams) 
 {
   console.log("updateWardInfoTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-ward-info`,
                             {
                               method: "POST",
                               headers: {"Content-Type": "application/json",},
+                              credentials: "include",
                               body: JSON.stringify({
                                                     ...toUpdateWardInfoRequest(ward),
                                                     infection_type_ids: infectionTypeIds,

@@ -5,7 +5,7 @@ import {
          normalizeRoomInfection,
          toDeleteRoomInfectionsRequest
        } from "../../../utils/roomInfectionMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type DeleteRoomInfectionsTransactionParams = {
                                                 roomInfections: DeleteRoomInfectionsType
@@ -20,7 +20,7 @@ export async function deleteRoomInfectionsTransaction({
 {
   console.log("deleteRoomInfectionsTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/delete-room-infections`,
                     {
                       method: "POST",
@@ -28,6 +28,7 @@ export async function deleteRoomInfectionsTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toDeleteRoomInfectionsRequest(
                                                                                 roomInfections

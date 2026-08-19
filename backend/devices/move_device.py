@@ -1,8 +1,10 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from datetime import datetime, timezone
 from schemas.device_schemas import MoveDeviceRequest
 
 def move_device(
+                 client:Client,
                  device: MoveDeviceRequest,
                  hospital_id: str,
                  status:str,
@@ -12,7 +14,7 @@ def move_device(
     print("move_device")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "room_id": device.room_id,

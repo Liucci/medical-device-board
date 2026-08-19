@@ -4,14 +4,17 @@ from schemas.stock_area_schemas import DeleteStockAreasRequest
 from exists.exists_devices_in_stock_areas import (
     exists_devices_in_stock_areas
 )
+from supabase import Client
 
 def delete_stock_area_transaction(
+                                    client:Client,
                                     stock_area: DeleteStockAreasRequest,
                                     hospital_id
                                   ):
 
     print("delete_stock_area_transaction")
     if exists_devices_in_stock_areas(
+                                        client,
                                         stock_area.ids,
                                         hospital_id
                                     ):
@@ -23,6 +26,7 @@ def delete_stock_area_transaction(
 
 
     stock_area_response = delete_stock_areas(
+                                                client=client, 
                                                 stock_area_ids=stock_area.ids,
                                                 hospital_id=hospital_id
                                              )

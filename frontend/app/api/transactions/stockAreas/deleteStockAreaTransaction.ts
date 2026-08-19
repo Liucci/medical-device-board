@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import {
          normalizeStockArea,
@@ -22,7 +22,7 @@ export async function deleteStockAreaTransaction({
 {
   console.log("deleteStockAreaTransaction")
 
-  const response =await authFetch(
+  const response =await fetch(
                 `${API_BASE_URL}/delete-stock-area-transaction`,
                 {
                   method: "POST",
@@ -30,6 +30,7 @@ export async function deleteStockAreaTransaction({
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(
                                           toDeleteStockAreasRequest(
                                                                        stockAreaIds

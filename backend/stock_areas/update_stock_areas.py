@@ -1,8 +1,9 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.stock_area_schemas import (UpdateStockAreaRequest,UpdateStockAreaOrderRequest)
 
 
 def update_stock_area(
+                      client:Client,
                       stock_area:UpdateStockAreaRequest,
                         hospital_id:str
                       ):
@@ -10,7 +11,7 @@ def update_stock_area(
     print("update_stock_area")
 
     response = (
-                  supabase
+                  client
                   .table("stock_areas")
                   .update({"name": stock_area.name})
                   .eq("id", stock_area.id)
@@ -23,12 +24,13 @@ def update_stock_area(
 
 # 並び順更新用
 def update_stock_area_display_order(
+                                  client:Client,
                                   stock_area: UpdateStockAreaOrderRequest,
                                   hospital_id: str,
                               ):
     print("update_stock_area_display_order")
     (
-        supabase
+        client
         .table("stock_areas")
         .update({
             "display_order": stock_area.display_order

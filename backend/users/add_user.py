@@ -1,16 +1,18 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
+
 
 from schemas.user_schemas import (
     AddUserRequest
 )
 
-def add_user(user: AddUserRequest):
+def add_user(
+            client:Client,
+            user: AddUserRequest
+            ):
 
     print("insert user")
     response = (
-        supabase
+        client
         .table("users")
         .insert({
             "id":user.id,

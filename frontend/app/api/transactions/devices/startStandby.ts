@@ -2,14 +2,14 @@ import { API_BASE_URL } from "../../client/apiClient"
 import {
          toStartStandbyRequest
        } from "../../../utils/deviceMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 export async function startStandby(
                                      id: number
                                    ) {
 
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/start-standby`,
                 {
                     method: "POST",
@@ -17,6 +17,7 @@ export async function startStandby(
                               "Content-Type":
                               "application/json"
                              },
+                    credentials: "include",
                     body: JSON.stringify(
                                             toStartStandbyRequest(
                                                                     id

@@ -1,9 +1,11 @@
+from supabase import Client
 from devices.update_maintenance_dates import update_maintenance_dates
 from schemas.device_schemas import UpdateMaintenanceDatesRequest
 from transactions.histories.create_device_history import (create_device_history)
 
 
 def update_maintenance_dates_transaction(
+                                            client:Client,
                                             device: UpdateMaintenanceDatesRequest,
                                             hospital_id: str,
                                             user_id: str,
@@ -14,12 +16,14 @@ def update_maintenance_dates_transaction(
     print("update_maintenance_dates_transaction")
 
     updated_device = update_maintenance_dates(
+                                                client=client, 
                                                 device=device,
                                                 hospital_id=hospital_id,
                                                 user_id=user_id
                                              )
 
     create_device_history(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id,
                             action_by=user_id,

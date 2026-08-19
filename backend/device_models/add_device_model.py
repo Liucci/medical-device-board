@@ -1,14 +1,16 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_model_schemas import AddDeviceModelRequest
 
 def add_device_model(
+                        client:Client,
                         device_model: AddDeviceModelRequest,
                         hospital_id: str
                     ):
     print("insert device_model")
 
     response = (
-                supabase
+                client
                 .table("device_models")
                 .insert({
                         "hospital_id": hospital_id,

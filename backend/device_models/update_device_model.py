@@ -1,12 +1,14 @@
 from common.supabase_admin_client import (supabase)
+from supabase import Client
 from schemas.device_model_schemas import UpdateDeviceModelRequest
 
 def update_device_model(
-                        device_model: UpdateDeviceModelRequest,
+                         client:Client,
+                         device_model: UpdateDeviceModelRequest,
                         hospital_id: str                        ):
     print("update_device_model")
     response = (
-                supabase
+                client
                 .table("device_models")
                 .update({
                         "name": device_model.name,

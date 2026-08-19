@@ -7,7 +7,7 @@ import {
   normalizeHospitalManagement,
   toUpdateHospitalRequest
 } from "../../../utils/hospitalMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type UpdateHospitalTransactionParams = {
                                         hospital: UpdateHospitalFrontType
@@ -22,11 +22,12 @@ export async function updateHospitalTransaction({
                                             }: UpdateHospitalTransactionParams) 
 {
   console.log("updateHospitalTransaction")
-  await authFetch(
+  await fetch(
             `${API_BASE_URL}/update-hospital`,
                 {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
+                credentials: "include",
                 body: JSON.stringify(toUpdateHospitalRequest(hospital))
                 }
   )

@@ -1,4 +1,4 @@
-import { API_BASE_URL,authFetch } from "../client/apiClient"
+import { API_BASE_URL, } from "../client/apiClient"
 import { InviteFirstAdminRequestDB } from "../../types/inviteTypes"
 
 export const inviteFirstAdmin = async (
@@ -7,7 +7,7 @@ export const inviteFirstAdmin = async (
 
 
   const response =
-    await authFetch(
+    await fetch(
                   `${API_BASE_URL}/invite-first-admin`,
                   {
                     method:"POST",
@@ -15,6 +15,7 @@ export const inviteFirstAdmin = async (
                                     "Content-Type":
                                     "application/json"
                             },
+                    credentials: "include",
                     body: JSON.stringify(invite)
                   }
                 )

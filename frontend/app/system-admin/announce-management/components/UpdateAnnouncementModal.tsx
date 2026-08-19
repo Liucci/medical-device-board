@@ -1,17 +1,14 @@
 "use client"
-
 import { useEffect, useState } from "react"
-
 import {
     AnnouncementFrontType,
     UpdateAnnouncementFrontType
 } from "../../../types/announcementTypes"
-
 import { HospitalManagementType } from "../../../types/hospitalTypes"
-
 import { updateAnnouncementTransaction } from "@/app/api/transactions/announcements/updateAnnouncementTransaction"
-
 import HospitalCheckList from "./HospitalCheckList"
+import {LoadingOverlay} from "../../../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 
 type UpdateAnnouncementModalProps = {
     open: boolean
@@ -38,6 +35,7 @@ export default function UpdateAnnouncementModal({
                                     isActive: true
     }
     const [editAnnouncement, setEditAnnouncement] =useState<UpdateAnnouncementFrontType>(initialEditAnnouncement)
+    const [loading, setLoading] = useState(false)
 
     const toDateTimeLocal = (value: string) => {
             const date = new Date(value)
@@ -69,7 +67,7 @@ useEffect(() => {
     if (!open) return null
 
 return (
-
+<>
     <div
         className="fixed inset-0 flex items-center justify-center bg-black/40"
     onClick={() => {
@@ -208,14 +206,22 @@ return (
                 <button
                     className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                     onClick={async () => {
+                        if (editAnnouncement.hospitalIds.length === 0) {
+                            alert("配信対象を選択してください。")
+                            return
+                        }
+                            await executeWithErrorAndLoading({
+                                setLoading,
+                                action: async () => {
 
-                        await updateAnnouncementTransaction({
-                            announcement: editAnnouncement,
-                            setAnnouncements
-                        })
-                        setEditAnnouncement(initialEditAnnouncement)
-                        onClose()
-
+                                        await updateAnnouncementTransaction({
+                                            announcement: editAnnouncement,
+                                            setAnnouncements
+                                        })
+                                        setEditAnnouncement(initialEditAnnouncement)
+                                        onClose()
+                                }
+                            })
                     }}
                 >
                     保存
@@ -226,5 +232,7 @@ return (
         </div>
 
     </div>
+<LoadingOverlay loading={loading} />
+</>
 
 )}

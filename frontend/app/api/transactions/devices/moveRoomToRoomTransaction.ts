@@ -7,7 +7,7 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
 import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
@@ -53,7 +53,7 @@ setDevices((prev: Device[]) =>
   )
 )
 try {
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_room_to_room`,
                 {
                   method: "POST",
@@ -61,6 +61,7 @@ try {
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           device: {
                                                     id: deviceId,

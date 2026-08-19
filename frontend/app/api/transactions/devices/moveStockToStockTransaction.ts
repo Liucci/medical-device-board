@@ -5,7 +5,7 @@ import { getHistoriesFromApi } from "../../histories/fetchHistories"
 
 import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 type MoveStockToStockTransactionParams = {
                                           deviceId: number
@@ -41,7 +41,7 @@ export async function moveStockToStockTransaction({
 
 
 try{
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_stock_to_stock`,
                 {
                   method: "POST",
@@ -49,6 +49,7 @@ try{
                             "Content-Type":
                             "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           id: deviceId,
                                           stock_area_id: stockAreaId,

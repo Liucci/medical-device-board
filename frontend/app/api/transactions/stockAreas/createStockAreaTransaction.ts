@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { CreateStockAreaType } from "../../../types/stockTypes"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import {
          normalizeStockArea,
@@ -23,14 +23,14 @@ export async function createStockAreaTransaction({
 {
   console.log("createStockAreaTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/create-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateStockAreaRequest(
                                                                        stockArea

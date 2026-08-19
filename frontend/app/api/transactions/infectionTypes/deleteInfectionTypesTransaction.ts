@@ -5,7 +5,7 @@ import {
          normalizeInfectionType,
          toDeleteInfectionTypesRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type DeleteInfectionTypesTransactionParams = {
                                                 infectionTypes: DeleteInfectionTypesType
@@ -20,7 +20,7 @@ export async function deleteInfectionTypesTransaction({
 {
   console.log("deleteInfectionTypesTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/delete-infection-types`,
                     {
                       method: "POST",
@@ -28,6 +28,7 @@ export async function deleteInfectionTypesTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toDeleteInfectionTypesRequest(
                                                                               infectionTypes

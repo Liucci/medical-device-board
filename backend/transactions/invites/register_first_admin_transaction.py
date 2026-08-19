@@ -9,11 +9,14 @@ from schemas.invite_schemas import (
                                     )
 from schemas.user_schemas import AddUserRequest
 from schemas.hospital_schemas import AddHospitalRequest
+from supabase import Client
 def register_first_admin_transaction(
+                                      client:Client,
                                       register: RegisterUserRequest,
                                     ):
     print("register_first_admin_transaction")
     invite_code = fetch_invite_code(
+                                      client,
                                       register.code
                                     )
 
@@ -33,15 +36,17 @@ def register_first_admin_transaction(
                                  )
     #hospital登録
     hospital = add_hospital(
-                    AddHospitalRequest(
-                              hospital_name=invite_code["hospital_name"],
-                              price_plan="free",
-                              note=None
-                    )
+                            client, 
+                            AddHospitalRequest(
+                                      hospital_name=invite_code["hospital_name"],
+                                      price_plan="free",
+                                      note=None
+                            )
     )   
  #user 登録
     add_user(
-              AddUserRequest(
+            client, 
+            AddUserRequest(
                               id=new_user.user.id,
                               hospital_id=hospital["id"],
                               email=invite_code["email"],
@@ -52,6 +57,7 @@ def register_first_admin_transaction(
             )
   #invite code使用済み登録
     update_invite_code(
+                        client=client, 
                         invite_code_id=invite_code["id"],
                         used=True
                       )

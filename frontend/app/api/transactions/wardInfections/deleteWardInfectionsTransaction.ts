@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import { DeleteWardInfectionsType } from "../../../types/wardInfectionTypes"
 
@@ -22,13 +22,14 @@ export async function deleteWardInfectionsTransaction({
 {
   console.log("deleteWardInfectionsTransaction")
 
-  await authFetch(
+  await fetch(
     `${API_BASE_URL}/delete-ward-infections`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify(
         toDeleteWardInfectionsRequest(
           wardInfections

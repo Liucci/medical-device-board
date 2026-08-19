@@ -1,4 +1,5 @@
 import os
+from supabase import Client
 
 from invites.create_first_admin_invite_code import create_first_admin_invite_code
 from invites.send_invite_mail import send_invite_mail
@@ -11,6 +12,7 @@ from schemas.invite_schemas import (
 
 
 def invite_first_admin_transaction(
+                                    client:Client,
                                     request: InviteFirstAdminRequest,
                                     current_user_id: str
                                   ):
@@ -22,6 +24,7 @@ def invite_first_admin_transaction(
                                     )
 
     invite_code = create_first_admin_invite_code(
+                                      client=client, 
                                       invite=invite,
                                       hospital_name=request.hospital_name,
                                       created_by=current_user_id

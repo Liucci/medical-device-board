@@ -8,7 +8,7 @@ import {
   normalizeHospitalManagement,
   toAddHospitalRequest
 } from "../../../utils/hospitalMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateHospitalTransactionParams = {
                                         hospital: CreateHospitalFrontType
@@ -25,13 +25,14 @@ export async function createHospitalTransaction({
 
   console.log("createHospitalTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/create-hospital`,
                     {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
+                    credentials: "include",
                     body: JSON.stringify(
                         toAddHospitalRequest(hospital)
                     )

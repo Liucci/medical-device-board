@@ -1,18 +1,21 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.hospital_settings_schemas import UpdateHospitalSettingsRequest
 
 
-def fetch_hospital_settings(hospital_id: str):
+def fetch_hospital_settings(client:Client,
+                            hospital_id: str):
 
     print("fetch_hospital_settings")
 
     response = (
-                    supabase
+                    client
                     .table("hospital_settings")
                     .select("*")
                     .eq("hospital_id", hospital_id)
-                    .single()
+                    .maybe_single()
                     .execute()
                )
-
+    if response is None:
+        return None
     return response.data

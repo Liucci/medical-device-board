@@ -3,7 +3,7 @@ import {
          toUpdateDeviceRentalDatesRequest
        } from "../../../utils/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type Params = {
                 device: Device
@@ -13,7 +13,7 @@ export async function updateRentalDates({
                                            device
                                          }: Params) {
 
-    await authFetch(
+    await fetch(
                       `${API_BASE_URL}/update-device-rental-dates`,
                       {
                         method: "POST",
@@ -21,6 +21,7 @@ export async function updateRentalDates({
                                     "Content-Type":
                                     "application/json"
                                   },
+                        credentials: "include",
                         body: JSON.stringify(
                                               toUpdateDeviceRentalDatesRequest(
                                                                                  device

@@ -1,15 +1,16 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.maintenance_task_schemas import UpdateMaintenanceTaskDueAtRequest
 
 
 def update_maintenance_task_due_at(
+    client:Client,
     task: UpdateMaintenanceTaskDueAtRequest,
     hospital_id: str
 ):
     print("update_maintenance_task_due_at")
 
     response = (
-        supabase
+        client
         .table("device_maintenance_tasks")
         .update({
             "due_at": task.due_at.isoformat()

@@ -9,7 +9,7 @@ import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
 import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
@@ -58,7 +58,7 @@ export async function moveRoomToRoomNewPatientTransaction({
   )
 
   try {
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_room_to_room_new_patient`,
                 {
                   method: "POST",
@@ -66,6 +66,7 @@ export async function moveRoomToRoomNewPatientTransaction({
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           device: {
                                                     id: deviceId,

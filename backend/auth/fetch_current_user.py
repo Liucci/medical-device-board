@@ -1,10 +1,12 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
+
 #auth user idと紐づいたuser情報をDBから取得
 #auth user idはsupabaseが作るuuid
 #指定のuuidに紐づくuser情報を取得する関数
-def fetch_current_user(auth_user_id: str):
+def fetch_current_user(
+                       client:Client,
+                       auth_user_id: str
+                       ):
     print("fetch_current_user")
 
     # print("headers =", supabase.postgrest.headers)
@@ -12,7 +14,7 @@ def fetch_current_user(auth_user_id: str):
     # print("client id =", id(supabase))
     
     response = (
-                supabase
+                client
                         .table("users")
                         .select("*")
                         .eq("id",auth_user_id)

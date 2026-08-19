@@ -3,7 +3,7 @@ import {
          toUpdateMaintenanceDatesRequest
        } from "../../../utils/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type Params = {
                 device: Device
@@ -13,7 +13,7 @@ export async function updateMaintenanceDatesTransaction({
                                                     device
                                                   }: Params) {
 
-    await authFetch(
+    await fetch(
                       `${API_BASE_URL}/update-maintenance-dates`,
                       {
                         method: "POST",
@@ -21,6 +21,7 @@ export async function updateMaintenanceDatesTransaction({
                                     "Content-Type":
                                     "application/json"
                                   },
+                        credentials: "include",
                         body: JSON.stringify(
                                               toUpdateMaintenanceDatesRequest(
                                                                                    device

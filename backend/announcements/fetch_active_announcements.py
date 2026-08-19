@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
-
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.announcement_schemas import FetchActiveAnnouncementsRequest, FetchActiveAnnouncementsResponse
 
 
 def fetch_active_announcements(
-                                request: FetchActiveAnnouncementsRequest
+                                 client:Client,
+                                 request: FetchActiveAnnouncementsRequest
                             ) -> list[FetchActiveAnnouncementsResponse]:
 
     print("fetch_active_announcements")
@@ -13,7 +13,7 @@ def fetch_active_announcements(
     now = datetime.now(timezone.utc).isoformat()
 
     response = (
-                    supabase
+                    client
                     .table("announcements")
                     .select("""
                                 id,

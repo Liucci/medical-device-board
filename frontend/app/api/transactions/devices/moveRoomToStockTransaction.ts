@@ -9,7 +9,7 @@ import { normalizeDevice } from "../../../utils/deviceMapper"
 import { normalizeRoom } from "../../../utils/roomsMapper"
 import { normalizeHistory } from "../../../utils/historyMapper"
 import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 import{RoomType} from "../../../types/roomTypes"
 import{MaintenanceType} from "../../../types/maintenanceTypeTypes"
@@ -59,7 +59,7 @@ export async function moveRoomToStockTransaction({
   )
 )
 try{
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/move_room_to_stock`,
                 {
                   method: "POST",
@@ -67,6 +67,7 @@ try{
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           device: {
                                                     id: deviceId,

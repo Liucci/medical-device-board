@@ -5,7 +5,7 @@ import {
          normalizeDeviceModel,
          toCreateDeviceModelRequest
        } from "../../../utils/deviceModelMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateDeviceModelTransactionParams = {
                                              deviceModel: CreateDeviceModelFrontType
@@ -20,7 +20,7 @@ export async function createDeviceModelTransaction({
                                                  )
 {
   console.log("createDeviceModelTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/device-models`,
                 {
                   method: "POST",
@@ -28,6 +28,7 @@ export async function createDeviceModelTransaction({
                               "Content-Type":
                               "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(toCreateDeviceModelRequest(deviceModel))
                 }
               )

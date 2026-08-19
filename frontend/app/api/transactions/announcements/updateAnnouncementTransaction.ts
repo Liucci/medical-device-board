@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import {UpdateAnnouncementFrontType} from "../../../types/announcementTypes"
 import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
 import {
@@ -19,7 +19,7 @@ export async function updateAnnouncementTransaction({
 {
     console.log("updateAnnouncementTransaction")
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/update-announcement`,
         {
             method: "POST",
@@ -27,6 +27,7 @@ export async function updateAnnouncementTransaction({
                         "Content-Type":
                         "application/json"
                      },
+            credentials: "include",
             body: JSON.stringify(toUpdateAnnouncementRequest(announcement))
         }
     )

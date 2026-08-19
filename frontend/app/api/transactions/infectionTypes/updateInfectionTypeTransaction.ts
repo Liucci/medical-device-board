@@ -5,7 +5,7 @@ import {
          normalizeInfectionType,
          toUpdateInfectionTypeRequest
        } from "../../../utils/infectionTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type UpdateInfectionTypeTransactionParams = {
                                                infectionType: UpdateInfectionTypeType
@@ -20,7 +20,7 @@ export async function updateInfectionTypeTransaction({
 {
   console.log("updateInfectionTypeTransaction")
 
-  await authFetch(
+  await fetch(
                     `${API_BASE_URL}/update-infection-type`,
                     {
                       method: "POST",
@@ -28,6 +28,7 @@ export async function updateInfectionTypeTransaction({
                                   "Content-Type":
                                   "application/json"
                                 },
+                      credentials: "include",
                       body: JSON.stringify(
                                               toUpdateInfectionTypeRequest(
                                                                             infectionType

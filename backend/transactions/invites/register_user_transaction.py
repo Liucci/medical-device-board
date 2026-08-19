@@ -6,14 +6,17 @@ from schemas.invite_schemas import (RegisterUserRequest,RegisterUserResponse)
 from schemas.user_schemas import AddUserRequest
 from hospitals.fetch_hospital import fetch_hospital
 from auth.fetch_current_user import fetch_current_user
+from supabase import Client
 
 def register_user_transaction(
+                                client:Client,
                                 register:RegisterUserRequest,
                              ):
     print("register_user_transaction")
 
     #invite code取得
     invite_code = fetch_invite_code(
+                                        client, 
                                         register.code
                                     )
 
@@ -35,6 +38,7 @@ def register_user_transaction(
     
     #user登録                             
     add_user(
+            client, 
             AddUserRequest(
                             id=new_user.user.id,
                             hospital_id=invite_code["hospital_id"],
@@ -46,11 +50,13 @@ def register_user_transaction(
     )
     #紹介コード使用済み登録
     update_invite_code(
+                        client=client, 
                         invite_code_id=invite_code["id"],
                         used=True
                       )
     #hospital nameを取得するためにfetch hospital実行
     hospital = fetch_hospital(
+                                client, 
                                 invite_code["hospital_id"]
                             )
 

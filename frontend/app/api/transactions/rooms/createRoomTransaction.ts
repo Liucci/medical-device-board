@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { CreateRoomType } from "../../../types/roomTypes"
 import { getRoomsFromApi } from "../../../api/rooms/fetchRooms"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toCreateRoomRequest
@@ -21,7 +21,7 @@ export async function createRoomTransaction({
                                            )
 {
   console.log("createRoomTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/rooms`,
                 {
                   method: "POST",
@@ -29,6 +29,7 @@ export async function createRoomTransaction({
                             "Content-Type":
                             "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(
                                           toCreateRoomRequest(
                                                                room

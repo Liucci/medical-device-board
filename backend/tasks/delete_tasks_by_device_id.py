@@ -1,12 +1,13 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 def delete_tasks_by_device_id(
+                                client:Client,
                                 device_id: int,
                                 hospital_id: str
                             ):
     print("delete_tasks_by_device_id")
     response = (
-                    supabase
+                    client
                     .table("device_maintenance_tasks")
                     .delete()
                     .eq(

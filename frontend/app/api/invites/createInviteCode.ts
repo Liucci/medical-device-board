@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch} from "../client/apiClient"
+import { API_BASE_URL, } from "../client/apiClient"
 
 export const createInviteCode = async (
                                         email: string,
@@ -6,7 +6,7 @@ export const createInviteCode = async (
                                       ) => {
 
   const response =
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/create-invite-code`,
                 {
                   method: "POST",
@@ -14,6 +14,7 @@ export const createInviteCode = async (
                                     "Content-Type":
                                     "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify({
                                           email,
                                           role

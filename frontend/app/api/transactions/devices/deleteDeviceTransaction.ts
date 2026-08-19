@@ -10,7 +10,7 @@ import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfectio
 
 import { normalizeRoom } from "@/app/utils/roomsMapper"
 import { normalizeRoomInfection } from "@/app/utils/roomInfectionMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 
 type DeleteDeviceTransactionParams = {
@@ -37,7 +37,7 @@ export async function deleteDeviceTransaction({
 
 
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/delete-device-transaction`,
         {
             method: "POST",
@@ -45,6 +45,7 @@ export async function deleteDeviceTransaction({
                 "Content-Type":
                 "application/json"
             },
+            credentials: "include",
             body: JSON.stringify(
             toDeleteDeviceRequest(deviceId)
             )        

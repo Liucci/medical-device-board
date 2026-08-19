@@ -8,6 +8,8 @@ import { HospitalManagementType } from "../../../types/hospitalTypes"
 import { createAnnouncementTransaction } from "../../../../app/api/transactions/announcements/createAnnouncementTransaction"
 
 import HospitalCheckList from "./HospitalCheckList"
+import {LoadingOverlay} from "../../../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 
 
 type CreateAnnouncementModalProps = {
@@ -32,6 +34,7 @@ export default function CreateAnnouncementModal({
     }
 
     const [announcement, setAnnouncement] =useState<CreateAnnouncementFrontType>(initialAnnouncement)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (open) {
@@ -42,7 +45,7 @@ export default function CreateAnnouncementModal({
     if (!open) return null
 
   return (
-
+<>
 <div
     className="fixed inset-0 flex items-center justify-center bg-black/40"
     onClick={() => {
@@ -187,16 +190,19 @@ export default function CreateAnnouncementModal({
                             alert("お知らせ内容を入力してください。")
                             return
                         }
+                            await executeWithErrorAndLoading({
+                                setLoading,
+                                action: async () => {
+                                                await createAnnouncementTransaction({
+                                                    announcement,
+                                                    setAnnouncements,
+                                                    onClose
+                                                })
 
-                        await createAnnouncementTransaction({
-                            announcement,
-                            setAnnouncements,
-                            onClose
-                        })
-
-                        setAnnouncement(initialAnnouncement)
-
-                    }}
+                                                setAnnouncement(initialAnnouncement)
+                                }
+                            })
+                        }}
                 >
                     登録
                 </button>
@@ -207,4 +213,7 @@ export default function CreateAnnouncementModal({
 
     </div>
 </div>
+    <LoadingOverlay loading={loading} />
+</>
+
     )}

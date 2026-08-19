@@ -1,13 +1,14 @@
 from announcements.fetch_announcements import fetch_announcements
 from announcement_hospitals.fetch_announcement_hospitals import fetch_announcement_hospitals
 
+from supabase import Client
 
 
 
-def fetch_announcements_transaction():
+def fetch_announcements_transaction(client:Client,):
     print("fetch_announcements_transaction")
 
-    announcements = fetch_announcements()
+    announcements = fetch_announcements(client, )
 
     for announcement in announcements:
 

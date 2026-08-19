@@ -1,5 +1,5 @@
 
-import { API_BASE_URL,authFetch  } from "../client/apiClient"
+import { API_BASE_URL,  } from "../client/apiClient"
 import { History } from "../../types/historyTypes"
 import { toDBHistory, normalizeHistory } from "../../utils/historyMapper"
 
@@ -14,7 +14,7 @@ export async function addHistoryFromApi(
 {
     console.log("addHistories")
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/histories`,
                 {
                     method: "POST",
@@ -22,6 +22,7 @@ export async function addHistoryFromApi(
                                     "Content-Type":
                                     "application/json"
                             },
+                    credentials: "include",
                     body: JSON.stringify(
                             toDBHistory(params)
                         )

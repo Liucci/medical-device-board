@@ -1,5 +1,5 @@
 from common.supabase_admin_client import supabase
-
+from supabase import Client
 from devices.move_device import move_device
 
 from devices.update_management_number import update_management_number
@@ -28,7 +28,7 @@ from schemas.room_schemas import (
                                  )
 
 
-def move_room_to_room_new_patient_transaction(
+def move_room_to_room_new_patient_transaction(  client:Client,
                                                 device: MoveDeviceRequest,
                                                 pre_room: ClearRoomPatientRequest,
                                                 post_room: UpdateRoomPatientRequest,
@@ -46,7 +46,8 @@ def move_room_to_room_new_patient_transaction(
     print("move_room_to_room_new_patient_transaction")
 
     # 機器移動
-    moved_device = move_device(
+    moved_device = move_device( 
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,
@@ -56,18 +57,21 @@ def move_room_to_room_new_patient_transaction(
 
     # 移動先患者名更新
     update_room_patientname(
+                              client=client, 
                               room=post_room,
                               hospital_id=hospital_id
                            )
 
     # task削除
     delete_tasks_by_device_id(
+                                client=client, 
                                 device_id=device.id,
                                 hospital_id=hospital_id
                              )
 
     # 管理番号クリア
     update_management_number(
+                              client=client, 
                               device=UpdateManagementNumberRequest(
                                                                       id=device.id,
                                                                       management_number=management_number
@@ -78,6 +82,7 @@ def move_room_to_room_new_patient_transaction(
 
     # シリアル番号クリア
     update_serial_number(
+                          client=client, 
                           device=UpdateSerialNumberRequest(
                                                             id=device.id,
                                                             serial_number=serial_number
@@ -88,6 +93,7 @@ def move_room_to_room_new_patient_transaction(
 
     # 備考クリア
     update_note(
+                  client=client, 
                   device=UpdateNoteRequest(
                                             id=device.id,
                                             note=note
@@ -97,19 +103,22 @@ def move_room_to_room_new_patient_transaction(
                )
     #pre roomの機器台数が0台で移動元の患者名削除
     room_devices = fetch_devices_by_room_id(
-                                            room_id=pre_room.id,
+                                             client=client, 
+                                             room_id=pre_room.id,
                                             hospital_id=hospital_id
                                         )
     room_devices_count = len(room_devices)
     print("病室機器数 =", room_devices_count)
     if room_devices_count == 0:
          clear_room_patientname(
+                            client=client, 
                             room=pre_room,
                             hospital_id=hospital_id,
                             patient_name=""
                           )
          #感染情報削除
          delete_room_infections_by_room_id(
+                                          client=client,
                                           room_id=pre_room.id,
                                           hospital_id=hospital_id
                                        )
@@ -118,12 +127,14 @@ def move_room_to_room_new_patient_transaction(
 
     # task再生成
     create_device_tasks_transaction(
+                                      client=client, 
                                       device_id=device.id,
                                       hospital_id=hospital_id
                                    )
 
     # 履歴作成
     create_device_history(
+                            client=client, 
                             device_id=device.id,
                             hospital_id=hospital_id,
                             action_by=user_id,

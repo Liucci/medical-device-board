@@ -1,9 +1,11 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from devices.finish_standby import finish_standby
 from schemas.device_schemas import FinishStandbyRequest
 from transactions.histories.create_device_history import (create_device_history)
 
 def finish_standby_transaction(
+                                client:Client,
                                  device: FinishStandbyRequest,
                                  hospital_id: str,
                                  user_id: str,
@@ -14,12 +16,14 @@ def finish_standby_transaction(
     print("finish_standby_transaction")
 
     updated_device = finish_standby(
+                                      client=client, 
                                       device=device,
                                       hospital_id=hospital_id,
                                       user_id=user_id
                                     )
 
     create_device_history(
+                        client=client, 
                         device_id=device.id,
                         hospital_id=hospital_id,
                         action_by=user_id,

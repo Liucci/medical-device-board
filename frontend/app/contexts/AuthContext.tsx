@@ -15,6 +15,10 @@ type AuthContextType = {
                         setCurrentUser:React.Dispatch<
                                                       React.SetStateAction<CurrentUser | null | undefined>
                                                       >
+                        accessToken: string | null
+                        setAccessToken: React.Dispatch<
+                                                        React.SetStateAction<string | null>
+                                                      >
                       }
 // ログイン中ユーザー情報をアプリ全体で共有するContext。
 // hospital_id や role 判定、権限制御などに使用する。
@@ -23,52 +27,66 @@ const AuthContext =createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({children}: {children: React.ReactNode})
 {
-const [currentUser,setCurrentUser] =
-  useState<CurrentUser | null | undefined>(
-    undefined
-  )
+const [currentUser,setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+const [accessToken, setAccessToken] =useState<string | null>(null)
 
 useEffect(() => {
+  const restoreSession = async () => {
+    try {
+      const user = await fetchCurrentUser()
 
-
-const restoreSession = async () => {
-  try {
-    const user = await fetchCurrentUser()
-
-    if (!user) {
+      if (!user) {
+        setAccessToken(null)
+        setCurrentUser(null)
+        return
+      }
+      setAccessToken(user.access_token)
+      setCurrentUser(normalizeCurrentUser(user))
+    } catch (error) {
+      setAccessToken(null)
       setCurrentUser(null)
-      return
     }
-
-    setCurrentUser(normalizeCurrentUser(user))
-  } catch (error) {
-    setCurrentUser(null)
   }
-}
-  restoreSession()
-
+    restoreSession()
 }, [])
 
 useEffect(() => {
 
-  if (!currentUser) {
+  if(!currentUser || !accessToken) {
     stopAutoRefreshToken()
     return
   }
 
-  startAutoRefreshToken()
-
+  startAutoRefreshToken(
+    accessToken,
+    setAccessToken
+  )
   return () => {
     stopAutoRefreshToken()
   }
 
-}, [currentUser])
+}, [currentUser, accessToken])
+
+
+/*
+ //debug用
+  useEffect(() => {
+    console.log(
+      "[AUTH] accessToken:",
+      accessToken
+        ? accessToken.slice(0, 20) + "..."
+        : null
+    )
+  }, [accessToken]) 
+  */
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
-        setCurrentUser
+        setCurrentUser,
+        accessToken,
+        setAccessToken
       }}
     >
       {children}
@@ -78,8 +96,7 @@ useEffect(() => {
 
 export function useAuth() {
 
-  const context =
-    useContext(AuthContext)
+  const context =useContext(AuthContext)
 
   if (!context) {
     throw new Error(

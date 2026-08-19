@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { DeleteWardsType } from "../../../types/wardTypes"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
@@ -34,14 +34,14 @@ export async function deleteWardTransaction({
      ) {return}
 
 
-  const response=await authFetch(
+  const response=await fetch(
                 `${API_BASE_URL}/delete-ward`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteWardsRequest(
                                                                  ward

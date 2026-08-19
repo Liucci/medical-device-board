@@ -8,23 +8,29 @@ from schemas.announcement_schemas import (
     AddAnnouncementRequest,
     AddAnnouncementCRUDRequest
 )
+from supabase import Client
 
 
-def create_announcement_transaction(request: AddAnnouncementRequest):
+def create_announcement_transaction(
+                                    client:Client,
+                                    request: AddAnnouncementRequest
+                                    ):
     print("create_announcement_transaction")
 
     announcement = add_announcement(
-        AddAnnouncementCRUDRequest(
-            message=request.message,
-            start_at=request.start_at,
-            end_at=request.end_at
-        )
-    )
+                                    client, 
+                                    AddAnnouncementCRUDRequest(
+                                        message=request.message,
+                                        start_at=request.start_at,
+                                        end_at=request.end_at
+                                    )
+                                )
 
     for hospital_id in request.hospital_ids:
         add_announcement_hospital(
-            announcement["id"],
-            hospital_id
-        )
+                                    client, 
+                                    announcement["id"],
+                                    hospital_id
+                                )
 
     return announcement

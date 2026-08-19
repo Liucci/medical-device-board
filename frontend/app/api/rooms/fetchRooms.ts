@@ -1,17 +1,18 @@
-import { API_BASE_URL,authFetch} from "../client/apiClient"
+import { API_BASE_URL,} from "../client/apiClient"
 
 export async function getRoomsFromApi()
 {
     console.log("fetchRooms")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/rooms`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

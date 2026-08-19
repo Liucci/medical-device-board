@@ -1,22 +1,24 @@
-from common.supabase_admin_client import (supabase)
+from supabase import Client
 
-def fetch_maintenance_types(hospital_id: str):
+def fetch_maintenance_types(client:Client,
+                            hospital_id: str):
     print("fetch_maintenance_types")
     response = (
-    supabase
-    .table("maintenance_types")
-    .select("*")
-    .eq(
-        "hospital_id",
-        hospital_id
-    )
-    .execute()
+                client
+                .table("maintenance_types")
+                .select("*")
+                .eq(
+                    "hospital_id",
+                    hospital_id
+                )
+                .execute()
 )
 
     return response.data
 
 
 def fetch_maintenance_type(
+                             client:Client,
                              maintenance_type_id: int,
                              hospital_id: str
                           ):
@@ -24,7 +26,7 @@ def fetch_maintenance_type(
     print("fetch_maintenance_type")
 
     response = (
-                    supabase
+                    client
                     .table("maintenance_types")
                     .select("*")
                     .eq("id", maintenance_type_id)

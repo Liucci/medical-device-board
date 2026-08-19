@@ -1,3 +1,4 @@
+from supabase import Client
 from rooms.update_rooms import (
                                   update_room,
                                   update_room_patientname
@@ -12,18 +13,21 @@ from schemas.device_schemas import UpdateDeviceUpdateAtRequest
 from devices.update_device_updated_at import update_device_updated_at
 
 def update_room_transaction(
+                              client:Client,
                               room: UpdateRoomRequest,
                               hospital_id: str
                             ):
 
     print("update room transaction")
     return update_room(
+                         client=client, 
                          room=room,
                          hospital_id=hospital_id
                        )
 
 
 def update_room_patientname_transaction(
+                                          client:Client,
                                           room: UpdateRoomPatientRequest,
                                           hospital_id: str,
                                           user_id:str
@@ -32,17 +36,20 @@ def update_room_patientname_transaction(
     print("update room patientname transaction")
     #特定のroom id内のdevicesを抽出
     room_devices = fetch_devices_by_room_id(
-                                            room_id=room.id,
+                                             client=client, 
+                                             room_id=room.id,
                                             hospital_id=hospital_id
                                         )
     #特定のroom id内のdevicesのupdate atを更新
     for device in room_devices:
         update_device_updated_at(
+                                  client=client, 
                                   device=UpdateDeviceUpdateAtRequest(id=device["id"]),
                                   hospital_id=hospital_id,
                                   user_id=user_id
                                 )
     return update_room_patientname(
+                                     client=client, 
                                      room=room,
                                      hospital_id=hospital_id
                                    )

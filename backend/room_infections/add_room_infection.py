@@ -1,7 +1,8 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.room_infection_schemas import AddRoomInfectionRequest
 
 def add_room_infection(
+                        client:Client,
                         room_infection: AddRoomInfectionRequest,
                         hospital_id: str
                       ):
@@ -9,7 +10,7 @@ def add_room_infection(
     print("insert room_infection")
 
     response = (
-        supabase
+        client
         .table("room_infections")
         .insert({
             "hospital_id": hospital_id,

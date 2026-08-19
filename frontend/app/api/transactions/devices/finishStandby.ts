@@ -2,13 +2,13 @@ import { API_BASE_URL } from "../../client/apiClient"
 import {
          toFinishStandbyRequest
        } from "../../../utils/deviceMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 export async function finishStandby(
                                       id: number
                                     ) {
 
-    await authFetch(
+    await fetch(
                 `${API_BASE_URL}/finish-standby`,
                 {
                     method: "POST",
@@ -16,6 +16,7 @@ export async function finishStandby(
                 "Content-Type":
                 "application/json"
                              },
+                credentials: "include",
                     body: JSON.stringify(
                                             toFinishStandbyRequest(
                                                                      id

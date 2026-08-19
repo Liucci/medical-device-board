@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../../client/apiClient"
 import { CreateMaintenanceType } from "../../../types/maintenanceTypeTypes"
 import { getMaintenanceTypesFromApi } from "../../maintenanceTypes/fetchMaintenanceTypes"
 import { normalizeMaintenanceType,toCreateMaintenanceTypeRequest } from "../../../utils/maintenanceTypeMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 type CreateMaintenanceTypeTransactionParams = {
                                                 maintenanceType: CreateMaintenanceType
@@ -19,14 +19,14 @@ export async function createMaintenanceTypeTransaction({
 {
   console.log("createMaintenanceTypeTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/maintenance-types`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toCreateMaintenanceTypeRequest(
                                                                             maintenanceType

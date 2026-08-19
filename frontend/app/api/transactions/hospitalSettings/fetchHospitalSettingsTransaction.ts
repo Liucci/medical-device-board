@@ -12,7 +12,10 @@ export async function fetchHospitalSettingsTransaction({
     console.log("fetchHospitalSettingsTransaction")
 
     const hospitalSettings = await fetchHospitalSettings()
-
+    if (!hospitalSettings) {
+                            setHospitalSettings(null)
+                            return
+    }
     setHospitalSettings(
         normalizeHospitalSettings(hospitalSettings)
     )

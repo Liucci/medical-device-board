@@ -1,11 +1,11 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
-def fetch_announcements():
+def fetch_announcements( client:Client,):
     print("fetch_announcements")
 
     response = (
-        supabase
+        client
             .table("announcements")
             .select("""
                         *,

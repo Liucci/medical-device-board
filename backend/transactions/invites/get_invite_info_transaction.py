@@ -5,15 +5,18 @@ from invites.fetch_invite_code import (
 from schemas.invite_schemas import (
     InviteInfoResponse
 )
+from supabase import Client
 
 
 def get_invite_info_transaction(
+                                  client:Client,
                                   code:str
                                ):
     print("get_invite_info_transaction")
     #該当の紹介コードに紐づいている他の情報をすべて取得する
     invite_code_info = fetch_invite_code(
-                                      code
+                                       client,
+                                       code
                                    )
 
     if not invite_code_info:

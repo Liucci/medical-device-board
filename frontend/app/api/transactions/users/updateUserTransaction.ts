@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react"
-import { API_BASE_URL, authFetch } from "../../client/apiClient"
+import { API_BASE_URL,  } from "../../client/apiClient"
 import { getUserManagementFromApi } from "../../users/fetchUserManagement"
 import {
   UserManagementType,
@@ -22,11 +22,12 @@ export async function updateUserTransaction({
                                             }: UpdateUserTransactionParams)
 {
   console.log("updateUserTransaction")
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-user`,
                                 {
                                 method: "POST",
                                 headers: {"Content-Type": "application/json"},
+                                credentials: "include",
                                 body: JSON.stringify(toUpdateUserRequest(user))
                 }
   )

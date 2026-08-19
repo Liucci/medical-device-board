@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import UpdateSerialNumberRequest
 from datetime import datetime, timezone
 def update_serial_number(
+                          client:Client,
                           device: UpdateSerialNumberRequest,
                           hospital_id: str,
                           user_id:str
@@ -10,7 +12,7 @@ def update_serial_number(
     print("update_serial_number")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "serial_number": device.serial_number,

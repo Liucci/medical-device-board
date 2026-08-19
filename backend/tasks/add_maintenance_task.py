@@ -1,14 +1,15 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.maintenance_task_schemas import AddMaintenanceTaskRequest
 
 
 def add_maintenance_task(
+                            client:Client,
                             task: AddMaintenanceTaskRequest,
                             hospital_id: str
                         ):
     print("add_maintenance_task")
     response = (
-        supabase
+        client
         .table("device_maintenance_tasks")
         .insert({
                     "hospital_id": hospital_id,

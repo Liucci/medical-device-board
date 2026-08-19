@@ -1,17 +1,35 @@
 import { getUserManagementFromApi } from "../../users/fetchUserManagement"
 
 import { normalizeUserManagement } from "../../../utils/userMapper"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
+import { Dispatch, SetStateAction } from "react"
 
 import {
   UserManagementDBType,
   UserManagementType
 } from "../../../types/userTypes"
 
-export async function fetchUserManagementTransaction(): Promise<UserManagementType[]> {
+type FetchUserManagementTransactionParams = {
+    setUsers: Dispatch<SetStateAction<UserManagementType[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+}
 
-  console.log("fetchUserManagementTransaction")
+export async function fetchUserManagementTransaction({
+    setUsers,
+    setLoading,
+}: FetchUserManagementTransactionParams) {
 
-  const users: UserManagementDBType[] = await getUserManagementFromApi()
+    console.log("fetchUserManagementTransaction")
 
-  return users.map(normalizeUserManagement)
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+
+            const users = await getUserManagementFromApi()
+
+            setUsers(
+                users.map(normalizeUserManagement)
+            )
+        }
+    })
 }

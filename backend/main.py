@@ -1,8 +1,5 @@
-from fastapi import FastAPI,Depends
-from fastapi import HTTPException
-
+from fastapi import FastAPI, HTTPException, Header, Depends, Response,Request,Cookie
 from fastapi.middleware.cors import (CORSMiddleware)
-from fastapi import Header
 from pydantic import BaseModel
 import os
 
@@ -135,7 +132,6 @@ from transactions.wards.update_ward_info_transaction import (update_ward_info_tr
 from schemas.export_schemas import  ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import export_history_pdf_transaction
 from fastapi.responses import StreamingResponse
-from fastapi import Request
 from schemas.export_schemas import ExportHistoryPdfRequest
 from transactions.exports.export_history_pdf_transaction import (export_history_pdf_transaction)
 from schemas.export_schemas import (DeviceListExportSchemaRequest)
@@ -211,9 +207,21 @@ from schemas.hospital_settings_schemas import (UpdateHospitalSettingsRequest)
 from transactions.hospital_settings.fetch_hospital_settings_transaction import (fetch_hospital_settings_transaction)
 from transactions.hospital_settings.update_hospital_settings_transaction import (update_hospital_settings_transaction)
 
+from common.supabase_admin_provider import get_admin_client
+from common.supabase_auth_provider import get_auth_client
+
+#session
+from session.session_provider import create_session,get_session,delete_session
+from auth.session import get_current_session
+from schemas.session_schemas import BackendSession
+
+
+
 from dotenv import load_dotenv
 load_dotenv()
-
+#本番環境、開発環境判定用APP_ENVを取得し判定する
+APP_ENV = os.getenv("APP_ENV", "development")
+IS_PRODUCTION = APP_ENV == "production"
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -239,55 +247,138 @@ class LoginRequest(BaseModel):
 #frontからemailとpasswordを受け取りloginさせる。その際にtoken発行し、
 #emailと紐づいているauth_user_idからuser情報を取得する
 @app.post("/login")
-def login(body: LoginRequest):
-    response = login_user(
+def login(
+            body: LoginRequest,
+            request: Request,
+            response: Response,
+):
+        # 既存のBackend Sessionを削除
+    old_session_id = request.cookies.get("session_id")
+
+    if old_session_id:
+        delete_session(old_session_id)
+        response.delete_cookie(
+                                key="session_id",
+                                path="/",
+        )
+    auth_response  = login_user(
                             email=body.email,
                             password=body.password
                         )
-    auth_user_id = (response.user.id)
-    check_user_active(auth_user_id)
-    current_user = (fetch_current_user_transaction(auth_user_id))
+    auth_user_id = (auth_response .user.id)
+    client = get_auth_client(
+                            auth_response .session.access_token
+                            )
+    check_user_active(client,auth_user_id)
+    current_user = fetch_current_user_transaction(
+                                                client,
+                                                auth_user_id
+                                                )
+
+    # Backend Session作成
+    backend_session = BackendSession(
+        user_id=current_user.id,
+        hospital_id=current_user.hospital_id,
+        hospital_name=current_user.hospital_name,
+        #price_plan=current_user.price_plan,
+        role=current_user.role,
+        email=current_user.email,
+        display_name=current_user.display_name,
+        access_token=auth_response.session.access_token,
+        refresh_token=auth_response.session.refresh_token,
+        client=client,  # 追加
+    )
+    session_id = create_session(backend_session)
+
+   # Session IDをHttpOnly Cookieへ保存
+   #　開発環境か本番でcookeiの設定を変える
+   # 本番はクロスサイトオリジンの設定
+    if APP_ENV == "development":
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+        )
+    else:
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+        )
+
+    #print("session_id =", session_id)
+    #print("session =", get_session(session_id))
     return {
                 "success": True,
-                "access_token":response.session.access_token,
-                "refresh_token":response.session.refresh_token,
-                "current_user":current_user
+                "current_user":current_user,
+                "access_token": auth_response.session.access_token,
             }
 
 
 #リロード時にcurrent user情報を再取得することでlogin状態が維持される
 @app.get("/current-user")
-def get_current_user(auth_user_id: str = Depends(get_auth_user_id)):
+def get_current_user(
+    session: BackendSession = Depends(get_current_session),
+):
+    return {
+        "id": session.user_id,
+        "email": session.email,
+        "display_name": session.display_name,
+        "role": session.role,
+        "hospital_id": session.hospital_id,
+        "hospital_name": session.hospital_name,
+        "access_token": session.access_token,
+    }
+
+
+
+#リロード時にcurrent user情報を再取得することでlogin状態が維持される
+#旧access token取得方法
+"""
+@app.get("/current-user")
+def get_current_user(
+                    auth_user_id: str = Depends(get_auth_user_id),
+                    authorization: str = Header(...),
+                     ):
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+
     if not auth_user_id:
         return None
     
     #return fetch_current_user(auth_user_id)
     #hospital nameが内包しているfetch_current_user_transactionを使用
-    return fetch_current_user_transaction(auth_user_id)
+    return fetch_current_user_transaction(client,
+                                          auth_user_id)
+"""
+
 
 @app.post("/refresh-token")
-def refresh_token_route(body: RefreshTokenRequest):
+def refresh_token_route(
+    session_id: str | None = Cookie(default=None),
+):
     print("refresh_token_route")
+
+    if not session_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Session not found"
+        )
+
     try:
         response = refresh_token(
-            body.refresh_token
+            session_id
         )
-
-        print(
-            "new refresh token",
-            response.session.refresh_token[:20]
-        )
-
-        auth_user_id = response.user.id
-        current_user = fetch_current_user_transaction(auth_user_id)
 
         return {
             "access_token":
                 response.session.access_token,
-            "refresh_token":
-                response.session.refresh_token,
-            "current_user":
-                current_user
         }
 
     except Exception as e:
@@ -302,45 +393,46 @@ def refresh_token_route(body: RefreshTokenRequest):
 #招待用コードを作成し、メールを送信する
 @app.post("/create-invite-code")
 def create_invite_code_route(
-                                invite: CreateInviteCodeRequest,
-                                auth_user_id: str = Depends(
-                                    get_auth_user_id
-                                )
-                            ):
-    print("auth_user_id =", auth_user_id)
-    current_user = fetch_current_user_transaction(
-                                        auth_user_id
-                                     )
+    invite: CreateInviteCodeRequest,
+    session: BackendSession = Depends(get_current_session),
+):
+    print("create_invite_code")
+
     check_permission(
-                        current_user=current_user,
-                        allowed_roles=["admin"]
-                    )
-
-
-    frontend_url = (
-        os.getenv("FRONTEND_URL")
-        or "http://localhost:3000"
+        current_user=session,
+        allowed_roles=["admin"],
     )
 
     return create_invite_code_transaction(
-                                            invite=invite,
-                                            hospital_id=current_user.hospital_id,
-                                            created_by=current_user.id,
-                                         )
+        client=session.client,
+        invite=invite,
+        hospital_id=session.hospital_id,
+        created_by=session.user_id,
+    )
 
+
+#招待pageで招待者の情報を表示
 @app.get("/invite-info/{code}")
 def get_invite_info_route(
-                            code:str
+                            code:str,
                          ):
+    client = get_admin_client()
 
-    return get_invite_info_transaction(code)
+    return get_invite_info_transaction(
+                                        client,
+                                        code
+                                        )
 
 #招待したユーザーをDB登録する
 @app.post("/register")
 def register(
                 register:RegisterUserRequest,
             ):
-    return register_user_transaction(register,
+    client = get_admin_client()
+
+    return register_user_transaction(
+                                    client,
+                                    register,
                                     )
 
 #first admin userをDB登録する
@@ -348,9 +440,11 @@ def register(
 def register_first_admin_route(
                                 register: RegisterUserRequest,
                               ):
+    client = get_admin_client()
 
     return register_first_admin_transaction(
-                                              register,
+                                            client,
+                                            register,
                                            )
 
 
@@ -358,72 +452,88 @@ def register_first_admin_route(
 
 @app.post("/invite-first-admin")
 def invite_first_admin_route(
-                              request: InviteFirstAdminRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                            request: InviteFirstAdminRequest,
+                            session: BackendSession = Depends(get_current_session),
                             ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
 
     return invite_first_admin_transaction(
+                                            client=session.client,
                                             request=request,
-                                            current_user_id=current_user.id
+                                            current_user_id=session.user_id,
                                          )
 
+#リロードの際に必要なデータをDBからまとめて取得するAPI
+#sessionから必要情報取得
+@app.get("/init-dashboard")
+def init_dashboard(
+    session: BackendSession = Depends(get_current_session),
+):
+    #client = get_auth_client(session.access_token)
+    #sessionから直接clientを取得
+    client = session.client
+    return fetch_init_dashboard(
+        client=client,
+        hospital_id=session.hospital_id,
+    )
 
+"""
+#必要情報をDBから取得
 #リロードの際に必要なデータをDBからまとめて取得するAPI
 @app.get("/init-dashboard")
 def init_dashboard(
-                    auth_user_id: str = Depends(get_auth_user_id)
-                    ):
-
-    current_user = (fetch_current_user_transaction(auth_user_id))
-
+                    auth_user_id: str = Depends(get_auth_user_id),
+                    authorization: str = Header(...),
+):
+    access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_auth_client(access_token)
+    current_user = fetch_current_user_transaction(
+                                                client,
+                                                auth_user_id
+                                                )
     return fetch_init_dashboard(
-                                    hospital_id=current_user.hospital_id   
+                                client=client,
+                                hospital_id=current_user.hospital_id,
                                 )
-
-
+"""
+                                
+#全患者情報取得
 @app.get("/users")
 def get_users():
-    response = fetch_users()
-    print("===== users =====")
-    print(response)
+    client = get_admin_client()
+    response = fetch_users(client=client)
     return response
 
+
 @app.get("/devices")
-def get_devices(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    devices = (
-                fetch_devices(
-                                hospital_id=
-                                current_user.hospital_id
-                )
+def get_devices(
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_devices(
+                        client=session.client,
+                        hospital_id=session.hospital_id,
     )
-    return devices
 
 #機器アイコンの新規登録用のAPI
 @app.post("/create-device-transaction")
 def create_device_transaction_route(
                                     body: AddDeviceRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                    ):
-    print("auth_user_id =", auth_user_id)
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
     create_device_transaction(
+                            client=session.client,
                             device=body,
-                            hospital_id=current_user.hospital_id,
-                            user_id=current_user.id,
+                            hospital_id=session.hospital_id,
+                            user_id=session.user_id,
                             status="stock",
                             action_type="create",
                             message="機器を新規登録"
@@ -433,123 +543,112 @@ def create_device_transaction_route(
 @app.post("/delete-device-transaction")
 def delete_device_transaction_route(
                                         body: DeleteDeviceRequest,
-                                        auth_user_id: str = Depends(get_auth_user_id)
+                                        session: BackendSession = Depends(get_current_session),
                                    ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("current_user")
-
+    
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
     delete_device_transaction(
+                            client=session.client,
                             device=body,
-                            hospital_id=current_user.hospital_id,
-                            user_id=current_user.id,
+                            hospital_id=session.hospital_id,
+                            user_id=session.user_id,
                             action_type="delete",
                             message="機器を削除"
                          )    
 
 
-
-
-
 @app.get("/stock-areas")
-def get_stock_areas(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user_transaction(
-            auth_user_id
-        )
-    )
+def get_stock_areas(
+                    session: BackendSession = Depends(get_current_session),
+):
 
-    stock_areas = (
-        fetch_stock_areas(hospital_id=current_user.hospital_id)
-    )
-
+    stock_areas = fetch_stock_areas(
+                                    client=session.client,
+                                    hospital_id=session.hospital_id
+                                    )
     return stock_areas
 
 @app.get("/wards")
-def get_wards(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    wards = (fetch_wards(
-                        hospital_id=
-                        current_user.hospital_id
-                        )
-    )
+def get_wards(
+                    session: BackendSession = Depends(get_current_session),
+):
 
+    
+    wards = fetch_wards(
+                        client=session.client, 
+                        hospital_id=session.hospital_id
+                        )
     return wards
 
 @app.post("/wards")
 def create_ward_route(
                         ward: AddWardRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                      ):
-    current_user = (fetch_current_user_transaction(auth_user_id))
+    
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
     create_ward_transaction(
-                                ward=ward,
-                                hospital_id=current_user.hospital_id
-                                )
+                            client=session.client, 
+                            ward=ward,
+                            hospital_id=session.hospital_id
+                            )
 
 @app.post("/delete-ward")
 def delete_ward_route(
                         ward: DeleteWardRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                      ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
     delete_ward_transaction(
+                                client=session.client,
                                 ward=ward,
-                                hospital_id=current_user.hospital_id
+                                hospital_id=session.hospital_id
                             )
 
 @app.post("/update-ward")
 def update_ward_route(
                         ward: UpdateWardRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                      ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print(current_user)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
     update_ward_transaction(
+                                client=session.client, 
                                 ward=ward,
-                                hospital_id=current_user.hospital_id
+                                hospital_id=session.hospital_id
                             )
+    
 @app.post("/update-ward-display-order")
 def update_ward_display_order_route(
                                     wards: UpdateWardOrdersRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
-                                    ):
+                                    session: BackendSession = Depends(get_current_session),
+):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print(current_user)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
     update_ward_display_order_transaction(
+                                        client=session.client, 
                                         wards=wards,
-                                        hospital_id=current_user.hospital_id
+                                        hospital_id=session.hospital_id
                                         )
 
     return {
@@ -557,247 +656,234 @@ def update_ward_display_order_route(
     }    
 
 
-
 @app.get("/rooms")
-def get_rooms(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (fetch_current_user_transaction(auth_user_id))
+def get_rooms(
+                session: BackendSession = Depends(get_current_session),
+                ):
 
-    rooms = (fetch_rooms(
-        hospital_id=current_user.hospital_id
-        ))
-
+    rooms = fetch_rooms(
+                        client=session.client,
+                        hospital_id=session.hospital_id
+                        )
     return rooms
 
 @app.post("/rooms")
 def create_room_route(
                         room:AddRoomRequest,
-                        auth_user_id:str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                      ):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     create_room_transaction(
+                                client=session.client, 
                                 room=room,
-                                hospital_id=current_user.hospital_id
+                                hospital_id=session.hospital_id
                             )
 
 @app.post("/update-room")
 def update_room_route(
                         room: UpdateRoomRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)):
-    
-    current_user = fetch_current_user_transaction(auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
+):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     update_room_transaction(
-                                     room=room,
-                                     hospital_id=current_user.hospital_id
-                                   )
+                            client=session.client,
+                            room=room,
+                            hospital_id=session.hospital_id
+                            )
 
 
 @app.post("/update-room-patientname")
 def update_room_patientname_route(
                                     room: UpdateRoomPatientRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)):
-                                  
-    current_user = fetch_current_user_transaction(auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
+                                    ):    
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     update_room_patientname_transaction(
-                                                 room=room,
-                                                 hospital_id=current_user.hospital_id,
-                                                 user_id=current_user.id
-                                               )
+                                        client=session.client, 
+                                        room=room,
+                                        hospital_id=session.hospital_id,
+                                        user_id=session.user_id
+                                    )
 
 
 @app.post("/update-device-type")
 def update_device_type_route(
                                 device_type: UpdateDeviceTypeRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                                session: BackendSession = Depends(get_current_session),
                             ):
-    print("update_device_type")
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
     update_device_type_transaction(
-                                            device_type,
-                                            current_user.hospital_id
-                                          )
+                                    session.client, 
+                                    device_type,
+                                    session.hospital_id
+                                    )
 
 
 @app.post("/delete-rooms-transaction")
 def delete_rooms_transaction_route(
                                     room: DeleteRoomsRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)):
-                                  
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("delete room transaction route")
+                                    session: BackendSession = Depends(get_current_session),
+                                    ):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
     delete_room_transaction(
+                              client=session.client, 
                               room=room,
-                              hospital_id=current_user.hospital_id
+                              hospital_id=session.hospital_id
                            )
 
 @app.get("/device-types")
-def get_device_types(auth_user_id: str = Depends(get_auth_user_id)):
-                                  
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("get_device_types")
+def get_device_types(
+                    session: BackendSession = Depends(get_current_session),
+                    ):
 
-    return fetch_device_types(current_user.hospital_id)
+    return fetch_device_types(
+                            session.client,
+                            session.hospital_id
+                            )
 
 @app.post("/device-types")
 def create_device_type_route(
-                                device_type: AddDeviceTypeRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                            device_type: AddDeviceTypeRequest,
+                            session: BackendSession = Depends(get_current_session),
                             ):
-    print("create_device_type_route")
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     create_device_type_transaction(
+                                    session.client, 
                                     device_type,
-                                    hospital_id=current_user.hospital_id
+                                    hospital_id=session.hospital_id
                                     )
 
 @app.post("/delete-device-type")
 def delete_device_type_route(
                                 device_type:DeleteDeviceTypeRequest,
-                                auth_user_id:str = Depends(get_auth_user_id)
-                            ):
+                                session: BackendSession = Depends(get_current_session),
+):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("delete_device_type_route")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     delete_device_type_transaction(
+                                    session.client, 
                                     device_type,
-                                    hospital_id=current_user.hospital_id
+                                    hospital_id=session.hospital_id
                                   )
 
 @app.get("/device-models")
-def get_device_models(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("get_device_models")
-
-    return fetch_device_models(current_user.hospital_id)
+def get_device_models(
+                        session: BackendSession = Depends(get_current_session),
+                      ):
+    return fetch_device_models(
+                                client=session.client,
+                                hospital_id=session.hospital_id
+                                )
 
 @app.post("/device-models")
 def create_device_model(
                             device_model: AddDeviceModelRequest,
-                            auth_user_id: str = Depends(get_auth_user_id)
-                        ):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("create_device_model")
+                            session: BackendSession = Depends(get_current_session),
+):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
-
     create_device_model_transaction(
-                                            device_model,
-                                            current_user.hospital_id
-                                          )
+                                    session.client,
+                                    device_model,
+                                    session.hospital_id
+                                    )
 
 @app.post("/delete-device-models")
 def delete_device_models_route(
-                                  device_model: DeleteDeviceModelsRequest,
-                                  auth_user_id: str = Depends(get_auth_user_id)
+                                device_model: DeleteDeviceModelsRequest,
+                                session: BackendSession = Depends(get_current_session),
                               ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("delete_device_models")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
     delete_device_models_transaction(
-                                            device_model,
-                                            current_user.hospital_id
-                                          )
+                                    session.client,
+                                    device_model,
+                                    session.hospital_id
+                                    )
 
 @app.post("/update-device-model")
 def update_device_model_route(
                                 device_model: UpdateDeviceModelRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
-                              ):
+                                session: BackendSession = Depends(get_current_session),
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("update_device_model")
+                              ):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     update_device_model_transaction(
-                                            device_model,
-                                            current_user.hospital_id
-                                          )
+                                    session.client,
+                                    device_model,
+                                    session.hospital_id
+                                    )
 
 @app.get("/tasks")
-def get_tasks(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (fetch_current_user_transaction(auth_user_id))
+def get_tasks(
+            session: BackendSession = Depends(get_current_session),
+    ):
 
-
-
-    tasks = (
-        fetch_maintenance_tasks(hospital_id=current_user.hospital_id)
-    )
+    tasks = fetch_maintenance_tasks(
+                                    client=session.client, 
+                                    hospital_id=session.hospital_id
+                                    )
 
     return tasks
 
 @app.post("/update-maintenance-task-due-at")
 def update_maintenance_task_due_at_route(
                                         task: UpdateMaintenanceTaskDueAtRequest,
-                                        auth_user_id = Depends(get_auth_user_id)
+                                        session: BackendSession = Depends(get_current_session),
                                         ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     return update_maintenance_task_due_at_transaction(
+                                                        client=session.client, 
                                                         task=task,
-                                                        hospital_id=current_user.hospital_id,
-                                                        user_id=current_user.id,
+                                                        hospital_id=session.hospital_id,
+                                                        user_id=session.user_id,
                                                         action_type="update",
                                                         message="メンテナンス期限を変更"
                                                     )
@@ -805,328 +891,295 @@ def update_maintenance_task_due_at_route(
 @app.post("/cancel-maintenance-task")
 def cancel_maintenance_task_route(
                                     task: CancelMaintenanceTaskRequest,
-                                    auth_user_id = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                     ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
     return cancel_maintenance_task_transaction(
+                                                client=session.client, 
                                                 task=task,
-                                                hospital_id=current_user.hospital_id,
-                                                user_id=current_user.id,
+                                                hospital_id=session.hospital_id,
+                                                user_id=session.user_id,
                                                 action_type="update",
                                                 message="メンテナンスタスクを中止"
                                             )
 
 
 @app.get("/maintenance-types")
-def get_maintenance_types(auth_user_id: str = Depends(get_auth_user_id)):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-
-
-    print("get_maintenance_types")
-
-    return fetch_maintenance_types(current_user.hospital_id)
+def get_maintenance_types(
+                        session: BackendSession = Depends(get_current_session),
+    ):
 
 
-
-
+    return fetch_maintenance_types(
+                                    session.client, 
+                                    session.hospital_id
+                                    )
 
 @app.post("/maintenance-types")
-def create_maintenance_type_route(maintenance_type: AddMaintenanceTypeRequest, auth_user_id: str = Depends(get_auth_user_id)):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
+def create_maintenance_type_route(
+                                maintenance_type: AddMaintenanceTypeRequest, 
+                                session: BackendSession = Depends(get_current_session),
+    ):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-    print("create_maintenance_type")
 
     return create_maintenance_type_transaction(
+                                                session.client, 
                                                 maintenance_type,
-                                                current_user.hospital_id,
-                                                auth_user_id
-                                              )
-
+                                                session.hospital_id,
+                                                session.user_id
+                                          )
 
 @app.post("/update-maintenance-type")
-def update_maintenance_type_route(maintenance_type: UpdateMaintenanceTypeRequest, auth_user_id: str = Depends(get_auth_user_id)):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
-
+def update_maintenance_type_route(
+                                maintenance_type: UpdateMaintenanceTypeRequest, 
+                                session: BackendSession = Depends(get_current_session),
+            ):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
-
-
-    print("update_maintenance_type")
-
     return update_maintenance_type_transaction(
+                                                session.client, 
                                                 maintenance_type,
-                                                current_user.hospital_id
+                                                session.hospital_id
                                               )
 
 
 @app.post("/delete-maintenance-types")
-def delete_maintenance_types_route(maintenance_types: DeleteMaintenanceTypesRequest, auth_user_id: str = Depends(get_auth_user_id)):
+def delete_maintenance_types_route(
+                        maintenance_types: DeleteMaintenanceTypesRequest,
+                        session: BackendSession = Depends(get_current_session),
+    ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
-
-    print("delete_maintenance_types")
-
     return delete_maintenance_type_transaction(
+                                                session.client, 
                                                 maintenance_types,
-                                                current_user.hospital_id
+                                                session.hospital_id
                                               )
 @app.get("/histories")
-def get_histories(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = (
-        fetch_current_user_transaction(
-            auth_user_id
-        )
-    )
-
-  
-
-    histories = (
-        fetch_device_histories(hospital_id=current_user.hospital_id)
-    )
-
+def get_histories(
+                session: BackendSession = Depends(get_current_session),
+                  ):
+    histories = fetch_device_histories(
+                                client=session.client,
+                                hospital_id=session.hospital_id
+                               )
     return histories
 
 
 #stock_area追加用API
 @app.post("/create-stock-area-transaction")
 def create_stock_area_transaction_route(
-                                          stock_area: AddStockAreaRequest,
-                                          auth_user_id: str = Depends(
-                                          get_auth_user_id
-                                        )
+                                        stock_area: AddStockAreaRequest,
+                                        session: BackendSession = Depends(get_current_session),
                                         ):
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    hospital_id = current_user.hospital_id
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
     response = create_stock_area_transaction(
+                                                client=session.client, 
                                                 stock_area=stock_area,
-                                                hospital_id=hospital_id
+                                                hospital_id=session.hospital_id
                                              )
-
     return response
 
 @app.post("/delete-stock-area-transaction")
 def delete_stock_area_transaction_route(
-                                          stock_area: DeleteStockAreasRequest,
-                                          auth_user_id: str = Depends(
-                                          get_auth_user_id)
+                                        stock_area: DeleteStockAreasRequest,
+                                    session: BackendSession = Depends(get_current_session),
                                         ):
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    hospital_id = current_user.hospital_id
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
     delete_stock_area_transaction(
+                                    client=session.client,
                                     stock_area=stock_area,
-                                    hospital_id=hospital_id
+                                    hospital_id=session.hospital_id
                                  )
 
 @app.post("/update-stock-area-transaction")
 def update_stock_area_transaction_route(
-                                          stock_area: UpdateStockAreaRequest,
-                                          auth_user_id: str = Depends(
-                                          get_auth_user_id)
+                                        stock_area: UpdateStockAreaRequest,
+                                        session: BackendSession = Depends(get_current_session),
                                         ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    hospital_id = current_user.hospital_id
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
     update_stock_area_transaction(
+                                    client=session.client, 
                                     stock_area=stock_area,
-                                    hospital_id=hospital_id
+                                    hospital_id=session.hospital_id
                                     )
 
 @app.get("/infection-types")
 def get_infection_types(
-                            auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                        ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("get_infection_types")
-
-    return fetch_infection_types(current_user.hospital_id)
+    return fetch_infection_types(
+                                session.client,
+                                session.hospital_id
+                                )
 
 
 @app.post("/infection-types")
 def create_infection_type_route(
-                                    infection_type: AddInfectionTypeRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                infection_type: AddInfectionTypeRequest,
+                                session: BackendSession = Depends(get_current_session),
                                ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("create_infection_type")
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
-
     create_infection_type_transaction(
+                                        session.client,
                                         infection_type,
-                                        current_user.hospital_id
+                                        session.hospital_id
                                      )
 
 
 @app.post("/update-infection-type")
 def update_infection_type_route(
                                     infection_type: UpdateInfectionTypeRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
-    print("update_infection_type")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     update_infection_type_transaction(
+                                        session.client,
                                         infection_type,
-                                        current_user.hospital_id
+                                        session.hospital_id
                                      )
 
 
 @app.post("/delete-infection-types")
 def delete_infection_types_route(
                                     infection_type: DeleteInfectionTypesRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                 ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("delete_infection_types")
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     delete_infection_types_transaction(
+                                        session.client,
                                         infection_type,
-                                        current_user.hospital_id
+                                        session.hospital_id
                                       )
 
 
 @app.get("/room-infections")
 def get_room_infections(
-                            auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                        ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("get_room_infections")
-    return fetch_room_infections(current_user.hospital_id)
+    return fetch_room_infections(
+                                session.client,
+                                session.hospital_id
+                                 )
 
 
 @app.post("/room-infections")
 def create_room_infection_route(
-                                    room_infection: AddRoomInfectionRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                room_infection: AddRoomInfectionRequest,
+                                    session: BackendSession = Depends(get_current_session),
                                ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
-    print("create_room_infection")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
     create_room_infection_transaction(
+                                        session.client,
                                         room_infection,
-                                        current_user.hospital_id
+                                        session.hospital_id
                                      )
 
 
 @app.post("/delete-room-infections")
 def delete_room_infections_route(
                                     room_infection: DeleteRoomInfectionsRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                 ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
-    print("delete_room_infections")
+
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     delete_room_infections_transaction(
+                                        session.client, 
                                         room_infection,
-                                        current_user.hospital_id
+                                        session.hospital_id
                                       )
 
 @app.post("/update-room-infections-transaction")
 def update_room_infections_route(
-    room_infection: UpdateRoomInfectionsRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                    room_infection: UpdateRoomInfectionsRequest,
+                    session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("update_room_infections_route")
-    hospital_id = current_user.hospital_id
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     
-    return update_room_infections_transaction(room_infection, hospital_id)
+    return update_room_infections_transaction(
+                                              session.client, 
+                                              room_infection, 
+                                              session.hospital_id
+                                              )
 
 @app.post("/update-stock-area-display-order")
 def update_stock_area_display_order_route(
                                             stock_areas: UpdateStockAreaOrdersRequest,
-                                            auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                         ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print(current_user)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
 
 
     update_stock_area_display_order_transaction(
+                                            client=session.client,
                                             stock_areas=stock_areas,
-                                            hospital_id=current_user.hospital_id
+                                            hospital_id=session.hospital_id
                                         )
 
     return {
@@ -1137,21 +1190,20 @@ def update_stock_area_display_order_route(
 @app.post("/update-management-number")
 def update_management_number_route(
                                      body: UpdateManagementNumberRequest,
-                                     auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                    ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     update_management_number_transaction(
+                                            client=session.client,
                                             device=body,
-                                            hospital_id=current_user.hospital_id,
-                                            user_id=current_user.id,
+                                            hospital_id=session.hospital_id,
+                                            user_id=session.user_id,
                                             action_type="update",
                                             message="管理番号を更新"
                                          )
@@ -1159,22 +1211,21 @@ def update_management_number_route(
 @app.post("/update-serial-number")
 def update_serial_number_route(
                                  body: UpdateSerialNumberRequest,
-                                 auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                
                                ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     update_serial_number_transaction(
+                                        client=session.client,  
                                         device=body,
-                                        hospital_id=current_user.hospital_id,
-                                        user_id=current_user.id,
+                                        hospital_id=session.hospital_id,
+                                        user_id=session.user_id,
                                         action_type="update",
                                         message="シリアル番号を更新"
                                      )
@@ -1182,172 +1233,168 @@ def update_serial_number_route(
 @app.post("/update-note")
 def update_note_route(
                         body: UpdateNoteRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                       ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     update_note_transaction(
+                              client=session.client,  
                               device=body,
-                              hospital_id=current_user.hospital_id,
-                              user_id=current_user.id,
+                              hospital_id=session.hospital_id,
+                              user_id=session.user_id,
                               action_type="update",
                               message="備考を更新"
                            )
 
 @app.post("/update-device-rental-dates")
 def update_device_rental_dates_route(
-                                        device: UpdateDeviceRentalDatesRequest,
-                                        auth_user_id: str = Depends(get_auth_user_id)
+                                    device: UpdateDeviceRentalDatesRequest,
+                                    session: BackendSession = Depends(get_current_session),
                                     ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
+
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     update_device_rental_dates_transaction(
-                                              device=device,
-                                              hospital_id=current_user.hospital_id,
-                                              user_id=current_user.id
+                                            client=session.client,      
+                                            device=device,
+                                            hospital_id=session.hospital_id,
+                                            user_id=session.user_id
                                            )
 
 @app.post("/update-maintenance-dates")
 def update_maintenance_dates_route(
                                       device: UpdateMaintenanceDatesRequest,
-                                      auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                   ):
-    current_user = fetch_current_user_transaction(auth_user_id)
+
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     return update_maintenance_dates_transaction(
+                                                client=session.client,
                                                 device=device,
-                                                hospital_id=current_user.hospital_id,
-                                                user_id=current_user.id,
+                                                hospital_id=session.hospital_id,
+                                                user_id=session.user_id,
                                                 action_type="update",
                                                 message="保守開始日変更"
                                                 )
 
 @app.post("/start-maintenance")
 def start_maintenance_route(
-                              body: StartMaintenanceRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                            body: StartMaintenanceRequest,
+                            session: BackendSession = Depends(get_current_session),
+
                             ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     start_maintenance_transaction(
+                                    client=session.client, 
                                     device=body,
-                                    hospital_id=current_user.hospital_id,
-                                    user_id=current_user.id,
+                                    hospital_id=session.hospital_id,
+                                    user_id=session.user_id,
                                     action_type="update",
                                     message="保守開始"
                                  )
 
 @app.post("/finish-maintenance")
 def finish_maintenance_route(
-                               body: FinishMaintenanceRequest,
-                               auth_user_id: str = Depends(get_auth_user_id)
+                            body: FinishMaintenanceRequest,
+                            session: BackendSession = Depends(get_current_session),
                              ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     finish_maintenance_transaction(
+                                     client=session.client, 
                                      device=body,
-                                     hospital_id=current_user.hospital_id,
-                                     user_id=current_user.id,
+                                     hospital_id=session.hospital_id,
+                                     user_id=session.user_id,
                                      action_type="update",
                                      message="保守終了"
                                   )
 
 @app.post("/start-standby")
 def start_standby_route(
-                          body: StartStandbyRequest,
-                          auth_user_id: str = Depends(get_auth_user_id)
+                        body: StartStandbyRequest,
+                        session: BackendSession = Depends(get_current_session),
                         ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     start_standby_transaction(
+                                client=session.client, 
                                 device=body,
-                                hospital_id=current_user.hospital_id,
-                                user_id=current_user.id,
+                                hospital_id=session.hospital_id,
+                                user_id=session.user_id,
                                 action_type="update",
                                 message="スタンバイ開始"
                              )
 
 @app.post("/finish-standby")
 def finish_standby_route(
-                           body: FinishStandbyRequest,
-                           auth_user_id: str = Depends(get_auth_user_id)
+                        body: FinishStandbyRequest,
+                        session: BackendSession = Depends(get_current_session),
                          ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     finish_standby_transaction(
+                                 client=session.client, 
                                  device=body,
-                                 hospital_id=current_user.hospital_id,
-                                 user_id=current_user.id,
+                                 hospital_id=session.hospital_id,
+                                 user_id=session.user_id,
                                  action_type="update",
                                  message="スタンバイ終了"
                               )
 
-
-
-
-
 @app.post("/move_stock_to_room")
 def move_stock_to_room_route(
-                              device: MoveDeviceRequest,
-                              room: UpdateRoomPatientRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                            device: MoveDeviceRequest,
+                            room: UpdateRoomPatientRequest,
+                            session: BackendSession = Depends(get_current_session),
                            ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_stock_to_room")
+
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
     moved_device = move_stock_to_room_transaction(
+                                                    client=session.client, 
                                                     device=device,
                                                     room=room,
-                                                    hospital_id=current_user.hospital_id,
-                                                    user_id=current_user.id,
+                                                    hospital_id=session.hospital_id,
+                                                    user_id=session.user_id,
                                                     status="room",
                                                     action_type="move",
                                                     message="stock to room"
@@ -1359,19 +1406,18 @@ def move_stock_to_room_route(
 @app.post("/move_stock_to_stock")
 def move_stock_to_stock_route(
                                 device: MoveDeviceRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                                session: BackendSession = Depends(get_current_session),
                              ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_stock_to_stock")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
     moved_device = move_stock_to_stock_transaction(
+                                                    client=session.client, 
                                                     device=device,
-                                                    hospital_id=current_user.hospital_id,
-                                                    user_id=current_user.id,
+                                                    hospital_id=session.hospital_id,
+                                                    user_id=session.user_id,
                                                     status="stock",
                                                     action_type="move",
                                                     message="stock to stock"
@@ -1381,24 +1427,23 @@ def move_stock_to_stock_route(
 
 @app.post("/move_room_to_stock")
 def move_room_to_stock_route(
-                              device: MoveDeviceRequest,
-                              room: ClearRoomPatientRequest,
-                              auth_user_id: str = Depends(get_auth_user_id)
+                            device: MoveDeviceRequest,
+                            room: ClearRoomPatientRequest,
+                            session: BackendSession = Depends(get_current_session),
                             ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
 
-    print("move_room_to_stock")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device = move_room_to_stock_transaction(
+                                                    client=session.client, 
                                                     device=device,
                                                     room=room,
-                                                    hospital_id=current_user.hospital_id,
-                                                    user_id=current_user.id,
+                                                    hospital_id=session.hospital_id,
+                                                    user_id=session.user_id,
                                                     patient_name=None,
                                                     status="stock",
                                                     action_type="move",
@@ -1412,22 +1457,20 @@ def move_room_to_room_route(
                         device: MoveDeviceRequest,
                         pre_room: ClearRoomPatientRequest,
                         post_room: UpdateRoomPatientRequest,
-                        auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                     ):
-
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_room_to_room")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device=move_room_to_room_transaction(
+                                            client=session.client, 
                                             device=device,
                                             pre_room=pre_room,
                                             post_room=post_room,
-                                            hospital_id=current_user.hospital_id,
-                                            user_id=current_user.id,
+                                            hospital_id=session.hospital_id,
+                                            user_id=session.user_id,
                                             pre_patient_name=None,
                                             status="room",
                                             action_type="move",
@@ -1437,27 +1480,25 @@ def move_room_to_room_route(
 
 @app.post("/move_room_to_room_new_patient")
 def move_room_to_room_new_patient_route(
-                                          device: MoveDeviceRequest,
-                                          pre_room: ClearRoomPatientRequest,
-                                          post_room: UpdateRoomPatientRequest,
-                                          auth_user_id: str = Depends(
-                                                                      get_auth_user_id
-                                                                    )
+                                        device: MoveDeviceRequest,
+                                        pre_room: ClearRoomPatientRequest,
+                                        post_room: UpdateRoomPatientRequest,
+                                        session: BackendSession = Depends(get_current_session),
                                        ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("move_room_to_room_new_patient")
+
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
     moved_device = move_room_to_room_new_patient_transaction(
+                                                              client=session.client,  
                                                               device=device,
                                                               pre_room=pre_room,
                                                               post_room=post_room,
-                                                              hospital_id=current_user.hospital_id,
-                                                              user_id=current_user.id,
+                                                              hospital_id=session.hospital_id,
+                                                              user_id=session.user_id,
                                                               pre_patient_name=None,
                                                               management_number=None,
                                                               serial_number=None,
@@ -1471,14 +1512,14 @@ def move_room_to_room_new_patient_route(
 
 @app.get("/stock-last-updated")
 def fetch_stock_last_updated_route(
-    current_user = Depends(get_current_user)
-):
+                                    session: BackendSession = Depends(get_current_session),
+                                    ):
 
-    print("fetch_last_updated_route")
+    stock_updated_at=fetch_stock_last_updated(
+                                            client=session.client,
+                                            hospital_id=session.hospital_id
+                                            )
 
-    hospital_id = current_user.hospital_id
-    stock_updated_at=fetch_stock_last_updated(hospital_id=hospital_id)
-    print("stock_updated_at:",stock_updated_at)
     
     return {
         "updated_at": stock_updated_at,
@@ -1486,14 +1527,13 @@ def fetch_stock_last_updated_route(
 
 @app.get("/ward-last-updated")
 def fetch_ward_last_updated_route(
-    current_user = Depends(get_current_user)
-):
+                                    session: BackendSession = Depends(get_current_session),
+                                    ):
 
-    print("fetch_ward_last_updated_route")
-
-    hospital_id = current_user.hospital_id
-    ward_updated_at=fetch_ward_last_updated(hospital_id=hospital_id)
-    print("ward_updated_at:",ward_updated_at)
+    ward_updated_at=fetch_ward_last_updated(
+                                            client=session.client,
+                                            hospital_id=session.hospital_id
+                                            )
     
     return {
         "updated_at": ward_updated_at,
@@ -1504,51 +1544,39 @@ def fetch_ward_last_updated_route(
 @app.post("/complete_maintenance_task")
 def complete_maintenance_task_api(
                                     task: CompleteMaintenanceTaskRequest,
-                                    auth_user_id: str = Depends(get_auth_user_id)
+                                    session: BackendSession = Depends(get_current_session),
                                  ):
-    print("complete_maintenance_task_api")
-    current_user = fetch_current_user_transaction(auth_user_id)
 
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
 
     return complete_maintenance_task_transaction(
+                                                    client=session.client, 
                                                     task=task,
-                                                    hospital_id=current_user.hospital_id,
-                                                    user_id=current_user.id,
+                                                    hospital_id=session.hospital_id,
+                                                    user_id=session.user_id,
                                                     action_type="update",
                                                     message="maintenance task completed"
                                                 )
 
-
-
-
-
-
-
 @app.post("/export-history-pdf")
 async def export_history_pdf_route(
-                    request: ExportHistoryPdfRequest,
-                    auth_user_id: str = Depends(get_auth_user_id)    
+                        request: ExportHistoryPdfRequest,
+                        session: BackendSession = Depends(get_current_session),
 ):
-    print("auth_user_id:", auth_user_id)
-    current_user = fetch_current_user_transaction(auth_user_id)
-    hospital = fetch_hospital(current_user.hospital_id)
+    hospital = fetch_hospital(
+                            session.client,
+                            session.hospital_id
+                            )
     hospital_name = hospital["hospital_name"]
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
     # debug
-    """     print("route called")
-        print("row count:", len(request.rows))
-        if request.rows:
-            for key, value in request.rows[0].model_dump().items():
-                print(f"・{key}: {value}")
-    """
     pdf_buffer = export_history_pdf_transaction(
                                                 request.rows,
                                                 hospital_name,
@@ -1566,26 +1594,21 @@ async def export_history_pdf_route(
 
 @app.post("/export-device-list-pdf")
 async def export_device_list_pdf_route(
-    request: DeviceListExportSchemaRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                                        request: DeviceListExportSchemaRequest,
+                                        session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    hospital = fetch_hospital(current_user.hospital_id)
+    hospital = fetch_hospital(
+                            session.client,
+                            session.hospital_id
+                            )
     hospital_name = hospital["hospital_name"]
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
-    # debug
-    # print("route called")
-    # print("row count:", len(request.rows))
-
-    # if request.rows:
-    #     for key, value in request.rows[0].model_dump().items():
-    #         print(f"・{key}: {value}")
-
     pdf_buffer = export_device_list_pdf_transaction(
+                                                
                                                     request.rows,
                                                     hospital_name,
                                                     show_patient_name=request.show_patient_name
@@ -1604,11 +1627,10 @@ async def export_device_list_pdf_route(
 @app.post("/export-device-list-csv")
 def export_device_list_csv_route(
                                 request: DeviceListExportSchemaRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                                session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
@@ -1627,11 +1649,10 @@ def export_device_list_csv_route(
 @app.post("/export-history-csv")
 def export_history_csv_route(
                             request: ExportHistoryPdfRequest,
-                            auth_user_id: str = Depends(get_auth_user_id)
+                            session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin","normal"]
                     )
 
@@ -1651,28 +1672,30 @@ def export_history_csv_route(
 
 #病院一覧取得
 @app.get("/fetch-hospital-management")
-def fetch_hospital_management_route(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = fetch_current_user_transaction(auth_user_id)
+def fetch_hospital_management_route(
+                                    session: BackendSession = Depends(get_current_session),
+    ):
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
-    return fetch_hospital_management_transaction()
+    client = get_admin_client()
+    return fetch_hospital_management_transaction(client)
 
 @app.post("/create-hospital")
 def create_hospital(
-                            request: AddHospitalRequest,
-                            auth_user_id: str = Depends(get_auth_user_id),
+                        request: AddHospitalRequest,
+                        session: BackendSession = Depends(get_current_session),
                         ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     # System Adminのみ許可
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
+    client = get_admin_client()
 
-
-    add_hospital(hospital=request)
+    add_hospital(client=client, 
+                 hospital=request)
 
     return {
         "success": True
@@ -1683,14 +1706,16 @@ def create_hospital(
 @app.post("/update-hospital")
 def update_hospital_route(
                             request: UpdateHospitalRequest,
-                            auth_user_id: str = Depends(get_auth_user_id),
+                            session: BackendSession = Depends(get_current_session),
                         ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
-    update_hospital(hospital=request)
+    client = get_admin_client()
+
+    update_hospital(client, 
+                    hospital=request)
 
     return {
         "message": "Hospital updated successfully"
@@ -1698,234 +1723,240 @@ def update_hospital_route(
 
 #ユーザー一覧取得
 @app.get("/fetch-user-management")
-def fetch_user_management_route(auth_user_id: str = Depends(get_auth_user_id)):
+def fetch_user_management_route(
+                        #auth_user_id: str = Depends(get_auth_user_id),
+                        #authorization: str = Header(...),
+                        session: BackendSession = Depends(get_current_session),
 
-    current_user = fetch_current_user_transaction(auth_user_id)
+    ):
+
+    #access_token = authorization.removeprefix("Bearer ").strip()
+    client = get_admin_client()
+    #current_user = fetch_current_user_transaction(client,auth_user_id)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
 
-    return fetch_user_management_transaction()
+    return fetch_user_management_transaction(client)
 
 
 #role,is activeを編集可能
 @app.post("/update-user")
 def update_user_route(
-    request: UpdateUserRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                    request: UpdateUserRequest,
+                    session: BackendSession = Depends(get_current_session),
 ):
-    print("update_user_route")
-    current_user = (fetch_current_user_transaction(auth_user_id))
-    print("role =", current_user.role)
+    print("role =", session.role)
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["system_admin"]
                     )
-
+    #service keyでDBアクセスできるclient
+    client = get_admin_client()
 
     update_user_transaction(
+        client = client,
         request=request,
-        auth_user_id=auth_user_id
+        auth_user_id=session.user_id
     )
+
 
 #アカウント情報編集用コード送信用
 @app.post("/create-account-edit-code")
-def create_account_edit_code(auth_user_id: str = Depends(get_auth_user_id)):
-    print("create_account_edit_code")
-    current_user = fetch_current_user_transaction(auth_user_id)
-    return create_account_edit_code_transaction(
+def create_account_edit_code(
+                            session: BackendSession = Depends(get_current_session),
+    ):
+
+    return create_account_edit_code_transaction(session.client, 
                                                 request=CreateAccountEditCodeRequest(
-                                                                    user_id=current_user.id,
-                                                                    email=current_user.email                                                        
+                                                                    user_id=session.user_id,
+                                                                    email=session.email                                                        
                                                                     ),
                                                 )
 #codeの有効性を判定し、有効なcodeならuser情報を返す
 @app.post("/verify-account-edit-code")
 def verify_account_edit_code(
-                               request: VerifyAccountEditCodeRequest
+                                request: VerifyAccountEditCodeRequest,
+                                session: BackendSession = Depends(get_current_session),
                             ):
-    print("verify_account_edit_code")
 
     account_edit_code = verify_account_edit_code_transaction(
-                                                                code=request.code
+                                                            session.client, 
+                                                            code=request.code
                                                             )
 
     user = fetch_current_user_transaction(
+                                session.client, 
                                 auth_user_id=account_edit_code["user_id"]
                              )
-    print("user:",user)
     return user
 
 
 @app.post("/update-my-account")
 def update_my_account(
                         request: UpdateMyAccountRequest,
+                        session: BackendSession = Depends(get_current_session),
+
                     ):
-    print("update_my_account")
 
     update_my_account_transaction(
-                                  request,
+                                session.client, 
+                                request,
                                   )
-
+    # Backend Sessionにも反映
+    session.display_name = request.display_name
     return {"message": "success"}
 
 
 #一覧取得
 @app.get("/fetch-announcements")
-def fetch_announcements_route(auth_user_id: str = Depends(get_auth_user_id)):
-    current_user = fetch_current_user_transaction(auth_user_id)
+def fetch_announcements_route(
+                            session: BackendSession = Depends(get_current_session),
+    ):
     check_permission(
-                    current_user=current_user,
+                    current_user=session,
                     allowed_roles=["system_admin"]
     )
-    return fetch_announcements_transaction()
+    return fetch_announcements_transaction(session.client, )
 
 #announce新規作成
 @app.post("/create-announcement")
 def create_announcement_route(
                             request: AddAnnouncementRequest,
-                            auth_user_id: str = Depends(get_auth_user_id)
+                            session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                    current_user=current_user,
+                    current_user=session,
                     allowed_roles=["system_admin"]
     )
 
-    return create_announcement_transaction(request)
+    return create_announcement_transaction(session.client, 
+                                           request)
 
 #annouce編集更新
 @app.post("/update-announcement")
 def update_announcement_route(
                                 request: UpdateAnnouncementRequest,
-                                auth_user_id: str = Depends(get_auth_user_id)
+                                session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
     check_permission(
-                    current_user=current_user,
+                    current_user=session,
                     allowed_roles=["system_admin"]
     )
 
-    return update_announcement_transaction(request)
+    return update_announcement_transaction(session.client, 
+                                           request)
 
 
 #dashboardお知らせ表示用
 @app.post("/fetch-active-announcements")
 def fetch_active_announcements_route(
-                                        request: FetchActiveAnnouncementsRequest,
-                                        current_user = Depends(get_current_user)
+                                    request: FetchActiveAnnouncementsRequest,
+                                    session: BackendSession = Depends(get_current_session),
                                     ):
     return fetch_active_announcements_transaction(
+                                                    session.client, 
                                                     request
                                                 )
 #hospital-settings
 @app.get("/hospital-settings")
 def get_hospital_settings(
-                            auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
                          ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("get_hospital_settings")
+    print("role =", session.role)
+    print("hospital_id =", session.hospital_id)
     return fetch_hospital_settings_transaction(
-                                                current_user.hospital_id
+                                                session.client, 
+                                                session.hospital_id
                                               )
 
 @app.post("/update-hospital-settings")
 def update_hospital_settings_route(
                                         hospital_settings: UpdateHospitalSettingsRequest,
-                                        auth_user_id: str = Depends(get_auth_user_id)
+                                        session: BackendSession = Depends(get_current_session),
                                   ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("update_hospital_settings")
     check_permission(
-                        current_user=current_user,
+                        current_user=session,
                         allowed_roles=["admin"]
                     )
     return update_hospital_settings_transaction(
+                                                    session.client, 
                                                     hospital_settings,
-                                                    current_user.hospital_id
+                                                    session.hospital_id
                                                )
 
 @app.get("/ward-infections")
 def get_ward_infections(
-    auth_user_id: str = Depends(get_auth_user_id)
+                        session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
 
-    print("get_ward_infections")
 
     return fetch_ward_infections(
-        current_user.hospital_id
-    )
+                                    session.client, 
+                                    session.hospital_id
+                                )
 
 @app.post("/ward-infections")
 def create_ward_infection_route(
-    ward_infection: AddWardInfectionRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                                ward_infection: AddWardInfectionRequest,
+                                session: BackendSession = Depends(get_current_session),
 ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("create_ward_infection")
-
     check_permission(
-        current_user=current_user,
-        allowed_roles=["admin", "normal"]
+                    current_user=session,
+                    allowed_roles=["admin", "normal"]
     )
 
     return create_ward_infection_transaction(
-        ward_infection,
-        current_user.hospital_id
+                                            session.client, 
+                                            ward_infection,
+                                            session.hospital_id
     )
 
 @app.post("/delete-ward-infections")
 def delete_ward_infections_route(
-    ward_infection: DeleteWardInfectionsRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                        ward_infection: DeleteWardInfectionsRequest,
+                        session: BackendSession = Depends(get_current_session),
 ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("delete_ward_infections")
 
     check_permission(
-        current_user=current_user,
+        current_user=session,
         allowed_roles=["admin", "normal"]
     )
 
     delete_ward_infections_transaction(
-        ward_infection,
-        current_user.hospital_id
+                                        session.client, 
+                                        ward_infection,
+                                        session.hospital_id
     )
 
 @app.post("/update-ward-infections-transaction")
 def update_ward_infections_route(
-    ward_infection: UpdateWardInfectionsRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                                        ward_infection: UpdateWardInfectionsRequest,
+                                        session: BackendSession = Depends(get_current_session),
 ):
 
-    current_user = fetch_current_user_transaction(auth_user_id)
-
-    print("update_ward_infections_route")
-
     check_permission(
-        current_user=current_user,
-        allowed_roles=["admin", "normal"]
-    )
+                        current_user=session,
+                        allowed_roles=["admin", "normal"]
+                    )
 
     return update_ward_infections_transaction(
-        ward_infection,
-        current_user.hospital_id
+                                            session.client, 
+                                            ward_infection,
+                                            session.hospital_id
     )
 
 @app.post("/update-ward-info")
 def update_ward_info(
-    ward: UpdateWardInfoRequest,
-    auth_user_id: str = Depends(get_auth_user_id)
+                        ward: UpdateWardInfoRequest,
+                        session: BackendSession = Depends(get_current_session),
 ):
-    current_user = fetch_current_user_transaction(auth_user_id)
-    print("update_ward_info")
+
     return update_ward_info_transaction(
+                                        client=session.client, 
                                         ward=ward,
-                                        hospital_id=current_user.hospital_id,
+                                        hospital_id=session.hospital_id,
     )

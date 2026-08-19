@@ -1,12 +1,15 @@
-from common.supabase_admin_client import (
-    supabase
-)
+
+from supabase import Client
+
 from schemas.device_type_schemas import (DeleteDeviceTypeRequest)
-def delete_device_type(device_type:DeleteDeviceTypeRequest,
-                       hospital_id:str):
+def delete_device_type(
+                       client:Client,
+                       device_type:DeleteDeviceTypeRequest,
+                       hospital_id:str
+                       ):
     print(f"delete device_type")
     response = (
-        supabase
+        client
         .table("device_types")
         .delete()
         .eq("id",device_type)

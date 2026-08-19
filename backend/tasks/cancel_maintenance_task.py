@@ -1,15 +1,16 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.maintenance_task_schemas import CancelMaintenanceTaskRequest
 
 
 def cancel_maintenance_task(
+    client:Client,
     task: CancelMaintenanceTaskRequest,
     hospital_id: str
 ):
     print("cancel_maintenance_task")
 
     response = (
-        supabase
+        client
         .table("device_maintenance_tasks")
         .update({
             "is_active": task.is_active

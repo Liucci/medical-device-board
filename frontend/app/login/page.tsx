@@ -16,7 +16,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { currentUser, setCurrentUser } = useAuth()
+  const {
+          currentUser,
+          setCurrentUser,
+          setAccessToken,
+  } = useAuth()
 
   //backendの/loginを呼び出す
 const handleLogin = async () => {
@@ -32,7 +36,8 @@ const handleLogin = async () => {
               await loginTransaction({
                                         email,
                                         password,
-                                        setCurrentUser
+                                        setCurrentUser,
+                                        setAccessToken,
                                       })
 
             if (currentUser.role === "system_admin") {

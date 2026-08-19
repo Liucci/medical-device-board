@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.infection_type_schemas import UpdateInfectionTypeRequest
 
 def update_infection_type(
+                            client:Client,
                             infection_type: UpdateInfectionTypeRequest,
                             hospital_id: str
                          ):
@@ -9,7 +11,7 @@ def update_infection_type(
     print("update_infection_type")
 
     response = (
-        supabase
+        client
         .table("infection_types")
         .update({
                     "name": infection_type.name,

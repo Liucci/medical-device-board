@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { UpdateStockAreaType } from "../../../types/stockTypes"
 import { getStockAreasFromApi } from "../../stockAreas/fetchStockAreas"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import {
          normalizeStockArea,
          toUpdateStockAreaRequest
@@ -22,14 +22,14 @@ export async function updateStockAreaTransaction({
 {
   console.log("updateStockAreaTransaction")
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-stock-area-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateStockAreaRequest(
                                                                        stockArea

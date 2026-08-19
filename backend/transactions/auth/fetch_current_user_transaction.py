@@ -2,14 +2,24 @@ from hospitals.fetch_hospital import fetch_hospital
 from users.fetch_users import fetch_users
 from auth.fetch_current_user import fetch_current_user
 from schemas.user_schemas import FetchCurrentUserResponse
+from supabase import Client
 
-def fetch_current_user_transaction(auth_user_id:str):
+def fetch_current_user_transaction(
+                                   client:Client,
+                                   auth_user_id:str
+                                   ):
     print("fetch_current_user_transaction")
-    user = fetch_current_user(auth_user_id)
+    user = fetch_current_user(
+                              client,
+                              auth_user_id
+                              )
     if not user:
         raise Exception("User not found")
 
-    hospital = fetch_hospital(user["hospital_id"])
+    hospital = fetch_hospital(
+                            client,
+                            user["hospital_id"]
+                            )
 
     if not hospital:
         raise Exception("Hospital not found")

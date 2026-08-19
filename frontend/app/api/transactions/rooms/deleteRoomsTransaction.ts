@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import { DeleteRoomsType } from "../../../types/roomTypes"
 
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
@@ -22,14 +22,14 @@ export async function deleteRoomsTransaction({
 {
   console.log("deleteRoomsTransaction")
 
-  const response =await authFetch(
+  const response =await fetch(
                 `${API_BASE_URL}/delete-rooms-transaction`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteRoomsRequest(
                                                                  rooms

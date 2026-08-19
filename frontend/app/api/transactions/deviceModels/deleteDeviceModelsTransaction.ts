@@ -5,7 +5,7 @@ import {
          normalizeDeviceModel,
          toDeleteDeviceModelsRequest
        } from "../../../utils/deviceModelMapper"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 type DeleteDeviceModelsTransactionParams = {
                                               deviceModels: DeleteDeviceModelsFrontType
                                               setDeviceModels: any
@@ -20,7 +20,7 @@ export async function deleteDeviceModelsTransaction({
   console.log("deleteDeviceModelsTransaction")
 
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/delete-device-models`,
                 {
                   method: "POST",
@@ -28,6 +28,7 @@ export async function deleteDeviceModelsTransaction({
                 "Content-Type":
                 "application/json"
                             },
+                  credentials: "include",
                   body: JSON.stringify(toDeleteDeviceModelsRequest(deviceModels))
                 }
               )

@@ -1,13 +1,15 @@
 import os
 from common.supabase_admin_client import (supabase)
+from supabase import Client
 
 #単一病院取得
 def fetch_hospital(
+                    client:Client,
                     hospital_id:str
                   ):
     print("fetch_hospital")
     response = (
-                    supabase
+                    client
                     .table("hospitals")
                     .select("*")
                     .eq(
@@ -23,12 +25,12 @@ def fetch_hospital(
 
 
 #全病院取得
-def fetch_hospitals():
+def fetch_hospitals(client:Client,):
 
     print("fetch_hospitals")
 
     response = (
-        supabase
+        client
         .table("hospitals")
         .select("*")
         .order(

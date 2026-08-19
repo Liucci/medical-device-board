@@ -1,4 +1,4 @@
-import { API_BASE_URL, authFetch } from "../client/apiClient"
+import { API_BASE_URL,  } from "../client/apiClient"
 
 import { UpdateAnnouncementBackType } from "../../types/announcementTypes"
 
@@ -9,7 +9,7 @@ export const updateAnnouncement = async (
     console.log("updateAnnouncement")
 
     const response =
-        await authFetch(
+        await fetch(
                             `${API_BASE_URL}/update-announcement`,
                             {
                                 method: "POST",
@@ -17,6 +17,7 @@ export const updateAnnouncement = async (
                                             "Content-Type":
                                             "application/json"
                                          },
+                                credentials: "include",
                                 body: JSON.stringify(request)
                             }
                         )

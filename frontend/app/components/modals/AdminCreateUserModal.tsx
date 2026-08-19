@@ -82,7 +82,7 @@ export default function AdminCreateUserModal({
             Authorization:
               `Bearer ${session.access_token}`
           },
-
+          credentials: "include",
           body: JSON.stringify({
 
             hospitalName,

@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 
 
 def fetch_announcement_hospitals(
-    announcement_id: int
+                                client:Client,
+                                announcement_id: int
 ):
     print("fetch_announcement_hospitals")
 
     response = (
-        supabase
+        client
             .table("announcement_hospitals")
             .select("hospital_id")
             .eq("announcement_id", announcement_id)

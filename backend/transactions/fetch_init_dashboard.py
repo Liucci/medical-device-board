@@ -1,3 +1,5 @@
+from supabase import Client
+
 from devices.fetch_devices import fetch_devices
 from stock_areas.fetch_stock_areas import fetch_stock_areas
 from wards.fetch_wards import fetch_wards
@@ -11,20 +13,26 @@ from infection_types.fetch_infection_types import fetch_infection_types
 from room_infections.fetch_room_infections import fetch_room_infections
 from ward_infections.fetch_ward_infections import fetch_ward_infections
 
-def fetch_init_dashboard(hospital_id: str,):
+#transactionではclientの種類の情報は持たない
+def fetch_init_dashboard(
+                            client: Client,
+                            hospital_id: str,
+                            ):
+    
     print("fetch_init_dashboard")
-    devices = fetch_devices(hospital_id)
-    stock_areas = fetch_stock_areas( hospital_id)
-    wards = fetch_wards(hospital_id)
-    rooms = fetch_rooms( hospital_id)
-    device_types = fetch_device_types( hospital_id)
-    device_models = fetch_device_models(hospital_id)
-    tasks = fetch_maintenance_tasks( hospital_id)
-    maintenance_types = ( fetch_maintenance_types(hospital_id) )
-    histories = fetch_device_histories( hospital_id)
-    infection_types=fetch_infection_types(hospital_id)
-    room_infections=fetch_room_infections(hospital_id)
-    ward_infections=fetch_ward_infections(hospital_id)
+
+    devices = fetch_devices(client,hospital_id,)
+    stock_areas = fetch_stock_areas( client,hospital_id)
+    wards = fetch_wards(client,hospital_id)
+    rooms = fetch_rooms( client,hospital_id)
+    device_types = fetch_device_types( client,hospital_id)
+    device_models = fetch_device_models(client,hospital_id)
+    tasks = fetch_maintenance_tasks( client,hospital_id)
+    maintenance_types = fetch_maintenance_types(client,hospital_id)
+    histories = fetch_device_histories(client, hospital_id)
+    infection_types=fetch_infection_types(client,hospital_id)
+    room_infections=fetch_room_infections(client,hospital_id)
+    ward_infections=fetch_ward_infections(client,hospital_id)
     return {
         "devices": devices,
         "stock_areas": stock_areas,

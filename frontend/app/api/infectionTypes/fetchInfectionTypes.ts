@@ -1,17 +1,18 @@
-import { API_BASE_URL, authFetch } from "../client/apiClient"
+import { API_BASE_URL,  } from "../client/apiClient"
 
 export async function getInfectionTypesFromApi()
 {
     console.log("fetchInfectionTypes")
 
-    const response = await authFetch(
+    const response = await fetch(
                         `${API_BASE_URL}/infection-types`,
                         {
                           method: "GET",
                           headers: {
                                     "Content-Type":
                                     "application/json"
-                                    }
+                                    },
+                        credentials: "include",
                         }
                       )
 

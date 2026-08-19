@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 export async function finishMaintenance(
     id: number
 ) {
 
-    await authFetch(
+    await fetch(
         `${API_BASE_URL}/finish-maintenance`,
         {
             method: "POST",
@@ -15,6 +15,7 @@ export async function finishMaintenance(
                 "application/json"
             
             },
+            credentials: "include",
             body: JSON.stringify({
                 id
             })

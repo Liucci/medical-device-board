@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toUpdateRoomPatientRequest
@@ -21,7 +21,7 @@ export async function updateRoomPatientName({
 {
   console.log("updateRoomPatientName")
 
-  const response = await authFetch(
+  const response = await fetch(
                                  `${API_BASE_URL}/update-room-patientname`,
                                  {
                                    method: "POST",
@@ -29,6 +29,7 @@ export async function updateRoomPatientName({
                                               "Content-Type":
                                               "application/json"
                                              },
+                                  credentials: "include",
                                    body: JSON.stringify(
                                                            toUpdateRoomPatientRequest(
                                                                                          room

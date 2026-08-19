@@ -1,12 +1,14 @@
-from common.supabase_admin_client import (
-    supabase
-)
+from supabase import Client
 
 
-def fetch_device_types(hospital_id: str):
+
+def fetch_device_types(
+                        client:Client,
+                        hospital_id: str
+                        ):
     print("fetch_device_types")
     response = (
-            supabase
+            client
             .table("device_types")
             .select("*")
             .eq(
@@ -19,6 +21,7 @@ def fetch_device_types(hospital_id: str):
     
 
 def fetch_device_type(
+                        client:Client,
                         device_type_id: int,
                         hospital_id: str
                      ):
@@ -26,7 +29,7 @@ def fetch_device_type(
     print("fetch_device_type")
 
     response = (
-                    supabase
+                    client
                     .table("device_types")
                     .select("*")
                     .eq("id", device_type_id)

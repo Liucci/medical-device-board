@@ -1,6 +1,6 @@
 import { History }from "@/app/types/historyTypes"
 import {toExportHistoriesRequest}from "@/app/utils/exportMapper"
-import { API_BASE_URL,authFetch }from "../client/apiClient"
+import { API_BASE_URL, }from "../client/apiClient"
 
 export async function exportHistoryCsvFromApi(
                                               histories: History[],
@@ -8,7 +8,7 @@ export async function exportHistoryCsvFromApi(
                                             ) 
 {
   console.log("exportHistoryCsv")
-  const response = await authFetch(
+  const response = await fetch(
                   `${API_BASE_URL}/export-history-csv`,
                                     {
                                       method: "POST",
@@ -16,6 +16,7 @@ export async function exportHistoryCsvFromApi(
                                                 "Content-Type":
                                                 "application/json"
                                       },
+                                      credentials: "include",
                                       body: JSON.stringify(
                                         toExportHistoriesRequest(
                                                     histories,

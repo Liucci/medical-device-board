@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { UpdateWardType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
-import { authFetch } from "../../client/apiClient"
+import {  } from "../../client/apiClient"
 
 import {
          normalizeWard,
@@ -22,14 +22,14 @@ export async function updateWardTransaction({
   console.log("updateWardTransaction")
 
 
-  await authFetch(
+  await fetch(
                 `${API_BASE_URL}/update-ward`,
                 {
                   method: "POST",
                   headers: {
                             "Content-Type":
                             "application/json"
-                            },
+                            },credentials: "include",
                   body: JSON.stringify(
                                           toUpdateWardRequest(
                                                                ward

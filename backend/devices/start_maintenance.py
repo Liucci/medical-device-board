@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import StartMaintenanceRequest
 
 def start_maintenance(
+                        client:Client,
                         device: StartMaintenanceRequest,
                         hospital_id: str,
                         user_id:str
@@ -11,7 +13,7 @@ def start_maintenance(
     print("start_maintenance")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "is_under_maintenance": True,

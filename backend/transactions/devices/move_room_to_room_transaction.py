@@ -1,4 +1,5 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from devices.move_device import move_device
 from rooms.update_rooms import (  clear_room_patientname,
                                   update_room_patientname)
@@ -8,6 +9,7 @@ from schemas.room_schemas import ( ClearRoomPatientRequest,
 from transactions.histories.create_device_history import (create_device_history)
 from transactions.room_infections.move_room_infections import move_room_infections
 def move_room_to_room_transaction(
+                                    client:Client,
                                     device: MoveDeviceRequest,
                                     pre_room: ClearRoomPatientRequest,
                                     post_room: UpdateRoomPatientRequest,
@@ -22,6 +24,7 @@ def move_room_to_room_transaction(
     print("move_room_to_room_transaction")
     # 機器移動
     moved_device = move_device(
+                                client=client, 
                                 device=device,
                                 hospital_id=hospital_id,
                                 status=status,
@@ -32,6 +35,7 @@ def move_room_to_room_transaction(
 
     # 移動元患者名クリア
     clear_room_patientname(
+                            client=client, 
                             room=pre_room,
                             hospital_id=hospital_id,
                             patient_name=pre_patient_name
@@ -40,17 +44,20 @@ def move_room_to_room_transaction(
     # 移動先患者名設定
     #post_patient_nameはfrontから送られる
     update_room_patientname(
+                              client=client, 
                               room=post_room,
                               hospital_id=hospital_id
                            )
     #移動元感染情報削除、移動先感染情報追加
     move_room_infections(
+                        client=client, 
                         from_room_id=pre_room.id,
                         to_room_id=post_room.id,
                         hospital_id=hospital_id
                     )
     # 履歴作成
     create_device_history(
+                              client=client, 
                               device_id=device.id,
                               hospital_id=hospital_id,
                               action_by=user_id,

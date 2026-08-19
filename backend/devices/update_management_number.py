@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_schemas import UpdateManagementNumberRequest
 from datetime import datetime, timezone
 def update_management_number(
+                              client:Client,
                               device: UpdateManagementNumberRequest,
                               hospital_id: str,
                               user_id:str
@@ -10,7 +12,7 @@ def update_management_number(
     print("update_management_number")
 
     response = (
-                  supabase
+                  client
                   .table("devices")
                   .update({
                               "management_number": device.management_number,

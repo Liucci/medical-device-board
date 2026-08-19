@@ -62,9 +62,9 @@ def send_account_edit_mail(
         }
     )
 
-    print("RESEND_API_KEY =", resend_api_key)
-    print("status =", response.status_code)
-    print("body =", response.text)
+    # print("RESEND_API_KEY =", resend_api_key)
+    # print("status =", response.status_code)
+    # print("body =", response.text)
 
     response.raise_for_status()
 

@@ -1,7 +1,8 @@
-from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.device_type_schemas import UpdateDeviceTypeRequest
 
 def update_device_type(
+                        client:Client,
                         device_type: UpdateDeviceTypeRequest,
                         hospital_id: str,
                       ):
@@ -9,7 +10,7 @@ def update_device_type(
     print("update_device_type")
 
     response = (
-                  supabase
+                  client
                   .table("device_types")
                   .update({
                             "name": device_type.name,

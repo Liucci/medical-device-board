@@ -1,7 +1,9 @@
 from common.supabase_admin_client import supabase
+from supabase import Client
 from schemas.hospital_settings_schemas import UpdateHospitalSettingsRequest
 
 def update_hospital_settings(
+                                client:Client,
                                 hospital_settings: UpdateHospitalSettingsRequest,
                                 hospital_id: str,
                                 updated_at
@@ -10,7 +12,7 @@ def update_hospital_settings(
     print("update_hospital_settings")
 
     response = (
-                    supabase
+                    client
                     .table("hospital_settings")
                     .update({
                         "show_patient_name": hospital_settings.show_patient_name,

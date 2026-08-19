@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-
+import {LoadingOverlay} from "../../components/common/LoadingOverlay"
 import { UserManagementType } from "../../types/userTypes"
 
 import { fetchUserManagementTransaction } from "@/app/api/transactions/users/fetchUserManagementTransaction"
@@ -35,16 +35,15 @@ export default function UserManagementPage() {
     selectedUser,
     setSelectedUser
   ] = useState<UserManagementType | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const router = useRouter()
 
 useEffect(() => {
-  const fetchData = async () => {
-    const data = await fetchUserManagementTransaction()
-    setUsers(data)
-  }
-
-  fetchData()
+    fetchUserManagementTransaction({
+        setUsers,
+        setLoading,
+    })
 }, [])
 
   useEffect(
@@ -106,7 +105,7 @@ useEffect(() => {
   )
 
   return (
-
+    <>
     <div className="flex h-full flex-col p-6">
 
       <div className="mb-6 flex items-center">
@@ -402,7 +401,8 @@ useEffect(() => {
 
 
     </div>
-
+    <LoadingOverlay loading={loading} />
+</>
   )
 
 }
