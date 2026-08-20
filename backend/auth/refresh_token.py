@@ -1,14 +1,15 @@
 from common.get_auth_client_for_login import get_auth_client_for_login
 from common.get_auth_client_for_login import get_auth_client_for_login
-from session.session_provider import update_session,get_session
-
+from session.fetch_session import fetch_session
+from session.update_session import update_session
 
 def refresh_token(session_id: str,):
     print("refresh_token")
-
+    #print("session_id:", session_id)
     try:
         # Backend Session取得
-        session = get_session(session_id)
+        session = fetch_session(session_id)
+        #print("session:", session)
 
         if session is None:
             raise ValueError("Session not found")

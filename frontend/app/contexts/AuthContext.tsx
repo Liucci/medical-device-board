@@ -27,71 +27,59 @@ const AuthContext =createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({children}: {children: React.ReactNode})
 {
-const [currentUser,setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
-const [accessToken, setAccessToken] =useState<string | null>(null)
+  const [currentUser,setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+  const [accessToken, setAccessToken] =useState<string | null>(null)
 
-useEffect(() => {
-  const restoreSession = async () => {
-    try {
-      const user = await fetchCurrentUser()
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const user = await fetchCurrentUser()
 
-      if (!user) {
+        if (!user) {
+          setAccessToken(null)
+          setCurrentUser(null)
+          return
+        }
+        setAccessToken(user.access_token)
+        setCurrentUser(normalizeCurrentUser(user))
+      } catch (error) {
         setAccessToken(null)
         setCurrentUser(null)
-        return
       }
-      setAccessToken(user.access_token)
-      setCurrentUser(normalizeCurrentUser(user))
-    } catch (error) {
-      setAccessToken(null)
-      setCurrentUser(null)
     }
-  }
-    restoreSession()
-}, [])
+      restoreSession()
+  }, [])
 
-useEffect(() => {
-
-  if(!currentUser || !accessToken) {
-    stopAutoRefreshToken()
-    return
-  }
-
-  startAutoRefreshToken(
-    accessToken,
-    setAccessToken
-  )
-  return () => {
-    stopAutoRefreshToken()
-  }
-
-}, [currentUser, accessToken])
-
-
-/*
- //debug用
   useEffect(() => {
-    console.log(
-      "[AUTH] accessToken:",
-      accessToken
-        ? accessToken.slice(0, 20) + "..."
-        : null
-    )
-  }, [accessToken]) 
-  */
 
-  return (
-    <AuthContext.Provider
-      value={{
-        currentUser,
-        setCurrentUser,
-        accessToken,
-        setAccessToken
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+    if(!currentUser || !accessToken) {
+      stopAutoRefreshToken()
+      return
+    }
+
+    startAutoRefreshToken(
+      accessToken,
+      setAccessToken
+    )
+    return () => {
+      stopAutoRefreshToken()
+    }
+
+  }, [currentUser, accessToken])
+
+
+    return (
+      <AuthContext.Provider
+        value={{
+          currentUser,
+          setCurrentUser,
+          accessToken,
+          setAccessToken
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    )
 }
 
 export function useAuth() {
