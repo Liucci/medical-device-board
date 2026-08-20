@@ -1,6 +1,4 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
-from schemas.hospital_settings_schemas import UpdateHospitalSettingsRequest
 
 
 def fetch_hospital_settings(client:Client,

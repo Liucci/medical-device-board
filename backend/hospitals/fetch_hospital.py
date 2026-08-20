@@ -1,5 +1,3 @@
-import os
-from common.supabase_admin_client import (supabase)
 from supabase import Client
 
 #単一病院取得

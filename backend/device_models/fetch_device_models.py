@@ -1,4 +1,3 @@
-from common.supabase_admin_client import (supabase)
 from supabase import Client
 
 def fetch_device_models( client:Client,

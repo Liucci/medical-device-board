@@ -36,6 +36,8 @@ import { checkWardWarning } from "../utils/checkWardWarning"
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
 import { useAuth }from "../contexts/AuthContext"
+//logout
+import {logoutFromBackend} from "../api/auth/logout"
 //auto logout
 import {startAutoLogout,stopAutoLogout} from "../contexts/autoLogout"
 //supabase
@@ -975,16 +977,15 @@ const activeTasks = tasks.filter(
     }
   })
 
-
-
   //logout関数
-const handleLogout = async (showConfirm = true) => {
+  const handleLogout = async (showConfirm = true) => {
     // 確認が必要な場合のみ表示
     if (showConfirm) {
-        if (!confirm("ログアウトしますか？")) {
-            return
-        }
+      if (!confirm("ログアウトしますか？")) {
+          return
+      }
     }
+    await logoutFromBackend()
     await supabase.auth.signOut()
     setCurrentUser(null)
     router.push("/login")

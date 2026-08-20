@@ -31,6 +31,7 @@ def register_first_admin_transaction(
                        )
     #auth user 登録
     new_user = register_auth_user(
+                                    client=client,
                                     email=invite_code["email"],
                                     password=register.password
                                  )

@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from datetime import datetime, timezone
 from schemas.device_schemas import MoveDeviceRequest
