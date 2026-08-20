@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime,timedelta
-from common.supabase_admin_client import supabase
 from supabase import Client
 from schemas.invite_schemas import CreateInviteCodeRequest
 

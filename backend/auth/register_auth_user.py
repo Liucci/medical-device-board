@@ -1,13 +1,14 @@
-from common.supabase_admin_client import supabase
-
+from supabase import Client
 
 def register_auth_user(
+                        client:Client,
                         email:str,
                         password:str
                       ):
+    
     print("register_auth_user")
     response = (
-                    supabase
+                    client
                     .auth
                     .sign_up(
                                 {

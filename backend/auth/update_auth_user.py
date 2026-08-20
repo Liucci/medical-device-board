@@ -1,18 +1,15 @@
-from common.supabase_admin_client import supabase
-from common.supabase_admin_client import key
+from supabase import Client
 
 def update_auth_user(
+                        client:Client,
                         user_id: str,
                         password: str
                     ):
     print("update_auth_user")
-    # print("user_id =", user_id)
-    # print("password =", password)
-    # print("service key =", key[:20])
 
 
     response = (
-                    supabase.auth.admin.update_user_by_id(
+                    client.auth.admin.update_user_by_id(
                                                             user_id,
                                                             {
                                                                 "password": password

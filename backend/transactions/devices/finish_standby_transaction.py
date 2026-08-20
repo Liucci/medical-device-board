@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.finish_standby import finish_standby
 from schemas.device_schemas import FinishStandbyRequest

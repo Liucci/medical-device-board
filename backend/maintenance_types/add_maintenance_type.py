@@ -1,4 +1,3 @@
-from common.supabase_admin_client import (supabase)
 from supabase import Client
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest)
 

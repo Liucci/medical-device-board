@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import os
 
 from auth.login import (login_user)
+from auth.logout import logout
 from auth.fetch_current_user import (fetch_current_user)
 from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
@@ -211,11 +212,12 @@ from common.supabase_admin_provider import get_admin_client
 from common.supabase_auth_provider import get_auth_client
 
 #session
-from session.session_provider import create_session,get_session,delete_session
-from auth.session import get_current_session
+from session.create_session import create_session
+from session.delete_session import delete_session
+from session.update_session import update_session
+from session.fetch_session import fetch_session
+from auth.get_current_session import get_current_session
 from schemas.session_schemas import BackendSession
-
-
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -319,6 +321,16 @@ def login(
                 "current_user":current_user,
                 "access_token": auth_response.session.access_token,
             }
+
+@app.post("/logout")
+def logout_route(
+                    response: Response,
+                    session_id: str | None = Cookie(default=None),
+):
+    return logout(
+                    response=response,
+                    session_id=session_id,
+    )
 
 
 #リロード時にcurrent user情報を再取得することでlogin状態が維持される
@@ -1864,8 +1876,8 @@ def fetch_active_announcements_route(
 def get_hospital_settings(
                         session: BackendSession = Depends(get_current_session),
                          ):
-    print("role =", session.role)
-    print("hospital_id =", session.hospital_id)
+    #print("role =", session.role)
+    #print("hospital_id =", session.hospital_id)
     return fetch_hospital_settings_transaction(
                                                 session.client, 
                                                 session.hospital_id

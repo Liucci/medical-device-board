@@ -25,6 +25,7 @@ def update_my_account_transaction(
 
     if request.password:
         update_auth_user(
+                            client=client, 
                             user_id=account_edit_code["user_id"],
                             password=request.password
                         )

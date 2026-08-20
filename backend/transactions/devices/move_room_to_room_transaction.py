@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.move_device import move_device
 from rooms.update_rooms import (  clear_room_patientname,

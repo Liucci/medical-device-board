@@ -52,27 +52,14 @@ export function startAutoRefreshToken(
   )
 
   timer = setTimeout(async () => {
-
-    const newAccessToken =
-      await refreshToken()
-
+    const newAccessToken =await refreshToken()
     if (newAccessToken) {
-
-      setAccessToken(
-        newAccessToken
-      )
-
+                        setAccessToken(newAccessToken)
       return
     }
-
-    console.log(
-      "[Auto Refresh Failed] Logout"
-    )
-
+    console.log("[Auto Refresh Failed] Logout")
     stopAutoRefreshToken()
-
     window.location.href = "/login"
-
   }, refreshAfterSec * 1000)
 }
 
