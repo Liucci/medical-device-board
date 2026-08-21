@@ -1,5 +1,6 @@
 "use client"
 
+import { initDashboard } from "../dashboard/initDashboard"
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
 import WardArea from "../components/WardArea"
@@ -195,6 +196,7 @@ export default function Page() {
           currentUser,
           setCurrentUser,
           accessToken,
+          setAccessToken
         } = useAuth()  
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
@@ -991,7 +993,23 @@ const activeTasks = tasks.filter(
     router.push("/login")
   }
 
+//dashboard/page.tsx読み込み時に走るhook
+useEffect(() => {
+    const init = async () => 
+    {
+        try {
+            await initDashboard({
+                                  setCurrentUser,
+                                  setAccessToken,
+            })
+        } 
+        catch (error) 
+        {console.error(error)}
+    }
+    init()
+}, [])
 
+  
 //リロード時やlogin時にrealtime開始
 useEffect(() => {
   console.log("[Realtime] initialize");

@@ -8,13 +8,14 @@ export async function fetchActiveAnnouncements(
                                         ): Promise<ActiveAnnouncementBackType[]>
 {
     console.log("fetchActiveAnnouncements")
-    const token = localStorage.getItem("access_token")
+    //const token = localStorage.getItem("access_token")
     const response = await fetch(
-                                    `${API_BASE_URL}/fetch-active-announcements`,                                    {
+                                    `${API_BASE_URL}/fetch-active-announcements`,                                    
+                                    {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/json",
-                                            Authorization: `Bearer ${token}`
+                                            //Authorization: `Bearer ${token}`
                                         },
                                         credentials: "include",
                                         body: JSON.stringify({hospital_id: hospitalId})
