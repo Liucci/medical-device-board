@@ -8,8 +8,7 @@ type Props = {
     setAnnouncements: React.Dispatch<React.SetStateAction<any[]>>
 }
 
-export function subscribeAnnouncementHospitalsRealtime({
-                                                        hospitalId,                                                        
+export function subscribeAnnouncementHospitalsRealtime({                                                        
                                                         setAnnouncements
                                                         }: Props)
 {
@@ -35,8 +34,7 @@ export function subscribeAnnouncementHospitalsRealtime({
                             )
 
                 await fetchActiveAnnouncementsTransaction({
-                                                        hospitalId,
-                                                        setAnnouncements
+                                                           setAnnouncements
                                                     })
 
             }
