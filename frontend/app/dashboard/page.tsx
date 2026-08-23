@@ -13,6 +13,7 @@ import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
 import WardInfoModal from "../components/modals/WardInfoModal"
 import LowStockPanel from "../components/LowStockPanel"
 
+import { CurrentUser } from "../types/userTypes"
 import { WardType,UpdateWardInfoType} from "../types/wardTypes"
 
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
@@ -29,14 +30,14 @@ import { normalizeMaintenanceTask } from "../utils/taskMapper"
 import { normalizeInfectionType} from "../utils/infectionTypeMapper"
 import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
 import { normalizeWardInfection } from "../utils/wardInfectionMapper"
-
+import { normalizeActiveAnnouncement } from "../utils/announcementMapper"
 //check系
 import { checkWardWarning } from "../utils/checkWardWarning"
 
 
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
-import { useAuth }from "../contexts/AuthContext"
+//import { useAuth }from "../contexts/AuthContext"
 //logout
 import {logoutFromBackend} from "../api/auth/logout"
 //auto logout
@@ -192,12 +193,17 @@ export default function Page() {
   
   //user情報を格納する関数
   const router = useRouter()
-  const {
+
+  const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+  const [accessToken, setAccessToken] =useState<string | null>(null)
+/*   const {
           currentUser,
           setCurrentUser,
           accessToken,
           setAccessToken
-        } = useAuth()  
+        } = useAuth()   */
+
+
   //お知らせ表示用
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
   //設定詳細用のstate
@@ -1094,7 +1100,7 @@ useEffect(() => {
     setInfectionTypes(data.infection_types.map(normalizeInfectionType))
     setRoomInfections(data.room_infections.map(normalizeRoomInfection))
     setWardInfections(data.ward_infections.map(normalizeWardInfection))
-
+    setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
     //setWardInfections(data.ward_infections.map(normalizeWardInfection))
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
@@ -1103,10 +1109,7 @@ useEffect(() => {
     setStockLastUpdated(stockLastUpdated)
     setWardLastUpdated(wardLastUpdated)
     //お知らせ表示
-    await fetchActiveAnnouncementsTransaction({
-                                                hospitalId: currentUser.hospitalId,
-                                                setAnnouncements: setActiveAnnouncements
-                                              })
+    //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
     await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
   }
   fetchData()}, [currentUser])
@@ -1123,19 +1126,19 @@ useEffect(() => {
 
 
 //auto logout機能
-useEffect(() => {
-      console.log("自動logout")
-      if (!hospitalSettings) {return}
-      if (!hospitalSettings.autoLogoutEnabled) {
-                                                stopAutoLogout()
-                                                return
-                                                }
-      startAutoLogout(
-                      hospitalSettings.autoLogoutTime,
-                      () => handleLogout(false)
-                    )
-      return () => {stopAutoLogout()}
-}, [hospitalSettings])
+  useEffect(() => {
+        console.log("自動logout")
+        if (!hospitalSettings) {return}
+        if (!hospitalSettings.autoLogoutEnabled) {
+                                                  stopAutoLogout()
+                                                  return
+                                                  }
+        startAutoLogout(
+                        hospitalSettings.autoLogoutTime,
+                        () => handleLogout(false)
+                      )
+        return () => {stopAutoLogout()}
+  }, [hospitalSettings])
 
 if (currentUser === undefined) {
     return null // 認証確認中

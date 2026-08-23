@@ -9,7 +9,7 @@ type Props = {
 }
 
 export function subscribeAnnouncementsRealtime({
-                                                hospitalId,                                                
+                                                                                                
                                                 setAnnouncements
                                                 }: Props)
 {
@@ -35,7 +35,7 @@ export function subscribeAnnouncementsRealtime({
                             )
 
                 await fetchActiveAnnouncementsTransaction({
-                                                        hospitalId,
+                                                        
                                                         setAnnouncements
                                                     })
 

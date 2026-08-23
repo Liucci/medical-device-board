@@ -12,6 +12,7 @@ options = ClientOptions(
                         auto_refresh_token=False,
                         persist_session=False
 )
+#login前の認証用client
 def get_auth_client_for_login() -> Client:
     print("get_auth_client_for_login")
 

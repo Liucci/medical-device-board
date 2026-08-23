@@ -1,4 +1,6 @@
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
+import { normalizeCurrentUser } from "../utils/userMapper"
+
 type InitDashboardParams = {
                             setCurrentUser: (user: any) => void
                             setAccessToken: (token: string) => void
@@ -12,10 +14,14 @@ export const initDashboard = async ({
 {
     console.log("initDashboard")
     const user = await fetchCurrentUser()
+    //console.log("user:",user)
     if (!user) {
-        throw new Error("Failed to fetch current user")
+        console.log("Failed to fetch current user")
+        setCurrentUser(null)
+        return null
     }
-    setCurrentUser(user)
+
+    setCurrentUser(normalizeCurrentUser(user))
     setAccessToken(user.access_token)
     return user
 }

@@ -1,15 +1,30 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect,useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../contexts/AuthContext"
+import { CurrentUser } from "../types/userTypes"
+import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
+import { normalizeCurrentUser } from "../utils/userMapper"
 
 export default function SystemAdminPage() 
 {
-  const router = useRouter()
-  const { currentUser, setCurrentUser } = useAuth()
+    const router = useRouter()
+    const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+    const init = async () => {
+        const user = await fetchCurrentUser()
+            if (!user) {
+                setCurrentUser(null)
+                return
+            }
+        setCurrentUser(normalizeCurrentUser(user))
+
+    }
+    //currentUser情報を取得
+    useEffect(() => {init()
+    }, [])
 
   useEffect(() => {
+
       if (currentUser === undefined) {return}
       if (currentUser === null) {
           router.replace("/login")

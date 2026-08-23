@@ -12,10 +12,10 @@ options = ClientOptions(
     persist_session=False,
 )
 
-_admin_client = create_client(url, key, options)
 
 CLIENT_NAME = "[admin_client]"
 
 
 def get_admin_client():
+    _admin_client = create_client(url, key, options)
     return _admin_client

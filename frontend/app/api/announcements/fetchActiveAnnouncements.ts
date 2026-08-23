@@ -1,14 +1,10 @@
 import { ActiveAnnouncementBackType } from "@/app/types/announcementTypes"
 import { API_BASE_URL,  } from "../client/apiClient"
 
-type FetchActiveAnnouncementsParams = {hospitalId: string}
 
-export async function fetchActiveAnnouncements(
-                                            { hospitalId }: FetchActiveAnnouncementsParams
-                                        ): Promise<ActiveAnnouncementBackType[]>
+export async function fetchActiveAnnouncements(): Promise<ActiveAnnouncementBackType[]>
 {
     console.log("fetchActiveAnnouncements")
-    //const token = localStorage.getItem("access_token")
     const response = await fetch(
                                     `${API_BASE_URL}/fetch-active-announcements`,                                    
                                     {
@@ -18,7 +14,6 @@ export async function fetchActiveAnnouncements(
                                             //Authorization: `Bearer ${token}`
                                         },
                                         credentials: "include",
-                                        body: JSON.stringify({hospital_id: hospitalId})
                                     }
                                 )
 
