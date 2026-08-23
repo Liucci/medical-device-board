@@ -20,7 +20,8 @@ export default function SystemAdminPage()
 
     }
     //currentUser情報を取得
-    useEffect(() => {init()
+    useEffect(() => {
+        init()
     }, [])
 
   useEffect(() => {

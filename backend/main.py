@@ -6,7 +6,6 @@ import os
 from auth.login import (login_user)
 from auth.logout import logout
 from auth.fetch_current_user import (fetch_current_user)
-from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
 from auth.check_user_active import check_user_active
 from auth.check_permission import check_permission
@@ -347,28 +346,6 @@ def get_current_user(
         "hospital_name": session.hospital_name,
         "access_token": session.access_token,
     }
-
-
-
-#リロード時にcurrent user情報を再取得することでlogin状態が維持される
-#旧access token取得方法
-"""
-@app.get("/current-user")
-def get_current_user(
-                    auth_user_id: str = Depends(get_auth_user_id),
-                    authorization: str = Header(...),
-                     ):
-    access_token = authorization.removeprefix("Bearer ").strip()
-    client = get_auth_client(access_token)
-
-    if not auth_user_id:
-        return None
-    
-    #return fetch_current_user(auth_user_id)
-    #hospital nameが内包しているfetch_current_user_transactionを使用
-    return fetch_current_user_transaction(client,
-                                          auth_user_id)
-"""
 
 
 @app.post("/refresh-token")

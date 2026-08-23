@@ -38,6 +38,9 @@ import { checkWardWarning } from "../utils/checkWardWarning"
 //login logoutのためのlogin中user情報取得
 import { useRouter } from "next/navigation"
 //import { useAuth }from "../contexts/AuthContext"
+//auto refresh
+import { startAutoRefreshToken } from "../contexts/autoRefreshToken"
+
 //logout
 import {logoutFromBackend} from "../api/auth/logout"
 //auto logout
@@ -1004,10 +1007,16 @@ useEffect(() => {
     const init = async () => 
     {
         try {
-            await initDashboard({
+            const user=await initDashboard({
                                   setCurrentUser,
                                   setAccessToken,
             })
+            if (user?.access_token) {
+                      startAutoRefreshToken(
+                                            user.access_token,
+                                            setAccessToken
+                      )
+            }
         } 
         catch (error) 
         {console.error(error)}
