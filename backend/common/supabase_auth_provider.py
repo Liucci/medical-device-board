@@ -16,7 +16,8 @@ options = ClientOptions(
 
 CLIENT_NAME = "[auth_client]"
 
-
+#一般ユーザーの一般的操作時に使用
+#access tokenが必須
 def get_auth_client(access_token: str) -> Client:
     """
     JWT付きのSupabase Clientを生成する。

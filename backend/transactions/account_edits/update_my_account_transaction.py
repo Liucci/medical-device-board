@@ -5,6 +5,7 @@ from auth.update_auth_user import update_auth_user
 
 from schemas.account_edit_schemas import (UpdateMyAccountRequest)
 from supabase import Client
+from common.supabase_admin_provider import get_admin_client
 
 def update_my_account_transaction(
                                     client:Client,
@@ -24,8 +25,11 @@ def update_my_account_transaction(
                     )
 
     if request.password:
+        #pasword変更なのでAuth Admin API
+        #Auth Admin APIはadmin clientの必要がある
+        admin_client = get_admin_client()
         update_auth_user(
-                            client=client, 
+                            client=admin_client, 
                             user_id=account_edit_code["user_id"],
                             password=request.password
                         )

@@ -11,6 +11,8 @@ from schemas.user_schemas import AddUserRequest
 from schemas.hospital_schemas import AddHospitalRequest
 from supabase import Client
 from common.get_auth_client_for_login import get_auth_client_for_login
+from hospital_settings.add_hospital_settings import add_hospital_settings
+from schemas.hospital_settings_schemas import AddHospitalSettingsRequest
 
 def register_first_admin_transaction(
                                       client:Client,
@@ -50,6 +52,18 @@ def register_first_admin_transaction(
                                       note=None
                             )
     )   
+
+    # hospital settings登録
+    add_hospital_settings(
+                        client=client,
+                        hospital_settings=
+                          AddHospitalSettingsRequest(
+                                                      hospital_id=hospital["id"],
+                                                      show_patient_name=False,
+                                                      auto_logout_enabled=False,
+                                                      auto_logout_time=None,
+        )
+    )
  #user 登録
     add_user(
             client, 
