@@ -5,11 +5,11 @@ from supabase import Client
 
 def fetch_active_announcements_transaction(
                                             client:Client,
-                                            request: FetchActiveAnnouncementsRequest
+                                            hospital_id:str
                                         ) -> list[FetchActiveAnnouncementsResponse]:
     print("fetch_active_announcements_transaction")
 
     return fetch_active_announcements(
                                         client,
-                                        request
+                                        hospital_id=hospital_id
                                     )

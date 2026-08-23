@@ -2,7 +2,9 @@
 
 import { useState ,useEffect} from "react"
 import { useRouter } from "next/navigation"
-import { useAuth }from "../contexts/AuthContext"
+import { CurrentUser } from "../types/userTypes"
+
+//import { useAuth }from "../contexts/AuthContext"
 import { loginTransaction } from "../api/transactions/auth/loginTransaction"
 import {executeWithLoading} from "../components/common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
@@ -16,11 +18,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const {
-          currentUser,
-          setCurrentUser,
-          setAccessToken,
-  } = useAuth()
+
+    const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+    const [accessToken, setAccessToken] =useState<string | null>(null)
+  
+  // const {
+  //         currentUser,
+  //         setCurrentUser,
+  //         setAccessToken,
+  // } = useAuth()
 
   //backendの/loginを呼び出す
 const handleLogin = async () => {
@@ -37,7 +43,7 @@ const handleLogin = async () => {
                                         email,
                                         password,
                                         setCurrentUser,
-                                        setAccessToken,
+                                        //setAccessToken,
                                       })
 
             if (currentUser.role === "system_admin") {

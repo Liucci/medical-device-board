@@ -23,7 +23,7 @@ def check_user_active(
             detail="User account is inactive"
         )
 
-    print("user active")
+    #print("user active")
 
     hospital = fetch_hospital(
                             client, 
@@ -36,4 +36,4 @@ def check_user_active(
                             detail="Hospital is inactive"
                         )
 
-    print("hospital active")
+    #print("hospital active")
