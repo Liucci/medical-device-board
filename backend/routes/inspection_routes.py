@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from schemas.session_schemas import BackendSession
-from auth.session import get_current_session
+from auth.get_current_session import get_current_session
 
 from inspection.inspection_types.fetch_inspection_types import (
     fetch_inspection_types

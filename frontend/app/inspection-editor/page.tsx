@@ -494,9 +494,15 @@ return (
             onClose={() => setIsAddItemModalOpen(false)}
             onAdd={(name, itemTypeId) =>
             {
-                // 次にここでEditorへ追加する
-                console.log(name, itemTypeId)
-
+                setInspectionChecklistItems((prev) => 
+                    [
+                        ...prev,
+                        {
+                            id: Date.now(),
+                            name,
+                            itemTypeId,
+                        },
+                    ])
                 setIsAddItemModalOpen(false)
             }}
         />

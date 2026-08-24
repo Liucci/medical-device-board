@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from schemas.inspection_schemas.inspection_type_schemas import UpdateInspectionTypeRequest
 
