@@ -1,18 +1,25 @@
 "use client"
 import { useEffect, useState } from "react"
+//fetch
 import { getInspectionTypesFromApi } from "../api/inspection/inspectionTypes/fetchInspectionTypes"
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
-import type {InspectionType,} from "../types/inspectionTypes/inspectionTypeTypes"
-import type {InspectionItemType,} from "../types/inspectionTypes/inspectionItemTypeTypes"
+import {getInspectionChecklistsFromApi} from "../api/inspection/inspectionChecklists/fetchInspectionChecklists"
 import { getDeviceTypesFromApi } from "../api/deviceTypes/fetchDeviceTypes"
 import { getDeviceModelsFromApi } from "../api/deviceModels/fetchDeviceModels"
+//types
+import type {InspectionType,} from "../types/inspectionTypes/inspectionTypeTypes"
+import type {InspectionItemType,} from "../types/inspectionTypes/inspectionItemTypeTypes"
+import type { InspectionChecklist } from "../types/inspectionTypes/inspectionChecklistTypes"
 import type {DeviceTypeType} from "../types/deviceTypeTypes"
 import type {DeviceModelType,} from "../types/deviceModelTypes"
+//normalizer
 import {normalizeDeviceType} from "../utils/deviceTypeMapper"
 import {normalizeDeviceModel} from "../utils/deviceModelMapper"
 import {normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
 import {normalizeInspectionItemType} from "../utils/inspectionMapper/inspectionItemTypeMapper"
+import {normalizeInspectionChecklist} from "../utils/inspectionMapper/inspectionChecklistMapper"
 
+//modal
 import AddInspectionChecklistItemModal from "./components/AddInspectionChecklistItemModal"
 
 export default function InspectionEditorPage()
@@ -21,10 +28,18 @@ export default function InspectionEditorPage()
     const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])
     const [inspectionName, setInspectionName] = useState("")
     const [inspectionTypeId, setInspectionTypeId] = useState<number | null>(null)
+    const [inspectionChecklists, setInspectionChecklists] =  useState<InspectionChecklist[]>([])
+    const [selectedChecklistId, setSelectedChecklistId] = useState<number | null>(null)
+
     type InspectionChecklistItemEditor = {
-                                            id: number
-                                            name: string
-                                            itemTypeId: number
+                                        id: number
+                                        name: string
+                                        itemTypeId: number
+                                        displayOrder: number
+                                        required: boolean
+                                        defaultValue: string | null
+                                        options: unknown
+                                        unit: string | null
     }
     const [inspectionChecklistItems, setInspectionChecklistItems] =useState<InspectionChecklistItemEditor[]>([])
     const [deviceTypes, setDeviceTypes] = useState<DeviceTypeType[]>([])
@@ -39,16 +54,19 @@ export default function InspectionEditorPage()
             const [
                 inspectionTypesData,
                 inspectionItemTypesData,
+                inspectionChecklistsDate,
                 deviceTypesData,
                 deviceModelsData,
             ] = await Promise.all([
                 getInspectionTypesFromApi(),
                 getInspectionItemTypesFromApi(),
+                getInspectionChecklistsFromApi(),
                 getDeviceTypesFromApi(),
                 getDeviceModelsFromApi(),
             ])
             setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
             setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
+            setInspectionChecklists(inspectionChecklistsDate.map(normalizeInspectionChecklist))
             setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
             setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
         }
@@ -80,6 +98,8 @@ return (
             {/* 点検表情報 */}
             <section className="rounded-xl bg-white p-6 shadow-sm">
 
+
+
                 <div className="mb-6 border-b pb-4">
                     <h2 className="text-lg font-semibold text-gray-800">
                         点検表情報
@@ -89,6 +109,56 @@ return (
                         点検表の名前と種類を設定します
                     </p>
                 </div>
+
+ {/* 点検表選択 */}
+                <div className="mb-5">
+
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                        点検表
+                    </label>
+
+                    <select
+                        value={selectedChecklistId ?? ""}
+                        onChange={(event) =>
+                        {
+                            const id =
+                                event.target.value === ""
+                                    ? null
+                                    : Number(event.target.value)
+
+                            setSelectedChecklistId(id)
+                        }}
+                        className="
+                            w-full
+                            rounded-lg
+                            border border-gray-300
+                            bg-white
+                            px-4 py-2.5
+                            text-sm
+                            outline-none
+                            transition
+                            focus:border-blue-500
+                            focus:ring-2
+                            focus:ring-blue-100
+                        "
+                    >
+                        <option value="">
+                            新規作成
+                        </option>
+
+                        {inspectionChecklists.map((checklist) => (
+                            <option
+                                key={checklist.id}
+                                value={checklist.id}
+                            >
+                                {checklist.name}
+                            </option>
+                        ))}
+                    </select>
+
+                </div>
+
+
 
                 {/* 機種 */}
                 <div className="mb-5">
