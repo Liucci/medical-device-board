@@ -1,5 +1,5 @@
 "use client"
-
+import { useRouter } from "next/navigation"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
@@ -29,8 +29,10 @@ import {
   FileText,
   LogOut,
   UserPlus,
+  ClipboardCheck,
   TestTube,
-   Shield
+   Shield,
+
 } from "lucide-react"
 //テストボタン用
 
@@ -114,6 +116,7 @@ export default function ButtonPanel({
   setHospitalSettings
 
 }: Props) {
+  const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
   const [openHistoryModal, setOpenHistoryModal] = useState(false)

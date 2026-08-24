@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
 import {
   Boxes,
@@ -9,7 +10,8 @@ import {
   Wrench,
   GripVertical,
   Biohazard,
-  Shield
+  Shield,
+  ClipboardCheck,
 } from "lucide-react"
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
@@ -81,6 +83,7 @@ export default function SettingsModal({
   setHospitalSettings
 }: Props) 
 {
+  const router = useRouter()
   const [mode, setMode] = useState<Mode>("menu")
 
   const menuButtons = [
@@ -123,7 +126,12 @@ export default function SettingsModal({
       label: "ストックエリアレイアウト",
       mode: "stockAreaOrder" as const,
       icon: GripVertical,
-    }
+    },
+    {
+        label: "点検表",
+        icon: ClipboardCheck,
+        onClick: () => router.push("/inspection-editor"),
+    },
   ]
 
   return (
@@ -138,24 +146,33 @@ export default function SettingsModal({
           <>
 
             <div className="grid grid-cols-2 gap-3">
-              {menuButtons.map(({ label, mode, icon: Icon }) => (
-                <button
-                  key={mode}
-                  className={`
-                    flex h-24 flex-col items-center justify-center gap-2
-                    rounded-2xl bg-white text-black
-                    border border-gray-300 shadow-sm
-                    transition hover:bg-gray-100 hover:shadow-md
-                  `}
-                  onClick={() => setMode(mode)}
-                  aria-label={label}
-                >
-                  <span className="text-xs">
-                    {label}
-                  </span>
-                  <Icon size={38} strokeWidth={2} />
-                </button>
+              
+              {menuButtons.map(({ label, mode, icon: Icon, onClick }) => (
+                  <button
+                      key={label}
+                      className={`
+                          flex h-24 flex-col items-center justify-center gap-2
+                          rounded-2xl bg-white text-black
+                          border border-gray-300 shadow-sm
+                          transition hover:bg-gray-100 hover:shadow-md
+                      `}
+                      onClick={() => {
+                          if (onClick) {
+                              onClick()
+                          } else if (mode) {
+                              setMode(mode)
+                          }
+                      }}
+                      aria-label={label}
+                  >
+                      <span className="text-xs">
+                          {label}
+                      </span>
+
+                      <Icon size={38} strokeWidth={2} />
+                  </button>
               ))}
+
             </div>
           </>
         )}
