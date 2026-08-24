@@ -10,6 +10,10 @@ from schemas.invite_schemas import (
 from schemas.user_schemas import AddUserRequest
 from schemas.hospital_schemas import AddHospitalRequest
 from supabase import Client
+from common.get_auth_client_for_login import get_auth_client_for_login
+from hospital_settings.add_hospital_settings import add_hospital_settings
+from schemas.hospital_settings_schemas import AddHospitalSettingsRequest
+
 def register_first_admin_transaction(
                                       client:Client,
                                       register: RegisterUserRequest,
@@ -29,11 +33,16 @@ def register_first_admin_transaction(
         raise Exception(
                           "Invite code already used"
                        )
-    #auth user 登録
+
+    # Auth user登録
+    # auth user 登録だけはログイン前の認証処理用client
+    auth_client = get_auth_client_for_login()
+
     new_user = register_auth_user(
-                                    email=invite_code["email"],
-                                    password=register.password
-                                 )
+        client=auth_client,
+        email=invite_code["email"],
+        password=register.password
+    )
     #hospital登録
     hospital = add_hospital(
                             client, 
@@ -43,6 +52,18 @@ def register_first_admin_transaction(
                                       note=None
                             )
     )   
+
+    # hospital settings登録
+    add_hospital_settings(
+                        client=client,
+                        hospital_settings=
+                          AddHospitalSettingsRequest(
+                                                      hospital_id=hospital["id"],
+                                                      show_patient_name=False,
+                                                      auto_logout_enabled=False,
+                                                      auto_logout_time=None,
+        )
+    )
  #user 登録
     add_user(
             client, 

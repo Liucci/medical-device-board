@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.update_management_number import update_management_number
 from schemas.device_schemas import UpdateManagementNumberRequest

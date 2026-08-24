@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 
 #特定のhospitalの全device情報取得

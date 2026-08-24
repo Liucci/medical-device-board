@@ -4,8 +4,8 @@ from schemas.announcement_schemas import  FetchActiveAnnouncementsResponse
 
 
 def fetch_active_announcements(
-                                client:Client,
-                                hospital_id: str,
+                                 client:Client,
+                                 hospital_id: str,
                             ) -> list[FetchActiveAnnouncementsResponse]:
 
     print("fetch_active_announcements")
@@ -20,11 +20,12 @@ def fetch_active_announcements(
                                 message,
                                 start_at,
                                 end_at,
-                                announcement_hospitals!inner(
-                                    hospital_id
-                                )
+                                announcement_hospitals!inner(hospital_id)
                             """)
-                    .eq("announcement_hospitals.hospital_id",hospital_id)
+                    .eq(
+                        "announcement_hospitals.hospital_id",
+                        hospital_id
+                    )
                     .eq("is_active", True)
                     .lte("start_at", now)
                     .gte("end_at", now)

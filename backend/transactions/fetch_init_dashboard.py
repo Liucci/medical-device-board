@@ -12,6 +12,7 @@ from histories.fetch_histories import fetch_device_histories
 from infection_types.fetch_infection_types import fetch_infection_types
 from room_infections.fetch_room_infections import fetch_room_infections
 from ward_infections.fetch_ward_infections import fetch_ward_infections
+from announcements.fetch_active_announcements import fetch_active_announcements
 
 #transactionではclientの種類の情報は持たない
 def fetch_init_dashboard(
@@ -33,6 +34,7 @@ def fetch_init_dashboard(
     infection_types=fetch_infection_types(client,hospital_id)
     room_infections=fetch_room_infections(client,hospital_id)
     ward_infections=fetch_ward_infections(client,hospital_id)
+    active_announcements=fetch_active_announcements(client,hospital_id)
     return {
         "devices": devices,
         "stock_areas": stock_areas,
@@ -46,5 +48,6 @@ def fetch_init_dashboard(
         "infection_types": infection_types,
         "room_infections": room_infections,
         "ward_infections": ward_infections,
+        "active_announcements":active_announcements
 
     }

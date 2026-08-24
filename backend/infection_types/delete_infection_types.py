@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from schemas.infection_type_schemas import DeleteInfectionTypesRequest
 

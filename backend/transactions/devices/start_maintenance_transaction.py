@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.start_maintenance import start_maintenance
 from schemas.device_schemas import StartMaintenanceRequest

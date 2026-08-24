@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.move_device import move_device
 from devices.fetch_devices import fetch_devices_by_room_id

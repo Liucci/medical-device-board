@@ -1,8 +1,6 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 
 from devices.fetch_devices import fetch_device
-from auth.fetch_current_user import fetch_current_user
 from device_types.fetch_device_type import fetch_device_type
 from device_models.fetch_device_models import fetch_device_model
 from transactions.auth.fetch_current_user_transaction import fetch_current_user_transaction
@@ -88,7 +86,7 @@ def create_device_history(
                 if v is not None
               }
 
-    supabase.table(
+    client.table(
                     "device_histories"
                   ).insert(
                             history

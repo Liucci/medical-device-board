@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from schemas.device_schemas import UpdateManagementNumberRequest
 from datetime import datetime, timezone

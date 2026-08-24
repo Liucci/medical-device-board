@@ -5,8 +5,8 @@ import os
 from routes.inspection_routes import inspection_router
 
 from auth.login import (login_user)
+from auth.logout import logout
 from auth.fetch_current_user import (fetch_current_user)
-from auth.get_auth_user_id import (get_auth_user_id)
 from auth.refresh_token import (refresh_token)
 from auth.check_user_active import check_user_active
 from auth.check_permission import check_permission
@@ -211,15 +211,18 @@ from common.supabase_admin_provider import get_admin_client
 from common.supabase_auth_provider import get_auth_client
 
 #session
-from session.session_provider import create_session,get_session,delete_session
-from auth.session import get_current_session
+from session.create_session import create_session
+from session.delete_session import delete_session
+from session.update_session import update_session
+from session.fetch_session import fetch_session
+from auth.get_current_session import get_current_session
 from schemas.session_schemas import BackendSession
-
-
 
 from dotenv import load_dotenv
 load_dotenv()
-
+#本番環境、開発環境判定用APP_ENVを取得し判定する
+APP_ENV = os.getenv("APP_ENV", "development")
+IS_PRODUCTION = APP_ENV == "production"
 
 app = FastAPI()
 #originを指定してCORSを許可する
@@ -291,14 +294,27 @@ def login(
     session_id = create_session(backend_session)
 
    # Session IDをHttpOnly Cookieへ保存
-    response.set_cookie(
-        key="session_id",
-        value=session_id,
-        httponly=True,
-        secure=False,       # localhostではFalse
-        samesite="lax",
-        path="/",
-    )
+   #　開発環境か本番でcookeiの設定を変える
+   # 本番はクロスサイトオリジンの設定
+    if APP_ENV == "development":
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+        )
+    else:
+        response.set_cookie(
+            key="session_id",
+            value=session_id,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+        )
+
     #print("session_id =", session_id)
     #print("session =", get_session(session_id))
     return {
@@ -307,6 +323,18 @@ def login(
                 "access_token": auth_response.session.access_token,
             }
 
+@app.post("/logout")
+def logout_route(
+                    response: Response,
+                    session_id: str | None = Cookie(default=None),
+):
+    return logout(
+                    response=response,
+                    session_id=session_id,
+    )
+
+
+#リロード時にcurrent user情報を再取得することでlogin状態が維持される
 @app.get("/current-user")
 def get_current_user(
     session: BackendSession = Depends(get_current_session),
@@ -320,28 +348,6 @@ def get_current_user(
         "hospital_name": session.hospital_name,
         "access_token": session.access_token,
     }
-
-
-
-#リロード時にcurrent user情報を再取得することでlogin状態が維持される
-#旧access token取得方法
-"""
-@app.get("/current-user")
-def get_current_user(
-                    auth_user_id: str = Depends(get_auth_user_id),
-                    authorization: str = Header(...),
-                     ):
-    access_token = authorization.removeprefix("Bearer ").strip()
-    client = get_auth_client(access_token)
-
-    if not auth_user_id:
-        return None
-    
-    #return fetch_current_user(auth_user_id)
-    #hospital nameが内包しているfetch_current_user_transactionを使用
-    return fetch_current_user_transaction(client,
-                                          auth_user_id)
-"""
 
 
 @app.post("/refresh-token")
@@ -467,25 +473,7 @@ def init_dashboard(
         hospital_id=session.hospital_id,
     )
 
-"""
-#必要情報をDBから取得
-#リロードの際に必要なデータをDBからまとめて取得するAPI
-@app.get("/init-dashboard")
-def init_dashboard(
-                    auth_user_id: str = Depends(get_auth_user_id),
-                    authorization: str = Header(...),
-):
-    access_token = authorization.removeprefix("Bearer ").strip()
-    client = get_auth_client(access_token)
-    current_user = fetch_current_user_transaction(
-                                                client,
-                                                auth_user_id
-                                                )
-    return fetch_init_dashboard(
-                                client=client,
-                                hospital_id=current_user.hospital_id,
-                                )
-"""
+
                                 
 #全患者情報取得
 @app.get("/users")
@@ -1839,17 +1827,18 @@ def update_announcement_route(
 def fetch_active_announcements_route(
                                     session: BackendSession = Depends(get_current_session),
                                     ):
+    hospital_id=session.hospital_id
     return fetch_active_announcements_transaction(
                                                     session.client, 
-                                                    session.hospital_id,
+                                                    hospital_id
                                                 )
 #hospital-settings
 @app.get("/hospital-settings")
 def get_hospital_settings(
                         session: BackendSession = Depends(get_current_session),
                          ):
-    print("role =", session.role)
-    print("hospital_id =", session.hospital_id)
+    #print("role =", session.role)
+    #print("hospital_id =", session.hospital_id)
     return fetch_hospital_settings_transaction(
                                                 session.client, 
                                                 session.hospital_id

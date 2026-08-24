@@ -7,6 +7,8 @@ from schemas.user_schemas import AddUserRequest
 from hospitals.fetch_hospital import fetch_hospital
 from auth.fetch_current_user import fetch_current_user
 from supabase import Client
+from common.get_auth_client_for_login import get_auth_client_for_login
+
 
 def register_user_transaction(
                                 client:Client,
@@ -30,8 +32,11 @@ def register_user_transaction(
                             "Invite code already used"
                         )
 
-    #auth userを登録する作業
+    # Auth user登録
+    # auth user 登録だけはログイン前の認証処理用client
+    auth_client = get_auth_client_for_login()
     new_user = register_auth_user(
+                                    client=auth_client,
                                     email=invite_code["email"],
                                     password=register.password
                                     )

@@ -1,5 +1,4 @@
 from announcements.fetch_announcements import fetch_announcements
-from announcement_hospitals.fetch_announcement_hospitals import fetch_announcement_hospitals
 
 from supabase import Client
 

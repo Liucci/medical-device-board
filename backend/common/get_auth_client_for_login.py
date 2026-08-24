@@ -12,6 +12,8 @@ options = ClientOptions(
                         auto_refresh_token=False,
                         persist_session=False
 )
+#login前の認証用client
+#access token発行前での認証が必要な時
 def get_auth_client_for_login() -> Client:
     print("get_auth_client_for_login")
 

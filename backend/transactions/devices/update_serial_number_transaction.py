@@ -1,4 +1,3 @@
-from common.supabase_admin_client import supabase
 from supabase import Client
 from devices.update_serial_number import update_serial_number
 from schemas.device_schemas import UpdateSerialNumberRequest

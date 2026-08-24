@@ -1,4 +1,3 @@
-from common.supabase_admin_client import (supabase)
 from supabase import Client
 from schemas.hospital_schemas import (UpdateHospitalRequest)
 from datetime import datetime, timezone
