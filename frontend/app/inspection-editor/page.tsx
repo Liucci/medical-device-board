@@ -18,6 +18,10 @@ import {normalizeDeviceModel} from "../utils/deviceModelMapper"
 import {normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
 import {normalizeInspectionItemType} from "../utils/inspectionMapper/inspectionItemTypeMapper"
 import {normalizeInspectionChecklist} from "../utils/inspectionMapper/inspectionChecklistMapper"
+//CRUD
+
+//transaction
+import { createInspectionChecklistTransaction } from "../api/transactions/inspection/inspectionChecklists/createInspectionChecklistsTransaction"
 
 //modal
 import AddInspectionChecklistItemModal from "./components/AddInspectionChecklistItemModal"
@@ -81,6 +85,52 @@ export default function InspectionEditorPage()
     const filteredDeviceModels = deviceModels.filter(
                 (deviceModel) =>deviceModel.deviceTypeId === deviceTypeId
     )
+
+    const handleSave = async () => 
+    {
+    try {
+        // 必須チェック
+        if (inspectionTypeId === null) {
+            alert("点検表種類を選択してください")
+            return
+        }
+        if (deviceTypeId === null) {
+            alert("機種を選択してください")
+            return
+        }
+        if (!inspectionName.trim()) {
+            alert("点検表名を入力してください")
+            return
+        }
+        // 点検表作成
+        const result =await createInspectionChecklistTransaction({
+                        inspectionChecklist: {
+                                            inspectionTypeId,
+                                            deviceTypeId,
+                                            deviceModelId,
+                                            name: inspectionName,
+                                            version: 1,
+                        },
+                        items: inspectionChecklistItems.map(
+                                        (item, index) => ({
+                                            displayOrder: index + 1,
+                                            itemName: item.name,
+                                            itemTypeId: item.itemTypeId,
+                                            required: false,
+                                            defaultValue: null,
+                                            options: null,
+                                            unit: null,
+                                        })
+                        ),
+                    })
+
+        console.log("create inspection checklist result:",result)
+        alert("点検表を保存しました")
+    } catch (error) {
+        console.error("Failed to save inspection checklist:",error)
+        alert("点検表の保存に失敗しました")
+    }
+    }
 
 return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -672,6 +722,7 @@ return (
 
                 <button
                     type="button"
+                    onClick={handleSave}
                     className="
                         rounded-lg
                         bg-blue-600

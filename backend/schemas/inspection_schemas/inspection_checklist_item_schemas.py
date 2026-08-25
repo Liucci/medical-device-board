@@ -14,7 +14,7 @@ class InspectionChecklistItemResponse(BaseModel):
 
 
 class AddInspectionChecklistItemRequest(BaseModel):
-    checklist_id: int
+    checklist_id: int | None = None
     display_order: int
     item_name: str
     item_type_id: int

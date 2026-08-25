@@ -34,7 +34,8 @@ export type InspectionChecklistItemDB = {
 // =========================
 
 export type CreateInspectionChecklistItem = {
-    checklistId: number
+    //checklistId: number
+    displayOrder: number
     itemName: string
     itemTypeId: number
     required: boolean
@@ -45,6 +46,7 @@ export type CreateInspectionChecklistItem = {
 
 export type UpdateInspectionChecklistItem = {
     id: number
+    displayOrder: number
     itemName?: string
     itemTypeId?: number
     required?: boolean

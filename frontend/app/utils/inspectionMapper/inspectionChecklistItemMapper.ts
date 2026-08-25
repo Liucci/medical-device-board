@@ -28,7 +28,7 @@ export const normalizeInspectionChecklistItem = (
 export const toCreateInspectionChecklistItemRequest = (
     item: CreateInspectionChecklistItem
 ) => ({
-    checklist_id: item.checklistId,
+    //checklist_id: item.checklistId,
     item_name: item.itemName,
     item_type_id: item.itemTypeId,
     required: item.required,

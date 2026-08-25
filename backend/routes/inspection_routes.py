@@ -31,7 +31,7 @@ from schemas.inspection_schemas.inspection_result_schemas import (
     AddInspectionResultRequest
 )
 
-from backend.transactions.inspection.inspections.create_inspection_transaction import (
+from transactions.inspection.inspections.create_inspection_transaction import (
     create_inspection_transaction
 )
 
@@ -100,7 +100,7 @@ from schemas.inspection_schemas.inspection_result_schemas import (
     AddInspectionResultRequest
 )
 
-from backend.transactions.inspection.inspections.create_inspection_transaction import (
+from transactions.inspection.inspections.create_inspection_transaction import (
     create_inspection_transaction
 )
 from transactions.inspection.inspection_checklist_items.create_inspection_checklist_items_transaction import (
@@ -108,7 +108,7 @@ from transactions.inspection.inspection_checklist_items.create_inspection_checkl
 )
 
 from transactions.inspection.inspection_checklist_items import (
-    update_inspection_checklist_items_transaction
+    update_inspection_checklist_item_transaction
 )
 
 from transactions.inspection.inspection_checklist_items.delete_inspection_checklist_items_transaction import (
@@ -325,7 +325,7 @@ def update_inspection_checklist_items(
     inspection_checklist_items: list[UpdateInspectionChecklistItemRequest],
     session: BackendSession = Depends(get_current_session),
 ):
-    return update_inspection_checklist_items_transaction(
+    return update_inspection_checklist_item_transaction(
         client=session.client,
         inspection_checklist_items=inspection_checklist_items
     )
