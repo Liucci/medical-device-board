@@ -15,6 +15,7 @@ def add_inspection_checklist_item(
         .table("inspection_checklist_items")
         .insert({
             "checklist_id": inspection_checklist_item.checklist_id,
+            "display_order":inspection_checklist_item.display_order,
             "item_name": inspection_checklist_item.item_name,
             "item_type_id": inspection_checklist_item.item_type_id,
             "required": inspection_checklist_item.required,

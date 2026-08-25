@@ -1,27 +1,13 @@
 from supabase import Client
 
-from schemas.inspection_schemas.inspection_checklist_schemas import (
-    UpdateInspectionChecklistRequest
-)
-from schemas.inspection_schemas.inspection_checklist_item_schemas import (
-    UpdateInspectionChecklistItemRequest
-)
-
-from inspection.inspection_checklists.update_inspection_checklist import (
-    update_inspection_checklist
-)
-from inspection.inspection_checklist_items.delete_inspection_checklist_items import (
-    delete_inspection_checklist_items
-)
-from inspection.inspection_checklist_items.update_inspection_checklist_item import (
-    update_inspection_checklist_item
-)
-from inspection.inspection_checklist_items.add_inspection_checklist_item import (
-    add_inspection_checklist_item
-)
-from inspection.inspection_checklist_items.update_inspection_checklist_item_orders import (
-    update_inspection_checklist_item_orders
-)
+from schemas.inspection_schemas.inspection_checklist_schemas import (UpdateInspectionChecklistRequest)
+from schemas.inspection_schemas.inspection_checklist_item_schemas import (UpdateInspectionChecklistItemRequest)
+from schemas.inspection_schemas.inspection_checklist_item_schemas import (AddInspectionChecklistItemRequest,UpdateInspectionChecklistItemOrderRequest)
+from inspection.inspection_checklists.update_inspection_checklist import (update_inspection_checklist)
+from inspection.inspection_checklist_items.delete_inspection_checklist_items import (delete_inspection_checklist_items)
+from inspection.inspection_checklist_items.update_inspection_checklist_item import (update_inspection_checklist_item)
+from inspection.inspection_checklist_items.add_inspection_checklist_item import (add_inspection_checklist_item)
+from inspection.inspection_checklist_items.update_inspection_checklist_item_orders import (update_inspection_checklist_item_orders)
 
 
 def update_inspection_checklist_transaction(
@@ -29,8 +15,8 @@ def update_inspection_checklist_transaction(
     inspection_checklist: UpdateInspectionChecklistRequest,
     delete_item_ids: list[int],
     update_items: list[UpdateInspectionChecklistItemRequest],
-    add_items: list,
-    item_orders: list,
+    add_items: list[AddInspectionChecklistItemRequest],
+    item_orders: list[UpdateInspectionChecklistItemOrderRequest],
     hospital_id: str
 ):
     print("update_inspection_checklist_transaction")
