@@ -14,7 +14,8 @@ class InspectionChecklistItemResponse(BaseModel):
 
 
 class AddInspectionChecklistItemRequest(BaseModel):
-    checklist_id: int | None = None
+    #新規作成用なのでfrontからはchecklist idは送ってこない
+    #checklist_id: int | None = None
     display_order: int
     item_name: str
     item_type_id: int

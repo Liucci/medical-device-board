@@ -1,7 +1,7 @@
 import {
     InspectionChecklist,
     InspectionChecklistDB,
-    CreateInspectionChecklist,
+    AddInspectionChecklist,
     UpdateInspectionChecklist,
     DeleteInspectionChecklists
 } from "../../types/inspectionTypes/inspectionChecklistTypes"
@@ -25,8 +25,8 @@ export const normalizeInspectionChecklist = (
 
 
 // Create
-export const toCreateInspectionChecklistRequest = (
-    checklist: CreateInspectionChecklist
+export const toAddInspectionChecklistRequest = (
+    checklist: AddInspectionChecklist
 ) => ({
     inspection_type_id: checklist.inspectionTypeId,
     device_type_id: checklist.deviceTypeId,

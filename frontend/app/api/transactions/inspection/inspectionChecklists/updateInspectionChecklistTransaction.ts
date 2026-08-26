@@ -5,7 +5,7 @@ import type {
 } from "../../../../types/inspectionTypes/inspectionChecklistTypes"
 
 import type {
-    CreateInspectionChecklistItem,
+    AddInspectionChecklistItem,
     UpdateInspectionChecklistItem
 } from "../../../../types/inspectionTypes/inspectionChecklistItemTypes"
 
@@ -14,7 +14,7 @@ type UpdateInspectionChecklistTransactionParams = {
     inspectionChecklist: UpdateInspectionChecklist
     deleteItemIds: number[]
     updateItems: UpdateInspectionChecklistItem[]
-    addItems: CreateInspectionChecklistItem[]
+    addItems: AddInspectionChecklistItem[]
 }
 
 

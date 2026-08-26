@@ -20,7 +20,7 @@ class AddInspectionChecklistRequest(BaseModel):
     device_type_id: int
     device_model_id: int | None = None
     name: str
-    version: int = 1
+    version: int | None = None
 
 
 class UpdateInspectionChecklistRequest(BaseModel):

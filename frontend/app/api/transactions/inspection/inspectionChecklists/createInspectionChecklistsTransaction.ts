@@ -1,26 +1,26 @@
 import { API_BASE_URL } from "../../../client/apiClient"
 
 import type {
-    CreateInspectionChecklist
+    AddInspectionChecklist
 } from "../../../../types/inspectionTypes/inspectionChecklistTypes"
 
 import type {
-    CreateInspectionChecklistItem
+    AddInspectionChecklistItem
 } from "../../../../types/inspectionTypes/inspectionChecklistItemTypes"
 
 import {
-    toCreateInspectionChecklistRequest
+    toAddInspectionChecklistRequest
 } from "../../../../utils/inspectionMapper/inspectionChecklistMapper"
 
 
-type CreateInspectionChecklistTransactionParams = {
-    inspectionChecklist: CreateInspectionChecklist
-    items: CreateInspectionChecklistItem[]
+type AddInspectionChecklistTransactionParams = {
+    inspectionChecklist: AddInspectionChecklist
+    items: AddInspectionChecklistItem[]
 }
 
 
 export async function createInspectionChecklistTransaction(
-    params: CreateInspectionChecklistTransactionParams
+    params: AddInspectionChecklistTransactionParams
 )
 {
     console.log("createInspectionChecklistTransaction")
@@ -38,7 +38,7 @@ export async function createInspectionChecklistTransaction(
 
             body: JSON.stringify({
                 inspection_checklist:
-                    toCreateInspectionChecklistRequest(
+                    toAddInspectionChecklistRequest(
                         params.inspectionChecklist
                     ),
 

@@ -5,15 +5,15 @@
 // =========================
 
 export type InspectionChecklistItem = {
-    id: number
-    checklistId: number
-    displayOrder: number
-    itemName: string
-    itemTypeId: number
-    required: boolean
-    defaultValue: string | null
-    options: string[] | null
-    unit: string | null
+        id: number
+        checklistId: number
+        displayOrder: number
+        itemName: string
+        itemTypeId: number
+        required: boolean
+        defaultValue: string | null
+        options: string[] | null
+        unit: string | null
 }
 
 export type InspectionChecklistItemDB = {
@@ -33,7 +33,8 @@ export type InspectionChecklistItemDB = {
 // API
 // =========================
 
-export type CreateInspectionChecklistItem = {
+export type AddInspectionChecklistItem = {
+    //新規作成なので
     //checklistId: number
     displayOrder: number
     itemName: string
@@ -59,11 +60,3 @@ export type DeleteInspectionChecklistItems = {
     ids: number[]
 }
 
-export type UpdateInspectionChecklistItemOrder = {
-    id: number
-    displayOrder: number
-}
-
-export type UpdateInspectionChecklistItemOrders = {
-    items: UpdateInspectionChecklistItemOrder[]
-}

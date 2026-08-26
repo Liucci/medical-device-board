@@ -35,7 +35,7 @@ export type InspectionChecklistDB = {
 // API
 // =========================
 
-export type CreateInspectionChecklist = {
+export type AddInspectionChecklist = {
     inspectionTypeId: number
     deviceTypeId: number
     deviceModelId?: number | null

@@ -1,10 +1,9 @@
 import {
     InspectionChecklistItem,
     InspectionChecklistItemDB,
-    CreateInspectionChecklistItem,
+    AddInspectionChecklistItem,
     UpdateInspectionChecklistItem,
     DeleteInspectionChecklistItems,
-    UpdateInspectionChecklistItemOrders
 } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
 
 
@@ -25,10 +24,11 @@ export const normalizeInspectionChecklistItem = (
 
 
 // Create
-export const toCreateInspectionChecklistItemRequest = (
-    item: CreateInspectionChecklistItem
+export const toAddInspectionChecklistItemRequest = (
+    item: AddInspectionChecklistItem
 ) => ({
     //checklist_id: item.checklistId,
+    display_order: item.displayOrder,
     item_name: item.itemName,
     item_type_id: item.itemTypeId,
     required: item.required,
@@ -43,6 +43,7 @@ export const toUpdateInspectionChecklistItemRequest = (
     item: UpdateInspectionChecklistItem
 ) => ({
     id: item.id,
+    display_order:item.displayOrder,
     item_name: item.itemName,
     item_type_id: item.itemTypeId,
     required: item.required,
@@ -60,12 +61,3 @@ export const toDeleteInspectionChecklistItemsRequest = (
 })
 
 
-// Update Order
-export const toUpdateInspectionChecklistItemOrdersRequest = (
-    items: UpdateInspectionChecklistItemOrders
-) => ({
-    items: items.items.map((item) => ({
-        id: item.id,
-        display_order: item.displayOrder
-    }))
-})
