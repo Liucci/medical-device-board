@@ -37,7 +37,7 @@ export type InspectionDB = {
 // API
 // =========================
 
-export type CreateInspection = {
+export type AddInspection = {
     deviceId: number
     roomId?: number | null
     inspectionTypeId: number

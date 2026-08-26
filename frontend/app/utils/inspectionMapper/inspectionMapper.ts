@@ -1,7 +1,7 @@
 import {
     Inspection,
     InspectionDB,
-    CreateInspection,
+    AddInspection,
     UpdateInspection,
     DeleteInspections
 } from "../../types/inspectionTypes/inspectionTypes"
@@ -27,7 +27,7 @@ export const normalizeInspection = (
 
 // Create
 export const toCreateInspectionRequest = (
-    inspection: CreateInspection
+    inspection: AddInspection
 ) => ({
     device_id: inspection.deviceId,
     room_id: inspection.roomId ?? null,
@@ -45,9 +45,9 @@ export const toUpdateInspectionRequest = (
 ) => ({
     id: inspection.id,
     room_id: inspection.roomId ?? null,
-    inspection_type_id: inspection.inspectionTypeId,
-    checklist_id: inspection.checklistId,
-    performed_at: inspection.performedAt,
+    inspection_type_id: inspection.inspectionTypeId?? null,
+    checklist_id: inspection.checklistId?? null,
+    performed_at: inspection.performedAt?? null,
     overall_result: inspection.overallResult ?? null,
     comment: inspection.comment ?? null
 })

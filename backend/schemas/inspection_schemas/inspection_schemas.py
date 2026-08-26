@@ -39,6 +39,3 @@ class UpdateInspectionRequest(BaseModel):
 class DeleteInspectionsRequest(BaseModel):
     ids: list[int]
 
-class CreateInspectionTransactionRequest(BaseModel):
-    inspection: AddInspectionRequest
-    results: list[AddInspectionResultRequest]

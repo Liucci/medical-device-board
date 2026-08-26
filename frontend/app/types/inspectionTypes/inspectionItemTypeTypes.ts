@@ -23,7 +23,7 @@ export type InspectionItemTypeDB = {
 // API
 // =========================
 
-export type CreateInspectionItemType = {
+export type AddInspectionItemType = {
     name: string
     description?: string | null
 }

@@ -1,7 +1,7 @@
 import {
     InspectionItemType,
     InspectionItemTypeDB,
-    CreateInspectionItemType,
+    AddInspectionItemType,
     UpdateInspectionItemType,
     DeleteInspectionItemTypes
 } from "../../types/inspectionTypes/inspectionItemTypeTypes"
@@ -19,8 +19,8 @@ export const normalizeInspectionItemType = (
 
 
 // Create
-export const toCreateInspectionItemTypeRequest = (
-    inspectionItemType: CreateInspectionItemType
+export const toAddInspectionItemTypeRequest = (
+    inspectionItemType: AddInspectionItemType
 ) => ({
     name: inspectionItemType.name,
     description: inspectionItemType.description ?? null
@@ -32,9 +32,9 @@ export const toUpdateInspectionItemTypeRequest = (
     inspectionItemType: UpdateInspectionItemType
 ) => ({
     id: inspectionItemType.id,
-    name: inspectionItemType.name,
+    name: inspectionItemType.name?? null,
     description: inspectionItemType.description ?? null,
-    is_active: inspectionItemType.isActive
+    is_active: inspectionItemType.isActive?? null,
 })
 
 

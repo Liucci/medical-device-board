@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import type { CreateInspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { AddInspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
 
 export async function createInspectionItemTypeToApi(
-    inspectionItemType: CreateInspectionItemType
+    inspectionItemType: AddInspectionItemType
 )
 {
-    console.log("createInspectionItemType")
+    console.log("addInspectionItemType")
 
     const response = await fetch(
         `${API_BASE_URL}/inspection-item-types`,

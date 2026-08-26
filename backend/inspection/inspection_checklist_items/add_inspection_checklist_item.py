@@ -6,7 +6,8 @@ from schemas.inspection_schemas.inspection_checklist_item_schemas import (
 
 def add_inspection_checklist_item(
     client: Client,
-    inspection_checklist_item: AddInspectionChecklistItemRequest
+    inspection_checklist_item: AddInspectionChecklistItemRequest,
+    checklist_id: int,
 ):
     print("add_inspection_checklist_item")
 
@@ -14,7 +15,7 @@ def add_inspection_checklist_item(
         client
         .table("inspection_checklist_items")
         .insert({
-            "checklist_id": inspection_checklist_item.checklist_id,
+            "checklist_id": checklist_id,
             "display_order":inspection_checklist_item.display_order,
             "item_name": inspection_checklist_item.item_name,
             "item_type_id": inspection_checklist_item.item_type_id,

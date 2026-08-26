@@ -1,7 +1,7 @@
 import {
     InspectionResult,
     InspectionResultDB,
-    CreateInspectionResult,
+    AddInspectionResult,
     UpdateInspectionResult,
     DeleteInspectionResults
 } from "../../types/inspectionTypes/inspectionResultTypes"
@@ -20,9 +20,8 @@ export const normalizeInspectionResult = (
 
 // Create
 export const toCreateInspectionResultRequest = (
-    result: CreateInspectionResult
+    result: AddInspectionResult
 ) => ({
-    inspection_id: result.inspectionId,
     checklist_item_id: result.checklistItemId,
     value: result.value ?? null
 })

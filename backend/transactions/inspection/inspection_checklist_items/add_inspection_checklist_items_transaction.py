@@ -9,21 +9,23 @@ from inspection.inspection_checklist_items.add_inspection_checklist_item import 
 )
 
 
-def create_inspection_checklist_items_transaction(
+def add_inspection_checklist_items_transaction(
     client: Client,
+    checklist_id: int,
     inspection_checklist_items: list[AddInspectionChecklistItemRequest]
 ):
-    print("create_inspection_checklist_items_transaction")
+    print("add_inspection_checklist_items_transaction")
 
-    created_items = []
+    items = []
 
     for item in inspection_checklist_items:
 
         created_item = add_inspection_checklist_item(
             client,
-            item
+            item,
+            checklist_id,
         )
 
-        created_items.append(created_item)
+        items.append(created_item)
 
-    return created_items
+    return items

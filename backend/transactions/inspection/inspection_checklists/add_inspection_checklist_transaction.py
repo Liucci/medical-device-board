@@ -17,13 +17,13 @@ from inspection.inspection_checklist_items.add_inspection_checklist_item import 
 )
 
 
-def create_inspection_checklist_transaction(
+def add_inspection_checklist_transaction(
     client: Client,
     inspection_checklist: AddInspectionChecklistRequest,
     items: list[AddInspectionChecklistItemRequest],
     hospital_id: str
 ):
-    print("create_inspection_checklist_transaction")
+    print("add_inspection_checklist_transaction")
 
     # 点検表作成
     checklist = add_inspection_checklist(

@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
+from schemas.inspection_schemas.inspection_checklist_item_schemas import AddInspectionChecklistItemRequest
 
 
 class InspectionChecklistResponse(BaseModel):
@@ -35,3 +36,9 @@ class UpdateInspectionChecklistRequest(BaseModel):
 
 class DeleteInspectionChecklistsRequest(BaseModel):
     ids: list[int]
+
+
+#checklist新規登録用schema
+class CreateInspectionChecklistTransactionRequest(BaseModel):
+    inspection_checklist: AddInspectionChecklistRequest
+    items: list[AddInspectionChecklistItemRequest]
