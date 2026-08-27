@@ -1277,6 +1277,7 @@ if (!currentUser) {
       {/* ボタンパネル */}
       <div className={styles.button}>
         <ButtonPanel 
+          currentUser={currentUser}
           deviceList={deviceList}
           setDeviceList={setDeviceList}
           deviceTypes={deviceTypes}

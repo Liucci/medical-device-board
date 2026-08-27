@@ -2,28 +2,41 @@
 
 import { useEffect, useState } from "react"
 
-import type {
-    InspectionItemType,
-} from "../../types/inspectionTypes/inspectionItemTypeTypes"
+import type {InspectionItemType,} from "../../types/inspectionTypes/inspectionItemTypeTypes"
 
 
-type Props = {
-    open: boolean
-    inspectionItemTypes: InspectionItemType[]
-    onClose: () => void
-    onAdd: (
-        name: string,
-        itemTypeId: number
-    ) => void
+type InspectionChecklistItem = {
+                                id: number
+                                name: string
+                                itemTypeId: number
+                                displayOrder: number
+                                required: boolean
+                                defaultValue: string | null
+                                options: unknown
+                                unit: string | null
 }
 
 
-export default function AddInspectionChecklistItemModal({
-    open,
-    inspectionItemTypes,
-    onClose,
-    onAdd,
-}: Props)
+type Props = {
+                open: boolean
+                item: InspectionChecklistItem | null
+                inspectionItemTypes: InspectionItemType[]
+                onClose: () => void
+                onSave: (
+                    itemId: number,
+                    name: string,
+                    itemTypeId: number
+                ) => void
+}
+
+
+export default function EditInspectionChecklistItemModal({
+                                                            open,
+                                                            item,
+                                                            inspectionItemTypes,
+                                                            onClose,
+                                                            onSave,
+                                                        }: Props)
 {
     const [name, setName] = useState("")
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
@@ -31,12 +44,19 @@ export default function AddInspectionChecklistItemModal({
 
     useEffect(() =>
     {
+        if (open && item)
+        {
+            setName(item.name)
+            setItemTypeId(item.itemTypeId)
+        }
+
         if (!open)
         {
             setName("")
             setItemTypeId(null)
         }
-    }, [open])
+
+    }, [open, item])
 
 
     if (!open)
@@ -45,8 +65,13 @@ export default function AddInspectionChecklistItemModal({
     }
 
 
-    const handleAdd = () =>
+    const handleSave = () =>
     {
+        if (!item)
+        {
+            return
+        }
+
         if (!name.trim())
         {
             return
@@ -57,7 +82,8 @@ export default function AddInspectionChecklistItemModal({
             return
         }
 
-        onAdd(
+        onSave(
+            item.id,
             name.trim(),
             itemTypeId
         )
@@ -96,14 +122,14 @@ export default function AddInspectionChecklistItemModal({
             >
 
                 {/* Header */}
-                <div className=" px-6 py-4">
+                <div className="border-b px-6 py-4">
 
                     <h2 className="text-lg font-semibold text-gray-800">
-                        点検項目を追加
+                        点検項目を編集
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-500">
-                        点検項目の内容と入力方式を設定してください
+                        点検項目の内容と入力方式を編集してください
                     </p>
 
                 </div>
@@ -194,14 +220,14 @@ export default function AddInspectionChecklistItemModal({
 
 
                 {/* Footer */}
-                <div className="flex justify-end gap-3 px-6 py-4">
+                <div className="flex justify-end gap-3 border-t px-6 py-4">
 
                     <button
                         type="button"
                         onClick={onClose}
                         className="
                             rounded-lg
-                            border border-gray-300
+                            border border-gray-500
                             bg-white
                             px-5 py-2.5
                             text-sm font-medium
@@ -212,9 +238,10 @@ export default function AddInspectionChecklistItemModal({
                         キャンセル
                     </button>
 
+
                     <button
                         type="button"
-                        onClick={handleAdd}
+                        onClick={handleSave}
                         disabled={
                             !name.trim() ||
                             itemTypeId === null
@@ -230,7 +257,7 @@ export default function AddInspectionChecklistItemModal({
                             disabled:opacity-40
                         "
                     >
-                        追加
+                        保存
                     </button>
 
                 </div>

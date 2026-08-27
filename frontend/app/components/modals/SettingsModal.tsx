@@ -33,6 +33,7 @@ import InfectionSettingModal from "./InfectionSettingModal"
 import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
 import HospitalSettingModal from "./HospitalSettingModal"
 type Props = {
+  currentUser: CurrentUser
   onClose: () => void
   stockAreas: StockAreaType[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
@@ -64,6 +65,7 @@ type Mode =
             | "wardOrder"
             | "stockAreaOrder"
 export default function SettingsModal({
+  currentUser,
   onClose,
   stockAreas,
   setStockAreas,
@@ -128,10 +130,17 @@ export default function SettingsModal({
       icon: GripVertical,
     },
     {
-        label: "点検表",
+        label: "点検表作成",
         icon: ClipboardCheck,
-        onClick: () => router.push("/inspection-editor"),
-    },
+        onClick: () => {
+            if (currentUser.role !== "admin") {
+                alert("権限がありません")
+                return
+            }
+
+            router.push("/inspection-editor")
+        },
+    },    
   ]
 
   return (

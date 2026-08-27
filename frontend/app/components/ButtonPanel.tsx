@@ -42,6 +42,7 @@ import { supabase } from "../lib/supabase"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
+  currentUser:CurrentUser
   deviceList:  Device[]
   setDeviceList: React.Dispatch<
                   React.SetStateAction<any[]>
@@ -83,6 +84,7 @@ type Props = {
 
 
 export default function ButtonPanel({
+  currentUser,
   deviceList,
   setDeviceList,
   deviceTypes,
@@ -245,6 +247,7 @@ export default function ButtonPanel({
 
       {openSettingsModal &&
         <SettingsModal
+          currentUser={currentUser}
           onClose={() => setOpenSettingsModal(false)}
           stockAreas={stockAreas}
           setStockAreas={setStockAreas}
