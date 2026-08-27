@@ -18,6 +18,10 @@ import {normalizeDeviceModel} from "../utils/deviceModelMapper"
 import {normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
 import {normalizeInspectionItemType} from "../utils/inspectionMapper/inspectionItemTypeMapper"
 import {normalizeInspectionChecklist} from "../utils/inspectionMapper/inspectionChecklistMapper"
+
+import {
+    toCreateInspectionChecklistTransactionRequest
+} from "../utils/inspectionMapper/inspectionTransactionMapper/inspectionChecklistTransactionMapper"
 //CRUD
 
 //transaction
@@ -103,27 +107,31 @@ export default function InspectionEditorPage()
             return
         }
         // 点検表作成
-        const result =await createInspectionChecklistTransaction({
-                        inspectionChecklist: {
-                                            inspectionTypeId,
-                                            deviceTypeId,
-                                            deviceModelId,
-                                            name: inspectionName,
-                                            version: 1,
-                        },
-                        items: inspectionChecklistItems.map(
-                                        (item, index) => ({
-                                            displayOrder: index + 1,
-                                            itemName: item.name,
-                                            itemTypeId: item.itemTypeId,
-                                            required: false,
-                                            defaultValue: null,
-                                            options: null,
-                                            unit: null,
-                                        })
-                        ),
+        const requests =
+            toCreateInspectionChecklistTransactionRequest(
+                {
+                    inspectionTypeId,
+                    deviceTypeId,
+                    deviceModelId,
+                    name: inspectionName,
+                    version: 1,
+                },
+                inspectionChecklistItems.map(
+                    (item, index) => ({
+                        displayOrder: index + 1,
+                        itemName: item.name,
+                        itemTypeId: item.itemTypeId,
+                        required: false,
+                        defaultValue: null,
+                        options: null,
+                        unit: null,
                     })
+                )
+            )
 
+        const result = await createInspectionChecklistTransaction({
+            requests,
+        })
         console.log("create inspection checklist result:",result)
         alert("点検表を保存しました")
     } catch (error) {
@@ -750,9 +758,14 @@ return (
                     [
                         ...prev,
                         {
-                            id: Date.now(),
-                            name,
-                            itemTypeId,
+                        id: Date.now(),
+                        name,
+                        itemTypeId,
+                        displayOrder: prev.length + 1,
+                        required: false,
+                        defaultValue: null,
+                        options: null,
+                        unit: null,
                         },
                     ])
                 setIsAddItemModalOpen(false)

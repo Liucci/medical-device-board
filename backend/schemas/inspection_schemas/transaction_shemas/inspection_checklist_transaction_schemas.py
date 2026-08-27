@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 #複数のtableにまたぐschema
 
 class CreateInspectionChecklistTransactionRequest(BaseModel):
@@ -5,6 +7,7 @@ class CreateInspectionChecklistTransactionRequest(BaseModel):
     device_type_id: int
     device_model_id: int | None
     name: str
+    version:int  | None
 
     display_order: int
     item_name: str

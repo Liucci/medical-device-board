@@ -35,7 +35,8 @@ export type InspectionChecklistDB = {
 // API
 // =========================
 
-export type AddInspectionChecklist = {
+// Create
+export type AddInspectionChecklistFrontType = {
     inspectionTypeId: number
     deviceTypeId: number
     deviceModelId?: number | null
@@ -43,7 +44,17 @@ export type AddInspectionChecklist = {
     version?: number
 }
 
-export type UpdateInspectionChecklist = {
+export type AddInspectionChecklistBackType = {
+    inspection_type_id: number
+    device_type_id: number
+    device_model_id: number | null
+    name: string
+    version: number
+}
+
+
+// Update
+export type UpdateInspectionChecklistFrontType = {
     id: number
     inspectionTypeId?: number
     deviceTypeId?: number
@@ -53,6 +64,22 @@ export type UpdateInspectionChecklist = {
     isActive?: boolean
 }
 
-export type DeleteInspectionChecklists = {
+export type UpdateInspectionChecklistBackType = {
+    id: number
+    inspection_type_id?: number
+    device_type_id?: number
+    device_model_id?: number | null
+    name?: string
+    version?: number
+    is_active?: boolean
+}
+
+
+// Delete
+export type DeleteInspectionChecklistsFrontType = {
+    ids: number[]
+}
+
+export type DeleteInspectionChecklistsBackType = {
     ids: number[]
 }

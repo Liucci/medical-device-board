@@ -38,7 +38,3 @@ class DeleteInspectionChecklistsRequest(BaseModel):
     ids: list[int]
 
 
-#checklist新規登録用schema
-class CreateInspectionChecklistTransactionRequest(BaseModel):
-    inspection_checklist: AddInspectionChecklistRequest
-    items: list[AddInspectionChecklistItemRequest]

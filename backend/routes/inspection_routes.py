@@ -32,7 +32,9 @@ from schemas.inspection_schemas.inspection_schemas import (
 from schemas.inspection_schemas.inspection_result_schemas import (
     AddInspectionResultRequest
 )
-
+from schemas.inspection_schemas.transaction_shemas.inspection_checklist_transaction_schemas import (
+    CreateInspectionChecklistTransactionRequest,
+)
 from transactions.inspection.inspections.create_inspection_transaction import (
     create_inspection_transaction
 )
@@ -75,7 +77,7 @@ from schemas.inspection_schemas.inspection_checklist_schemas import (
     AddInspectionChecklistRequest,
     UpdateInspectionChecklistRequest,
     DeleteInspectionChecklistsRequest,
-    CreateInspectionChecklistTransactionRequest
+    
 )
 
 from schemas.inspection_schemas.inspection_checklist_item_schemas import (
@@ -271,14 +273,13 @@ def delete_inspection_item_types_route(
 
 @inspection_router.post("/create-inspection-checklist")
 def create_inspection_checklist(
-    request: CreateInspectionChecklistTransactionRequest,
-    session: BackendSession = Depends(get_current_session),
+                            request: list[CreateInspectionChecklistTransactionRequest],
+                            session: BackendSession = Depends(get_current_session),
 ):
     return add_inspection_checklist_transaction(
-        client=session.client,
-        inspection_checklist=request.inspection_checklist,
-        items=request.items,
-        hospital_id=session.hospital_id,
+                                        client=session.client,
+                                        request=request,
+                                        hospital_id=session.hospital_id,
     )
 
 @inspection_router.put("/update-inspection-checklist")

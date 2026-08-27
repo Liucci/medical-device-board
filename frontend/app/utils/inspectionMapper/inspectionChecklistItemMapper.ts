@@ -1,9 +1,9 @@
 import {
     InspectionChecklistItem,
     InspectionChecklistItemDB,
-    AddInspectionChecklistItem,
-    UpdateInspectionChecklistItem,
-    DeleteInspectionChecklistItems,
+    AddInspectionChecklistItemFrontType,
+    UpdateInspectionChecklistItemFrontType,
+    DeleteInspectionChecklistItemsFrontType,
 } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
 
 
@@ -25,7 +25,7 @@ export const normalizeInspectionChecklistItem = (
 
 // Create
 export const toAddInspectionChecklistItemRequest = (
-    item: AddInspectionChecklistItem
+    item: AddInspectionChecklistItemFrontType
 ) => ({
     //checklist_id: item.checklistId,
     display_order: item.displayOrder,
@@ -40,7 +40,7 @@ export const toAddInspectionChecklistItemRequest = (
 
 // Update
 export const toUpdateInspectionChecklistItemRequest = (
-    item: UpdateInspectionChecklistItem
+    item: UpdateInspectionChecklistItemFrontType
 ) => ({
     id: item.id,
     display_order:item.displayOrder,
@@ -55,7 +55,7 @@ export const toUpdateInspectionChecklistItemRequest = (
 
 // Delete
 export const toDeleteInspectionChecklistItemsRequest = (
-    items: DeleteInspectionChecklistItems
+    items: DeleteInspectionChecklistItemsFrontType
 ) => ({
     ids: items.ids
 })

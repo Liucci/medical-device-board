@@ -1,28 +1,18 @@
 import { API_BASE_URL } from "../../../client/apiClient"
 
 import type {
-    AddInspectionChecklist
-} from "../../../../types/inspectionTypes/inspectionChecklistTypes"
-
-import type {
-    AddInspectionChecklistItem
-} from "../../../../types/inspectionTypes/inspectionChecklistItemTypes"
-
-import {
-    toAddInspectionChecklistRequest
-} from "../../../../utils/inspectionMapper/inspectionChecklistMapper"
+    CreateInspectionChecklistTransactionBackType
+} from "../../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 
 
-type AddInspectionChecklistTransactionParams = {
-    inspectionChecklist: AddInspectionChecklist
-    items: AddInspectionChecklistItem[]
+type CreateInspectionChecklistTransactionParams = {
+    requests: CreateInspectionChecklistTransactionBackType[]
 }
 
 
 export async function createInspectionChecklistTransaction(
-    params: AddInspectionChecklistTransactionParams
-)
-{
+    params: CreateInspectionChecklistTransactionParams
+) {
     console.log("createInspectionChecklistTransaction")
 
     const response = await fetch(
@@ -36,27 +26,11 @@ export async function createInspectionChecklistTransaction(
 
             credentials: "include",
 
-            body: JSON.stringify({
-                inspection_checklist:
-                    toAddInspectionChecklistRequest(
-                        params.inspectionChecklist
-                    ),
-
-                items: params.items.map((item) => ({
-                    item_name: item.itemName,
-                    item_type_id: item.itemTypeId,
-                    display_order: item.displayOrder,
-                    required: item.required,
-                    default_value: item.defaultValue ?? null,
-                    options: item.options ?? null,
-                    unit: item.unit ?? null,
-                })),
-            }),
+            body: JSON.stringify(params.requests),
         }
     )
 
     if (!response.ok) {
-
         const error = await response.json()
 
         console.error(
