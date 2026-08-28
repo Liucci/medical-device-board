@@ -42,7 +42,6 @@ import EditInspectionChecklistItemModal from "./components/EditInspectionCheckli
 export default function InspectionEditorPage()
 {
     const router = useRouter()
-    //既存編集時のfrag
 
     const [inspectionTypes, setInspectionTypes] = useState<InspectionType[]>([])
     const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])

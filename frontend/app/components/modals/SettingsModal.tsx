@@ -140,7 +140,18 @@ export default function SettingsModal({
 
             router.push("/inspection-editor")
         },
-    },    
+    },
+    {
+      label: "点検表編集",
+      icon: ClipboardCheck,
+      onClick: () => {
+          if (currentUser.role !== "admin") {
+              alert("権限がありません")
+              return
+          }
+          router.push("/inspection-editor/edit")
+      },
+    },
   ]
 
   return (
