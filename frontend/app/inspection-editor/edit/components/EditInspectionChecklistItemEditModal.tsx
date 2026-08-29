@@ -3,19 +3,7 @@
 import { useEffect, useState } from "react"
 
 import type {InspectionItemType,} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
-
-
-type InspectionChecklistItem = {
-                                id: number
-                                name: string
-                                itemTypeId: number
-                                displayOrder: number
-                                required: boolean
-                                defaultValue: string | null
-                                options: unknown
-                                unit: string | null
-}
-
+import type {InspectionChecklistItem} from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
 
 type Props = {
                 open: boolean
@@ -23,9 +11,9 @@ type Props = {
                 inspectionItemTypes: InspectionItemType[]
                 onClose: () => void
                 onSave: (
-                    itemId: number,
-                    name: string,
-                    itemTypeId: number
+                            itemId: number,
+                            name: string,
+                            itemTypeId: number
                 ) => void
 }
 
@@ -46,7 +34,7 @@ export default function EditInspectionChecklistItemEditModal({
     {
         if (open && item)
         {
-            setName(item.name)
+            setName(item.itemName)
             setItemTypeId(item.itemTypeId)
         }
 

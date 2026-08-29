@@ -153,17 +153,32 @@ export default function InspectionEditorPage()
         const latestInspectionChecklistsData =await getInspectionChecklistsFromApi()
         const latestInspectionChecklists: InspectionChecklist[]  =latestInspectionChecklistsData.map(normalizeInspectionChecklist)
 
-        const isDuplicate = latestInspectionChecklists.some(
+        const hasSameCondition = latestInspectionChecklists.some(
+            (checklist) =>
+                checklist.inspectionTypeId === inspectionTypeId &&
+                checklist.deviceTypeId === deviceTypeId &&
+                checklist.deviceModelId === deviceModelId
+        )
+        if (hasSameCondition) 
+        {
+            const confirmed = window.confirm("同じ点検表種類・機種・型式で点検表がすでに存在します。追加しますか？")
+            if (!confirmed) {return}
+        }
+
+        const hasSameName = latestInspectionChecklists.some(
             (checklist) =>
                 checklist.name.trim() === trimmedName &&
                 checklist.inspectionTypeId === inspectionTypeId &&
                 checklist.deviceTypeId === deviceTypeId &&
                 checklist.deviceModelId === deviceModelId
-        )
-        if (isDuplicate) {
-            alert("同じ点検表種類・機種・型式で、同じ点検表名がすでに存在します")
+        )        
+        if (hasSameName) 
+        {
+            alert("同じ点検表種類・機種・型式で同名の点検表が存在します")
             return
         }
+
+
         // 必須チェック
         if (inspectionTypeId === null) {alert("点検表種類を選択してください")
             return
@@ -172,32 +187,28 @@ export default function InspectionEditorPage()
             return
         }
         // 点検表作成
-        const requests =
-            toCreateInspectionChecklistTransactionRequest(
-                {
-                    inspectionTypeId,
-                    deviceTypeId,
-                    deviceModelId,
-                    name: inspectionName,
-                    version: 1,
-                },
-                inspectionChecklistItems.map(
-                    (item, index) => ({
-                        displayOrder: index + 1,
-                        itemName: item.name,
-                        itemTypeId: item.itemTypeId,
-                        required: false,
-                        defaultValue: null,
-                        options: null,
-                        unit: null,
-                    })
-                )
-            )
-            await executeWithErrorAndLoading({
+        const request = toCreateInspectionChecklistTransactionRequest({
+            inspectionTypeId,
+            deviceTypeId,
+            deviceModelId,
+            name: inspectionName,
+            version: 1,
+
+            items: inspectionChecklistItems.map((item, index) => ({
+                displayOrder: index + 1,
+                itemName: item.name,
+                itemTypeId: item.itemTypeId,
+                required: false,
+                defaultValue: null,
+                options: null,
+                unit: null,
+            })),
+        })    
+        await executeWithErrorAndLoading({
                 setLoading,
                 action: async () => {
                             const result = await createInspectionChecklistTransaction({
-                                requests,
+                                request,
                             })
                             console.log("create inspection checklist result:",result)
                 }

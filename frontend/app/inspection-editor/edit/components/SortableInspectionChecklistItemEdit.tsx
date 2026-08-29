@@ -7,43 +7,35 @@ import { CSS } from "@dnd-kit/utilities"
 import { GripVertical,Trash2, Pencil,} from "lucide-react"
 
 import type { InspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type {InspectionChecklistItem} from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
 
-type InspectionChecklistItem = {
-    id: number
-    name: string
-    itemTypeId: number
-    displayOrder: number
-    required: boolean
-    defaultValue: string | null
-    options: unknown
-    unit: string | null
-}
+
 
 type SortableInspectionChecklistItemEditProps = {
-    item: InspectionChecklistItem
-    index: number
-    inspectionItemTypes: InspectionItemType[]
-    onEdit: (item: InspectionChecklistItem) => void
-    onDelete: (itemId: number) => void
+                                                item: InspectionChecklistItem
+                                                index: number
+                                                inspectionItemTypes: InspectionItemType[]
+                                                onEdit: (item: InspectionChecklistItem) => void
+                                                onDelete: (itemId: number) => void
 }
 
 export default function SortableInspectionChecklistItemEdit({
-    item,
-    index,
-    inspectionItemTypes,
-    onEdit,
-    onDelete,
+                                                            item,
+                                                            index,
+                                                            inspectionItemTypes,
+                                                            onEdit,
+                                                            onDelete,
 }: SortableInspectionChecklistItemEditProps) 
 {
     const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
+            attributes,
+            listeners,
+            setNodeRef,
+            transform,
+            transition,
+            isDragging,
     } = useSortable({
-        id: item.id,
+            id: item.id,
     })
 
     const style: CSSProperties = {
@@ -156,7 +148,7 @@ export default function SortableInspectionChecklistItemEdit({
                     text-gray-1000
                 "
             >
-                {item.name}
+                {item.itemName}
             </div>
 
             {/* 入力方式 */}
@@ -191,7 +183,7 @@ export default function SortableInspectionChecklistItemEdit({
                     active:cursor-grabbing
                 "
                 title="ドラッグして並び替え"
-                aria-label={`${item.name}をドラッグして並び替え`}
+                aria-label={`${item.itemName}をドラッグして並び替え`}
             >
                 <GripVertical size={18} />
             </button>

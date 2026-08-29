@@ -1,7 +1,5 @@
 from supabase import Client
-from schemas.inspection_schemas.inspection_checklist_schemas import (
-    AddInspectionChecklistRequest
-)
+from schemas.inspection_schemas.inspection_checklist_schemas import (AddInspectionChecklistRequest)
 
 
 def add_inspection_checklist(

@@ -1,34 +1,55 @@
+
 import type {
-    CreateInspectionChecklistTransactionBackType
+    CreateInspectionChecklistNewVerTransactionFrontType,
+    CreateInspectionChecklistNewVerTransactionBackType,
+    CreateInspectionChecklistTransactionBackType,
+    CreateInspectionChecklistTransactionFrontType
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 
-import type {
-    AddInspectionChecklistFrontType
-} from "../../../types/inspectionTypes/inspectionChecklistTypes"
-
-import type {
-    AddInspectionChecklistItemFrontType
-} from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
 
 
 export function toCreateInspectionChecklistTransactionRequest(
-    inspectionChecklist: AddInspectionChecklistFrontType,
-    items: AddInspectionChecklistItemFrontType[]
-): CreateInspectionChecklistTransactionBackType[] {
+    data: CreateInspectionChecklistTransactionFrontType
+): CreateInspectionChecklistTransactionBackType {
 
-    return items.map((item) => ({
-        inspection_type_id: inspectionChecklist.inspectionTypeId,
-        device_type_id: inspectionChecklist.deviceTypeId,
-        device_model_id: inspectionChecklist.deviceModelId?? 1,
-        name: inspectionChecklist.name,
-        version: inspectionChecklist.version?? 1,
+    return {
+        inspection_type_id: data.inspectionTypeId,
+        device_type_id: data.deviceTypeId,
+        device_model_id: data.deviceModelId ?? null,
+        name: data.name,
+        version: data.version,
 
-        display_order: item.displayOrder,
-        item_name: item.itemName,
-        item_type_id: item.itemTypeId,
-        required: item.required,
-        default_value: item.defaultValue ?? null,
-        options: item.options ?? null,
-        unit: item.unit ?? null,
-    }))
+        items: data.items.map((item) => ({
+            display_order: item.displayOrder,
+            item_name: item.itemName,
+            item_type_id: item.itemTypeId,
+            required: item.required,
+            default_value: item.defaultValue ?? null,
+            options: item.options ?? null,
+            unit: item.unit ?? null,
+        })),
+    }
+}
+
+export function toCreateInspectionChecklistNewVerTransactionRequest(
+    data: CreateInspectionChecklistNewVerTransactionFrontType
+): CreateInspectionChecklistNewVerTransactionBackType {
+
+    return {
+        inspection_type_id: data.inspectionTypeId,
+        device_type_id: data.deviceTypeId,
+        device_model_id: data.deviceModelId ?? null,
+        name: data.name,
+        version: data.version,
+
+        items: data.items.map((item) => ({
+            display_order: item.displayOrder,
+            item_name: item.itemName,
+            item_type_id: item.itemTypeId,
+            required: item.required,
+            default_value: item.defaultValue ?? null,
+            options: item.options ?? null,
+            unit: item.unit ?? null,
+        })),
+    }
 }

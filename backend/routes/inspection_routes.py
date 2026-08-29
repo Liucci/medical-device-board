@@ -32,7 +32,7 @@ from schemas.inspection_schemas.inspection_schemas import (
 from schemas.inspection_schemas.inspection_result_schemas import (
     AddInspectionResultRequest
 )
-from schemas.inspection_schemas.transaction_shemas.inspection_checklist_transaction_schemas import (
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
     CreateInspectionChecklistTransactionRequest,
 )
 from transactions.inspection.inspections.create_inspection_transaction import (
@@ -90,13 +90,6 @@ from transactions.inspection.inspection_checklists.add_inspection_checklist_tran
     add_inspection_checklist_transaction
 )
 
-from transactions.inspection.inspection_checklists.update_inspection_checklist_transaction import (
-    update_inspection_checklist_transaction
-)
-
-from transactions.inspection.inspection_checklists.delete_inspection_checklist_transaction import (
-    delete_inspection_checklist_transaction
-)
 
 from schemas.inspection_schemas.inspection_schemas import (
     AddInspectionRequest
@@ -112,13 +105,12 @@ from transactions.inspection.inspections.create_inspection_transaction import (
 from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import (
     add_inspection_checklist_items_transaction
 )
-
-from transactions.inspection.inspection_checklist_items import (
-    update_inspection_checklist_item_transaction
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
+    CreateInspectionChecklistNewVerTransactionRequest
 )
 
-from transactions.inspection.inspection_checklist_items.delete_inspection_checklist_items_transaction import (
-    delete_inspection_checklist_items_transaction
+from transactions.inspection.inspection_checklists.create_inspection_checklist_new_ver_transaction import (
+    create_inspection_checklist_new_ver_transaction
 )
 
 inspection_router = APIRouter()
@@ -282,63 +274,26 @@ def create_inspection_checklist(
                                         hospital_id=session.hospital_id,
     )
 
-@inspection_router.put("/update-inspection-checklist")
-def update_inspection_checklist(
-    inspection_checklist: UpdateInspectionChecklistRequest,
-    delete_item_ids: list[int],
-    update_items: list[UpdateInspectionChecklistItemRequest],
-    add_items: list[AddInspectionChecklistItemRequest],
-    item_orders: list,
-    session: BackendSession = Depends(get_current_session),
-):
-    return update_inspection_checklist_transaction(
-        client=session.client,
-        inspection_checklist=inspection_checklist,
-        delete_item_ids=delete_item_ids,
-        update_items=update_items,
-        add_items=add_items,
-        item_orders=item_orders,
-        hospital_id=session.hospital_id
-    )
 
 
-@inspection_router.delete("/delete-inspection-checklist")
-def delete_inspection_checklist(
-    inspection_checklists: DeleteInspectionChecklistsRequest,
-    session: BackendSession = Depends(get_current_session),
-):
-    return delete_inspection_checklist_transaction(
-        client=session.client,
-        checklist_ids=inspection_checklists.ids,
-        hospital_id=session.hospital_id
-    )
 
 @inspection_router.post("/create-inspection-checklist-items")
 def create_inspection_checklist_items(
-    inspection_checklist_items: list[AddInspectionChecklistItemRequest],
-    session: BackendSession = Depends(get_current_session),
+                                    inspection_checklist_items: list[AddInspectionChecklistItemRequest],
+                                    session: BackendSession = Depends(get_current_session),
 ):
     return add_inspection_checklist_items_transaction(
-        client=session.client,
-        inspection_checklist_items=inspection_checklist_items
+                                                    client=session.client,
+                                                    inspection_checklist_items=inspection_checklist_items
     )
 
-@inspection_router.put("/update-inspection-checklist-items")
-def update_inspection_checklist_items(
-    inspection_checklist_items: list[UpdateInspectionChecklistItemRequest],
-    session: BackendSession = Depends(get_current_session),
+@inspection_router.post("/create-inspection-checklist-new-ver")
+def create_inspection_checklist_new_ver(
+                                        request: CreateInspectionChecklistNewVerTransactionRequest,
+                                        session: BackendSession = Depends(get_current_session),
 ):
-    return update_inspection_checklist_item_transaction(
-        client=session.client,
-        inspection_checklist_items=inspection_checklist_items
-    )
-
-@inspection_router.delete("/delete-inspection-checklist-items")
-def delete_inspection_checklist_items(
-    inspection_checklist_items: DeleteInspectionChecklistItemsRequest,
-    session: BackendSession = Depends(get_current_session),
-):
-    return delete_inspection_checklist_items_transaction(
-        client=session.client,
-        inspection_checklist_items=inspection_checklist_items
+    return create_inspection_checklist_new_ver_transaction(
+                                                            client=session.client,
+                                                            request=request,
+                                                            hospital_id=session.hospital_id,
     )

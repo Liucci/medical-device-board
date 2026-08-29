@@ -1,9 +1,9 @@
 import {
     InspectionChecklist,
     InspectionChecklistDB,
-    AddInspectionChecklist,
-    UpdateInspectionChecklist,
-    DeleteInspectionChecklists
+    AddInspectionChecklistFrontType,
+    UpdateInspectionChecklistFrontType,
+    DeleteInspectionChecklistsFrontType
 } from "../../types/inspectionTypes/inspectionChecklistTypes"
 
 
@@ -26,7 +26,7 @@ export const normalizeInspectionChecklist = (
 
 // Create
 export const toAddInspectionChecklistRequest = (
-    checklist: AddInspectionChecklist
+    checklist: AddInspectionChecklistFrontType
 ) => ({
     inspection_type_id: checklist.inspectionTypeId,
     device_type_id: checklist.deviceTypeId,
@@ -38,7 +38,7 @@ export const toAddInspectionChecklistRequest = (
 
 // Update
 export const toUpdateInspectionChecklistRequest = (
-    checklist: UpdateInspectionChecklist
+    checklist: UpdateInspectionChecklistFrontType
 ) => ({
     id: checklist.id,
     inspection_type_id: checklist.inspectionTypeId,
@@ -52,7 +52,7 @@ export const toUpdateInspectionChecklistRequest = (
 
 // Delete
 export const toDeleteInspectionChecklistsRequest = (
-    checklists: DeleteInspectionChecklists
+    checklists: DeleteInspectionChecklistsFrontType
 ) => ({
     ids: checklists.ids
 })
