@@ -6,13 +6,13 @@ import type {
     InspectionType,
     CreateInspectionTypeFrontType,
     UpdateInspectionTypeFrontType,
-} from "../../types/inspectionTypes/inspectionTypeTypes"
+} from "../../../types/inspectionTypes/inspectionTypeTypes"
 
-import { createInspectionTypeTransaction } from "../../api/transactions/inspection/inspectionTypes/createInspectionTypeTransaction"
-import { updateInspectionTypeTransaction } from "../../api/transactions/inspection/inspectionTypes/updateInspectionTypeTransaction"
+import { createInspectionTypeTransaction } from "../../../api/transactions/inspection/inspectionTypes/createInspectionTypeTransaction"
+import { updateInspectionTypeTransaction } from "../../../api/transactions/inspection/inspectionTypes/updateInspectionTypeTransaction"
 
-import { executeWithErrorAndLoading } from "../common/executeWithErrorAndLoading"
-import { LoadingOverlay } from "../common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../common/executeWithErrorAndLoading"
+import { LoadingOverlay } from "../../common/LoadingOverlay"
 
 
 type Props = {

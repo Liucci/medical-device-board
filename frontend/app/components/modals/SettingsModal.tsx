@@ -13,7 +13,8 @@ import {
   Biohazard,
   Shield,
   ClipboardCheck,
-  ListChecks
+  ListChecks,
+  Tags
 } from "lucide-react"
 
 import { Device } from "../../types/deviceTypes"
@@ -37,7 +38,8 @@ import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
 import InfectionSettingModal from "./InfectionSettingModal"
 import HospitalSettingModal from "./HospitalSettingModal"
-import EditChecklistTypeModal from "./EditChecklistTypeModal"
+import EditChecklistTypeModal from "./inspection/EditChecklistTypeModal"
+import EditChecklistItemCategoryModal from "./inspection/EditChecklistItemCategoryModal"
 
 type Props = {
   currentUser: CurrentUser
@@ -74,6 +76,7 @@ type Mode =
             | "wardOrder"
             | "stockAreaOrder"
             | "checklistType"
+            | "checklistCategory"
 export default function SettingsModal({
   currentUser,
   onClose,
@@ -170,6 +173,12 @@ export default function SettingsModal({
         mode: "checklistType" as const,
         icon: ListChecks,
     },
+    {
+        label: "点検項目大項目",
+        mode: "checklistCategory" as const,
+        icon: Tags,
+    },
+
   ]
 
   return (
@@ -354,9 +363,19 @@ export default function SettingsModal({
             setInspectionTypes={setInspectionTypes}
 
         />
-    </>
-)}
+      </>
+      )}
+      {mode === "checklistCategory" && (
+          <>
+              <div className="flex justify-start mb-4">
+                  <button onClick={() => setMode("menu")}>
+                      ← 戻る
+                  </button>
+              </div>
 
+              <EditChecklistItemCategoryModal />
+          </>
+      )}
 
   </CommonModal>
 
