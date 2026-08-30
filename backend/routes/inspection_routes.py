@@ -52,9 +52,6 @@ from inspection.inspection_types.add_inspection_type import (
 from inspection.inspection_types.update_inspection_type import (
     update_inspection_type
 )
-from inspection.inspection_types.delete_inspection_types import (
-    delete_inspection_types
-)
 
 from schemas.inspection_schemas.inspection_item_type_schemas import (
     AddInspectionItemTypeRequest,
@@ -122,7 +119,8 @@ def get_inspection_types(
     session: BackendSession = Depends(get_current_session),
 ):
     return fetch_inspection_types(
-        client=session.client
+        client=session.client,
+        hospital_id=session.hospital_id
     )
 
 
@@ -197,37 +195,30 @@ def create_inspection(
     )
 
 
-@inspection_router.post("/inspection-types")
+@inspection_router.post("/create-inspection-type-transaction")
 def create_inspection_type(
     inspection_type: AddInspectionTypeRequest,
     session: BackendSession = Depends(get_current_session),
 ):
     return add_inspection_type(
         client=session.client,
-        inspection_type=inspection_type
+        inspection_type=inspection_type,
+        hospital_id=session.hospital_id,
     )
 
 
-@inspection_router.put("/inspection-types")
+@inspection_router.post("/update-inspection-type-transaction")
 def update_inspection_type_route(
     inspection_type: UpdateInspectionTypeRequest,
     session: BackendSession = Depends(get_current_session),
 ):
     return update_inspection_type(
         client=session.client,
-        inspection_type=inspection_type
+        inspection_type=inspection_type,
+        hospital_id=session.hospital_id,
     )
 
 
-@inspection_router.delete("/inspection-types")
-def delete_inspection_types_route(
-    inspection_types: DeleteInspectionTypesRequest,
-    session: BackendSession = Depends(get_current_session),
-):
-    return delete_inspection_types(
-        client=session.client,
-        inspection_type=inspection_types
-    )
 
 
 @inspection_router.post("/inspection-item-types")

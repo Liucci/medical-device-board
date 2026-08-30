@@ -4,7 +4,8 @@ from schemas.inspection_schemas.inspection_type_schemas import UpdateInspectionT
 
 def update_inspection_type(
     client: Client,
-    inspection_type: UpdateInspectionTypeRequest
+    inspection_type: UpdateInspectionTypeRequest,
+    hospital_id: str
 ):
     print("update_inspection_type")
     response = (
@@ -15,6 +16,7 @@ def update_inspection_type(
             "is_active": inspection_type.is_active
         })
         .eq("id", inspection_type.id)
+        .eq("hospital_id", hospital_id)
         .execute()
     )
     return response.data[0]

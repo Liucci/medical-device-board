@@ -31,6 +31,7 @@ import { normalizeInfectionType} from "../utils/infectionTypeMapper"
 import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
 import { normalizeWardInfection } from "../utils/wardInfectionMapper"
 import { normalizeActiveAnnouncement } from "../utils/announcementMapper"
+import{normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
 //check系
 import { checkWardWarning } from "../utils/checkWardWarning"
 
@@ -146,6 +147,7 @@ export default function Page() {
   const [infectionTypes, setInfectionTypes] = useState<any[]>([])
   const [roomInfections, setRoomInfections] = useState<any[]>([])
   const [wardInfections, setWardInfections] = useState<any[]>([])
+  const [inspectionTypes, setInspectionTypes] = useState<any[]>([])
 
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
@@ -1110,6 +1112,7 @@ useEffect(() => {
     setRoomInfections(data.room_infections.map(normalizeRoomInfection))
     setWardInfections(data.ward_infections.map(normalizeWardInfection))
     setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
+    setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
     //setWardInfections(data.ward_infections.map(normalizeWardInfection))
     //最終更新日を取得用APIをたたく
     const stockLastUpdated = await fetchStockLastUpdated()
@@ -1312,7 +1315,10 @@ if (!currentUser) {
           setWardLastUpdated={setWardLastUpdated}
           hospitalSettings={hospitalSettings}
           setHospitalSettings={setHospitalSettings}
-        />
+
+          inspectionTypes={inspectionTypes}
+          setInspectionTypes={setInspectionTypes}       
+           />
       </div>
       {/*機器残数表示パネル */}
       <LowStockPanel

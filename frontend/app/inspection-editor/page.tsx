@@ -12,7 +12,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import SortableInspectionChecklistItem from "./components/SortableInspectionChecklistItem"
 //fetch
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
-import { getInspectionTypesFromApi } from "../api/inspection/inspectionTypes/fetchInspectionTypes"
+import { getInspectionTypes } from "../api/inspection/inspectionTypes/fetchInspectionTypes"
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
 import {getInspectionChecklistsFromApi} from "../api/inspection/inspectionChecklists/fetchInspectionChecklists"
 import { getDeviceTypesFromApi } from "../api/deviceTypes/fetchDeviceTypes"
@@ -93,7 +93,7 @@ export default function InspectionEditorPage()
                 deviceTypesData,
                 deviceModelsData,
             ] = await Promise.all([
-                getInspectionTypesFromApi(),
+                getInspectionTypes(),
                 getInspectionItemTypesFromApi(),
                 getInspectionChecklistsFromApi(),
                 getDeviceTypesFromApi(),

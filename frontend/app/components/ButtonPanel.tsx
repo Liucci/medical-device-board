@@ -10,6 +10,8 @@ import {MaintenanceType } from "../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
+
 import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 
 
@@ -78,8 +80,10 @@ type Props = {
   setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
   setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
   hospitalSettings: HospitalSettingsType | null
-  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
->
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
+  inspectionTypes: InspectionType[]
+  setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
+
 }
 
 
@@ -115,7 +119,9 @@ export default function ButtonPanel({
   setStockLastUpdated,
   setWardLastUpdated,
   hospitalSettings,
-  setHospitalSettings
+  setHospitalSettings,
+  inspectionTypes,
+  setInspectionTypes,
 
 }: Props) {
   const router = useRouter()
@@ -265,6 +271,8 @@ export default function ButtonPanel({
           setInfectionTypes={setInfectionTypes}
           hospitalSettings={hospitalSettings}
           setHospitalSettings={setHospitalSettings}
+          inspectionTypes={inspectionTypes}
+          setInspectionTypes={setInspectionTypes}
 
 
         />

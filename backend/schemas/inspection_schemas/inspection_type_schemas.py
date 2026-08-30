@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class InspectionTypeResponse(BaseModel):
     id: int
+    hospital_id: str | None
     name: str
     is_active: bool
 

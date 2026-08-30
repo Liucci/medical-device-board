@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
+
 import {
   Boxes,
   Building2,
@@ -12,7 +13,9 @@ import {
   Biohazard,
   Shield,
   ClipboardCheck,
+  ListChecks
 } from "lucide-react"
+
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
@@ -22,6 +25,9 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+import { InspectionType } from "../../types/inspectionTypes/inspectionTypeTypes"
+
 import CommonModal from "../common/CommonModal"
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
@@ -30,8 +36,9 @@ import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
 import InfectionSettingModal from "./InfectionSettingModal"
-import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
 import HospitalSettingModal from "./HospitalSettingModal"
+import EditChecklistTypeModal from "./EditChecklistTypeModal"
+
 type Props = {
   currentUser: CurrentUser
   onClose: () => void
@@ -50,8 +57,10 @@ type Props = {
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
   hospitalSettings: HospitalSettingsType | null
-  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
->
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
+  inspectionTypes: InspectionType[]
+  setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
+
 }
 
 type Mode =
@@ -64,6 +73,7 @@ type Mode =
             | "hospitalSetting"
             | "wardOrder"
             | "stockAreaOrder"
+            | "checklistType"
 export default function SettingsModal({
   currentUser,
   onClose,
@@ -82,7 +92,10 @@ export default function SettingsModal({
   infectionTypes,
   setInfectionTypes,
   hospitalSettings,
-  setHospitalSettings
+  setHospitalSettings,
+  inspectionTypes,
+  setInspectionTypes,
+
 }: Props) 
 {
   const router = useRouter()
@@ -151,6 +164,11 @@ export default function SettingsModal({
           }
           router.push("/inspection-editor/edit")
       },
+    },
+        {
+        label: "点検表種類",
+        mode: "checklistType" as const,
+        icon: ListChecks,
     },
   ]
 
@@ -323,6 +341,21 @@ export default function SettingsModal({
             />
           </>
         )}
+        {mode === "checklistType" && (
+    <>
+        <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+                ← 戻る
+            </button>
+        </div>
+
+        <EditChecklistTypeModal 
+            inspectionTypes={inspectionTypes}
+            setInspectionTypes={setInspectionTypes}
+
+        />
+    </>
+)}
 
 
   </CommonModal>

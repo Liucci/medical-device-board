@@ -6,12 +6,14 @@
 
 export type InspectionType = {
     id: number
+    hospitalId: string | null
     name: string
     isActive: boolean
 }
 
 export type InspectionTypeDB = {
     id: number
+    hospital_id: string | null
     name: string
     is_active: boolean
 }
@@ -21,16 +23,21 @@ export type InspectionTypeDB = {
 // API
 // =========================
 
-export type CreateInspectionType = {
+export type CreateInspectionTypeFrontType = {
+    name: string
+}
+export type CreateInspectionTypeBackType = {
     name: string
 }
 
-export type UpdateInspectionType = {
+export type UpdateInspectionTypeFrontType = {
     id: number
     name: string
     isActive: boolean
 }
-
-export type DeleteInspectionTypes = {
-    ids: number[]
+export type UpdateInspectionTypeBackTYpe = {
+    id: number
+    name: string
+    is_active: boolean
 }
+

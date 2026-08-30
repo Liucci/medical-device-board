@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 
-export async function getInspectionTypesFromApi()
+export async function getInspectionTypes()
 {
     console.log("fetchInspectionTypes")
 
