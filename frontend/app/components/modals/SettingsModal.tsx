@@ -28,6 +28,7 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
 import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
 import { InspectionType } from "../../types/inspectionTypes/inspectionTypeTypes"
+import {InspectionItemCategoryType} from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 import CommonModal from "../common/CommonModal"
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
@@ -62,6 +63,8 @@ type Props = {
   setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
   inspectionTypes: InspectionType[]
   setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
+  inspectionItemCategories:InspectionItemCategoryType[]
+  setInspectionItemCategories : React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>   
 
 }
 
@@ -98,6 +101,9 @@ export default function SettingsModal({
   setHospitalSettings,
   inspectionTypes,
   setInspectionTypes,
+    inspectionItemCategories,
+  setInspectionItemCategories,
+
 
 }: Props) 
 {
@@ -373,7 +379,12 @@ export default function SettingsModal({
                   </button>
               </div>
 
-              <EditChecklistItemCategoryModal />
+              <EditChecklistItemCategoryModal
+                  inspectionItemCategories={inspectionItemCategories}
+                  setInspectionItemCategories={setInspectionItemCategories}    
+
+              />
+
           </>
       )}
 

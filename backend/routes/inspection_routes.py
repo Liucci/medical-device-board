@@ -110,6 +110,23 @@ from transactions.inspection.inspection_checklists.create_inspection_checklist_n
     create_inspection_checklist_new_ver_transaction
 )
 
+from fastapi import APIRouter, Depends
+
+from schemas.inspection_schemas.inspection_item_category_schema import (
+    AddInspectionItemCategoryRequest,
+    UpdateInspectionItemCategoryRequest,
+)
+
+from inspection.inspection_item_categories.fetch_inspection_item_categories import (
+    fetch_inspection_item_categories
+)
+
+from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import (
+    add_inspection_item_category_transaction,
+)
+
+from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import (update_inspection_item_category_transaction)
+
 inspection_router = APIRouter()
 
 
@@ -287,4 +304,36 @@ def create_inspection_checklist_new_ver(
                                                             client=session.client,
                                                             request=request,
                                                             hospital_id=session.hospital_id,
+    )
+
+# inspection_item_categories
+@inspection_router.get("/inspection-item-categories")
+def get_inspection_item_categories(
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_inspection_item_categories(
+        client=session.client,
+        hospital_id=session.hospital_id
+    )
+
+@inspection_router.post("/inspection-item-categories")
+def create_inspection_item_category(
+    inspection_item_category: AddInspectionItemCategoryRequest,
+    session: BackendSession = Depends(get_current_session),
+):
+    return add_inspection_item_category_transaction(
+        client=session.client,
+        inspection_item_category=inspection_item_category,
+        hospital_id=session.hospital_id,
+    )
+
+@inspection_router.put("/inspection-item-categories")
+def update_inspection_item_category_route(
+    inspection_item_category: UpdateInspectionItemCategoryRequest,
+    session: BackendSession = Depends(get_current_session),
+):
+    return update_inspection_item_category_transaction(
+        client=session.client,
+        inspection_item_category=inspection_item_category,
+        hospital_id=session.hospital_id,
     )

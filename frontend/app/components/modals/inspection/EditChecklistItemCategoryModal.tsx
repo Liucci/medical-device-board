@@ -13,9 +13,7 @@ type InspectionItemCategory = {
 
 type Props = {
     inspectionItemCategories: InspectionItemCategory[]
-    setInspectionItemCategories: React.Dispatch<
-        React.SetStateAction<InspectionItemCategory[]>
-    >
+    setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategory[]>>
 }
 
 

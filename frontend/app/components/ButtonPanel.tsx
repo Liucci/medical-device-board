@@ -11,6 +11,7 @@ import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
+import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionItemCategoryTypes"
 
 import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 
@@ -82,7 +83,9 @@ type Props = {
   hospitalSettings: HospitalSettingsType | null
   setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
   inspectionTypes: InspectionType[]
-  setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
+  setInspectionTypes: React.Dispatch<React.SetStateAction<InspectionType[]>>
+  inspectionItemCategories:InspectionItemCategoryType[]
+  setInspectionItemCategories : React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>   
 
 }
 
@@ -122,7 +125,8 @@ export default function ButtonPanel({
   setHospitalSettings,
   inspectionTypes,
   setInspectionTypes,
-
+  inspectionItemCategories,
+  setInspectionItemCategories,
 }: Props) {
   const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
@@ -273,7 +277,8 @@ export default function ButtonPanel({
           setHospitalSettings={setHospitalSettings}
           inspectionTypes={inspectionTypes}
           setInspectionTypes={setInspectionTypes}
-
+          inspectionItemCategories={inspectionItemCategories}
+          setInspectionItemCategories={setInspectionItemCategories}    
 
         />
       }
