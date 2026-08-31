@@ -720,7 +720,7 @@ return (
                 onClose={() =>
                     setIsAddItemModalOpen(false)
                 }
-                onAdd={(name, itemTypeId) =>
+                onAdd={(name, itemTypeId,options) =>
                 {
                     setInspectionChecklistItems((prev) =>
                         [
@@ -732,7 +732,7 @@ return (
                                 displayOrder: prev.length + 1,
                                 required: false,
                                 defaultValue: null,
-                                options: null,
+                                options,
                                 unit: null,
                             },
                         ]

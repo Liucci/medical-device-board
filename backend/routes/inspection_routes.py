@@ -59,16 +59,17 @@ from schemas.inspection_schemas.inspection_item_type_schemas import (
     DeleteInspectionItemTypesRequest
 )
 
-from inspection.inspection_item_types.add_inspection_item_type import (
-    add_inspection_item_type
-)
-from inspection.inspection_item_types.update_inspection_item_type import (
-    update_inspection_item_type
-)
-from inspection.inspection_item_types.delete_inspection_item_types import (
-    delete_inspection_item_types
+from transactions.inspection.inspection_item_types.add_inspection_item_type_transaction import (
+    add_inspection_item_type_transaction
 )
 
+from transactions.inspection.inspection_item_types.update_inspection_item_type_transaction import (
+    update_inspection_item_type_transaction
+)
+
+from transactions.inspection.inspection_item_types.delete_inspection_item_type_transaction import (
+    delete_inspection_item_type_transaction
+)
 
 from schemas.inspection_schemas.inspection_checklist_schemas import (
     AddInspectionChecklistRequest,
@@ -243,7 +244,7 @@ def create_inspection_item_type(
     inspection_item_type: AddInspectionItemTypeRequest,
     session: BackendSession = Depends(get_current_session),
 ):
-    return add_inspection_item_type(
+    return add_inspection_item_type_transaction(
         client=session.client,
         inspection_item_type=inspection_item_type
     )
@@ -254,7 +255,7 @@ def update_inspection_item_type_route(
     inspection_item_type: UpdateInspectionItemTypeRequest,
     session: BackendSession = Depends(get_current_session),
 ):
-    return update_inspection_item_type(
+    return update_inspection_item_type_transaction(
         client=session.client,
         inspection_item_type=inspection_item_type
     )
@@ -265,7 +266,7 @@ def delete_inspection_item_types_route(
     inspection_item_types: DeleteInspectionItemTypesRequest,
     session: BackendSession = Depends(get_current_session),
 ):
-    return delete_inspection_item_types(
+    return delete_inspection_item_type_transaction(
         client=session.client,
         inspection_item_type=inspection_item_types
     )

@@ -16,8 +16,11 @@ def update_inspection_item_type(
         .update({
             "name": inspection_item_type.name,
             "description": inspection_item_type.description,
-            "is_active": inspection_item_type.is_active
-        })
+            "input_type": inspection_item_type.input_type,
+            "is_custom_option": inspection_item_type.is_custom_option,
+            "options": inspection_item_type.options,
+            "is_active": inspection_item_type.is_active,
+            })
         .eq("id", inspection_item_type.id)
         .execute()
     )

@@ -15,7 +15,10 @@ def add_inspection_item_type(
         .table("inspection_item_types")
         .insert({
             "name": inspection_item_type.name,
-            "description": inspection_item_type.description
+            "description": inspection_item_type.description,
+            "input_type": inspection_item_type.input_type,
+            "is_custom_option": inspection_item_type.is_custom_option,
+            "options": inspection_item_type.options,
         })
         .execute()
     )
