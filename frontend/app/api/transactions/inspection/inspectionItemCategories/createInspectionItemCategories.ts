@@ -23,7 +23,7 @@ export async function createInspectionItemCategoryTransaction({
     console.log("createInspectionItemCategoryTransaction")
 
     await fetch(
-        `${API_BASE_URL}/inspection-item-categories`,
+        `${API_BASE_URL}/create-inspection-item-categories`,
         {
             method: "POST",
             headers: {

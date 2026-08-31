@@ -307,7 +307,7 @@ def create_inspection_checklist_new_ver(
     )
 
 # inspection_item_categories
-@inspection_router.get("/inspection-item-categories")
+@inspection_router.get("/get-inspection-item-categories")
 def get_inspection_item_categories(
     session: BackendSession = Depends(get_current_session),
 ):
@@ -316,7 +316,7 @@ def get_inspection_item_categories(
         hospital_id=session.hospital_id
     )
 
-@inspection_router.post("/inspection-item-categories")
+@inspection_router.post("/create-inspection-item-categories")
 def create_inspection_item_category(
     inspection_item_category: AddInspectionItemCategoryRequest,
     session: BackendSession = Depends(get_current_session),
@@ -327,7 +327,7 @@ def create_inspection_item_category(
         hospital_id=session.hospital_id,
     )
 
-@inspection_router.put("/inspection-item-categories")
+@inspection_router.post("/update-inspection-item-category")
 def update_inspection_item_category_route(
     inspection_item_category: UpdateInspectionItemCategoryRequest,
     session: BackendSession = Depends(get_current_session),

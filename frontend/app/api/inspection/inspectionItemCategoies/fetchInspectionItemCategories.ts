@@ -6,7 +6,7 @@ export async function getInspectionItemCategoriesFromApi()
     console.log("fetchInspectionItemCategories")
 
     const response = await fetch(
-        `${API_BASE_URL}/inspection-item-categories`,
+        `${API_BASE_URL}/get-inspection-item-categories`,
         {
             method: "GET",
             headers: {
