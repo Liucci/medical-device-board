@@ -19,7 +19,6 @@ def add_inspection_checklist_item(
             "item_type_id": inspection_checklist_item.item_type_id,
             "required": inspection_checklist_item.required,
             "default_value": inspection_checklist_item.default_value,
-            "options": inspection_checklist_item.options,
             "unit": inspection_checklist_item.unit
         })
         .execute()

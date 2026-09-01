@@ -23,13 +23,13 @@ import type {InspectionItemType,} from "../types/inspectionTypes/inspectionItemT
 import type { InspectionChecklist } from "../types/inspectionTypes/inspectionChecklistTypes"
 import type {DeviceTypeType} from "../types/deviceTypeTypes"
 import type {DeviceModelType,} from "../types/deviceModelTypes"
+import { CreateInspectionChecklistTransactionFrontType } from "../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 //normalizer
 import {normalizeDeviceType} from "../utils/deviceTypeMapper"
 import {normalizeDeviceModel} from "../utils/deviceModelMapper"
 import {normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
 import {normalizeInspectionItemType} from "../utils/inspectionMapper/inspectionItemTypeMapper"
 import {normalizeInspectionChecklist} from "../utils/inspectionMapper/inspectionChecklistMapper"
-import {toCreateInspectionChecklistTransactionRequest} from "../utils/inspectionMapper/inspectionTransactionMapper/inspectionChecklistTransactionMapper"
 //CRUD
 
 //transaction
@@ -187,7 +187,7 @@ export default function InspectionEditorPage()
             return
         }
         // 点検表作成
-        const request = toCreateInspectionChecklistTransactionRequest({
+       const request: CreateInspectionChecklistTransactionFrontType = {
             inspectionTypeId,
             deviceTypeId,
             deviceModelId,
@@ -206,7 +206,7 @@ export default function InspectionEditorPage()
                             : null,
                 unit: null,
             })),
-        })    
+        }    
         await executeWithErrorAndLoading({
                 setLoading,
                 action: async () => {

@@ -78,14 +78,15 @@ export default function SortableInspectionChecklistItem({
 
     const [isOptionsOpen, setIsOptionsOpen] = useState(false)
 
-
-    const options: string[] = Array.isArray(item.options)
+    const options = Array.isArray(item.options)
         ? item.options.filter(
-            (option): option is string =>
-                typeof option === "string"
+            (option): option is { value: string; displayOrder: number } =>
+                typeof option === "object" &&
+                option !== null &&
+                "value" in option &&
+                typeof option.value === "string"
         )
         : []
-
 
     const handleDelete = () =>
     {
@@ -319,7 +320,7 @@ export default function SortableInspectionChecklistItem({
                                         text-gray-700
                                     "
                                 >
-                                    {option}
+                                    {option.value}
                                 </div>
 
                             ))}

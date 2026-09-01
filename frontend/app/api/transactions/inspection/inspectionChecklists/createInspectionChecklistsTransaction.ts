@@ -1,24 +1,31 @@
 import { API_BASE_URL } from "../../../client/apiClient"
-import type {
-    CreateInspectionChecklistTransactionBackType
-} from "../../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
-type CreateInspectionChecklistTransactionParams = {
-    request: CreateInspectionChecklistTransactionBackType
-}
+import type {CreateInspectionChecklistTransactionFrontType} from "../../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
+import {
+    toCreateInspectionChecklistTransactionRequest
+} from "../../../../utils/inspectionMapper/inspectionTransactionMapper/inspectionChecklistTransactionMapper"
+
 
 export async function createInspectionChecklistTransaction(
-    params: CreateInspectionChecklistTransactionParams
-) {
+    params: {
+        request: CreateInspectionChecklistTransactionFrontType
+    }) 
+    {
     console.log("createInspectionChecklistTransaction")
+   const request =
+        toCreateInspectionChecklistTransactionRequest(
+            params.request
+        )
     const response = await fetch(
         `${API_BASE_URL}/create-inspection-checklist`,
         {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json",
             },
+
             credentials: "include",
-            body: JSON.stringify(params.request),
+            body: JSON.stringify(request),           
         }
     )
 

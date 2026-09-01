@@ -104,7 +104,7 @@ from transactions.inspection.inspection_checklist_items.add_inspection_checklist
     add_inspection_checklist_items_transaction
 )
 from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
-    CreateInspectionChecklistNewVerTransactionRequest
+    CreateInspectionChecklistTransactionRequest
 )
 
 from transactions.inspection.inspection_checklists.create_inspection_checklist_new_ver_transaction import (
@@ -274,7 +274,7 @@ def delete_inspection_item_types_route(
 
 @inspection_router.post("/create-inspection-checklist")
 def create_inspection_checklist(
-                            request: list[CreateInspectionChecklistTransactionRequest],
+                            request: CreateInspectionChecklistTransactionRequest,
                             session: BackendSession = Depends(get_current_session),
 ):
     return add_inspection_checklist_transaction(
@@ -298,7 +298,7 @@ def create_inspection_checklist_items(
 
 @inspection_router.post("/create-inspection-checklist-new-ver")
 def create_inspection_checklist_new_ver(
-                                        request: CreateInspectionChecklistNewVerTransactionRequest,
+                                        request: CreateInspectionChecklistTransactionRequest,
                                         session: BackendSession = Depends(get_current_session),
 ):
     return create_inspection_checklist_new_ver_transaction(

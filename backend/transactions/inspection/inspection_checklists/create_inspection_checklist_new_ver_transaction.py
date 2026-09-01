@@ -1,5 +1,5 @@
 from supabase import Client
-from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (CreateInspectionChecklistNewVerTransactionRequest)
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (CreateInspectionChecklistTransactionRequest)
 from inspection.inspection_checklists.add_inspection_checklist import (add_inspection_checklist)
 from inspection.inspection_checklist_items.add_inspection_checklist_item import (add_inspection_checklist_item)
 from schemas.inspection_schemas.inspection_checklist_schemas import (AddInspectionChecklistRequest)
@@ -8,7 +8,7 @@ from schemas.inspection_schemas.inspection_checklist_item_schemas import (AddIns
 
 def create_inspection_checklist_new_ver_transaction(
     client: Client,
-    request: CreateInspectionChecklistNewVerTransactionRequest,
+    request: CreateInspectionChecklistTransactionRequest,
     hospital_id: str,
 ):
     print("create_inspection_checklist_new_ver_transaction")

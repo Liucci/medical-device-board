@@ -11,7 +11,10 @@ import type {
 export function toCreateInspectionChecklistTransactionRequest(
     data: CreateInspectionChecklistTransactionFrontType
 ): CreateInspectionChecklistTransactionBackType {
-
+console.log(
+    "CreateChecklist FrontType:",
+    JSON.stringify(data, null, 2)
+)
     return {
         inspection_type_id: data.inspectionTypeId,
         device_type_id: data.deviceTypeId,
