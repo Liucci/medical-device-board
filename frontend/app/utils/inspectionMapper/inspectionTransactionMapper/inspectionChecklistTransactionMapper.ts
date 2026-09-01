@@ -25,7 +25,12 @@ export function toCreateInspectionChecklistTransactionRequest(
             item_type_id: item.itemTypeId,
             required: item.required,
             default_value: item.defaultValue ?? null,
-            options: item.options ?? null,
+
+            options: item.options?.map((option) => ({
+                    value: option.value,
+                    display_order: option.displayOrder,
+            })) ?? null,  
+
             unit: item.unit ?? null,
         })),
     }
@@ -48,7 +53,12 @@ export function toCreateInspectionChecklistNewVerTransactionRequest(
             item_type_id: item.itemTypeId,
             required: item.required,
             default_value: item.defaultValue ?? null,
-            options: item.options ?? null,
+
+            options: item.options?.map((option) => ({
+                    value: option.value,
+                    display_order: option.displayOrder,
+            })) ?? null,
+
             unit: item.unit ?? null,
         })),
     }

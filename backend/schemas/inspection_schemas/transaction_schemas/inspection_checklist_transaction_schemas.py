@@ -2,7 +2,9 @@ from pydantic import BaseModel
 from typing import TypedDict
 #複数のtableにまたぐschema
 
-
+class ChecklistItemOptionSchema(TypedDict):
+    value: str
+    display_order: int
 
 class ChecklistItemSchema(TypedDict):
     display_order: int
@@ -10,7 +12,7 @@ class ChecklistItemSchema(TypedDict):
     item_type_id: int
     required: bool
     default_value: str | None
-    options: list[str] | None
+    options: list[ChecklistItemOptionSchema] | None
     unit: str | None
 
 

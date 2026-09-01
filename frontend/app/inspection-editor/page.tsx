@@ -200,7 +200,10 @@ export default function InspectionEditorPage()
                 itemTypeId: item.itemTypeId,
                 required: false,
                 defaultValue: null,
-                options: null,
+
+                options: Array.isArray(item.options)
+                            ? item.options
+                            : null,
                 unit: null,
             })),
         })    
