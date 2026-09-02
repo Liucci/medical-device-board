@@ -277,6 +277,8 @@ def login(
                                                 client,
                                                 auth_user_id
                                                 )
+    auth_user_response = client.auth.get_user()
+    print("AUTH USER:", auth_user_response)
 
     # Backend Session作成
     backend_session = BackendSession(

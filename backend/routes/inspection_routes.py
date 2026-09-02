@@ -277,6 +277,12 @@ def create_inspection_checklist(
                             request: CreateInspectionChecklistTransactionRequest,
                             session: BackendSession = Depends(get_current_session),
 ):
+    #print("session:",session)
+    print("session.client:", session.client)
+    print("session.hospital_id:", session.hospital_id)
+
+    response = session.client.auth.get_user()
+    print("AUTH USER:", response)
     return add_inspection_checklist_transaction(
                                         client=session.client,
                                         request=request,

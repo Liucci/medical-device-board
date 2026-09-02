@@ -7,7 +7,7 @@ def add_inspection_checklist_item_options(
     options: list[dict],
 ):
     print("add_inspection_checklist_item_options")
-
+    print("client",client)
     data = [
         {
             "checklist_item_id": checklist_item_id,
@@ -16,7 +16,6 @@ def add_inspection_checklist_item_options(
         }
         for option in options
     ]
-
     if not data:
         return []
 

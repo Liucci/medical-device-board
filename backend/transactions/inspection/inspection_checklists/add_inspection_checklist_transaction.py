@@ -12,7 +12,7 @@ def add_inspection_checklist_transaction(
     hospital_id: str
 ):
     print("add_inspection_checklist_transaction")
-
+    print("client",client)
     # 点検表作成
     inspection_checklist = AddInspectionChecklistRequest(
                             inspection_type_id=request.inspection_type_id,
@@ -49,7 +49,7 @@ def add_inspection_checklist_transaction(
         )
     # 任意の選択肢作成
         if request_item["options"]:
-
+            
             add_inspection_checklist_item_options(
                 client,
                 checklist_item["id"],
