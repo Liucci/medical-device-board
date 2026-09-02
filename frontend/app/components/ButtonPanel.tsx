@@ -14,8 +14,8 @@ import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
 import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionItemCategoryTypes"
 
 import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
-
-
+//test用
+import { testAddInspectionChecklistItemOptions } from "../api/inspection/inspectionChecklistItemOptions/testAddInspectionChecklistItemOptions"
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
@@ -157,6 +157,19 @@ export default function ButtonPanel({
  const openHospitalSettings = () => {
     setOpenHospitalSettingsModal(true)
 }
+
+  // inspection_checklist_item_options INSERTテスト
+  const testInspectionChecklistItemOptions = async () => {
+    try {
+      const result = await testAddInspectionChecklistItemOptions()
+
+      console.log("TEST OPTIONS INSERT:", result)
+    } catch (error) {
+      console.error("TEST OPTIONS INSERT ERROR:", error)
+    }
+  }
+
+
   //supabaseのsend-email関数呼び出しテスト
   const testEmail = async () => {
      const { data, error } =
@@ -227,7 +240,14 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<LogOut size={38} />}
       />
+      <div className="h-4" />
 
+      <ButtonGrid
+        onAdd={testInspectionChecklistItemOptions}
+        title={"TEST"}
+        titleSize="text-xs"
+        icon={<TestTube size={38} />}
+      />
   
   </div>
 

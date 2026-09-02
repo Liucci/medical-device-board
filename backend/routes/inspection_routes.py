@@ -127,6 +127,9 @@ from transactions.inspection.inspection_item_categories.add_inspection_item_cate
 )
 
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import (update_inspection_item_category_transaction)
+from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import (
+    add_inspection_checklist_item_options
+)
 
 inspection_router = APIRouter()
 
@@ -278,11 +281,11 @@ def create_inspection_checklist(
                             session: BackendSession = Depends(get_current_session),
 ):
     #print("session:",session)
-    print("session.client:", session.client)
-    print("session.hospital_id:", session.hospital_id)
+    #print("session.client:", session.client)
+    #print("session.hospital_id:", session.hospital_id)
 
-    response = session.client.auth.get_user()
-    print("AUTH USER:", response)
+    #response = session.client.auth.get_user()
+    #print("AUTH USER:", response)
     return add_inspection_checklist_transaction(
                                         client=session.client,
                                         request=request,
@@ -343,4 +346,41 @@ def update_inspection_item_category_route(
         client=session.client,
         inspection_item_category=inspection_item_category,
         hospital_id=session.hospital_id,
+    )
+
+#テスト用関数
+@inspection_router.post("/test-add-inspection-checklist-item-options")
+def test_add_inspection_checklist_item_options(
+    session: BackendSession = Depends(get_current_session),
+):
+    print("POSTGREST HEADERS:", session.client.postgrest.headers)
+    print("AUTH USER:", session.client.auth.get_user())
+
+    checklist_item_id = 1
+
+    options = [
+        {
+            "value": "TEST_OK",
+            "display_order": 1,
+        },
+        {
+            "value": "TEST_NG",
+            "display_order": 2,
+        },
+        {
+            "value": "TEST_UNKNOWN",
+            "display_order": 3,
+        },
+    ]
+    result = (
+        session.client
+        .rpc("debug_auth_context")
+        .execute()
+    )
+
+    print("AUTH CONTEXT:", result.data)
+    return add_inspection_checklist_item_options(
+        client=session.client,
+        checklist_item_id=checklist_item_id,
+        options=options,
     )

@@ -1,22 +1,10 @@
 // inspectionChecklistItemTypes.ts
 
+import type {
+    InspectionChecklistItemOption,
+    InspectionChecklistItemOptionBackType
+} from "./inspectionChecklistItemOptionTypes"
 
-
-// =========================
-// ネスト用のOption型定義
-// =========================
-
-export type InspectionChecklistItemOption = {
-    value: string
-    displayOrder: number
-}
-
-export type InspectionChecklistItemOptionDB = {
-    id: number
-    checklist_item_id: number
-    value: string
-    display_order: number
-}
 // =========================
 // Response
 // =========================
@@ -41,7 +29,7 @@ export type InspectionChecklistItemDB = {
     item_type_id: number
     required: boolean
     default_value: string | null
-    options: InspectionChecklistItemOptionDB[] | null
+    options: InspectionChecklistItemOptionBackType[] | null
     unit: string | null
 }
 
@@ -67,7 +55,7 @@ export type AddInspectionChecklistItemBackType = {
     item_type_id: number
     required: boolean
     default_value: string | null
-    options: InspectionChecklistItemOptionDB[] | null
+    options: InspectionChecklistItemOptionBackType[] | null
     unit: string | null
 }
 
@@ -91,7 +79,7 @@ export type UpdateInspectionChecklistItemBackType = {
     item_type_id?: number
     required?: boolean
     default_value?: string | null
-    options?: InspectionChecklistItemOptionDB[] | null
+    options?: InspectionChecklistItemOptionBackType[] | null
     unit?: string | null
 }
 

@@ -54,6 +54,6 @@ def get_auth_client(access_token: str) -> Client:
 
     print(f"postgrest.auth: {elapsed:.6f}s")
     print("end get_auth_client")
-    print("POSTGREST HEADERS:", client.postgrest.headers)
+    #print("POSTGREST HEADERS:", client.postgrest.headers)
     
     return client

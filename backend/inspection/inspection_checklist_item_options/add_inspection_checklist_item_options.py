@@ -7,7 +7,7 @@ def add_inspection_checklist_item_options(
     options: list[dict],
 ):
     print("add_inspection_checklist_item_options")
-    print("client",client)
+    #print("client",client)
     data = [
         {
             "checklist_item_id": checklist_item_id,
