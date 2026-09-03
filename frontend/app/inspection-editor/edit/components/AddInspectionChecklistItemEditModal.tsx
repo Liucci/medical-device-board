@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import type {
     InspectionItemType,
 } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type {InspectionChecklistItemOption} from "../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 
 
 type Props = {
@@ -13,7 +14,8 @@ type Props = {
     onClose: () => void
     onAdd: (
         name: string,
-        itemTypeId: number
+        itemTypeId: number,
+        options: InspectionChecklistItemOption[]
     ) => void
 }
 
@@ -28,6 +30,9 @@ export default function AddInspectionChecklistItemEditModal({
     const [name, setName] = useState("")
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
 
+    const [options, setOptions] =
+        useState<InspectionChecklistItemOption[]>([])
+
 
     useEffect(() =>
     {
@@ -35,6 +40,7 @@ export default function AddInspectionChecklistItemEditModal({
         {
             setName("")
             setItemTypeId(null)
+            setOptions([])
         }
     }, [open])
 
@@ -43,6 +49,16 @@ export default function AddInspectionChecklistItemEditModal({
     {
         return null
     }
+
+
+    const selectedItemType =
+        inspectionItemTypes.find(
+            (itemType) => itemType.id === itemTypeId
+        )
+
+
+    const isCustomOption =
+        selectedItemType?.isCustomOption === true
 
 
     const handleAdd = () =>
@@ -57,9 +73,30 @@ export default function AddInspectionChecklistItemEditModal({
             return
         }
 
+
+        const normalizedOptions = isCustomOption
+            ? options
+                .map((option, index) => ({
+                    value: option.value.trim(),
+                    displayOrder: index + 1,
+                }))
+                .filter((option) => option.value)
+            : []
+
+
+        if (
+            isCustomOption &&
+            normalizedOptions.length === 0
+        )
+        {
+            return
+        }
+
+
         onAdd(
             name.trim(),
-            itemTypeId
+            itemTypeId,
+            normalizedOptions
         )
     }
 
@@ -96,7 +133,7 @@ export default function AddInspectionChecklistItemEditModal({
             >
 
                 {/* Header */}
-                <div className=" px-6 py-4">
+                <div className="px-6 py-4">
 
                     <h2 className="text-lg font-semibold text-gray-800">
                         点検項目を追加
@@ -153,11 +190,37 @@ export default function AddInspectionChecklistItemEditModal({
                             value={itemTypeId ?? ""}
                             onChange={(event) =>
                             {
-                                setItemTypeId(
+                                const newItemTypeId =
                                     event.target.value === ""
                                         ? null
                                         : Number(event.target.value)
+
+
+                                setItemTypeId(newItemTypeId)
+
+
+                                const selectedItemType =
+                                    inspectionItemTypes.find(
+                                        (itemType) =>
+                                            itemType.id === newItemTypeId
+                                    )
+
+
+                                if (
+                                    !selectedItemType?.isCustomOption
                                 )
+                                {
+                                    setOptions([])
+                                }
+                                else if (options.length === 0)
+                                {
+                                    setOptions([
+                                        {
+                                            value: "",
+                                            displayOrder: 1,
+                                        },
+                                    ])
+                                }
                             }}
                             className="
                                 w-full
@@ -190,6 +253,132 @@ export default function AddInspectionChecklistItemEditModal({
 
                     </div>
 
+
+                    {/* 任意の選択肢 */}
+                    {isCustomOption && (
+                        <div>
+
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                選択肢
+                            </label>
+
+
+                            <div className="space-y-2">
+
+                                {options.map((option, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                    >
+
+                                        <input
+                                            type="text"
+                                            value={option.value}
+                                            onChange={(event) =>
+                                            {
+                                                setOptions((current) =>
+                                                    current.map(
+                                                        (
+                                                            currentOption,
+                                                            optionIndex
+                                                        ) =>
+                                                            optionIndex === index
+                                                                ? {
+                                                                    ...currentOption,
+                                                                    value: event.target.value,
+                                                                }
+                                                                : currentOption
+                                                    )
+                                                )
+                                            }}
+                                            placeholder="選択肢を入力"
+                                            className="
+                                                min-w-0
+                                                flex-1
+                                                rounded-lg
+                                                border border-gray-500
+                                                px-4 py-2.5
+                                                text-sm
+                                                outline-none
+                                                focus:border-blue-500
+                                                focus:ring-2
+                                                focus:ring-blue-100
+                                            "
+                                        />
+
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                            {
+                                                setOptions((current) =>
+                                                    current
+                                                        .filter(
+                                                            (_, optionIndex) =>
+                                                                optionIndex !== index
+                                                        )
+                                                        .map(
+                                                            (
+                                                                currentOption,
+                                                                optionIndex
+                                                            ) => ({
+                                                                ...currentOption,
+                                                                displayOrder:
+                                                                    optionIndex + 1,
+                                                            })
+                                                        )
+                                                )
+                                            }}
+                                            className="
+                                                flex
+                                                h-9
+                                                w-9
+                                                shrink-0
+                                                items-center
+                                                justify-center
+                                                rounded-lg
+                                                border
+                                                border-gray-300
+                                                text-gray-500
+                                                hover:bg-gray-100
+                                            "
+                                        >
+                                            ×
+                                        </button>
+
+                                    </div>
+                                ))}
+
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                    {
+                                        setOptions((current) => [
+                                            ...current,
+                                            {
+                                                value: "",
+                                                displayOrder:
+                                                    current.length + 1,
+                                            },
+                                        ])
+                                    }}
+                                    className="
+                                        mt-2
+                                        text-sm
+                                        font-medium
+                                        text-blue-600
+                                        hover:text-blue-800
+                                    "
+                                >
+                                    ＋ 選択肢を追加
+                                </button>
+
+                            </div>
+
+                        </div>
+                    )}
+
                 </div>
 
 
@@ -212,12 +401,20 @@ export default function AddInspectionChecklistItemEditModal({
                         キャンセル
                     </button>
 
+
                     <button
                         type="button"
                         onClick={handleAdd}
                         disabled={
                             !name.trim() ||
-                            itemTypeId === null
+                            itemTypeId === null ||
+                            (
+                                isCustomOption &&
+                                !options.some(
+                                    (option) =>
+                                        option.value.trim()
+                                )
+                            )
                         }
                         className="
                             rounded-lg

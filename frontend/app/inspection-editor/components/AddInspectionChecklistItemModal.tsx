@@ -1,13 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-import type {
-    InspectionItemType,
-} from "../../types/inspectionTypes/inspectionItemTypeTypes"
-import type {
-    InspectionChecklistItemOption
-} from "../../types/inspectionTypes/inspectionChecklistItemTypes"
+import type {InspectionItemType} from "../../types/inspectionTypes/inspectionItemTypeTypes"
+import type {InspectionChecklistItemOption} from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 
 type Props = {
     open: boolean

@@ -1,135 +1,61 @@
+import fastapi
 from fastapi import APIRouter, Depends
 
 from schemas.session_schemas import BackendSession
 from auth.get_current_session import get_current_session
+#CRUD
+from inspection.inspection_types.add_inspection_type import add_inspection_type
+from inspection.inspection_types.update_inspection_type import update_inspection_type
+from inspection.inspection_types.fetch_inspection_types import fetch_inspection_types
+from inspection.inspection_item_types.fetch_inspection_item_types import fetch_inspection_item_types
+from inspection.inspection_checklists.fetch_inspection_checklists import fetch_inspection_checklists
+from inspection.inspection_checklist_items.fetch_inspection_checklist_items import fetch_inspection_checklist_items
+from inspection.inspections.fetch_inspections import fetch_inspections
+from inspection.inspection_results.fetch_inspection_results import fetch_inspection_results
+from inspection.inspection_item_categories.fetch_inspection_item_categories import fetch_inspection_item_categories
+from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import add_inspection_checklist_item_options
+from inspection.inspection_checklist_item_options.fetch_inspection_checklist_item_options import fetch_inspection_checklist_item_options
 
-
-
-from inspection.inspection_types.fetch_inspection_types import (
-    fetch_inspection_types
-)
-from inspection.inspection_item_types.fetch_inspection_item_types import (
-    fetch_inspection_item_types
-)
-from inspection.inspection_checklists.fetch_inspection_checklists import (
-    fetch_inspection_checklists
-)
-from inspection.inspection_checklist_items.fetch_inspection_checklist_items import (
-    fetch_inspection_checklist_items
-)
-from inspection.inspections.fetch_inspections import (
-    fetch_inspections
-)
-from inspection.inspection_results.fetch_inspection_results import (
-    fetch_inspection_results
-)
-
-
-
-from schemas.inspection_schemas.inspection_schemas import (
-    AddInspectionRequest
-)
-from schemas.inspection_schemas.inspection_result_schemas import (
-    AddInspectionResultRequest
-)
-from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
-    CreateInspectionChecklistTransactionRequest,
-)
-from transactions.inspection.inspections.create_inspection_transaction import (
-    create_inspection_transaction
-)
-
-
+#schemas
+from schemas.inspection_schemas.inspection_schemas import AddInspectionRequest
+from schemas.inspection_schemas.inspection_result_schemas import AddInspectionResultRequest
 from schemas.inspection_schemas.inspection_type_schemas import (
     AddInspectionTypeRequest,
     UpdateInspectionTypeRequest,
-    DeleteInspectionTypesRequest
+    DeleteInspectionTypesRequest,
 )
-
-from inspection.inspection_types.add_inspection_type import (
-    add_inspection_type
-)
-from inspection.inspection_types.update_inspection_type import (
-    update_inspection_type
-)
-
 from schemas.inspection_schemas.inspection_item_type_schemas import (
     AddInspectionItemTypeRequest,
     UpdateInspectionItemTypeRequest,
-    DeleteInspectionItemTypesRequest
+    DeleteInspectionItemTypesRequest,
 )
-
-from transactions.inspection.inspection_item_types.add_inspection_item_type_transaction import (
-    add_inspection_item_type_transaction
-)
-
-from transactions.inspection.inspection_item_types.update_inspection_item_type_transaction import (
-    update_inspection_item_type_transaction
-)
-
-from transactions.inspection.inspection_item_types.delete_inspection_item_type_transaction import (
-    delete_inspection_item_type_transaction
-)
-
 from schemas.inspection_schemas.inspection_checklist_schemas import (
     AddInspectionChecklistRequest,
     UpdateInspectionChecklistRequest,
     DeleteInspectionChecklistsRequest,
-    
 )
-
 from schemas.inspection_schemas.inspection_checklist_item_schemas import (
     AddInspectionChecklistItemRequest,
     UpdateInspectionChecklistItemRequest,
-    DeleteInspectionChecklistItemsRequest
+    DeleteInspectionChecklistItemsRequest,
 )
-
-from transactions.inspection.inspection_checklists.add_inspection_checklist_transaction import (
-    add_inspection_checklist_transaction
-)
-
-
-from schemas.inspection_schemas.inspection_schemas import (
-    AddInspectionRequest
-)
-
-from schemas.inspection_schemas.inspection_result_schemas import (
-    AddInspectionResultRequest
-)
-
-from transactions.inspection.inspections.create_inspection_transaction import (
-    create_inspection_transaction
-)
-from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import (
-    add_inspection_checklist_items_transaction
-)
-from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
-    CreateInspectionChecklistTransactionRequest
-)
-
-from transactions.inspection.inspection_checklists.create_inspection_checklist_new_ver_transaction import (
-    create_inspection_checklist_new_ver_transaction
-)
-
-from fastapi import APIRouter, Depends
-
 from schemas.inspection_schemas.inspection_item_category_schema import (
     AddInspectionItemCategoryRequest,
     UpdateInspectionItemCategoryRequest,
 )
-
-from inspection.inspection_item_categories.fetch_inspection_item_categories import (
-    fetch_inspection_item_categories
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
+    CreateInspectionChecklistTransactionRequest,
 )
-
-from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import (
-    add_inspection_item_category_transaction,
-)
-
-from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import (update_inspection_item_category_transaction)
-from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import (
-    add_inspection_checklist_item_options
-)
+#transactions
+from transactions.inspection.inspections.create_inspection_transaction import create_inspection_transaction
+from transactions.inspection.inspection_item_types.add_inspection_item_type_transaction import add_inspection_item_type_transaction
+from transactions.inspection.inspection_item_types.update_inspection_item_type_transaction import update_inspection_item_type_transaction
+from transactions.inspection.inspection_item_types.delete_inspection_item_type_transaction import delete_inspection_item_type_transaction
+from transactions.inspection.inspection_checklists.add_inspection_checklist_transaction import add_inspection_checklist_transaction
+from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import add_inspection_checklist_items_transaction
+from transactions.inspection.inspection_checklists.create_inspection_checklist_new_ver_transaction import create_inspection_checklist_new_ver_transaction
+from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
+from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
 
 inspection_router = APIRouter()
 
@@ -347,6 +273,35 @@ def update_inspection_item_category_route(
         inspection_item_category=inspection_item_category,
         hospital_id=session.hospital_id,
     )
+
+# inspection_checklist_item_options
+@inspection_router.get("/fetch-inspection-checklist-item-options/{checklist_item_id}")
+def get_inspection_checklist_item_options(
+    checklist_item_id: int,
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_inspection_checklist_item_options(
+        client=session.client,
+        checklist_item_id=checklist_item_id,
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #テスト用関数
 @inspection_router.post("/test-add-inspection-checklist-item-options")

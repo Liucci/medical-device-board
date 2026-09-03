@@ -24,6 +24,11 @@ import type { InspectionChecklist } from "../types/inspectionTypes/inspectionChe
 import type {DeviceTypeType} from "../types/deviceTypeTypes"
 import type {DeviceModelType,} from "../types/deviceModelTypes"
 import { CreateInspectionChecklistTransactionFrontType } from "../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
+import type {
+    InspectionChecklistItemOption,
+} from "../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+
+
 //normalizer
 import {normalizeDeviceType} from "../utils/deviceTypeMapper"
 import {normalizeDeviceModel} from "../utils/deviceModelMapper"
@@ -58,7 +63,7 @@ export default function InspectionEditorPage()
                                         displayOrder: number
                                         required: boolean
                                         defaultValue: string | null
-                                        options: unknown
+                                        options:InspectionChecklistItemOption
                                         unit: string | null
     }
     const [inspectionChecklistItems, setInspectionChecklistItems] =useState<InspectionChecklistItemEditor[]>([])

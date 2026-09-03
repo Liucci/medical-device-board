@@ -1,9 +1,28 @@
 from supabase import Client
-from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (CreateInspectionChecklistTransactionRequest)
-from inspection.inspection_checklists.add_inspection_checklist import (add_inspection_checklist)
-from inspection.inspection_checklist_items.add_inspection_checklist_item import (add_inspection_checklist_item)
-from schemas.inspection_schemas.inspection_checklist_schemas import (AddInspectionChecklistRequest)
-from schemas.inspection_schemas.inspection_checklist_item_schemas import (AddInspectionChecklistItemRequest)
+
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
+    CreateInspectionChecklistTransactionRequest
+)
+
+from inspection.inspection_checklists.add_inspection_checklist import (
+    add_inspection_checklist
+)
+
+from inspection.inspection_checklist_items.add_inspection_checklist_item import (
+    add_inspection_checklist_item
+)
+
+from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import (
+    add_inspection_checklist_item_options
+)
+
+from schemas.inspection_schemas.inspection_checklist_schemas import (
+    AddInspectionChecklistRequest
+)
+
+from schemas.inspection_schemas.inspection_checklist_item_schemas import (
+    AddInspectionChecklistItemRequest
+)
 
 
 def create_inspection_checklist_new_ver_transaction(
@@ -13,7 +32,10 @@ def create_inspection_checklist_new_ver_transaction(
 ):
     print("create_inspection_checklist_new_ver_transaction")
 
+    # ==========================================
     # Checklistを新規作成
+    # ==========================================
+
     checklist = add_inspection_checklist(
         client,
         AddInspectionChecklistRequest(
@@ -25,12 +47,17 @@ def create_inspection_checklist_new_ver_transaction(
         ),
         hospital_id,
     )
+
     checklist_id = checklist["id"]
 
+
+    # ==========================================
     # Itemsを新規作成
+    # ==========================================
+
     for item in request.items:
 
-        add_inspection_checklist_item(
+        checklist_item = add_inspection_checklist_item(
             client,
             AddInspectionChecklistItemRequest(
                 display_order=item["display_order"],
@@ -38,10 +65,25 @@ def create_inspection_checklist_new_ver_transaction(
                 item_type_id=item["item_type_id"],
                 required=item["required"],
                 default_value=item["default_value"],
-                options=item["options"],
                 unit=item["unit"],
             ),
             checklist_id,
         )
+
+
+        # ==========================================
+        # 任意の選択肢を新規作成
+        # ==========================================
+
+        if item["options"]:
+
+            add_inspection_checklist_item_options(
+                client,
+                checklist_item["id"],
+                item["options"],
+            )
+
+
+    print("checklist", checklist)
 
     return checklist

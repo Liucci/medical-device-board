@@ -1,12 +1,6 @@
 from supabase import Client
-
-from schemas.inspection_schemas.inspection_item_category_schema import (
-    UpdateInspectionItemCategoryRequest,
-)
-
-from inspection.inspection_item_categories.update_inspection_item_category import (
-    update_inspection_item_category,
-)
+from schemas.inspection_schemas.inspection_item_category_schema import (UpdateInspectionItemCategoryRequest)
+from inspection.inspection_item_categories.update_inspection_item_category import (update_inspection_item_category)
 
 
 def update_inspection_item_category_transaction(

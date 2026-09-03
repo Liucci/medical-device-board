@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -14,6 +15,7 @@ import { getInspectionChecklistsFromApi } from "../../api/inspection/inspectionC
 import { getDeviceTypesFromApi } from "../../api/deviceTypes/fetchDeviceTypes"
 import { getDeviceModelsFromApi } from "../../api/deviceModels/fetchDeviceModels"
 import { getInspectionChecklistItemsFromApi } from "../../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
+import { getInspectionChecklistItemOptionsFromApi } from "../../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
 
 // types
 import type { InspectionType } from "../../types/inspectionTypes/inspectionTypeTypes"
@@ -21,70 +23,124 @@ import type { InspectionItemType } from "../../types/inspectionTypes/inspectionI
 import type { InspectionChecklist } from "../../types/inspectionTypes/inspectionChecklistTypes"
 import type { DeviceTypeType } from "../../types/deviceTypeTypes"
 import type { DeviceModelType } from "../../types/deviceModelTypes"
-import type {InspectionChecklistItem} from "../../types/inspectionTypes/inspectionChecklistItemTypes"
+import type { InspectionChecklistItem } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
+
 // normalizer
 import { normalizeInspectionType } from "../../utils/inspectionMapper/inspectionTypeMapper"
 import { normalizeInspectionItemType } from "../../utils/inspectionMapper/inspectionItemTypeMapper"
 import { normalizeInspectionChecklist } from "../../utils/inspectionMapper/inspectionChecklistMapper"
 import { normalizeDeviceType } from "../../utils/deviceTypeMapper"
 import { normalizeDeviceModel } from "../../utils/deviceModelMapper"
-import {normalizeInspectionChecklistItem} from "../../utils/inspectionMapper/inspectionChecklistItemMapper"
+import { normalizeInspectionChecklistItem } from "../../utils/inspectionMapper/inspectionChecklistItemMapper"
+import {
+    normalizeInspectionChecklistItemOption,
+} from "../../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
+
 // dnd
-import {DndContext,closestCenter,type DragEndEvent,} from "@dnd-kit/core"
-import {SortableContext,verticalListSortingStrategy,arrayMove,} from "@dnd-kit/sortable"
+import {
+    DndContext,
+    closestCenter,
+    type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    arrayMove,
+} from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
-//modal
+
+// modal
 import SortableInspectionChecklistItemEdit from "./components/SortableInspectionChecklistItemEdit"
 import AddInspectionChecklistItemEditModal from "./components/AddInspectionChecklistItemEditModal"
 import EditInspectionChecklistItemEditModal from "./components/EditInspectionChecklistItemEditModal"
 
+// transaction
 import { createInspectionChecklistNewVerTransaction } from "../../api/transactions/inspection/inspectionChecklists/createInspectionChecklistNewVerTransaction"
 
-export default function InspectionChecklistEditPage() 
-{
 
+export default function InspectionChecklistEditPage()
+{
     const router = useRouter()
 
-
-
     // 点検表関連
-    const [inspectionTypes, setInspectionTypes] =useState<InspectionType[]>([])
-    const [inspectionItemTypes, setInspectionItemTypes] =useState<InspectionItemType[]>([])
-    const [inspectionChecklists, setInspectionChecklists] = useState<InspectionChecklist[]>([])
-    // 点検表情報
-    const [inspectionName, setInspectionName] =useState("")
-    const [inspectionTypeId, setInspectionTypeId] =useState<number | null>(null)
-    // 機種関連
-    const [deviceTypes, setDeviceTypes] =useState<DeviceTypeType[]>([])
-    const [deviceModels, setDeviceModels] =useState<DeviceModelType[]>([])
-    const [deviceTypeId, setDeviceTypeId] =useState<number | null>(null)
-    const [deviceModelId, setDeviceModelId] =useState<number | null>(null)
-    const [selectedChecklistId, setSelectedChecklistId] =useState<number | null>(null)
-    // 点検項目
-    const [inspectionChecklistItems, setInspectionChecklistItems] =useState<InspectionChecklistItem[]>([])
-    const [deleteItemIds, setDeleteItemIds] = useState<number[]>([])
-    const [originalItemIds, setOriginalItemIds] = useState<number[]>([])
-    // Modal
-    const [isAddItemModalOpen, setIsAddItemModalOpen] =useState(false)
-    const [isEditItemModalOpen, setIsEditItemModalOpen] =useState(false)
-    const [editingChecklistItem, setEditingChecklistItem] =useState<InspectionChecklistItem | null>(null)
-   // Loading
-    const [loading, setLoading] = useState(false)
-    // 初期データ取得
+    const [inspectionTypes, setInspectionTypes] =
+        useState<InspectionType[]>([])
 
-    //初期化関数
+    const [inspectionItemTypes, setInspectionItemTypes] =
+        useState<InspectionItemType[]>([])
+
+    const [inspectionChecklists, setInspectionChecklists] =
+        useState<InspectionChecklist[]>([])
+
+    // 点検表情報
+    const [inspectionName, setInspectionName] =
+        useState("")
+
+    const [inspectionTypeId, setInspectionTypeId] =
+        useState<number | null>(null)
+
+    // 機種関連
+    const [deviceTypes, setDeviceTypes] =
+        useState<DeviceTypeType[]>([])
+
+    const [deviceModels, setDeviceModels] =
+        useState<DeviceModelType[]>([])
+
+    const [deviceTypeId, setDeviceTypeId] =
+        useState<number | null>(null)
+
+    const [deviceModelId, setDeviceModelId] =
+        useState<number | null>(null)
+
+    const [selectedChecklistId, setSelectedChecklistId] =
+        useState<number | null>(null)
+
+    // 点検項目
+    const [inspectionChecklistItems, setInspectionChecklistItems] =
+        useState<InspectionChecklistItem[]>([])
+
+    const [deleteItemIds, setDeleteItemIds] =
+        useState<number[]>([])
+
+    const [originalItemIds, setOriginalItemIds] =
+        useState<number[]>([])
+
+    // Modal
+    const [isAddItemModalOpen, setIsAddItemModalOpen] =
+        useState(false)
+
+    const [isEditItemModalOpen, setIsEditItemModalOpen] =
+        useState(false)
+
+    const [editingChecklistItem, setEditingChecklistItem] =
+        useState<InspectionChecklistItem | null>(null)
+
+    // Loading
+    const [loading, setLoading] =
+        useState(false)
+
+
+    // =========================================
+    // 初期データ取得
+    // =========================================
+
     const fetchInitialData = async () =>
     {
         // current user取得
-        const currentUser = await fetchCurrentUser()    
+        const currentUser = await fetchCurrentUser()
+
         // 権限チェック
-        if (!currentUser) {return}
+        if (!currentUser) {
+            return
+        }
+
         if (currentUser?.role !== "admin")
         {
             alert("権限がありません")
             router.push("/dashboard")
             return
         }
+
         const [
             inspectionTypesData,
             inspectionItemTypesData,
@@ -98,15 +154,36 @@ export default function InspectionChecklistEditPage()
             getDeviceTypesFromApi(),
             getDeviceModelsFromApi(),
         ])
-        setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
-        setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
-        setInspectionChecklists(inspectionChecklistsDate.map(normalizeInspectionChecklist))
-        setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
-        setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
+
+        setInspectionTypes(
+            inspectionTypesData.map(normalizeInspectionType)
+        )
+
+        setInspectionItemTypes(
+            inspectionItemTypesData.map(normalizeInspectionItemType)
+        )
+
+        setInspectionChecklists(
+            inspectionChecklistsDate.map(normalizeInspectionChecklist)
+        )
+
+        setDeviceTypes(
+            deviceTypesData.map(normalizeDeviceType)
+        )
+
+        setDeviceModels(
+            deviceModelsData.map(normalizeDeviceModel)
+        )
     }
 
-    //時刻format
-    const formatDateTime = (dateString: string | null | undefined) => {
+
+    // =========================================
+    // 時刻format
+    // =========================================
+
+    const formatDateTime = (
+        dateString: string | null | undefined
+    ) => {
         if (!dateString) return "-"
 
         const date = new Date(dateString)
@@ -116,17 +193,22 @@ export default function InspectionChecklistEditPage()
         }:${String(date.getMinutes()).padStart(2, "0")}`
     }
 
-    //点検表種類に紐づく点検表だけに絞る
+
+    // =========================================
     // 点検表種類に紐づく点検表だけに絞る
+    // =========================================
+
     const inspectionTypeChecklists =
         inspectionChecklists.filter(
             (checklist) =>
                 checklist.inspectionTypeId === inspectionTypeId
         )
 
+
+    // =========================================
     // 同じ点検表系列の中から最新Versionだけを残す
-    // 判定条件:
-    // inspectionTypeId + deviceTypeId + deviceModelId + name
+    // =========================================
+
     const filteredInspectionChecklists = Array.from(
         inspectionTypeChecklists.reduce((map, checklist) => {
 
@@ -149,121 +231,264 @@ export default function InspectionChecklistEditPage()
             .values()
     )
 
-    const selectedChecklist = inspectionChecklists.find(
-    (checklist) => checklist.id === selectedChecklistId
-)
 
-    //点検表名選択時、点検項目表示させる
-    const handleChecklistChange = async (checklistId: number | null) => 
+    const selectedChecklist = inspectionChecklists.find(
+        (checklist) =>
+            checklist.id === selectedChecklistId
+    )
+
+
+    // =========================================
+    // 点検表選択時
+    // =========================================
+
+    const handleChecklistChange = async (
+        checklistId: number | null
+    ) =>
     {
         setSelectedChecklistId(checklistId)
-        if (checklistId === null) {
-                                    setInspectionName("")
-                                    setDeviceTypeId(null)
-                                    setDeviceModelId(null)
-                                    setInspectionChecklistItems([])
-                                    return
+
+        if (checklistId === null)
+        {
+            setInspectionName("")
+            setDeviceTypeId(null)
+            setDeviceModelId(null)
+            setInspectionChecklistItems([])
+            return
         }
 
-        const checklist =inspectionChecklists.find((item) => item.id === checklistId)
-        if (!checklist) {
-                        setInspectionName("")
-                        setDeviceTypeId(null)
-                        setDeviceModelId(null)
-                        setInspectionChecklistItems([])
-                        return
+        const checklist =
+            inspectionChecklists.find(
+                (item) => item.id === checklistId
+            )
+
+        if (!checklist)
+        {
+            setInspectionName("")
+            setDeviceTypeId(null)
+            setDeviceModelId(null)
+            setInspectionChecklistItems([])
+            return
         }
+
         setInspectionName(checklist.name)
         setDeviceTypeId(checklist.deviceTypeId)
         setDeviceModelId(checklist.deviceModelId)
 
 
+        // =========================================
         // 点検項目取得
-        const items =await getInspectionChecklistItemsFromApi(checklistId)
-        const normalizedItems: InspectionChecklistItem[]  =items.map(normalizeInspectionChecklistItem)
-        setInspectionChecklistItems(normalizedItems)
-        setOriginalItemIds(normalizedItems.map((item) => item.id))
+        // =========================================
 
+        const items =
+            await getInspectionChecklistItemsFromApi(
+                checklistId
+            )
+
+        const normalizedItems: InspectionChecklistItem[] =
+            items.map(normalizeInspectionChecklistItem)
+
+
+        // =========================================
+        // 各項目の選択肢取得
+        // =========================================
+
+        const itemsWithOptions =
+            await Promise.all(
+                normalizedItems.map(
+                    async (item) =>
+                    {
+                        const options =
+                            await getInspectionChecklistItemOptionsFromApi(
+                                item.id
+                            )
+
+                        console.log("options:", options)
+
+                        return {
+                            ...item,
+                            options:
+                                options.map(
+                                    normalizeInspectionChecklistItemOption
+                                ),
+                        }
+                    }
+                )
+            )
+
+        setInspectionChecklistItems(
+            itemsWithOptions
+        )
+
+        setOriginalItemIds(
+            itemsWithOptions.map(
+                (item) => item.id
+            )
+        )
     }
+
+
+    // =========================================
     // 項目並び替え
-    const handleChecklistItemDragEnd = (event: DragEndEvent) => {
+    // =========================================
+
+    const handleChecklistItemDragEnd = (
+        event: DragEndEvent
+    ) =>
+    {
         const { active, over } = event
+
         if (!over) return
+
         if (active.id === over.id) return
 
         setInspectionChecklistItems((items) => {
-            const oldIndex = items.findIndex((item) => item.id === active.id)
-            const newIndex = items.findIndex((item) => item.id === over.id)
 
-            if (oldIndex === -1 || newIndex === -1) {
+            const oldIndex =
+                items.findIndex(
+                    (item) =>
+                        item.id === active.id
+                )
+
+            const newIndex =
+                items.findIndex(
+                    (item) =>
+                        item.id === over.id
+                )
+
+            if (
+                oldIndex === -1 ||
+                newIndex === -1
+            ) {
                 return items
             }
 
-            return arrayMove(items, oldIndex, newIndex).map(
+            return arrayMove(
+                items,
+                oldIndex,
+                newIndex
+            ).map(
                 (item, index) => ({
                     ...item,
-                    displayOrder: index + 1
+                    displayOrder: index + 1,
                 })
             )
         })
     }
 
-    // 保存
-    const handleSave = async () => {
 
-        if (!selectedChecklistId) {
+    // =========================================
+    // 保存
+    // =========================================
+
+    const handleSave = async () =>
+    {
+        if (!selectedChecklistId)
+        {
             alert("点検表を選択してください")
             return
         }
 
-        const checklist = inspectionChecklists.find(
-            (item) => item.id === selectedChecklistId
-        )
+        const checklist =
+            inspectionChecklists.find(
+                (item) =>
+                    item.id === selectedChecklistId
+            )
 
-        if (!checklist) {
+        if (!checklist)
+        {
             alert("点検表が見つかりません")
             return
         }
 
         setLoading(true)
 
-        try {
-            const nextVersion = checklist.version + 1
-            const newChecklist = await createInspectionChecklistNewVerTransaction({
-                inspectionTypeId: checklist.inspectionTypeId,
-                deviceTypeId: checklist.deviceTypeId,
-                deviceModelId: checklist.deviceModelId,
-                name: checklist.name,
-                version: nextVersion,
+        try
+        {
+            const nextVersion =
+                checklist.version + 1
 
-                items: inspectionChecklistItems.map((item) => ({
-                    displayOrder: item.displayOrder,
-                    itemName: item.itemName,
-                    itemTypeId: item.itemTypeId,
-                    required: item.required,
-                    defaultValue: item.defaultValue ?? null,
-                    options: item.options ?? null,
-                    unit: item.unit ?? null,
-                })),
-            })
-            //console.log("newChecklist =", newChecklist)
-            //更新したchecklistをstateに保存しUIに反映させる
-            setInspectionChecklists((prev) => [
-                ...prev,
-                normalizeInspectionChecklist(newChecklist),
-            ])
-            setSelectedChecklistId(newChecklist.id)
-            //alert("点検表を保存しました")
 
-        } catch (error) {
+            const newChecklist =
+                await createInspectionChecklistNewVerTransaction({
+                    inspectionTypeId:
+                        checklist.inspectionTypeId,
 
+                    deviceTypeId:
+                        checklist.deviceTypeId,
+
+                    deviceModelId:
+                        checklist.deviceModelId,
+
+                    name:
+                        checklist.name,
+
+                    version:
+                        nextVersion,
+
+                    items:
+                        inspectionChecklistItems.map(
+                            (item) => ({
+                                displayOrder:
+                                    item.displayOrder,
+
+                                itemName:
+                                    item.itemName,
+
+                                itemTypeId:
+                                    item.itemTypeId,
+
+                                required:
+                                    item.required,
+
+                                defaultValue:
+                                    item.defaultValue ?? null,
+
+                                // optionも保存
+                                options:
+                                    item.options ?? null,
+
+                                unit:
+                                    item.unit ?? null,
+                            })
+                        ),
+                })
+
+
+            // 更新したchecklistをstateに保存
+            setInspectionChecklists(
+                (prev) => [
+                    ...prev,
+                    normalizeInspectionChecklist(
+                        newChecklist
+                    ),
+                ]
+            )
+
+            setSelectedChecklistId(
+                newChecklist.id
+            )
+
+        }
+        catch (error)
+        {
             console.error(error)
-            alert("点検表の保存に失敗しました")
 
-        } finally {
+            alert(
+                "点検表の保存に失敗しました"
+            )
+
+        }
+        finally
+        {
             setLoading(false)
         }
     }
+
+
+    // =========================================
+    // 初期処理
+    // =========================================
 
     useEffect(() =>
     {
@@ -273,7 +498,6 @@ export default function InspectionChecklistEditPage()
 
     return (
         <>
-
             <div className="min-h-screen bg-gray-200 p-12">
 
                 <div className="mx-auto max-w-6xl">
@@ -313,7 +537,6 @@ export default function InspectionChecklistEditPage()
                         gap-6
                         lg:flex-row
                     ">
-
 
                         {/* ============================= */}
                         {/* 点検表情報 */}
@@ -368,19 +591,30 @@ export default function InspectionChecklistEditPage()
                                 </label>
 
                                 <select
-                                    value={inspectionTypeId ?? ""}
+                                    value={
+                                        inspectionTypeId ?? ""
+                                    }
                                     onChange={(event) => {
+
                                         const id =
                                             event.target.value === ""
                                                 ? null
-                                                : Number(event.target.value)
+                                                : Number(
+                                                    event.target.value
+                                                )
+
                                         setInspectionTypeId(id)
-                                        // 点検表種類が変わったら
-                                        // 選択中の点検表をリセット
-                                        setSelectedChecklistId(null)
+
+                                        setSelectedChecklistId(
+                                            null
+                                        )
+
                                         setInspectionName("")
+
                                         setDeviceTypeId(null)
+
                                         setDeviceModelId(null)
+
                                     }}
                                     className="
                                         w-full
@@ -393,24 +627,35 @@ export default function InspectionChecklistEditPage()
                                         text-sm
                                     "
                                 >
+
                                     <option value="">
                                         選択してください
                                     </option>
 
                                     {inspectionTypes.map(
                                         (inspectionType) => (
+
                                             <option
-                                                key={inspectionType.id}
-                                                value={inspectionType.id}
+                                                key={
+                                                    inspectionType.id
+                                                }
+                                                value={
+                                                    inspectionType.id
+                                                }
                                             >
-                                                {inspectionType.name}
+                                                {
+                                                    inspectionType.name
+                                                }
                                             </option>
+
                                         )
                                     )}
 
                                 </select>
 
                             </div>
+
+
                             {/* 点検表名 */}
 
                             <div>
@@ -424,18 +669,29 @@ export default function InspectionChecklistEditPage()
                                 ">
                                     点検表名
                                 </label>
+
                                 <select
-                                    value={selectedChecklistId ?? ""}
-                                    disabled={inspectionTypeId === null}
-                                    onChange={async (event) => {
+                                    value={
+                                        selectedChecklistId ?? ""
+                                    }
+                                    disabled={
+                                        inspectionTypeId === null
+                                    }
+                                    onChange={
+                                        async (event) => {
 
-                                        const id =
-                                            event.target.value === ""
-                                                ? null
-                                                : Number(event.target.value)
+                                            const id =
+                                                event.target.value === ""
+                                                    ? null
+                                                    : Number(
+                                                        event.target.value
+                                                    )
 
-                                        await handleChecklistChange(id)
-                                    }}
+                                            await handleChecklistChange(
+                                                id
+                                            )
+                                        }
+                                    }
                                     className="
                                         w-full
                                         rounded-lg
@@ -447,26 +703,41 @@ export default function InspectionChecklistEditPage()
                                         text-sm
                                     "
                                 >
+
                                     <option value="">
-                                        {inspectionTypeId === null
-                                            ? "先に点検表種類を選択してください"
-                                            : "選択してください"}
+                                        {
+                                            inspectionTypeId === null
+                                                ? "先に点検表種類を選択してください"
+                                                : "選択してください"
+                                        }
                                     </option>
 
                                     {filteredInspectionChecklists.map(
                                         (checklist) => (
+
                                             <option
-                                                key={checklist.id}
-                                                value={checklist.id}
+                                                key={
+                                                    checklist.id
+                                                }
+                                                value={
+                                                    checklist.id
+                                                }
                                             >
-                                                {checklist.name}
+                                                {
+                                                    checklist.name
+                                                }
                                             </option>
+
                                         )
                                     )}
-                                </select>                                
+
+                                </select>
+
                             </div>
 
+
                             {/* 機種 */}
+
                             <div className="mb-5">
 
                                 <label className="
@@ -490,14 +761,20 @@ export default function InspectionChecklistEditPage()
                                     text-sm
                                     text-gray-700
                                 ">
-                                    {deviceTypes.find(
-                                        (deviceType) =>
-                                            deviceType.id === deviceTypeId
-                                    )?.name ?? "-"}
+                                    {
+                                        deviceTypes.find(
+                                            (deviceType) =>
+                                                deviceType.id ===
+                                                deviceTypeId
+                                        )?.name ?? "-"
+                                    }
                                 </div>
 
                             </div>
+
+
                             {/* 型式 */}
+
                             <div className="mb-5">
 
                                 <label className="
@@ -521,15 +798,20 @@ export default function InspectionChecklistEditPage()
                                     text-sm
                                     text-gray-700
                                 ">
-                                    {deviceModels.find(
-                                        (deviceModel) =>
-                                            deviceModel.id === deviceModelId
-                                    )?.name ?? "-"}
+                                    {
+                                        deviceModels.find(
+                                            (deviceModel) =>
+                                                deviceModel.id ===
+                                                deviceModelId
+                                        )?.name ?? "-"
+                                    }
                                 </div>
 
                             </div>
 
+
                             {/* Version */}
+
                             <div className="mb-5">
 
                                 <label className="
@@ -553,12 +835,17 @@ export default function InspectionChecklistEditPage()
                                     text-sm
                                     text-gray-700
                                 ">
-                                    {selectedChecklist?.version ?? "-"}
+                                    {
+                                        selectedChecklist?.version ??
+                                        "-"
+                                    }
                                 </div>
 
                             </div>
 
+
                             {/* 作成日 / 更新日 */}
+
                             <div className="mb-5">
 
                                 <label className="
@@ -568,9 +855,10 @@ export default function InspectionChecklistEditPage()
                                     font-medium
                                     text-gray-700
                                 ">
-                                    {selectedChecklist?.version === 1
-                                        ? "作成日"
-                                        : "更新日"
+                                    {
+                                        selectedChecklist?.version === 1
+                                            ? "作成日"
+                                            : "更新日"
                                     }
                                 </label>
 
@@ -585,12 +873,18 @@ export default function InspectionChecklistEditPage()
                                     text-sm
                                     text-gray-700
                                 ">
-                                    {selectedChecklist
-                                        ? (
-                                            selectedChecklist.version === 1
-                                                ? formatDateTime(selectedChecklist.createdAt)
-                                                : formatDateTime(selectedChecklist.updatedAt)                                        )
-                                        : "-"
+                                    {
+                                        selectedChecklist
+                                            ? (
+                                                selectedChecklist.version === 1
+                                                    ? formatDateTime(
+                                                        selectedChecklist.createdAt
+                                                    )
+                                                    : formatDateTime(
+                                                        selectedChecklist.updatedAt
+                                                    )
+                                            )
+                                            : "-"
                                     }
                                 </div>
 
@@ -708,42 +1002,96 @@ export default function InspectionChecklistEditPage()
                                 ">
 
                                     <DndContext
-                                        collisionDetection={closestCenter}
-                                        onDragEnd={handleChecklistItemDragEnd}
-                                        modifiers={[restrictToVerticalAxis]}
+                                        collisionDetection={
+                                            closestCenter
+                                        }
+                                        onDragEnd={
+                                            handleChecklistItemDragEnd
+                                        }
+                                        modifiers={[
+                                            restrictToVerticalAxis,
+                                        ]}
                                     >
+
                                         <SortableContext
                                             items={
                                                 inspectionChecklistItems.map(
                                                     (item) => item.id
                                                 )
                                             }
-                                            strategy={verticalListSortingStrategy}
+                                            strategy={
+                                                verticalListSortingStrategy
+                                            }
                                         >
-                                            <div className="space-y-2">
-                                                {inspectionChecklistItems.map(
-                                                    (item, index) => (
-                                                        <SortableInspectionChecklistItemEdit
-                                                            key={item.id}
-                                                            item={item}
-                                                            index={index}
-                                                            inspectionItemTypes={inspectionItemTypes}
-                                                            onEdit={(item) => {
-                                                                setEditingChecklistItem(item)
-                                                                setIsEditItemModalOpen(true)
-                                                            }}
-                                                            onDelete={(itemId) => {
-                                                                if (originalItemIds.includes(itemId)) {
-                                                                    setDeleteItemIds((prev) => [...prev, itemId])
-                                                                }
 
-                                                                setInspectionChecklistItems((prev) =>
-                                                                    prev.filter((item) => item.id !== itemId)
-                                                                )
-                                                            }}
-                                                        />
+                                            <div className="space-y-2">
+
+                                                {
+                                                    inspectionChecklistItems.map(
+                                                        (
+                                                            item,
+                                                            index
+                                                        ) => (
+
+                                                            <SortableInspectionChecklistItemEdit
+                                                                key={
+                                                                    item.id
+                                                                }
+                                                                item={
+                                                                    item
+                                                                }
+                                                                index={
+                                                                    index
+                                                                }
+                                                                inspectionItemTypes={
+                                                                    inspectionItemTypes
+                                                                }
+                                                                onEdit={
+                                                                    (item) => {
+
+                                                                        setEditingChecklistItem(
+                                                                            item
+                                                                        )
+
+                                                                        setIsEditItemModalOpen(
+                                                                            true
+                                                                        )
+
+                                                                    }
+                                                                }
+                                                                onDelete={
+                                                                    (itemId) => {
+
+                                                                        if (
+                                                                            originalItemIds.includes(
+                                                                                itemId
+                                                                            )
+                                                                        ) {
+                                                                            setDeleteItemIds(
+                                                                                (prev) => [
+                                                                                    ...prev,
+                                                                                    itemId,
+                                                                                ]
+                                                                            )
+                                                                        }
+
+                                                                        setInspectionChecklistItems(
+                                                                            (prev) =>
+                                                                                prev.filter(
+                                                                                    (item) =>
+                                                                                        item.id !==
+                                                                                        itemId
+                                                                                )
+                                                                        )
+
+                                                                    }
+                                                                }
+                                                            />
+
+                                                        )
                                                     )
-                                                )}
+                                                }
+
                                             </div>
 
                                         </SortableContext>
@@ -815,7 +1163,7 @@ export default function InspectionChecklistEditPage()
 
 
                 {/* ================================= */}
-                {/* Modal */}
+                {/* 項目追加Modal */}
                 {/* ================================= */}
 
                 <AddInspectionChecklistItemEditModal
@@ -826,29 +1174,56 @@ export default function InspectionChecklistEditPage()
                     onClose={() =>
                         setIsAddItemModalOpen(false)
                     }
-                    onAdd={(name, itemTypeId) => {
+
+                    // ★ 新規登録用と同じくoptionsを受け取る
+                    onAdd={(
+                        name,
+                        itemTypeId,
+                        options
+                    ) => {
 
                         setInspectionChecklistItems(
                             (prev) => [
                                 ...prev,
-                                        {
-                                            id: Date.now(),
-                                            checklistId: selectedChecklistId!,
-                                            displayOrder: prev.length + 1,
-                                            itemName: name,
-                                            itemTypeId,
-                                            required: false,
-                                            defaultValue: null,
-                                            options: null,
-                                            unit: null
-                                        },
+                                {
+                                    id: Date.now(),
+
+                                    checklistId:
+                                        selectedChecklistId!,
+
+                                    displayOrder:
+                                        prev.length + 1,
+
+                                    itemName:
+                                        name,
+
+                                    itemTypeId:
+                                        itemTypeId,
+
+                                    required:
+                                        false,
+
+                                    defaultValue:
+                                        null,
+
+                                    // ★ optionsをそのまま保持
+                                    options,
+
+                                    unit:
+                                        null,
+                                },
                             ]
                         )
+
                         setIsAddItemModalOpen(false)
 
                     }}
                 />
 
+
+                {/* ================================= */}
+                {/* 項目編集Modal */}
+                {/* ================================= */}
 
                 <EditInspectionChecklistItemEditModal
                     open={isEditItemModalOpen}
@@ -856,24 +1231,29 @@ export default function InspectionChecklistEditPage()
                     inspectionItemTypes={
                         inspectionItemTypes
                     }
+
                     onClose={() => {
 
                         setIsEditItemModalOpen(false)
+
                         setEditingChecklistItem(null)
 
                     }}
-                    onSave={(itemId, name, itemTypeId) => {
+
+                    onSave={(itemId, name, itemTypeId, options) => {
                         setInspectionChecklistItems((prev) =>
                             prev.map((item) =>
                                 item.id === itemId
                                     ? {
                                         ...item,
                                         itemName: name,
-                                        itemTypeId
+                                        itemTypeId,
+                                        options,
                                     }
                                     : item
                             )
                         )
+
                         setIsEditItemModalOpen(false)
                         setEditingChecklistItem(null)
                     }}                    
@@ -882,9 +1262,10 @@ export default function InspectionChecklistEditPage()
             </div>
 
 
-            <LoadingOverlay loading={loading} />
+            <LoadingOverlay
+                loading={loading}
+            />
 
         </>
     )
 }
-
