@@ -27,6 +27,7 @@ import { CreateInspectionChecklistTransactionFrontType } from "../types/inspecti
 import type {
     InspectionChecklistItemOption,
 } from "../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import { InspectionItemCategoryType } from "../types/inspectionTypes/inspectionItemCategoryTypes"
 
 
 //normalizer
@@ -59,11 +60,12 @@ export default function InspectionEditorPage()
     type InspectionChecklistItemEditor = {
                                         id: number
                                         name: string
+                                        categoryId: number | null
                                         itemTypeId: number
                                         displayOrder: number
                                         required: boolean
                                         defaultValue: string | null
-                                        options:InspectionChecklistItemOption
+                                        options:InspectionChecklistItemOption[]
                                         unit: string | null
     }
     const [inspectionChecklistItems, setInspectionChecklistItems] =useState<InspectionChecklistItemEditor[]>([])
@@ -75,6 +77,7 @@ export default function InspectionEditorPage()
     const [isAddItemModalOpen, setIsAddItemModalOpen] =useState(false)
     const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false)
     const [editingChecklistItem, setEditingChecklistItem] =useState<InspectionChecklistItemEditor | null>(null)
+    const [inspectionItemCategories, setInspectionItemCategories] =useState<InspectionItemCategoryType[]>([])
     //処理中表示用
     const [loading, setLoading] = useState(false)
     useEffect(() =>
@@ -722,34 +725,35 @@ return (
 
 
             {/* 項目追加Modal */}
-            <AddInspectionChecklistItemModal
-                open={isAddItemModalOpen}
-                inspectionItemTypes={inspectionItemTypes}
-                onClose={() =>
-                    setIsAddItemModalOpen(false)
-                }
-                onAdd={(name, itemTypeId,options) =>
+<AddInspectionChecklistItemModal
+    open={isAddItemModalOpen}
+    inspectionItemTypes={inspectionItemTypes}
+    inspectionItemCategories={inspectionItemCategories}
+    onClose={() =>
+        setIsAddItemModalOpen(false)
+    }
+    onAdd={(name, categoryId, itemTypeId, options) =>
+    {
+        setInspectionChecklistItems((prev) =>
+            [
+                ...prev,
                 {
-                    setInspectionChecklistItems((prev) =>
-                        [
-                            ...prev,
-                            {
-                                id: Date.now(),
-                                name,
-                                itemTypeId,
-                                displayOrder: prev.length + 1,
-                                required: false,
-                                defaultValue: null,
-                                options,
-                                unit: null,
-                            },
-                        ]
-                    )
+                    id: Date.now(),
+                    name: name,
+                    categoryId,
+                    itemTypeId,
+                    displayOrder: prev.length + 1,
+                    required: false,
+                    defaultValue: null,
+                    options,
+                    unit: null,
+                },
+            ]
+        )
 
-                    setIsAddItemModalOpen(false)
-                }}
-            />
-
+        setIsAddItemModalOpen(false)
+    }}
+/>
 
             {/* 項目編集Modal */}
             <EditInspectionChecklistItemModal

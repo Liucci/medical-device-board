@@ -9,7 +9,9 @@ import type {
 import type {
     InspectionChecklistItemOption,
 } from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
-
+import type {
+    InspectionItemCategoryType,
+} from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 //checklist idはtype内に不要
 type InspectionChecklistItem = {
@@ -28,10 +30,12 @@ type Props = {
     open: boolean
     item: InspectionChecklistItem | null
     inspectionItemTypes: InspectionItemType[]
+    inspectionItemCategories: InspectionItemCategoryType[]
     onClose: () => void
     onSave: (
         itemId: number,
         name: string,
+        categoryId: number,
         itemTypeId: number,
         options: InspectionChecklistItemOption[]
     ) => void

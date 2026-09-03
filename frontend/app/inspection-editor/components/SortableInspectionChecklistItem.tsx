@@ -14,25 +14,27 @@ import {
 } from "lucide-react"
 
 import type { InspectionItemType } from "../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { InspectionChecklistItemOption} from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 
 
-type InspectionChecklistItem = {
+type InspectionChecklistItemEditor = {
     id: number
     name: string
+    categoryId: number | null
     itemTypeId: number
     displayOrder: number
     required: boolean
     defaultValue: string | null
-    options: unknown
+    options: InspectionChecklistItemOption[]
     unit: string | null
 }
 
 
 type SortableInspectionChecklistItemProps = {
-    item: InspectionChecklistItem
+    item: InspectionChecklistItemEditor
     index: number
     inspectionItemTypes: InspectionItemType[]
-    onEdit: (item: InspectionChecklistItem) => void
+    onEdit: (item: InspectionChecklistItemEditor) => void
     onDelete: (itemId: number) => void
 }
 
