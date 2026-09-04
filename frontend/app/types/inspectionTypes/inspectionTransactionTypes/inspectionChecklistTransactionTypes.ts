@@ -12,6 +12,7 @@ export type CreateInspectionChecklistTransactionFrontType = {
     items: {
         displayOrder: number
         itemName: string
+        categoryId: number
         itemTypeId: number
         required: boolean
         defaultValue?: string | null
@@ -35,6 +36,7 @@ export type CreateInspectionChecklistTransactionBackType = {
     items: {
         display_order: number
         item_name: string
+        category_id: number
         item_type_id: number
         required: boolean
         default_value: string | null
@@ -61,6 +63,7 @@ export type CreateInspectionChecklistNewVerTransactionFrontType = {
     items: {
         displayOrder: number
         itemName: string
+        categoryId: number
         itemTypeId: number
         required: boolean
         defaultValue?: string | null
@@ -85,6 +88,7 @@ export type CreateInspectionChecklistNewVerTransactionBackType = {
     items: {
         display_order: number
         item_name: string
+        category_id: number
         item_type_id: number
         required: boolean
         default_value: string | null

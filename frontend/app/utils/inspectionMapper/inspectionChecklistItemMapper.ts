@@ -5,7 +5,7 @@ import {
     UpdateInspectionChecklistItemFrontType,
     DeleteInspectionChecklistItemsFrontType,
 } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
-
+import {normalizeInspectionChecklistItemOptionForItem} from "../../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
 
 // DB → UI
 export const normalizeInspectionChecklistItem = (
@@ -15,10 +15,13 @@ export const normalizeInspectionChecklistItem = (
     checklistId: item.checklist_id,
     displayOrder: item.display_order,
     itemName: item.item_name,
+    categoryId: item.category_id,
     itemTypeId: item.item_type_id,
     required: item.required,
     defaultValue: item.default_value,
-    options: item.options,
+    options: item.options
+        ? item.options.map(normalizeInspectionChecklistItemOptionForItem)
+        : null,
     unit: item.unit
 })
 
@@ -30,6 +33,7 @@ export const toAddInspectionChecklistItemRequest = (
     //checklist_id: item.checklistId,
     display_order: item.displayOrder,
     item_name: item.itemName,
+    category_id: item.categoryId,
     item_type_id: item.itemTypeId,
     required: item.required,
     default_value: item.defaultValue ?? null,
@@ -45,6 +49,7 @@ export const toUpdateInspectionChecklistItemRequest = (
     id: item.id,
     display_order:item.displayOrder,
     item_name: item.itemName,
+    category_id: item.categoryId,
     item_type_id: item.itemTypeId,
     required: item.required,
     default_value: item.defaultValue ?? null,

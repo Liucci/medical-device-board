@@ -14,6 +14,7 @@ export type InspectionChecklistItem = {
         checklistId: number
         displayOrder: number
         itemName: string
+        categoryId: number
         itemTypeId: number
         required: boolean
         defaultValue: string | null
@@ -26,6 +27,7 @@ export type InspectionChecklistItemDB = {
     checklist_id: number
     display_order: number
     item_name: string
+    category_id: number
     item_type_id: number
     required: boolean
     default_value: string | null
@@ -42,6 +44,7 @@ export type InspectionChecklistItemDB = {
 export type AddInspectionChecklistItemFrontType = {
     displayOrder: number
     itemName: string
+    categoryId: number
     itemTypeId: number
     required: boolean
     defaultValue?: string | null
@@ -52,6 +55,7 @@ export type AddInspectionChecklistItemFrontType = {
 export type AddInspectionChecklistItemBackType = {
     display_order: number
     item_name: string
+    category_id: number
     item_type_id: number
     required: boolean
     default_value: string | null
@@ -65,6 +69,7 @@ export type UpdateInspectionChecklistItemFrontType = {
     id: number
     displayOrder: number
     itemName?: string
+    categoryId?: number
     itemTypeId?: number
     required?: boolean
     defaultValue?: string | null
@@ -76,6 +81,7 @@ export type UpdateInspectionChecklistItemBackType = {
     id: number
     display_order: number
     item_name?: string
+    category_id?: number
     item_type_id?: number
     required?: boolean
     default_value?: string | null

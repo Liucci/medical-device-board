@@ -1,19 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-import type {
-    InspectionItemType,
-} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type {InspectionItemType,} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
 import type {InspectionChecklistItemOption} from "../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
-
+import type { InspectionItemCategoryType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 type Props = {
     open: boolean
     inspectionItemTypes: InspectionItemType[]
+    inspectionItemCategories: InspectionItemCategoryType[]
     onClose: () => void
     onAdd: (
         name: string,
+        categoryId: number,
         itemTypeId: number,
         options: InspectionChecklistItemOption[]
     ) => void
@@ -23,16 +22,15 @@ type Props = {
 export default function AddInspectionChecklistItemEditModal({
     open,
     inspectionItemTypes,
+    inspectionItemCategories,
     onClose,
     onAdd,
 }: Props)
 {
     const [name, setName] = useState("")
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-
-    const [options, setOptions] =
-        useState<InspectionChecklistItemOption[]>([])
-
+    const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
+    const [categoryId, setCategoryId] = useState<number | null>(null)   
 
     useEffect(() =>
     {
@@ -41,6 +39,7 @@ export default function AddInspectionChecklistItemEditModal({
             setName("")
             setItemTypeId(null)
             setOptions([])
+            setCategoryId(null)
         }
     }, [open])
 
@@ -63,17 +62,16 @@ export default function AddInspectionChecklistItemEditModal({
 
     const handleAdd = () =>
     {
-        if (!name.trim())
-        {
-            return
-        }
-
-        if (itemTypeId === null)
-        {
-            return
-        }
-
-
+        if (!name.trim()){
+            alert("項目名を入力してください")
+            return}
+        if (categoryId === null){
+            alert("カテゴリを選択してください")
+            return}
+        if (itemTypeId === null){
+            alert("入力方式を選択してください")
+            return}
+        
         const normalizedOptions = isCustomOption
             ? options
                 .map((option, index) => ({
@@ -82,19 +80,19 @@ export default function AddInspectionChecklistItemEditModal({
                 }))
                 .filter((option) => option.value)
             : []
-
-
+        if (isCustomOption &&normalizedOptions.length === 0)
+        {alert("選択肢を1つ以上入力してください")
+        return}
         if (
             isCustomOption &&
-            normalizedOptions.length === 0
-        )
-        {
-            return
-        }
-
+            new Set(normalizedOptions.map((option) => 
+                option.value)).size !==normalizedOptions.length)
+            {alert("同じ選択肢は登録できません")
+            return}
 
         onAdd(
             name.trim(),
+            categoryId,
             itemTypeId,
             normalizedOptions
         )
@@ -178,6 +176,53 @@ export default function AddInspectionChecklistItemEditModal({
 
                     </div>
 
+                    {/* 大項目 */}
+                    <div>
+
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                            大項目
+                        </label>
+
+                        <select
+                            value={categoryId ?? ""}
+                            onChange={(event) =>
+                            {
+                                setCategoryId(
+                                    event.target.value === ""
+                                        ? null
+                                        : Number(event.target.value)
+                                )
+                            }}
+                            className="
+                                w-full
+                                rounded-lg
+                                border border-gray-500
+                                bg-white
+                                px-4 py-2.5
+                                text-sm
+                                outline-none
+                                focus:border-blue-500
+                                focus:ring-2
+                                focus:ring-blue-100
+                            "
+                        >
+
+                            <option value="">
+                                選択してください
+                            </option>
+
+                            {inspectionItemCategories.map((category) => (
+                                <option
+                                    key={category.id}
+                                    value={category.id}
+                                >
+                                    {category.name}
+                                </option>
+                            ))}
+
+                        </select>
+
+                    </div>
 
                     {/* 入力方式 */}
                     <div>

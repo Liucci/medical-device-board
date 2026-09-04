@@ -30,8 +30,7 @@ export default function AddInspectionChecklistItemModal({
     const [name, setName] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-    const [options, setOptions] =
-        useState<InspectionChecklistItemOption[]>([])
+    const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
 
     useEffect(() =>
     {
@@ -61,20 +60,16 @@ export default function AddInspectionChecklistItemModal({
 
     const handleAdd = () =>
     {
-        if (!name.trim())
-        {
-            return
-        }
-
-        if (categoryId === null)
-        {
-            return
-        }
-
-        if (itemTypeId === null)
-        {
-            return
-        }
+        
+        if (!name.trim()){
+            alert("項目名を入力してください")
+            return}
+        if (categoryId === null){
+            alert("カテゴリを選択してください")
+            return}
+        if (itemTypeId === null){
+            alert("入力方式を選択してください")
+            return}
 
         const normalizedOptions = isCustomOption
             ? options
@@ -90,9 +85,16 @@ export default function AddInspectionChecklistItemModal({
             normalizedOptions.length === 0
         )
         {
+            alert("選択肢を1つ以上入力してください")
             return
         }
-
+        if (
+            isCustomOption &&
+            new Set(normalizedOptions.map((option) => 
+                option.value)).size !==normalizedOptions.length)
+            {alert("同じ選択肢は登録できません")
+            return}
+        
         onAdd(
             name.trim(),
             categoryId,

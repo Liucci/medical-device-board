@@ -1,4 +1,4 @@
-import type {
+import type {InspectionChecklistItemOption,
     InspectionChecklistItemOptionFrontType,
     InspectionChecklistItemOptionBackType,
 } from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
@@ -18,3 +18,10 @@ export const normalizeInspectionChecklistItemOption = (
         displayOrder: option.display_order,
     }
 }
+
+export const normalizeInspectionChecklistItemOptionForItem = (
+    option: InspectionChecklistItemOptionBackType
+): InspectionChecklistItemOption => ({
+    value: option.value,
+    displayOrder: option.display_order
+})

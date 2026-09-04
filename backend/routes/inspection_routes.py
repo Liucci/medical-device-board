@@ -53,7 +53,6 @@ from transactions.inspection.inspection_item_types.update_inspection_item_type_t
 from transactions.inspection.inspection_item_types.delete_inspection_item_type_transaction import delete_inspection_item_type_transaction
 from transactions.inspection.inspection_checklists.add_inspection_checklist_transaction import add_inspection_checklist_transaction
 from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import add_inspection_checklist_items_transaction
-from transactions.inspection.inspection_checklists.create_inspection_checklist_new_ver_transaction import create_inspection_checklist_new_ver_transaction
 from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
 
@@ -231,16 +230,6 @@ def create_inspection_checklist_items(
                                                     inspection_checklist_items=inspection_checklist_items
     )
 
-@inspection_router.post("/create-inspection-checklist-new-ver")
-def create_inspection_checklist_new_ver(
-                                        request: CreateInspectionChecklistTransactionRequest,
-                                        session: BackendSession = Depends(get_current_session),
-):
-    return create_inspection_checklist_new_ver_transaction(
-                                                            client=session.client,
-                                                            request=request,
-                                                            hospital_id=session.hospital_id,
-    )
 
 # inspection_item_categories
 @inspection_router.get("/get-inspection-item-categories")

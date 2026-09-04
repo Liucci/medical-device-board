@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 
 // 処理中表示
 import { LoadingOverlay } from "../../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 // fetch
 import { fetchCurrentUser } from "../../api/auth/fetchCurrentUser"
@@ -16,7 +17,7 @@ import { getDeviceTypesFromApi } from "../../api/deviceTypes/fetchDeviceTypes"
 import { getDeviceModelsFromApi } from "../../api/deviceModels/fetchDeviceModels"
 import { getInspectionChecklistItemsFromApi } from "../../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
 import { getInspectionChecklistItemOptionsFromApi } from "../../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
-
+import { getInspectionItemCategoriesFromApi } from "../../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
 // types
 import type { InspectionType } from "../../types/inspectionTypes/inspectionTypeTypes"
 import type { InspectionItemType } from "../../types/inspectionTypes/inspectionItemTypeTypes"
@@ -24,6 +25,8 @@ import type { InspectionChecklist } from "../../types/inspectionTypes/inspection
 import type { DeviceTypeType } from "../../types/deviceTypeTypes"
 import type { DeviceModelType } from "../../types/deviceModelTypes"
 import type { InspectionChecklistItem } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
+import { InspectionItemCategoryType } from "../../types/inspectionTypes/inspectionItemCategoryTypes"
+import { CreateInspectionChecklistTransactionFrontType } from "../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 
 // normalizer
 import { normalizeInspectionType } from "../../utils/inspectionMapper/inspectionTypeMapper"
@@ -35,6 +38,7 @@ import { normalizeInspectionChecklistItem } from "../../utils/inspectionMapper/i
 import {
     normalizeInspectionChecklistItemOption,
 } from "../../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
+import { normalizeInspectionItemCategory } from "../../utils/inspectionMapper/inspectionItemCategoryMapper"
 
 // dnd
 import {
@@ -55,7 +59,7 @@ import AddInspectionChecklistItemEditModal from "./components/AddInspectionCheck
 import EditInspectionChecklistItemEditModal from "./components/EditInspectionChecklistItemEditModal"
 
 // transaction
-import { createInspectionChecklistNewVerTransaction } from "../../api/transactions/inspection/inspectionChecklists/createInspectionChecklistNewVerTransaction"
+import { createInspectionChecklistTransaction } from "../../api/transactions/inspection/inspectionChecklists/createInspectionChecklistsTransaction"
 
 
 export default function InspectionChecklistEditPage()
@@ -63,61 +67,31 @@ export default function InspectionChecklistEditPage()
     const router = useRouter()
 
     // 点検表関連
-    const [inspectionTypes, setInspectionTypes] =
-        useState<InspectionType[]>([])
-
-    const [inspectionItemTypes, setInspectionItemTypes] =
-        useState<InspectionItemType[]>([])
-
-    const [inspectionChecklists, setInspectionChecklists] =
-        useState<InspectionChecklist[]>([])
+    const [inspectionTypes, setInspectionTypes] =useState<InspectionType[]>([])
+    const [inspectionItemTypes, setInspectionItemTypes] =useState<InspectionItemType[]>([])
+    const [inspectionChecklists, setInspectionChecklists] =useState<InspectionChecklist[]>([])
 
     // 点検表情報
-    const [inspectionName, setInspectionName] =
-        useState("")
-
-    const [inspectionTypeId, setInspectionTypeId] =
-        useState<number | null>(null)
-
+    const [inspectionName, setInspectionName] =useState("")
+    const [inspectionTypeId, setInspectionTypeId] =useState<number | null>(null)
     // 機種関連
-    const [deviceTypes, setDeviceTypes] =
-        useState<DeviceTypeType[]>([])
-
-    const [deviceModels, setDeviceModels] =
-        useState<DeviceModelType[]>([])
-
-    const [deviceTypeId, setDeviceTypeId] =
-        useState<number | null>(null)
-
-    const [deviceModelId, setDeviceModelId] =
-        useState<number | null>(null)
-
-    const [selectedChecklistId, setSelectedChecklistId] =
-        useState<number | null>(null)
-
+    const [deviceTypes, setDeviceTypes] =useState<DeviceTypeType[]>([])
+    const [deviceModels, setDeviceModels] =useState<DeviceModelType[]>([])
+    const [deviceTypeId, setDeviceTypeId] =useState<number | null>(null)
+    const [deviceModelId, setDeviceModelId] =useState<number | null>(null)
+    const [selectedChecklistId, setSelectedChecklistId] =useState<number | null>(null)
     // 点検項目
-    const [inspectionChecklistItems, setInspectionChecklistItems] =
-        useState<InspectionChecklistItem[]>([])
-
-    const [deleteItemIds, setDeleteItemIds] =
-        useState<number[]>([])
-
-    const [originalItemIds, setOriginalItemIds] =
-        useState<number[]>([])
+    const [inspectionChecklistItems, setInspectionChecklistItems] =useState<InspectionChecklistItem[]>([])
+    const [deleteItemIds, setDeleteItemIds] =useState<number[]>([])
+    const [originalItemIds, setOriginalItemIds] =useState<number[]>([])
+    const [inspectionItemCategories, setInspectionItemCategories] =useState<InspectionItemCategoryType[]>([])
 
     // Modal
-    const [isAddItemModalOpen, setIsAddItemModalOpen] =
-        useState(false)
-
-    const [isEditItemModalOpen, setIsEditItemModalOpen] =
-        useState(false)
-
-    const [editingChecklistItem, setEditingChecklistItem] =
-        useState<InspectionChecklistItem | null>(null)
-
+    const [isAddItemModalOpen, setIsAddItemModalOpen] =useState(false)
+    const [isEditItemModalOpen, setIsEditItemModalOpen] =useState(false)
+    const [editingChecklistItem, setEditingChecklistItem] =useState<InspectionChecklistItem | null>(null)
     // Loading
-    const [loading, setLoading] =
-        useState(false)
+    const [loading, setLoading] =useState(false)
 
 
     // =========================================
@@ -147,33 +121,22 @@ export default function InspectionChecklistEditPage()
             inspectionChecklistsDate,
             deviceTypesData,
             deviceModelsData,
+            inspectionItemCategoriesData,
+
         ] = await Promise.all([
             getInspectionTypes(),
             getInspectionItemTypesFromApi(),
             getInspectionChecklistsFromApi(),
             getDeviceTypesFromApi(),
             getDeviceModelsFromApi(),
+            getInspectionItemCategoriesFromApi(),
         ])
-
-        setInspectionTypes(
-            inspectionTypesData.map(normalizeInspectionType)
-        )
-
-        setInspectionItemTypes(
-            inspectionItemTypesData.map(normalizeInspectionItemType)
-        )
-
-        setInspectionChecklists(
-            inspectionChecklistsDate.map(normalizeInspectionChecklist)
-        )
-
-        setDeviceTypes(
-            deviceTypesData.map(normalizeDeviceType)
-        )
-
-        setDeviceModels(
-            deviceModelsData.map(normalizeDeviceModel)
-        )
+        setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
+        setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
+        setInspectionChecklists(inspectionChecklistsDate.map(normalizeInspectionChecklist))
+        setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
+        setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
+        setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
     }
 
 
@@ -383,105 +346,63 @@ export default function InspectionChecklistEditPage()
 
     const handleSave = async () =>
     {
+    try{
         if (!selectedChecklistId)
-        {
-            alert("点検表を選択してください")
-            return
-        }
-
-        const checklist =
-            inspectionChecklists.find(
-                (item) =>
-                    item.id === selectedChecklistId
-            )
-
+        {alert("点検表を選択してください")
+            return}
+        const checklist =inspectionChecklists.find((item) =>item.id === selectedChecklistId)
         if (!checklist)
-        {
-            alert("点検表が見つかりません")
-            return
-        }
-
+        {alert("点検表が見つかりません")
+        return}
         setLoading(true)
 
-        try
-        {
-            const nextVersion =
-                checklist.version + 1
-
-
-            const newChecklist =
-                await createInspectionChecklistNewVerTransaction({
-                    inspectionTypeId:
-                        checklist.inspectionTypeId,
-
-                    deviceTypeId:
-                        checklist.deviceTypeId,
-
-                    deviceModelId:
-                        checklist.deviceModelId,
-
-                    name:
-                        checklist.name,
-
-                    version:
-                        nextVersion,
-
-                    items:
-                        inspectionChecklistItems.map(
+        const nextVersion =checklist.version + 1
+        const request: CreateInspectionChecklistTransactionFrontType = 
+                    {inspectionTypeId:checklist.inspectionTypeId,
+                    deviceTypeId:checklist.deviceTypeId,
+                    deviceModelId:checklist.deviceModelId,
+                    name:checklist.name,
+                    version:nextVersion,
+                    items:inspectionChecklistItems.map(
                             (item) => ({
-                                displayOrder:
-                                    item.displayOrder,
-
-                                itemName:
-                                    item.itemName,
-
-                                itemTypeId:
-                                    item.itemTypeId,
-
-                                required:
-                                    item.required,
-
-                                defaultValue:
-                                    item.defaultValue ?? null,
-
-                                // optionも保存
-                                options:
-                                    item.options ?? null,
-
-                                unit:
-                                    item.unit ?? null,
+                                displayOrder:item.displayOrder,
+                                itemName:item.itemName,
+                                categoryId: item.categoryId,
+                                itemTypeId:item.itemTypeId,
+                                required:item.required,
+                                defaultValue:item.defaultValue ?? null,
+                                options:item.options ?? null,
+                                unit:item.unit ?? null,
                             })
                         ),
-                })
-
-
-            // 更新したchecklistをstateに保存
-            setInspectionChecklists(
-                (prev) => [
-                    ...prev,
-                    normalizeInspectionChecklist(
-                        newChecklist
-                    ),
-                ]
-            )
-
-            setSelectedChecklistId(
-                newChecklist.id
-            )
+                }
+        await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {      
+                                const newChecklist =await createInspectionChecklistTransaction({request})
+                // 更新したchecklistをstateに保存
+                setInspectionChecklists(
+                    (prev) => [
+                        ...prev,
+                        normalizeInspectionChecklist(
+                            newChecklist
+                        ),
+                    ]
+                )
+                setSelectedChecklistId(newChecklist.id)
+                }
+            })
+             alert("点検表を保存しました")
 
         }
         catch (error)
         {
             console.error(error)
-
-            alert(
-                "点検表の保存に失敗しました"
-            )
-
+            alert("点検表の保存に失敗しました")
         }
         finally
         {
-            setLoading(false)
+        setLoading(false)
         }
     }
 
@@ -1002,71 +923,35 @@ export default function InspectionChecklistEditPage()
                                 ">
 
                                     <DndContext
-                                        collisionDetection={
-                                            closestCenter
-                                        }
-                                        onDragEnd={
-                                            handleChecklistItemDragEnd
-                                        }
-                                        modifiers={[
-                                            restrictToVerticalAxis,
-                                        ]}
+                                        collisionDetection={closestCenter}
+                                        onDragEnd={handleChecklistItemDragEnd}
+                                        modifiers={[restrictToVerticalAxis,]}
                                     >
-
                                         <SortableContext
-                                            items={
-                                                inspectionChecklistItems.map(
+                                            items={inspectionChecklistItems.map(
                                                     (item) => item.id
-                                                )
-                                            }
-                                            strategy={
-                                                verticalListSortingStrategy
-                                            }
+                                                )}
+                                            strategy={verticalListSortingStrategy}
                                         >
-
                                             <div className="space-y-2">
-
                                                 {
                                                     inspectionChecklistItems.map(
+                                                        (item,index) =>
                                                         (
-                                                            item,
-                                                            index
-                                                        ) => (
-
                                                             <SortableInspectionChecklistItemEdit
-                                                                key={
-                                                                    item.id
-                                                                }
-                                                                item={
-                                                                    item
-                                                                }
-                                                                index={
-                                                                    index
-                                                                }
-                                                                inspectionItemTypes={
-                                                                    inspectionItemTypes
-                                                                }
-                                                                onEdit={
-                                                                    (item) => {
-
-                                                                        setEditingChecklistItem(
-                                                                            item
-                                                                        )
-
-                                                                        setIsEditItemModalOpen(
-                                                                            true
-                                                                        )
-
+                                                                key={item.id}
+                                                                item={item}
+                                                                index={index}
+                                                                inspectionItemTypes={inspectionItemTypes}
+                                                                inspectionItemCategories={inspectionItemCategories}
+                                                                onEdit={(item) => {
+                                                                        setEditingChecklistItem(item)
+                                                                        setIsEditItemModalOpen(true)
                                                                     }
                                                                 }
-                                                                onDelete={
-                                                                    (itemId) => {
-
-                                                                        if (
-                                                                            originalItemIds.includes(
-                                                                                itemId
-                                                                            )
-                                                                        ) {
+                                                                onDelete={(itemId) => {
+                                                                        if (originalItemIds.includes(itemId))
+                                                                        {
                                                                             setDeleteItemIds(
                                                                                 (prev) => [
                                                                                     ...prev,
@@ -1074,16 +959,13 @@ export default function InspectionChecklistEditPage()
                                                                                 ]
                                                                             )
                                                                         }
-
-                                                                        setInspectionChecklistItems(
-                                                                            (prev) =>
+                                                                        setInspectionChecklistItems((prev) =>
                                                                                 prev.filter(
                                                                                     (item) =>
                                                                                         item.id !==
                                                                                         itemId
                                                                                 )
                                                                         )
-
                                                                     }
                                                                 }
                                                             />
@@ -1168,49 +1050,32 @@ export default function InspectionChecklistEditPage()
 
                 <AddInspectionChecklistItemEditModal
                     open={isAddItemModalOpen}
-                    inspectionItemTypes={
-                        inspectionItemTypes
-                    }
-                    onClose={() =>
-                        setIsAddItemModalOpen(false)
-                    }
+                    inspectionItemTypes={inspectionItemTypes}
+                    inspectionItemCategories={inspectionItemCategories}
+                    onClose={() =>setIsAddItemModalOpen(false)}
 
                     // ★ 新規登録用と同じくoptionsを受け取る
                     onAdd={(
-                        name,
-                        itemTypeId,
-                        options
+                            name,
+                            categoryId,
+                            itemTypeId,
+                            options
                     ) => {
-
                         setInspectionChecklistItems(
                             (prev) => [
                                 ...prev,
                                 {
                                     id: Date.now(),
-
-                                    checklistId:
-                                        selectedChecklistId!,
-
-                                    displayOrder:
-                                        prev.length + 1,
-
-                                    itemName:
-                                        name,
-
-                                    itemTypeId:
-                                        itemTypeId,
-
-                                    required:
-                                        false,
-
-                                    defaultValue:
-                                        null,
-
+                                    categoryId,
+                                    checklistId:selectedChecklistId!,
+                                    displayOrder:prev.length + 1,
+                                    itemName:name,
+                                    itemTypeId:itemTypeId,
+                                    required:false,
+                                    defaultValue:null,
                                     // ★ optionsをそのまま保持
                                     options,
-
-                                    unit:
-                                        null,
+                                    unit:null,
                                 },
                             ]
                         )
@@ -1231,22 +1096,19 @@ export default function InspectionChecklistEditPage()
                     inspectionItemTypes={
                         inspectionItemTypes
                     }
-
+                    inspectionItemCategories={inspectionItemCategories}
                     onClose={() => {
-
                         setIsEditItemModalOpen(false)
-
                         setEditingChecklistItem(null)
-
                     }}
-
-                    onSave={(itemId, name, itemTypeId, options) => {
+                    onSave={(itemId, name, categoryId,itemTypeId, options) => {
                         setInspectionChecklistItems((prev) =>
                             prev.map((item) =>
                                 item.id === itemId
                                     ? {
                                         ...item,
-                                        itemName: name,
+                                        name: name,
+                                        categoryId,
                                         itemTypeId,
                                         options,
                                     }

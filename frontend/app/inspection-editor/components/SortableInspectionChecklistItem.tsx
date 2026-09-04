@@ -14,13 +14,14 @@ import {
 } from "lucide-react"
 
 import type { InspectionItemType } from "../../types/inspectionTypes/inspectionItemTypeTypes"
-import type { InspectionChecklistItemOption} from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import type { InspectionChecklistItemOption } from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import type { InspectionItemCategoryType } from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 
 type InspectionChecklistItemEditor = {
     id: number
     name: string
-    categoryId: number | null
+    categoryId: number
     itemTypeId: number
     displayOrder: number
     required: boolean
@@ -34,6 +35,7 @@ type SortableInspectionChecklistItemProps = {
     item: InspectionChecklistItemEditor
     index: number
     inspectionItemTypes: InspectionItemType[]
+    inspectionItemCategories: InspectionItemCategoryType[]
     onEdit: (item: InspectionChecklistItemEditor) => void
     onDelete: (itemId: number) => void
 }
@@ -43,6 +45,7 @@ export default function SortableInspectionChecklistItem({
     item,
     index,
     inspectionItemTypes,
+    inspectionItemCategories,
     onEdit,
     onDelete,
 }: SortableInspectionChecklistItemProps)
@@ -75,20 +78,33 @@ export default function SortableInspectionChecklistItem({
     const itemTypeName = itemType?.name
 
 
+    const category = inspectionItemCategories.find(
+        (category) => category.id === item.categoryId
+    )
+
+
+    const categoryName = category?.name
+
+
     const isCustomOption = itemType?.isCustomOption === true
 
 
     const [isOptionsOpen, setIsOptionsOpen] = useState(false)
 
+
     const options = Array.isArray(item.options)
         ? item.options.filter(
-            (option): option is { value: string; displayOrder: number } =>
+            (option): option is {
+                value: string
+                displayOrder: number
+            } =>
                 typeof option === "object" &&
                 option !== null &&
                 "value" in option &&
                 typeof option.value === "string"
         )
         : []
+
 
     const handleDelete = () =>
     {
@@ -118,6 +134,7 @@ export default function SortableInspectionChecklistItem({
         >
 
             {/* 項目本体 */}
+
             <div
                 className="
                     flex
@@ -127,6 +144,7 @@ export default function SortableInspectionChecklistItem({
             >
 
                 {/* 編集 */}
+
                 <button
                     type="button"
                     onClick={() => onEdit(item)}
@@ -153,6 +171,7 @@ export default function SortableInspectionChecklistItem({
 
 
                 {/* 削除 */}
+
                 <button
                     type="button"
                     onClick={handleDelete}
@@ -179,6 +198,7 @@ export default function SortableInspectionChecklistItem({
 
 
                 {/* 項目番号 */}
+
                 <div
                     className="
                         w-8
@@ -193,6 +213,7 @@ export default function SortableInspectionChecklistItem({
 
 
                 {/* 項目名 */}
+
                 <div
                     className="
                         min-w-0
@@ -205,7 +226,25 @@ export default function SortableInspectionChecklistItem({
                 </div>
 
 
+                {/* 大項目 */}
+
+                <div
+                    className="
+                        w-24
+                        shrink-0
+                        truncate
+                        text-center
+                        text-sm
+                        text-gray-500
+                    "
+                    title={categoryName ?? "未選択"}
+                >
+                    {categoryName ?? "未選択"}
+                </div>
+
+
                 {/* 入力方式 */}
+
                 {isCustomOption ? (
 
                     <button
@@ -257,6 +296,7 @@ export default function SortableInspectionChecklistItem({
 
 
                 {/* Drag handle */}
+
                 <button
                     type="button"
                     {...attributes}
@@ -284,6 +324,7 @@ export default function SortableInspectionChecklistItem({
 
 
             {/* 任意の選択肢 */}
+
             {isCustomOption && isOptionsOpen && (
 
                 <div
@@ -313,7 +354,7 @@ export default function SortableInspectionChecklistItem({
                             {options.map((option, optionIndex) => (
 
                                 <div
-                                    key={`${option}-${optionIndex}`}
+                                    key={`${option.value}-${optionIndex}`}
                                     className="
                                         rounded
                                         px-2
@@ -338,4 +379,3 @@ export default function SortableInspectionChecklistItem({
         </div>
     )
 }
-

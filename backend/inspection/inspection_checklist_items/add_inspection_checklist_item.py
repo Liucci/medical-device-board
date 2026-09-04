@@ -16,6 +16,7 @@ def add_inspection_checklist_item(
             "checklist_id": checklist_id,
             "display_order":inspection_checklist_item.display_order,
             "item_name": inspection_checklist_item.item_name,
+            "category_id": inspection_checklist_item.category_id,
             "item_type_id": inspection_checklist_item.item_type_id,
             "required": inspection_checklist_item.required,
             "default_value": inspection_checklist_item.default_value,

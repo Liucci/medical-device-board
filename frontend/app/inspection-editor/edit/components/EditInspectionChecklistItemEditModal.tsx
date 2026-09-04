@@ -4,15 +4,18 @@ import { useEffect, useState } from "react"
 import type {InspectionItemType,} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
 import type {InspectionChecklistItem,} from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
 import type{InspectionChecklistItemOption} from"../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import type {InspectionItemCategoryType,} from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 type Props = {
     open: boolean
     item: InspectionChecklistItem | null
     inspectionItemTypes: InspectionItemType[]
+    inspectionItemCategories: InspectionItemCategoryType[]
     onClose: () => void
     onSave: (
         itemId: number,
         name: string,
+        categoryId: number,
         itemTypeId: number,
         options: InspectionChecklistItemOption[]
     ) => void
@@ -23,11 +26,13 @@ export default function EditInspectionChecklistItemEditModal({
     open,
     item,
     inspectionItemTypes,
+    inspectionItemCategories,
     onClose,
     onSave,
 }: Props)
 {
     const [name, setName] = useState("")
+    const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
 
@@ -37,6 +42,7 @@ export default function EditInspectionChecklistItemEditModal({
         if (open && item)
         {
             setName(item.itemName)
+            setCategoryId(item.categoryId)
             setItemTypeId(item.itemTypeId)
 
             setOptions(
@@ -52,6 +58,7 @@ export default function EditInspectionChecklistItemEditModal({
         if (!open)
         {
             setName("")
+            setCategoryId(null)
             setItemTypeId(null)
             setOptions([])
         }
@@ -62,9 +69,7 @@ export default function EditInspectionChecklistItemEditModal({
     const selectedItemType = inspectionItemTypes.find(
         (itemType) => itemType.id === itemTypeId
     )
-
-    const isCustomOption =
-        selectedItemType?.isCustomOption === true
+    const isCustomOption =selectedItemType?.isCustomOption === true
 
 
     if (!open)
@@ -177,20 +182,16 @@ export default function EditInspectionChecklistItemEditModal({
 
     const handleSave = () =>
     {
-        if (!item)
-        {
-            return
-        }
-
-        if (!name.trim())
-        {
-            return
-        }
-
-        if (itemTypeId === null)
-        {
-            return
-        }
+        if (!item){return}
+        if (!name.trim()){
+            alert("項目名を入力してください")
+            return}
+        if (categoryId === null){
+            alert("カテゴリを選択してください")
+            return}
+        if (itemTypeId === null){
+            alert("入力方式を選択してください")
+            return}
 
         let normalizedOptions: InspectionChecklistItemOption[] = []
 
@@ -210,14 +211,20 @@ export default function EditInspectionChecklistItemEditModal({
                 }))
 
             if (normalizedOptions.length === 0)
-            {
-                return
-            }
+            {alert("選択肢を1つ以上入力してください")
+            return}
         }
-
+        if (
+            isCustomOption &&
+            new Set(normalizedOptions.map((option) => 
+                option.value)).size !==normalizedOptions.length)
+            {alert("同じ選択肢は登録できません")
+            return}
+            
         onSave(
             item.id,
             name.trim(),
+            categoryId,
             itemTypeId,
             normalizedOptions
         )
@@ -264,7 +271,7 @@ export default function EditInspectionChecklistItemEditModal({
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-500">
-                        点検項目の内容と入力方式を編集してください
+                        点検項目の内容・大項目・入力方式を編集してください
                     </p>
 
                 </div>
@@ -303,7 +310,66 @@ export default function EditInspectionChecklistItemEditModal({
                         />
 
                     </div>
+                    {/* 大項目 */}
 
+                    <div>
+
+                        <label
+                            className="
+                                mb-2
+                                block
+                                text-sm
+                                font-medium
+                                text-gray-700
+                            "
+                        >
+                            大項目
+                        </label>
+
+                        <select
+                            value={categoryId ?? ""}
+                            onChange={(event) =>
+                            {
+                                setCategoryId(
+                                    event.target.value === ""
+                                        ? null
+                                        : Number(event.target.value)
+                                )
+                            }}
+                            className="
+                                w-full
+                                rounded-lg
+                                border
+                                border-gray-500
+                                bg-white
+                                px-4
+                                py-2.5
+                                text-sm
+                                outline-none
+                                focus:border-blue-500
+                                focus:ring-2
+                                focus:ring-blue-100
+                            "
+                        >
+
+                            <option value="">
+                                選択してください
+                            </option>
+
+                            {inspectionItemCategories.map(
+                                (category) => (
+                                    <option
+                                        key={category.id}
+                                        value={category.id}
+                                    >
+                                        {category.name}
+                                    </option>
+                                )
+                            )}
+
+                        </select>
+
+                    </div>
 
                     {/* 入力方式 */}
 
@@ -467,6 +533,7 @@ export default function EditInspectionChecklistItemEditModal({
                         onClick={handleSave}
                         disabled={
                             !name.trim() ||
+                            categoryId === null ||
                             itemTypeId === null ||
                             (
                                 isCustomOption &&

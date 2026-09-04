@@ -25,6 +25,7 @@ console.log(
         items: data.items.map((item) => ({
             display_order: item.displayOrder,
             item_name: item.itemName,
+            category_id: item.categoryId,
             item_type_id: item.itemTypeId,
             required: item.required,
             default_value: item.defaultValue ?? null,
@@ -53,6 +54,7 @@ export function toCreateInspectionChecklistNewVerTransactionRequest(
         items: data.items.map((item) => ({
             display_order: item.displayOrder,
             item_name: item.itemName,
+            category_id: item.categoryId,
             item_type_id: item.itemTypeId,
             required: item.required,
             default_value: item.defaultValue ?? null,

@@ -6,6 +6,7 @@ class InspectionChecklistItemResponse(BaseModel):
     checklist_id: int
     display_order: int
     item_name: str
+    category_id:int
     item_type_id: int
     required: bool
     default_value: str | None = None
@@ -19,6 +20,7 @@ class AddInspectionChecklistItemRequest(BaseModel):
     #checklist_id: int | None = None
     display_order: int
     item_name: str
+    category_id:int
     item_type_id: int
     required: bool
     default_value: str | None = None
@@ -31,6 +33,7 @@ class UpdateInspectionChecklistItemRequest(BaseModel):
     id: int
     display_order: int
     item_name: str | None = None
+    category_id:int | None = None
     item_type_id: int | None = None
     required: bool | None = None
     default_value: str | None = None

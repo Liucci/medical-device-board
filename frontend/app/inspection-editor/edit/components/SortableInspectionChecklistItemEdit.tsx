@@ -4,7 +4,7 @@ import type { CSSProperties } from "react"
 import { useState } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-
+import type { InspectionItemCategoryType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 // icon
 import {
     GripVertical,
@@ -22,6 +22,7 @@ type SortableInspectionChecklistItemEditProps = {
     item: InspectionChecklistItem
     index: number
     inspectionItemTypes: InspectionItemType[]
+    inspectionItemCategories: InspectionItemCategoryType[]
     onEdit: (item: InspectionChecklistItem) => void
     onDelete: (itemId: number) => void
 }
@@ -31,43 +32,39 @@ export default function SortableInspectionChecklistItemEdit({
     item,
     index,
     inspectionItemTypes,
+    inspectionItemCategories,
     onEdit,
     onDelete,
 }: SortableInspectionChecklistItemEditProps)
 {
     const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
+            attributes,
+            listeners,
+            setNodeRef,
+            transform,
+            transition,
+            isDragging,
     } = useSortable({
         id: item.id,
     })
 
 
     const style: CSSProperties = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 1 : undefined,
+                                transform: CSS.Transform.toString(transform),
+                                transition,
+                                opacity: isDragging ? 0.5 : 1,
+                                zIndex: isDragging ? 1 : undefined,
     }
-
-
     const itemType = inspectionItemTypes.find(
         (itemType) => itemType.id === item.itemTypeId
     )
-
-
     const itemTypeName = itemType?.name
-
+    const category = inspectionItemCategories.find(
+        (category) => category.id === item.categoryId
+    )
+    const categoryName = category?.name
     const isCustomOption = itemType?.isCustomOption === true
-
-
     const [isOptionsOpen, setIsOptionsOpen] = useState(false)
-
-
     const options = Array.isArray(item.options)
         ? item.options.filter(
             (
@@ -82,8 +79,6 @@ export default function SortableInspectionChecklistItemEdit({
                 typeof option.value === "string"
         )
         : []
-
-
     const handleDelete = () =>
     {
         const confirmed = window.confirm(
@@ -95,8 +90,6 @@ export default function SortableInspectionChecklistItemEdit({
             onDelete(item.id)
         }
     }
-
-
     return (
         <div
             ref={setNodeRef}
@@ -196,6 +189,22 @@ export default function SortableInspectionChecklistItemEdit({
                     "
                 >
                     {item.itemName}
+                </div>
+
+                {/* 大項目 */}
+
+                <div
+                    className="
+                        w-24
+                        shrink-0
+                        truncate
+                        text-center
+                        text-sm
+                        text-gray-500
+                    "
+                    title={categoryName ?? "未選択"}
+                >
+                    {categoryName ?? "未選択"}
                 </div>
 
 
