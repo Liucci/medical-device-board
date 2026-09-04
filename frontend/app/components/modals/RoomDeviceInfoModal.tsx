@@ -1,28 +1,35 @@
 "use client"
 import { useState } from "react"
-import CommonModal from "../common/CommonModal"
-import { Device } from "../../types/deviceTypes"
+import { useRouter } from "next/navigation"
+
+//user、認証
+import {CurrentUser  } from "../../types/userTypes"
+
+//type
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
 import { WardType } from "../../types/wardTypes"
-import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+import { InfectionTypeType } from "../../types/infectionTypeTypes"
+import { RoomInfectionType } from "../../types/roomInfectionTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+//表示データ
+import { Device } from "../../types/deviceTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
 import { FaTrashAlt } from "react-icons/fa"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
+
+//icon
+import { FaVirus } from "react-icons/fa"
+//modal
+import CommonModal from "../common/CommonModal"
 import { executeWithLoading } from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
-
 import {LoadingOverlay} from "../common/LoadingOverlay"
-import { InfectionTypeType } from "../../types/infectionTypeTypes"
-import { RoomInfectionType } from "../../types/roomInfectionTypes"
 import InfectionSelectModal from "./InfectionSelectModal"
-import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
-
-import { FaVirus } from "react-icons/fa"
 
 //page.tsxから
 //stateレス化
@@ -91,7 +98,7 @@ export default function RoomDeviceInfoModal({
 }: Props) {
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
-
+const router = useRouter()
 
 if (!isOpen || !selectedRoomDevice) return null
 
@@ -255,6 +262,18 @@ const deviceTasks =
        }
   })
   }
+
+  const handleInspection = () => {
+    if (!selectedRoomDevice?.id) return
+
+    router.push(
+      `/inspection-excution?deviceId=${selectedRoomDevice.id}`
+    )
+  }
+
+  if (!isOpen || !selectedRoomDevice) return null
+
+
 return (
    <>
 <CommonModal
@@ -334,6 +353,15 @@ return (
               {wardName}　{roomName}
             </div>
           </div>
+
+          {/* 点検実施 */}
+          <button
+            type="button"
+            onClick={handleInspection}
+            className="mt-4 w-full rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600"
+          >
+            点検実施
+          </button>
 
           {/* 詳細情報 */}
           <div className="border-t pt-2 mt-3 space-y-1">
