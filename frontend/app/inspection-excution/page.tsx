@@ -17,7 +17,7 @@ import { getInspectionChecklistsFromApi } from "../api/inspection/inspectionChec
 import { getInspectionChecklistItemsFromApi } from "../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
 import { getInspectionChecklistItemOptionsFromApi } from "../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
 import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
-
+import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
 // types
 import type { CurrentUser } from "../types/userTypes"
 import type { Device } from "../types/deviceTypes"
@@ -32,6 +32,7 @@ import type { InspectionChecklist } from "../types/inspectionTypes/inspectionChe
 import type { InspectionChecklistItem } from "../types/inspectionTypes/inspectionChecklistItemTypes"
 import type { InspectionChecklistItemOptionFrontType } from "../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 import type { InspectionItemCategoryType } from "../types/inspectionTypes/inspectionItemCategoryTypes"
+import type { InspectionItemType } from "../types/inspectionTypes/inspectionItemTypeTypes"
 // normalizer
 import {normalizeCurrentUser} from "../utils/userMapper"
 import { normalizeDevice } from "../utils/deviceMapper"
@@ -46,76 +47,11 @@ import { normalizeInspectionChecklist } from "../utils/inspectionMapper/inspecti
 import { normalizeInspectionChecklistItem } from "../utils/inspectionMapper/inspectionChecklistItemMapper"
 import { normalizeInspectionChecklistItemOption } from "../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
 import { normalizeInspectionItemCategory } from "../utils/inspectionMapper/inspectionItemCategoryMapper"
+import { normalizeInspectionItemType } from "../utils/inspectionMapper/inspectionItemTypeMapper"
+//buid
+import { buildInspection } from "./utils/buildInspection"
 // 処理中表示
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
-
-//CategoryのOrderを取得して、Itemの並び替え関数
-function getInspectionChecklistItemGroups(
-    items: InspectionChecklistItem[],
-    categories: InspectionItemCategoryType[]
-) {
-    return categories
-        .filter(category => category.isActive)
-        .sort((a, b) => a.displayOrder - b.displayOrder)
-        .map(category => ({
-            category,
-            items: items
-                .filter(item => item.categoryId === category.id)
-                .sort((a, b) => a.displayOrder - b.displayOrder)
-        }))
-        .filter(group => group.items.length > 0)
-}
-
-function getInspectionChecklistItemInput(
-    item: InspectionChecklistItem,
-    options: InspectionChecklistItemOptionFrontType[]
-) {
-    switch (item.itemTypeId) {
-        case 1:
-            return (
-                <input
-                    type="number"
-                    defaultValue={item.defaultValue ?? ""}
-                    className="w-full rounded border px-3 py-2"
-                />
-            )
-        case 2:
-            return (
-                <input
-                    type="text"
-                    defaultValue={item.defaultValue ?? ""}
-                    className="w-full rounded border px-3 py-2"
-                />
-            )
-        case 3:
-            return (
-                <select
-                    defaultValue={item.defaultValue ?? ""}
-                    className="w-full rounded border px-3 py-2"
-                >
-                    <option value="">選択してください</option>
-                    <option value="OK">OK</option>
-                    <option value="NG">NG</option>
-                </select>
-            )
-        case 4:
-            return (
-                <select
-                    defaultValue={item.defaultValue ?? ""}
-                    className="w-full rounded border px-3 py-2"
-                >
-                    <option value="">選択してください</option>
-                    {options.map(option => (
-                        <option key={option.id} value={option.value}>
-                            {option.value}
-                        </option>
-                    ))}
-                </select>
-            )
-        default:
-            return null
-    }
-}
 
 export default function InspectionExecutionPage() {
     const router = useRouter()
@@ -138,7 +74,7 @@ export default function InspectionExecutionPage() {
     const [inspectionChecklistItems, setInspectionChecklistItems] = useState<InspectionChecklistItem[]>([])
     const [inspectionChecklistItemOptions, setInspectionChecklistItemOptions] = useState<Record<number, InspectionChecklistItemOptionFrontType[]>>({})
     const [inspectionItemCategories, setInspectionItemCategories] = useState<InspectionItemCategoryType[]>([])
-    
+    const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])
     const [loading, setLoading] = useState(false)
 
 
@@ -167,6 +103,7 @@ export default function InspectionExecutionPage() {
                     inspectionChecklistsData,
                     inspectionTypesData,
                     inspectionItemCategoriesData,
+                    inspectionItemTypesData,
                 ] = await Promise.all([
                     getDevicesFromApi(),
                     getDeviceTypesFromApi(),
@@ -177,8 +114,8 @@ export default function InspectionExecutionPage() {
                     getInfectionTypesFromApi(),
                     getInspectionChecklistsFromApi(),
                     getInspectionTypes(),
-                    getInspectionItemCategoriesFromApi()
-
+                    getInspectionItemCategoriesFromApi(),
+                    getInspectionItemTypesFromApi(),
 
                 ])
 
@@ -192,6 +129,7 @@ const infectionTypes = infectionTypesData.map(normalizeInfectionType)
 const inspectionChecklists = inspectionChecklistsData.map(normalizeInspectionChecklist)
 const inspectionTypes = inspectionTypesData.map(normalizeInspectionType)
 const inspectionItemCategories = inspectionItemCategoriesData.map(normalizeInspectionItemCategory)
+const inspectionItemTypes = inspectionItemTypesData.map(normalizeInspectionItemType)
 
 const device = devices.find(d => String(d.id) === String(deviceId))
 
@@ -222,6 +160,7 @@ const ward = wards.find(w => w.id === room?.wardId)
                     )
                 )
                 setInspectionItemCategories(inspectionItemCategories)
+                setInspectionItemTypes(inspectionItemTypes)
             } finally {
                 setLoading(false)
             }
@@ -270,195 +209,439 @@ const ward = wards.find(w => w.id === room?.wardId)
         fetchChecklistItems()
     }, [selectedChecklistId, inspectionChecklists])
 
+    //選択中Checklistをpage側で取得
+    const selectedChecklist = inspectionChecklists.find(
+        checklist => String(checklist.id) === selectedChecklistId
+    )
 
 return (
-    <main className="min-h-screen p-6">
-        {loading && <LoadingOverlay />}
+    <>
+        <main className="min-h-screen bg-gray-200 p-12">
+            {loading && <LoadingOverlay />}
 
-        <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">
-                点検実施
-            </h1>
+            <div className="mx-auto max-w-6xl">
 
-            <button
-                type="button"
-                onClick={() => router.push("/dashboard")}
-                className="rounded border px-4 py-2"
-            >
-                ダッシュボードへ戻る
-            </button>
-        </div>
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-3xl font-semibold text-gray-800">
+                        点検実施
+                    </h1>
 
-        <div className="mt-6 grid grid-cols-[320px_1fr] gap-6">
-            <div className="space-y-6">
-                <div className="rounded border p-4">
-                    <h2 className="text-lg font-bold">
-                        実施者情報
-                    </h2>
-
-                    <div className="mt-2">
-                        <p>ユーザー名：{currentUser?.displayName ?? "－"}</p>
-                        <p>権限：{currentUser?.role ?? "－"}</p>
-                    </div>
+                    <p className="mt-1 text-sm text-gray-500">
+                        対象機器の点検を実施してください
+                    </p>
                 </div>
 
-                <div className="rounded border p-4">
-                    <h2 className="text-lg font-bold">
-                        感染情報
-                    </h2>
+                {/* Main */}
+                <div className="flex flex-col gap-6 lg:flex-row">
 
-                    {roomInfections.length === 0 ? (
-                        <p className="mt-2">
-                            感染情報はありません。
-                        </p>
-                    ) : (
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            {roomInfections.map(roomInfection => {
-                                const infectionType = infectionTypes.find(
-                                    infectionType => String(infectionType.id) === String(roomInfection.infectionTypeId)
-                                )
+                    {/* ===================================== */}
+                    {/* 左側：機器・実施者情報 */}
+                    {/* ===================================== */}
+                    <section className="
+                        w-full
+                        space-y-5
+                        lg:w-1/3
+                    ">
 
-                                return (
-                                    <div
-                                        key={roomInfection.id}
-                                        className="rounded px-3 py-1 text-white"
-                                        style={{ backgroundColor: infectionType?.color ?? "#666" }}
-                                    >
-                                        {infectionType?.name ?? "－"}
-                                    </div>
-                                )
-                            })}
+                        {/* 実施者情報 */}
+                        <div className="
+                            rounded-xl
+                            bg-white
+                            p-6
+                            shadow-sm
+                        ">
+                            <div className="mb-4 pb-3">
+                                <h2 className="text-lg font-semibold text-gray-800">
+                                    実施者情報
+                                </h2>
+
+                                <p className="mt-1 text-sm text-gray-500">
+                                    点検を実施するユーザー
+                                </p>
+                            </div>
+
+                            <div className="space-y-2 text-sm text-gray-700">
+                                <p>
+                                    <span className="font-medium">
+                                        ユーザー名：
+                                    </span>
+                                    {currentUser?.displayName ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        権限：
+                                    </span>
+                                    {currentUser?.role ?? "－"}
+                                </p>
+                            </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="rounded border p-4">
-                    <h2 className="text-lg font-bold">
-                        機器情報
-                    </h2>
+                        {/* 感染情報 */}
+                        <div className="
+                            rounded-xl
+                            bg-white
+                            p-6
+                            shadow-sm
+                        ">
+                            <div className="mb-4 pb-3">
+                                <h2 className="text-lg font-semibold text-gray-800">
+                                    感染情報
+                                </h2>
 
-                    <div className="mt-2">
-                        <p>対象機器ID：{deviceId ?? "未指定"}</p>
-                        <p>機器名：{deviceType?.name ?? "－"}</p>
-                        <p>型式：{deviceModel?.name ?? "－"}</p>
-                        <p>シリアル番号：{device?.serialNumber ?? "－"}</p>
-                        <p>管理番号：{device?.managementNumber ?? "－"}</p>
-                        <p>病棟：{ward?.name ?? "－"}</p>
-                        <p>部屋：{room?.name ?? "－"}</p>
-                    </div>
-                </div>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    対象機器が設置されている部屋の感染情報
+                                </p>
+                            </div>
 
-                <div className="rounded border p-4">
-                    <h2 className="text-lg font-bold">
-                        点検表
-                    </h2>
+                            {roomInfections.length === 0 ? (
+                                <p className="text-sm text-gray-400">
+                                    感染情報はありません。
+                                </p>
+                            ) : (
+                                <div className="flex flex-wrap gap-2">
+                                    {roomInfections.map(roomInfection => {
+                                        const infectionType = infectionTypes.find(
+                                            infectionType =>
+                                                String(infectionType.id) ===
+                                                String(roomInfection.infectionTypeId)
+                                        )
 
-                    {inspectionChecklists.length === 0 ? (
-                        <p className="mt-2">
-                            対象の点検表がありません。
-                        </p>
-                    ) : (
-                        <div className="mt-4">
-                            {(() => {
-                                const latestInspectionChecklists = Object.values(
-                                    inspectionChecklists.reduce<Record<string, InspectionChecklist>>((acc, checklist) => {
-                                        const key = [
-                                            checklist.inspectionTypeId,
-                                            checklist.deviceTypeId,
-                                            checklist.deviceModelId,
-                                            checklist.name
-                                        ].join("-")
-
-                                        const current = acc[key]
-
-                                        if (!current || checklist.version > current.version) {
-                                            acc[key] = checklist
-                                        }
-
-                                        return acc
-                                    }, {})
-                                )
-
-                                return (
-                                    <select
-                                        value={selectedChecklistId}
-                                        onChange={event => {
-                                            setSelectedChecklistId(event.target.value)
-                                        }}
-                                        className="w-full rounded border px-3 py-2"
-                                    >
-                                        <option value="">
-                                            点検表を選択してください
-                                        </option>
-
-                                        {latestInspectionChecklists.map(checklist => {
-                                            const inspectionType = inspectionTypes.find(
-                                                inspectionType => inspectionType.id === checklist.inspectionTypeId
-                                            )
-
-                                            return (
-                                                <option key={checklist.id} value={checklist.id}>
-                                                    {checklist.name}（{inspectionType?.name ?? "－"} / Ver.{checklist.version}）
-                                                </option>
-                                            )
-                                        })}
-                                    </select>
-                                )
-                            })()}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="min-w-0 rounded border p-6">
-                <h2 className="text-xl font-bold">
-                    点検項目
-                </h2>
-
-                {!selectedChecklistId ? (
-                    <div className="mt-6 flex min-h-[400px] items-center justify-center text-gray-500">
-                        点検表を選択してください。
-                    </div>
-                ) : (
-
-                    <div className="mt-6 space-y-6">
-                        {getInspectionChecklistItemGroups(
-                            inspectionChecklistItems,
-                            inspectionItemCategories
-                        ).map(group => (
-                            <div key={group.category.id}>
-                                <h3 className="mb-3 border-b pb-2 text-lg font-bold">
-                                    {group.category.name}
-                                </h3>
-
-                                <div className="space-y-3">
-                                    {group.items.map(item => (
-                                        <div
-                                            key={item.id}
-                                            className="rounded border p-4"
-                                        >
-
-                                        <div className="flex items-center gap-4">
-                                            <p className="w-1/2 font-medium">
-                                                {item.itemName}
-                                            </p>
-
-                                            <div className="w-1/2">
-                                                {getInspectionChecklistItemInput(
-                                                    item,
-                                                    inspectionChecklistItemOptions[item.id] ?? []
-                                                )}
+                                        return (
+                                            <div
+                                                key={roomInfection.id}
+                                                className="
+                                                    rounded-lg
+                                                    px-3
+                                                    py-1.5
+                                                    text-sm
+                                                    font-medium
+                                                    text-white
+                                                    shadow-sm
+                                                "
+                                                style={{
+                                                    backgroundColor:
+                                                        infectionType?.color ?? "#666"
+                                                }}
+                                            >
+                                                {infectionType?.name ?? "－"}
                                             </div>
-                                        </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 機器情報 */}
+                        <div className="
+                            rounded-xl
+                            bg-white
+                            p-6
+                            shadow-sm
+                        ">
+                            <div className="mb-4 pb-3">
+                                <h2 className="text-lg font-semibold text-gray-800">
+                                    機器情報
+                                </h2>
+
+                                <p className="mt-1 text-sm text-gray-500">
+                                    点検対象となる医療機器
+                                </p>
+                            </div>
+
+                            <div className="space-y-2 text-sm text-gray-700">
+                                <p>
+                                    <span className="font-medium">
+                                        対象機器ID：
+                                    </span>
+                                    {deviceId ?? "未指定"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        機器名：
+                                    </span>
+                                    {deviceType?.name ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        型式：
+                                    </span>
+                                    {deviceModel?.name ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        シリアル番号：
+                                    </span>
+                                    {device?.serialNumber ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        管理番号：
+                                    </span>
+                                    {device?.managementNumber ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        病棟：
+                                    </span>
+                                    {ward?.name ?? "－"}
+                                </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        部屋：
+                                    </span>
+                                    {room?.name ?? "－"}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 点検表 */}
+                        <div className="
+                            rounded-xl
+                            bg-white
+                            p-6
+                            shadow-sm
+                        ">
+                            <div className="mb-4 pb-3">
+                                <h2 className="text-lg font-semibold text-gray-800">
+                                    点検表
+                                </h2>
+
+                                <p className="mt-1 text-sm text-gray-500">
+                                    使用する点検表を選択してください
+                                </p>
+                            </div>
+
+                            {inspectionChecklists.length === 0 ? (
+                                <p className="text-sm text-gray-400">
+                                    対象の点検表がありません。
+                                </p>
+                            ) : (
+                                <div>
+                                    {(() => {
+                                        const latestInspectionChecklists =
+                                            Object.values(
+                                                inspectionChecklists.reduce<
+                                                    Record<string, InspectionChecklist>
+                                                >((acc, checklist) => {
+                                                    const key = [
+                                                        checklist.inspectionTypeId,
+                                                        checklist.deviceTypeId,
+                                                        checklist.deviceModelId,
+                                                        checklist.name
+                                                    ].join("-")
+
+                                                    const current = acc[key]
+
+                                                    if (
+                                                        !current ||
+                                                        checklist.version >
+                                                            current.version
+                                                    ) {
+                                                        acc[key] = checklist
+                                                    }
+
+                                                    return acc
+                                                }, {})
+                                            )
+
+                                        return (
+                                            <select
+                                                value={selectedChecklistId}
+                                                onChange={event => {
+                                                    setSelectedChecklistId(
+                                                        event.target.value
+                                                    )
+                                                }}
+                                                className="
+                                                    w-full
+                                                    rounded-lg
+                                                    border
+                                                    border-gray-500
+                                                    bg-white
+                                                    px-4
+                                                    py-2.5
+                                                    text-sm
+                                                    outline-none
+                                                    transition
+                                                    focus:border-blue-500
+                                                    focus:ring-2
+                                                    focus:ring-blue-100
+                                                "
+                                            >
+                                                <option value="">
+                                                    点検表を選択してください
+                                                </option>
+
+                                                {latestInspectionChecklists.map(
+                                                    checklist => {
+                                                        const inspectionType =
+                                                            inspectionTypes.find(
+                                                                inspectionType =>
+                                                                    inspectionType.id ===
+                                                                    checklist.inspectionTypeId
+                                                            )
+
+                                                        return (
+                                                            <option
+                                                                key={checklist.id}
+                                                                value={checklist.id}
+                                                            >
+                                                                {checklist.name}
+                                                                （
+                                                                {inspectionType?.name ??
+                                                                    "－"}
+                                                                {" / "}
+                                                                Ver.
+                                                                {checklist.version}
+                                                                ）
+                                                            </option>
+                                                        )
+                                                    }
+                                                )}
+                                            </select>
+                                        )
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* ===================================== */}
+                    {/* 右側：点検項目 */}
+                    {/* ===================================== */}
+                    <section className="
+                        w-full
+                        rounded-xl
+                        bg-white
+                        p-6
+                        shadow-sm
+                        lg:w-2/3
+                    ">
+
+                        <div className="
+                            mb-5
+                            border-b
+                            border-gray-200
+                            pb-4
+                        ">
+                            <h2 className="
+                                text-lg
+                                font-semibold
+                                text-gray-800
+                            ">
+                                点検項目
+                            </h2>
+
+                            <p className="
+                                mt-1
+                                text-sm
+                                text-gray-500
+                            ">
+                                点検表の各項目を確認して入力してください
+                            </p>
+                        </div>
+
+                        {!selectedChecklistId ? (
+                            <div className="
+                                flex
+                                h-[600px]
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                border-dashed
+                                border-gray-300
+                            ">
+                                <div className="text-center">
+                                    <p className="text-sm text-gray-400">
+                                        点検表を選択してください
+                                    </p>
+
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        左側から点検表を選択すると、
+                                        点検項目が表示されます
+                                    </p>
                                 </div>
                             </div>
-                        ))}
-                    </div>                    
-                )}
+                        ) : (
+                            <div className="
+                                max-h-[700px]
+                                overflow-y-auto
+                                pr-2
+                            ">
+                                {selectedChecklist &&
+                                    buildInspection({
+                                        checklist: selectedChecklist,
+                                        items: inspectionChecklistItems,
+                                        categories: inspectionItemCategories,
+                                        itemTypes: inspectionItemTypes,
+                                        optionsByChecklistItemId:
+                                            inspectionChecklistItemOptions
+                                    })}
+                            </div>
+                        )}
+                    </section>
+                </div>
+
+                {/* Footer */}
+                <div className="
+                    mt-6
+                    flex
+                    justify-between
+                    gap-3
+                ">
+                    <button
+                        type="button"
+                        onClick={() => router.push("/dashboard")}
+                        className="
+                            rounded-lg
+                            border
+                            border-gray-500
+                            bg-white
+                            px-5
+                            py-2.5
+                            text-sm
+                            font-medium
+                            text-gray-700
+                            shadow-sm
+                            transition
+                            hover:bg-gray-50
+                        "
+                    >
+                        ダッシュボードに戻る
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={!selectedChecklistId || loading}
+                        className="
+                            rounded-lg
+                            bg-blue-600
+                            px-6
+                            py-2.5
+                            text-sm
+                            font-medium
+                            text-white
+                            shadow-sm
+                            transition
+                            hover:bg-blue-700
+                            disabled:cursor-not-allowed
+                            disabled:opacity-50
+                        "
+                    >
+                        点検を完了する
+                    </button>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </>
 )
 }
