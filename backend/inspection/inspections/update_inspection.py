@@ -18,7 +18,6 @@ def update_inspection(
             "room_id": inspection.room_id,
             "inspection_type_id": inspection.inspection_type_id,
             "checklist_id": inspection.checklist_id,
-            "performed_at": inspection.performed_at,
             "overall_result": inspection.overall_result,
             "comment": inspection.comment
         })

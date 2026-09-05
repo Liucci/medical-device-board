@@ -46,6 +46,10 @@ from schemas.inspection_schemas.inspection_item_category_schema import (
 from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
     CreateInspectionChecklistTransactionRequest,
 )
+from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import (
+    CreateInspectionTransactionRequest,
+)
+
 #transactions
 from transactions.inspection.inspections.create_inspection_transaction import create_inspection_transaction
 from transactions.inspection.inspection_item_types.add_inspection_item_type_transaction import add_inspection_item_type_transaction
@@ -129,7 +133,7 @@ def get_inspection_results(
 
 @inspection_router.post("/create-inspection")
 def create_inspection(
-    request: AddInspectionRequest,
+    request: CreateInspectionTransactionRequest,
     session: BackendSession = Depends(get_current_session),
 ):
     return create_inspection_transaction(
@@ -137,7 +141,7 @@ def create_inspection(
         inspection=request.inspection,
         results=request.results,
         hospital_id=session.hospital_id,
-        performed_by=session.user_id
+        user_id=session.user_id
     )
 
 

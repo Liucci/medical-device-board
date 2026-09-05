@@ -1,13 +1,18 @@
+// inspectionResultMapper.ts
+
 import {
     InspectionResult,
     InspectionResultDB,
-    AddInspectionResult,
-    UpdateInspectionResult,
+    AddInspectionResultFrontType,
+    AddInspectionResultBackType,
+    UpdateInspectionResultFrontType,
+    UpdateInspectionResultBackType,
     DeleteInspectionResults
 } from "../../types/inspectionTypes/inspectionResultTypes"
 
 
 // DB → UI
+
 export const normalizeInspectionResult = (
     result: InspectionResultDB
 ): InspectionResult => ({
@@ -19,24 +24,27 @@ export const normalizeInspectionResult = (
 
 
 // Create
+
 export const toCreateInspectionResultRequest = (
-    result: AddInspectionResult
-) => ({
+    result: AddInspectionResultFrontType
+): AddInspectionResultBackType => ({
     checklist_item_id: result.checklistItemId,
     value: result.value ?? null
 })
 
 
 // Update
+
 export const toUpdateInspectionResultRequest = (
-    result: UpdateInspectionResult
-) => ({
+    result: UpdateInspectionResultFrontType
+): UpdateInspectionResultBackType => ({
     id: result.id,
     value: result.value ?? null
 })
 
 
 // Delete
+
 export const toDeleteInspectionResultsRequest = (
     results: DeleteInspectionResults
 ) => ({

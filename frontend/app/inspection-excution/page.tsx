@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-// fetch
+// API
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
 import { getDevicesFromApi } from "../api/devices/fetchDevices"
 import { getWardsFromApi } from "../api/wards/fetchWards"
@@ -18,6 +18,8 @@ import { getInspectionChecklistItemsFromApi } from "../api/inspection/inspection
 import { getInspectionChecklistItemOptionsFromApi } from "../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
 import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
+import { createInspectionTransaction } from "../api/transactions/inspection/inspections/createInspectionTransaction"
+
 // types
 import type { CurrentUser } from "../types/userTypes"
 import type { Device } from "../types/deviceTypes"
@@ -51,13 +53,15 @@ import { normalizeInspectionItemType } from "../utils/inspectionMapper/inspectio
 //buid
 import { buildInspection } from "./utils/buildInspection"
 // 処理中表示
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 
 export default function InspectionExecutionPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const deviceId = searchParams.get("deviceId")
-//user
+    //URLからdevice idを取得する（str扱いになるのでnumber変換）
+    const deviceId = Number(searchParams.get("deviceId"))
+    //user
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
 //機器情報
     const [device, setDevice] = useState<Device | null>(null)
@@ -83,7 +87,40 @@ export default function InspectionExecutionPage() {
             ...prev,
             [itemId]: value
         }))
-    }   
+    } 
+    
+    const handleSave = async () => {
+        if (!selectedChecklist) return
+        const inspection = {
+            inspection: {
+                deviceId,
+                roomId: room?.id ?? null,
+                inspectionTypeId: selectedChecklist.inspectionTypeId,
+                checklistId: selectedChecklist.id,
+                overallResult: null,
+                comment: null
+            },
+            results: Object.entries(inspectionResults).map(
+                ([checklistItemId, value]) => ({
+                    checklistItemId: Number(checklistItemId),
+                    value
+                })
+            )
+        }
+        await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                        await createInspectionTransaction({
+                            inspection,
+                            onClose: () => router.push("/dashboard")
+                        })
+                }
+            })
+        alert("点検結果を保存しました")
+
+
+
+    }
 
     useEffect(() => {
         console.log("inspectionResults:", inspectionResults)
@@ -232,7 +269,6 @@ const ward = wards.find(w => w.id === room?.wardId)
 return (
     <>
         <main className="min-h-screen bg-gray-200 p-12">
-            {loading && <LoadingOverlay />}
 
             <div className="mx-auto max-w-6xl">
 
@@ -636,9 +672,7 @@ return (
 
                     <button
                         type="button"
-                        onClick={() => {
-                            console.log("inspectionResults:", inspectionResults)
-                        }}
+                        onClick={handleSave}
                         disabled={!selectedChecklistId || loading}
                         className="
                             rounded-lg
@@ -660,6 +694,9 @@ return (
                 </div>
             </div>
         </main>
+    {/* 処理中表示 */}
+    <LoadingOverlay loading={loading} />
+        
     </>
 )
 }

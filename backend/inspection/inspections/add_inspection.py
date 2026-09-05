@@ -22,7 +22,6 @@ def add_inspection(
             "inspection_type_id": inspection.inspection_type_id,
             "checklist_id": inspection.checklist_id,
             "performed_by": performed_by,
-            "performed_at": inspection.performed_at,
             "overall_result": inspection.overall_result,
             "comment": inspection.comment
         })

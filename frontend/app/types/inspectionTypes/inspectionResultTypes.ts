@@ -23,17 +23,33 @@ export type InspectionResultDB = {
 // API
 // =========================
 
-export type AddInspectionResult = {
-    //点検結果作成時はinspection idは存在しない
-    //inspectionId: number
+// Create
+
+export type AddInspectionResultFrontType = {
     checklistItemId: number
     value?: string | null
 }
 
-export type UpdateInspectionResult = {
+export type AddInspectionResultBackType = {
+    checklist_item_id: number
+    value: string | null
+}
+
+
+// Update
+
+export type UpdateInspectionResultFrontType = {
     id: number
     value?: string | null
 }
+
+export type UpdateInspectionResultBackType = {
+    id: number
+    value?: string | null
+}
+
+
+// Delete
 
 export type DeleteInspectionResults = {
     ids: number[]
