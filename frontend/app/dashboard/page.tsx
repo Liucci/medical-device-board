@@ -134,6 +134,11 @@ import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 import { normalizeInspectionItemCategory } from "../utils/inspectionMapper/inspectionItemCategoryMapper"
 
+//処理中表示
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
+
+
 export default function Page() {
   //console.log("Dashboard render")
   //DBのdevice tableから機器の情報を取得し、deviceListに格納するstate
@@ -200,6 +205,8 @@ export default function Page() {
   
   //user情報を格納する関数
   const router = useRouter()
+  //処理中表示用
+  const [loading, setLoading] = useState(false)
 
   const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
   const [accessToken, setAccessToken] =useState<string | null>(null)
@@ -1095,37 +1102,42 @@ useEffect(() => {
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
-
   const fetchData = async () => {
     if (!currentUser) {return}
-    const data =await fetchInitDashboard()
-    console.log("infection_types:",data.infection_types)
-    if (!data) {return}
-    setDeviceList(data.devices.map(normalizeDevice))
-    setStockAreas(data.stock_areas.map(normalizeStockArea))
-    setWards(data.wards.map(normalizeWard))
-    setRooms(data.rooms.map(normalizeRoom))
-    setDeviceTypes(data.device_types.map(normalizeDeviceType))
-    setDeviceModels(data.device_models.map(normalizeDeviceModel))
-    setTasks(data.tasks.map(normalizeMaintenanceTask))
-    setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
-    setHistories(data.histories.map(normalizeHistory))
-    setInfectionTypes(data.infection_types.map(normalizeInfectionType))
-    setRoomInfections(data.room_infections.map(normalizeRoomInfection))
-    setWardInfections(data.ward_infections.map(normalizeWardInfection))
-    setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
-    setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
-    setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
-    //setWardInfections(data.ward_infections.map(normalizeWardInfection))
-    //最終更新日を取得用APIをたたく
-    const stockLastUpdated = await fetchStockLastUpdated()
-    const wardLastUpdated = await fetchWardLastUpdated()
-    console.log("currentUser:",currentUser)
-    setStockLastUpdated(stockLastUpdated)
-    setWardLastUpdated(wardLastUpdated)
-    //お知らせ表示
-    //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
-    await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {    
+                  const data =await fetchInitDashboard()
+                  console.log("infection_types:",data.infection_types)
+                  if (!data) {return}
+                  setDeviceList(data.devices.map(normalizeDevice))
+                  setStockAreas(data.stock_areas.map(normalizeStockArea))
+                  setWards(data.wards.map(normalizeWard))
+                  setRooms(data.rooms.map(normalizeRoom))
+                  setDeviceTypes(data.device_types.map(normalizeDeviceType))
+                  setDeviceModels(data.device_models.map(normalizeDeviceModel))
+                  setTasks(data.tasks.map(normalizeMaintenanceTask))
+                  setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
+                  setHistories(data.histories.map(normalizeHistory))
+                  setInfectionTypes(data.infection_types.map(normalizeInfectionType))
+                  setRoomInfections(data.room_infections.map(normalizeRoomInfection))
+                  setWardInfections(data.ward_infections.map(normalizeWardInfection))
+                  setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
+                  setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
+                  setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
+                  //setWardInfections(data.ward_infections.map(normalizeWardInfection))
+                  //最終更新日を取得用APIをたたく
+                  const stockLastUpdated = await fetchStockLastUpdated()
+                  const wardLastUpdated = await fetchWardLastUpdated()
+                  console.log("currentUser:",currentUser)
+                  setStockLastUpdated(stockLastUpdated)
+                  setWardLastUpdated(wardLastUpdated)
+                  //お知らせ表示
+                  //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
+                  await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
+          },
+    })
+  
   }
   fetchData()}, [currentUser])
   
@@ -1163,6 +1175,7 @@ if (!currentUser) {
 }
 
     return (
+      <>
       <div
         //page.module.cssのlayoutクラスと
         // draggingDeviceが存在する場合はdraggingクラスを呼び出す
@@ -1423,5 +1436,10 @@ if (!currentUser) {
       
 
     </div>
+  {/* 処理中表示 */}
+  <LoadingOverlay loading={loading} />
+</>
+
+
   )
 }

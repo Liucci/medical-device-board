@@ -1,5 +1,7 @@
 "use client"
+
 import { useRouter } from "next/navigation"
+//type
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
@@ -12,16 +14,25 @@ import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../ty
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
 import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionItemCategoryTypes"
+//処理中表示
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
-import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 //test用
 import { testAddInspectionChecklistItemOptions } from "../api/inspection/inspectionChecklistItemOptions/testAddInspectionChecklistItemOptions"
+//modal
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
 import DeviceListModal from "./modals/DeviceListModal"
 import InviteCreateModal from "./modals/InviteCreateModal"
 import AccountInfoModal from "./modals/AccountInfoModal"
+import InspectionResultModal from "../components/modals/inspection/InspectionResultListModal"
+
+import type { Inspection } from "../types/inspectionTypes/inspectionTypes"
+import { getInspectionsFromApi } from "../api/inspection/inspections/fetchInspections"
+import { normalizeInspection } from "../utils/inspectionMapper/inspectionMapper"
+
 
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
@@ -136,27 +147,20 @@ export default function ButtonPanel({
   const [openInviteModal,setOpenInviteModal] = useState(false)
   const [openAccountInfoModal, setOpenAccountInfoModal] = useState(false)
   const [openHospitalSettingsModal, setOpenHospitalSettingsModal] = useState(false)
+  const [openInspectionResultModal, setOpenInspectionResultModal]= useState(false)
+  const [inspectionResultsLoading, setInspectionResultsLoading] =useState(false)
+  const [inspections, setInspections] =useState<Inspection[]>([])
 
-  const OpenModal = () => {
-    setOpenDeviceModal(true)
-  }
-  const openSettings = () => {
-    setOpenSettingsModal(true)
-  }
-  const openHistory = async () => {
-    setOpenHistoryModal(true)
-    await fetchHistories()
-  }
-  const openDeviceList = () => {
-    //機器一覧表のモーダルを開く処理
-    setOpenDeviceListModal(true)
-  }
-  const openInvite = () => {
-    setOpenInviteModal(true)
-  }
- const openHospitalSettings = () => {
-    setOpenHospitalSettingsModal(true)
-}
+  const OpenModal = () => {setOpenDeviceModal(true)}
+  const openSettings = () => {setOpenSettingsModal(true)}
+  const openHistory = async () => {setOpenHistoryModal(true)
+  await fetchHistories()}
+  const openDeviceList = () => {setOpenDeviceListModal(true)}
+  const openInvite = () => {setOpenInviteModal(true)}
+  const openHospitalSettings = () => {setOpenHospitalSettingsModal(true)}
+
+      //処理中表示用
+  const [loading, setLoading] = useState(false)
 
   // inspection_checklist_item_options INSERTテスト
   const testInspectionChecklistItemOptions = async () => {
@@ -187,8 +191,30 @@ export default function ButtonPanel({
     console.log(error)
   }
 
+//点検結果ボタン処理内容
+const openInspectionResult = async () => {
+
+    setOpenInspectionResultModal(true)
+
+    try {
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            const data =await getInspectionsFromApi()
+            const normalizedInspections =data.map(normalizeInspection)
+            setInspections(normalizedInspections)
+            }
+        })
+    } catch (error) {
+        console.error("failed to fetch inspections:",error)
+        alert("点検結果の取得に失敗しました")
+        setOpenInspectionResultModal(false)
+    } 
+}
+
 
   return (
+    <>
   <div className="flex flex-col h-full">
     <div>
       <ButtonGrid
@@ -226,6 +252,13 @@ export default function ButtonPanel({
       />
        <div className="h-4" />
 
+      <ButtonGrid
+        onAdd={openInspectionResult}
+        title={"点検結果"}
+        titleSize="text-xs"
+        icon={<ClipboardCheck size={38} />}
+      />
+    <div className="h-4" />
       <ButtonGrid
         onAdd={openInvite}
         title={"招待"}
@@ -326,6 +359,21 @@ export default function ButtonPanel({
         />
       }
 
+      {openInspectionResultModal && (
+          <InspectionResultModal
+              isOpen={openInspectionResultModal}
+              onClose={() =>setOpenInspectionResultModal(false)}
+              loading={inspectionResultsLoading}
+              inspections={inspections}
+              devices={deviceList}
+              rooms={rooms}
+              wards={wards}
+              deviceTypes={deviceTypes}
+              deviceModels={deviceModels}
+              inspectionTypes={inspectionTypes}
+          />
+      )}
+
       {openInviteModal &&
         <InviteCreateModal
 
@@ -343,5 +391,11 @@ export default function ButtonPanel({
     userId={userId}
 />
   </div>
+{/* 処理中表示 */}
+<LoadingOverlay loading={loading} />
+
+</>
+
+
   )
 }
