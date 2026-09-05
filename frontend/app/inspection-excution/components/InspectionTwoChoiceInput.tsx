@@ -1,23 +1,23 @@
-import { useState } from "react"
-
 type Props = {
     leftLabel: string
     rightLabel: string
+    value: string | null
+    onChange: (value: string | null) => void
 }
 
 export function InspectionTwoChoiceInput({
     leftLabel,
-    rightLabel
+    rightLabel,
+    value,
+    onChange
 }: Props) {
     console.log("InspectionTwoChoiceInput")
-
-    const [selected, setSelected] = useState<"left" | "right" | null>(null)
 
     return (
         <div className="flex gap-2">
             <button
                 type="button"
-                onClick={() => setSelected("left")}
+                onClick={() => onChange(leftLabel)}
                 className={`
                     min-w-28
                     rounded-lg
@@ -29,7 +29,7 @@ export function InspectionTwoChoiceInput({
                     shadow-sm
                     transition
                     ${
-                        selected === "left"
+                        value === leftLabel
                             ? "border-blue-600 bg-blue-600 text-white"
                             : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
                     }
@@ -40,7 +40,7 @@ export function InspectionTwoChoiceInput({
 
             <button
                 type="button"
-                onClick={() => setSelected("right")}
+                onClick={() => onChange(rightLabel)}
                 className={`
                     min-w-28
                     rounded-lg
@@ -52,7 +52,7 @@ export function InspectionTwoChoiceInput({
                     shadow-sm
                     transition
                     ${
-                        selected === "right"
+                        value === rightLabel
                             ? "border-blue-600 bg-blue-600 text-white"
                             : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
                     }

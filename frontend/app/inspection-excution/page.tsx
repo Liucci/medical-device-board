@@ -75,6 +75,21 @@ export default function InspectionExecutionPage() {
     const [inspectionChecklistItemOptions, setInspectionChecklistItemOptions] = useState<Record<number, InspectionChecklistItemOptionFrontType[]>>({})
     const [inspectionItemCategories, setInspectionItemCategories] = useState<InspectionItemCategoryType[]>([])
     const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])
+    //点検結果を受け取るstate
+    const [inspectionResults, setInspectionResults] = useState<Record<number, string | null>>({})
+    //inspectionResults用関数
+    const handleInspectionResultChange = (itemId: number, value: string | null) => {
+        setInspectionResults(prev => ({
+            ...prev,
+            [itemId]: value
+        }))
+    }   
+
+    useEffect(() => {
+        console.log("inspectionResults:", inspectionResults)
+    }, [inspectionResults])
+
+
     const [loading, setLoading] = useState(false)
 
 
@@ -577,15 +592,15 @@ return (
                                 overflow-y-auto
                                 pr-2
                             ">
-                                {selectedChecklist &&
-                                    buildInspection({
-                                        checklist: selectedChecklist,
-                                        items: inspectionChecklistItems,
-                                        categories: inspectionItemCategories,
-                                        itemTypes: inspectionItemTypes,
-                                        optionsByChecklistItemId:
-                                            inspectionChecklistItemOptions
-                                    })}
+                                {selectedChecklist && buildInspection({
+                                    checklist: selectedChecklist,
+                                    items: inspectionChecklistItems,
+                                    categories: inspectionItemCategories,
+                                    itemTypes: inspectionItemTypes,
+                                    optionsByChecklistItemId: inspectionChecklistItemOptions,
+                                    inspectionResults,
+                                    onChange: handleInspectionResultChange
+                                })}
                             </div>
                         )}
                     </section>
@@ -621,6 +636,9 @@ return (
 
                     <button
                         type="button"
+                        onClick={() => {
+                            console.log("inspectionResults:", inspectionResults)
+                        }}
                         disabled={!selectedChecklistId || loading}
                         className="
                             rounded-lg
@@ -637,7 +655,7 @@ return (
                             disabled:opacity-50
                         "
                     >
-                        点検を完了する
+                            点検を完了する
                     </button>
                 </div>
             </div>

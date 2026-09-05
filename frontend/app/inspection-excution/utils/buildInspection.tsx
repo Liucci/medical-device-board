@@ -9,11 +9,13 @@ import type { InspectionItemType } from "../../types/inspectionTypes/inspectionI
 import { InspectionTwoChoiceInput } from "../components/InspectionTwoChoiceInput"
 
 type BuildInspectionProps = {
-    checklist: InspectionChecklist
-    items: InspectionChecklistItem[]
-    categories: InspectionItemCategoryType[]
-    itemTypes: InspectionItemType[]
-    optionsByChecklistItemId: Record<number, InspectionChecklistItemOptionFrontType[]>
+                            checklist: InspectionChecklist
+                            items: InspectionChecklistItem[]
+                            categories: InspectionItemCategoryType[]
+                            itemTypes: InspectionItemType[]
+                            optionsByChecklistItemId: Record<number, InspectionChecklistItemOptionFrontType[]>
+                            inspectionResults: Record<number, string | null>
+                            onChange: (itemId: number, value: string | null) => void
 }
 
 function getInspectionChecklistItemGroups(
@@ -35,12 +37,12 @@ function getInspectionChecklistItemGroups(
 function getInspectionChecklistItemInput(
     item: InspectionChecklistItem,
     itemTypes: InspectionItemType[],
-    options: InspectionChecklistItemOptionFrontType[]
+    optionsByChecklistItemId: Record<number, InspectionChecklistItemOptionFrontType[]>,
+    inspectionResults: Record<number, string | null>,
+    onChange: (itemId: number, value: string | null) => void
 ) {
-    const itemType = itemTypes.find(
-        itemType => itemType.id === item.itemTypeId
-    )
-
+    const itemType = itemTypes.find(itemType => itemType.id === item.itemTypeId)
+    const options = optionsByChecklistItemId[item.id] ?? []
     if (!itemType) {
         return null
     }
@@ -67,10 +69,10 @@ function getInspectionChecklistItemInput(
                             focus:ring-2
                             focus:ring-blue-100
                         "
-                        onChange={event => {
-                            event.target.value =
-                                event.target.value.replace(/[^0-9]/g, "")
-                        }}
+                            onChange={event => {
+                                const value = event.target.value.replace(/[^0-9]/g, "")
+                                onChange(item.id, value)
+                            }}
                     />
 
                     {item.unit && (
@@ -100,8 +102,10 @@ function getInspectionChecklistItemInput(
                             focus:ring-2
                             focus:ring-blue-100
                         "
+                        onChange={event => {
+                            onChange(item.id, String(event.target.checked))
+                        }}
                     />
-
                     <span className="text-sm text-gray-700">
                         確認済み
                     </span>
@@ -111,22 +115,25 @@ function getInspectionChecklistItemInput(
         case "select":
             return (
                 <select
-                    className="
-                        min-w-40
-                        rounded-lg
-                        border
-                        border-gray-500
-                        bg-white
-                        px-4
-                        py-2.5
-                        text-sm
-                        outline-none
-                        transition
-                        focus:border-blue-500
-                        focus:ring-2
-                        focus:ring-blue-100
-                    "
-                >
+                        className="
+                            min-w-40
+                            rounded-lg
+                            border
+                            border-gray-500
+                            bg-white
+                            px-4
+                            py-2.5
+                            text-sm
+                            outline-none
+                            transition
+                            focus:border-blue-500
+                            focus:ring-2
+                            focus:ring-blue-100
+                        "
+                            onChange={event => {
+                                onChange(item.id, event.target.value || null)
+                            }}
+                    >
                     <option value="">
                         選択してください
                     </option>
@@ -140,6 +147,7 @@ function getInspectionChecklistItemInput(
                         </option>
                     ))}
                 </select>
+                
             )
 
         case "two_choice":
@@ -147,9 +155,10 @@ function getInspectionChecklistItemInput(
                 <InspectionTwoChoiceInput
                     leftLabel={itemType.options?.[0] ?? ""}
                     rightLabel={itemType.options?.[1] ?? ""}
+                    value={inspectionResults[item.id] ?? null}
+                    onChange={value => onChange(item.id, value)}
                 />
-            )
-
+)
         default:
             return null
     }
@@ -159,7 +168,9 @@ export function buildInspection({
     items,
     categories,
     itemTypes,
-    optionsByChecklistItemId
+    optionsByChecklistItemId,
+    inspectionResults,
+    onChange
 }: BuildInspectionProps) {
     console.log("buildInspection")
 
@@ -246,11 +257,15 @@ export function buildInspection({
 
                                 {/* 入力UI */}
                                 <div className="shrink-0">
-                                    {getInspectionChecklistItemInput(
-                                        item,
-                                        itemTypes,
-                                        optionsByChecklistItemId[item.id] ?? []
-                                    )}
+                                    {
+                                        getInspectionChecklistItemInput(
+                                            item,
+                                            itemTypes,
+                                            optionsByChecklistItemId,
+                                            inspectionResults,
+                                            onChange
+                                        )                                        
+                                    }
                                 </div>
                             </div>
                         ))}
