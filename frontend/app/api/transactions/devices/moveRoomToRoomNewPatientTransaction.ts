@@ -5,14 +5,14 @@ import { getRoomsFromApi } from "../../rooms/fetchRooms"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
 import { getTasksFromApi } from "../../tasks/fetchTasks"
 
-import { normalizeDevice } from "../../../utils/deviceMapper"
-import { normalizeRoom } from "../../../utils/roomsMapper"
-import { normalizeHistory } from "../../../utils/historyMapper"
-import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
+import { normalizeDevice } from "../../../mapper/deviceMapper"
+import { normalizeRoom } from "../../../mapper/roomsMapper"
+import { normalizeHistory } from "../../../mapper/historyMapper"
+import { normalizeMaintenanceTask } from "../../../mapper/taskMapper"
 import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
-import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
+import { normalizeRoomInfection } from "../../../mapper/roomInfectionMapper"
 
 
 type MoveRoomToRoomNewPatientTransactionParams = {

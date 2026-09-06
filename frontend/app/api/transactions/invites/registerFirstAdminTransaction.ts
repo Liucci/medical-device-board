@@ -1,6 +1,6 @@
 import { registerFirstAdmin } from "../../invites/registerFirstAdmin"
 import { RegisterUserRequest } from "../../../types/registerTypes"
-import { normalizeRegisteredUser,toRegisterUserRequest } from "../../../utils/registerMapper"
+import { normalizeRegisteredUser,toRegisterUserRequest } from "../../../mapper/registerMapper"
 
 type RegisterFirstAdminTransactionParams = {
                                              registerUser: RegisterUserRequest

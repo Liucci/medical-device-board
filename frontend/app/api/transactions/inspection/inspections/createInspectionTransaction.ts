@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../../client/apiClient"
 import { CreateInspectionTransactionFrontType } from "../../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
-import { toCreateInspectionTransactionRequest } from "../../../../utils/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
+import { toCreateInspectionTransactionRequest } from "../../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
 
 
 type CreateInspectionTransactionParams = {

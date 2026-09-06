@@ -17,11 +17,11 @@ import {
 
 import {
     normalizeInspectionResult,
-} from "../../../utils/inspectionMapper/inspectionResultMapper"
+} from "../../../mapper/inspectionMapper/inspectionResultMapper"
 
 import {
     normalizeInspectionChecklistItem,
-} from "../../../utils/inspectionMapper/inspectionChecklistItemMapper"
+} from "../../../mapper/inspectionMapper/inspectionChecklistItemMapper"
 
 
 type Props = {

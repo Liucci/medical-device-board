@@ -8,9 +8,9 @@ import { getRoomsFromApi } from "../../rooms/fetchRooms"
 import {
          normalizeWard,
          toDeleteWardsRequest
-       } from "../../../utils/wardsMapper"
+       } from "../../../mapper/wardsMapper"
 
-import { normalizeRoom } from "../../../utils/roomsMapper"
+import { normalizeRoom } from "../../../mapper/roomsMapper"
 
 type DeleteWardTransactionParams = {
                                      ward: DeleteWardsType

@@ -31,7 +31,7 @@ import InspectionResultModal from "../components/modals/inspection/InspectionRes
 
 import type { Inspection } from "../types/inspectionTypes/inspectionTypes"
 import { getInspectionsFromApi } from "../api/inspection/inspections/fetchInspections"
-import { normalizeInspection } from "../utils/inspectionMapper/inspectionMapper"
+import { normalizeInspection } from "../mapper/inspectionMapper/inspectionMapper"
 
 
 import ButtonGrid from "./ButtonGrid"

@@ -1,6 +1,6 @@
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
-import { normalizeRoom } from "../utils/roomsMapper"
+import { normalizeRoom } from "../mapper/roomsMapper"
 import { RoomDBType } from "../types/roomTypes"
 
 type Props = {

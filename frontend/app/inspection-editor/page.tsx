@@ -30,12 +30,12 @@ import { InspectionItemCategoryType } from "../types/inspectionTypes/inspectionI
 
 
 //normalizer
-import {normalizeDeviceType} from "../utils/deviceTypeMapper"
-import {normalizeDeviceModel} from "../utils/deviceModelMapper"
-import {normalizeInspectionType} from "../utils/inspectionMapper/inspectionTypeMapper"
-import {normalizeInspectionItemType} from "../utils/inspectionMapper/inspectionItemTypeMapper"
-import {normalizeInspectionChecklist} from "../utils/inspectionMapper/inspectionChecklistMapper"
-import { normalizeInspectionItemCategory } from "../utils/inspectionMapper/inspectionItemCategoryMapper"
+import {normalizeDeviceType} from "../mapper/deviceTypeMapper"
+import {normalizeDeviceModel} from "../mapper/deviceModelMapper"
+import {normalizeInspectionType} from "../mapper/inspectionMapper/inspectionTypeMapper"
+import {normalizeInspectionItemType} from "../mapper/inspectionMapper/inspectionItemTypeMapper"
+import {normalizeInspectionChecklist} from "../mapper/inspectionMapper/inspectionChecklistMapper"
+import { normalizeInspectionItemCategory } from "../mapper/inspectionMapper/inspectionItemCategoryMapper"
 //CRUD
 
 //transaction

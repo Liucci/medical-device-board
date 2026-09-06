@@ -1,6 +1,6 @@
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
-import { normalizeHistory } from "../utils/historyMapper"
+import { normalizeHistory } from "../mapper/historyMapper"
 import { HistoryDB } from "../types/historyTypes"
 
 type Props = {

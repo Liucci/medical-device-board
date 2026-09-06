@@ -8,7 +8,7 @@ import {
 import {
   normalizeUserManagement,
   toUpdateUserRequest
-} from "../../../utils/userMapper"
+} from "../../../mapper/userMapper"
 
 type UpdateUserTransactionParams = {
                         user: UpdateUserFrontType

@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import { CreateDeviceType, } from "../../../types/deviceTypes"
-import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../utils/deviceMapper"
+import { toDBDevice,toCreateDeviceRequest, normalizeDevice } from "../../../mapper/deviceMapper"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import {  } from "../../client/apiClient"
 import { executeWithLoading } from "../../../components/common/executeWithLoading"

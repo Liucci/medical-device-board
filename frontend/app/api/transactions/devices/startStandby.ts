@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import {
          toStartStandbyRequest
-       } from "../../../utils/deviceMapper"
+       } from "../../../mapper/deviceMapper"
 import {  } from "../../client/apiClient"
 
 export async function startStandby(

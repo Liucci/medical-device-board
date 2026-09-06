@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import {toUpdateSerialNumberRequest} from "../../../utils/deviceMapper"
+import {toUpdateSerialNumberRequest} from "../../../mapper/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
 import {  } from "../../client/apiClient"
 

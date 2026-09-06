@@ -3,7 +3,7 @@ import { getTasksFromApi }from "../../tasks/fetchTasks"
 import {
          normalizeMaintenanceTask,
          toCompleteMaintenanceTaskRequest
-       } from "../../../utils/taskMapper"
+       } from "../../../mapper/taskMapper"
 import {  } from "../../client/apiClient"
 import { CompleteMaintenanceTask } from "../../../types/taskTypes"
 

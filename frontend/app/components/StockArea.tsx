@@ -6,7 +6,7 @@ import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
-import { formatDateTime } from "../utils/dateUtils"
+import { formatDateTime } from "../utils/dateTime/dateUtils"
 import { StockLastUpdatedResponse} from "../types/deviceTypes"
 //page.tsxより
 type Props = {  

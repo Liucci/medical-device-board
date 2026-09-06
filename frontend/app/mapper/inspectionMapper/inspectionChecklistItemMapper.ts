@@ -5,7 +5,7 @@ import {
     UpdateInspectionChecklistItemFrontType,
     DeleteInspectionChecklistItemsFrontType,
 } from "../../types/inspectionTypes/inspectionChecklistItemTypes"
-import {normalizeInspectionChecklistItemOptionForItem} from "../../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
+import {normalizeInspectionChecklistItemOptionForItem} from "../../mapper/inspectionMapper/inspectionChecklistItemOptionMapper"
 
 // DB → UI
 export const normalizeInspectionChecklistItem = (

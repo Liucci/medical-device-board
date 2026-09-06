@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../../../client/apiClient"
 import type {CreateInspectionChecklistTransactionFrontType} from "../../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 import {
     toCreateInspectionChecklistTransactionRequest
-} from "../../../../utils/inspectionMapper/inspectionTransactionMapper/inspectionChecklistTransactionMapper"
+} from "../../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionChecklistTransactionMapper"
 
 
 export async function createInspectionChecklistTransaction(

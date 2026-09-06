@@ -1,6 +1,6 @@
 import {RealtimePostgresChangesPayload} from "@supabase/supabase-js"
 import {supabase} from "../lib/supabase"
-import {normalizeDevice} from "../utils/deviceMapper"
+import {normalizeDevice} from "../mapper/deviceMapper"
 import {DeviceDB} from "../types/deviceTypes"
 import {
   StockLastUpdatedResponse,

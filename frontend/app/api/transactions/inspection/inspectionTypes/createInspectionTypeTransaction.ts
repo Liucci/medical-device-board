@@ -7,7 +7,7 @@ import { getInspectionTypes } from "../../../inspection/inspectionTypes/fetchIns
 import {
     normalizeInspectionType,
     toCreateInspectionTypeRequest,
-} from "../../../../utils/inspectionMapper/inspectionTypeMapper"
+} from "../../../../mapper/inspectionMapper/inspectionTypeMapper"
 
 
 type CreateInspectionTypeTransactionParams = {

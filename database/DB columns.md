@@ -127,7 +127,7 @@
 | inspection_checklists             | 9                | created_at              | timestamp with time zone    |     |                               | NO          |
 | inspection_checklists             | 10               | updated_at              | timestamp with time zone    |     |                               | NO          |
 | inspection_item_categories        | 1                | id                      | bigint                      | YES |                               | NO          |
-| inspection_item_categories        | 2                | hospital_id             | uuid                        |     | hospitals.id                  | NO          |
+| inspection_item_categories        | 2                | hospital_id             | uuid                        |     | hospitals.id                  | YES         |
 | inspection_item_categories        | 3                | name                    | text                        |     |                               | NO          |
 | inspection_item_categories        | 4                | display_order           | integer                     |     |                               | NO          |
 | inspection_item_categories        | 5                | is_active               | boolean                     |     |                               | NO          |
@@ -137,6 +137,7 @@
 | inspection_item_types             | 4                | is_active               | boolean                     |     |                               | NO          |
 | inspection_item_types             | 5                | input_type              | text                        |     |                               | NO          |
 | inspection_item_types             | 6                | options                 | jsonb                       |     |                               | YES         |
+| inspection_item_types             | 7                | is_custom_option        | boolean                     |     |                               | NO          |
 | inspection_results                | 1                | id                      | bigint                      | YES |                               | NO          |
 | inspection_results                | 2                | inspection_id           | bigint                      |     | inspections.id                | NO          |
 | inspection_results                | 3                | checklist_item_id       | integer                     |     | inspection_checklist_items.id | NO          |
@@ -152,7 +153,6 @@
 | inspections                       | 5                | inspection_type_id      | integer                     |     | inspection_types.id           | NO          |
 | inspections                       | 6                | checklist_id            | integer                     |     | inspection_checklists.id      | NO          |
 | inspections                       | 7                | performed_by            | uuid                        |     | users.id                      | YES         |
-| inspections                       | 8                | performed_at            | timestamp with time zone    |     |                               | NO          |
 | inspections                       | 9                | overall_result          | text                        |     |                               | YES         |
 | inspections                       | 10               | comment                 | text                        |     |                               | YES         |
 | inspections                       | 11               | created_at              | timestamp with time zone    |     |                               | NO          |

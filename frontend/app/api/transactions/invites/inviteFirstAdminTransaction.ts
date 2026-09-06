@@ -1,6 +1,6 @@
 import { inviteFirstAdmin } from "../../invites/inviteFirstAdmin"
 import { InviteFirstAdminType } from "../../../types/inviteTypes"
-import { toInviteFirstAdminRequest } from "../../../utils/inviteMapper"
+import { toInviteFirstAdminRequest } from "../../../mapper/inviteMapper"
 
 type InviteFirstAdminTransactionParams = {
                                            invite: InviteFirstAdminType

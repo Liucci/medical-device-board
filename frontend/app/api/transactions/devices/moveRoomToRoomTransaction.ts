@@ -4,13 +4,13 @@ import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getRoomsFromApi } from "../../rooms/fetchRooms"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
 
-import { normalizeDevice } from "../../../utils/deviceMapper"
-import { normalizeRoom } from "../../../utils/roomsMapper"
-import { normalizeHistory } from "../../../utils/historyMapper"
+import { normalizeDevice } from "../../../mapper/deviceMapper"
+import { normalizeRoom } from "../../../mapper/roomsMapper"
+import { normalizeHistory } from "../../../mapper/historyMapper"
 import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
-import { normalizeRoomInfection } from "../../../utils/roomInfectionMapper"
+import { normalizeRoomInfection } from "../../../mapper/roomInfectionMapper"
 
 type MoveRoomToRoomTransactionParams = {
                                           deviceId: number

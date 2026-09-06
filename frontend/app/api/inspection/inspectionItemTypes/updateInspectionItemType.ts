@@ -1,8 +1,8 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import type { UpdateInspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { UpdateInspectionItemBackType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
 
 export async function updateInspectionItemTypeToApi(
-    inspectionItemType: UpdateInspectionItemType
+    inspectionItemType: UpdateInspectionItemBackType
 )
 {
     console.log("updateInspectionItemType")

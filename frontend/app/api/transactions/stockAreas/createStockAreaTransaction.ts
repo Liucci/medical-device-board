@@ -6,7 +6,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeStockArea,
          toCreateStockAreaRequest
-       } from "../../../utils/stockAreaMapper"
+       } from "../../../mapper/stockAreaMapper"
 
 type CreateStockAreaTransactionParams = {
                                           stockArea: CreateStockAreaType

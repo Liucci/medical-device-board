@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ExportDeviceListPdf } from "../../utils/ExportDeviceListPdf"
+import { ExportDeviceListPdf } from "../../utils/pdf/ExportDeviceListPdf"
 import { createPortal } from "react-dom"
 import { Device } from "../../types/deviceTypes"
 import { RoomType } from "../../types/roomTypes"

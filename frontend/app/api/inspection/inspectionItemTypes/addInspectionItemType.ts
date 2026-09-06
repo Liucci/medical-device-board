@@ -1,8 +1,8 @@
 import { API_BASE_URL } from "../../client/apiClient"
-import type { AddInspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { AddInspectionItemBackType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
 
 export async function createInspectionItemTypeToApi(
-    inspectionItemType: AddInspectionItemType
+    inspectionItemType: AddInspectionItemBackType
 )
 {
     console.log("addInspectionItemType")

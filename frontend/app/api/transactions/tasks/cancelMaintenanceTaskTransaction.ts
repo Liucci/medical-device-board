@@ -1,5 +1,5 @@
 import { getTasksFromApi } from "../../tasks/fetchTasks"
-import { normalizeMaintenanceTask } from "../../../utils/taskMapper"
+import { normalizeMaintenanceTask } from "../../../mapper/taskMapper"
 import { cancelMaintenanceTask } from "../../tasks/cancelMaintenanceTask"
 
 import { CancelMaintenanceTask } from "../../../types/taskTypes"

@@ -1,7 +1,7 @@
 import autoTable from "jspdf-autotable"
 
 import { createPdfDoc }
-from "./pdf/createPdfDoc"
+from "./createPdfDoc"
 
 export const ExportHistoriesPdf = async (
   histories: any[]

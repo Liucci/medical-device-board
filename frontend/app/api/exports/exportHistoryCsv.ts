@@ -1,5 +1,5 @@
 import { History }from "@/app/types/historyTypes"
-import {toExportHistoriesRequest}from "@/app/utils/exportMapper"
+import {toExportHistoriesRequest}from "@/app/mapper/exportMapper"
 import { API_BASE_URL, }from "../client/apiClient"
 
 export async function exportHistoryCsvFromApi(

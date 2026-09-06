@@ -1,5 +1,5 @@
 import { fetchHospitalSettings } from "../../../api/hospitalSettings/fetchHospitalSettings"
-import { normalizeHospitalSettings } from "../../../utils/hospitalSettingMapper"
+import { normalizeHospitalSettings } from "../../../mapper/hospitalSettingMapper"
 
 type FetchHospitalSettingsTransactionParams = {
     setHospitalSettings: (hospitalSettings: any) => void

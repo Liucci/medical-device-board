@@ -4,7 +4,7 @@ import { getInfectionTypesFromApi } from "../../infectionTypes/fetchInfectionTyp
 import {
          normalizeInfectionType,
          toCreateInfectionTypeRequest
-       } from "../../../utils/infectionTypeMapper"
+       } from "../../../mapper/infectionTypeMapper"
 import {  } from "../../client/apiClient"
 
 type CreateInfectionTypeTransactionParams = {

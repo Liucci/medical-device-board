@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import {
          toUpdateNoteRequest
-       } from "../../../utils/deviceMapper"
+       } from "../../../mapper/deviceMapper"
 import { Device } from "../../../types/deviceTypes"
 import {  } from "../../client/apiClient"
 

@@ -6,7 +6,7 @@ import {  } from "../../client/apiClient"
 import {
   normalizeWard,
   toUpdateWardOrdersRequest,
-} from "../../../utils/wardsMapper"
+} from "../../../mapper/wardsMapper"
 
 type UpdateWardDisplayOrderTransactionParams = {
                                                 wards: UpdateWardOrdersType

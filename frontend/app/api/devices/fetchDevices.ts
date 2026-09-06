@@ -1,6 +1,6 @@
 import { API_BASE_URL ,} from "../client/apiClient"
 import { Device, DeviceDB } from "@/app/types/deviceTypes"
-import { normalizeDevice } from "../../utils/deviceMapper"
+import { normalizeDevice } from "../../mapper/deviceMapper"
 
 export async function getDevicesFromApi(): Promise<DeviceDB[]> {
 

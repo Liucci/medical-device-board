@@ -1,6 +1,6 @@
 import { API_BASE_URL,  } from "../client/apiClient"
 import { StockLastUpdatedResponse } from "@/app/types/deviceTypes"
-import { normalizeStockLastUpdated } from "../../utils/deviceMapper"
+import { normalizeStockLastUpdated } from "../../mapper/deviceMapper"
 
 export async function fetchStockLastUpdated(): Promise<StockLastUpdatedResponse> {
 

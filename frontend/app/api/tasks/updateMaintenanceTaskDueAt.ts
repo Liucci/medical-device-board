@@ -1,7 +1,7 @@
 import { API_BASE_URL , } from "../client/apiClient"
 
 import { UpdateMaintenanceTaskDueAt } from "../../types/taskTypes"
-import { toUpdateMaintenanceTaskDueAtRequest } from "../../utils/taskMapper"
+import { toUpdateMaintenanceTaskDueAtRequest } from "../../mapper/taskMapper"
 
 export async function updateMaintenanceTaskDueAt(task: UpdateMaintenanceTaskDueAt)
  {

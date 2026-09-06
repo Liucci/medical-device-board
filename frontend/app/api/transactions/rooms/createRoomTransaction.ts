@@ -5,7 +5,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toCreateRoomRequest
-       } from "../../../utils/roomsMapper"
+       } from "../../../mapper/roomsMapper"
 
 type CreateRoomTransactionParams = {
                                      room: CreateRoomType

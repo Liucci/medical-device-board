@@ -4,7 +4,7 @@ import { getDeviceTypesFromApi } from "../../deviceTypes/fetchDeviceTypes"
 import {
          normalizeDeviceType,
          toCreateDeviceTypeRequest
-       } from "../../../utils/deviceTypeMapper"
+       } from "../../../mapper/deviceTypeMapper"
 import {  } from "../../client/apiClient"
 
 type CreateDeviceTypeTransactionParams = {

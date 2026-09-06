@@ -6,7 +6,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toUpdateRoomRequest
-       } from "../../../utils/roomsMapper"
+       } from "../../../mapper/roomsMapper"
 
 type UpdateRoomTransactionParams = {
                                      room: UpdateRoomType

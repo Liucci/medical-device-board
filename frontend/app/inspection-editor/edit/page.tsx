@@ -29,16 +29,14 @@ import { InspectionItemCategoryType } from "../../types/inspectionTypes/inspecti
 import { CreateInspectionChecklistTransactionFrontType } from "../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 
 // normalizer
-import { normalizeInspectionType } from "../../utils/inspectionMapper/inspectionTypeMapper"
-import { normalizeInspectionItemType } from "../../utils/inspectionMapper/inspectionItemTypeMapper"
-import { normalizeInspectionChecklist } from "../../utils/inspectionMapper/inspectionChecklistMapper"
-import { normalizeDeviceType } from "../../utils/deviceTypeMapper"
-import { normalizeDeviceModel } from "../../utils/deviceModelMapper"
-import { normalizeInspectionChecklistItem } from "../../utils/inspectionMapper/inspectionChecklistItemMapper"
-import {
-    normalizeInspectionChecklistItemOption,
-} from "../../utils/inspectionMapper/inspectionChecklistItemOptionMapper"
-import { normalizeInspectionItemCategory } from "../../utils/inspectionMapper/inspectionItemCategoryMapper"
+import { normalizeInspectionType } from "../../mapper/inspectionMapper/inspectionTypeMapper"
+import { normalizeInspectionItemType } from "../../mapper/inspectionMapper/inspectionItemTypeMapper"
+import { normalizeInspectionChecklist } from "../../mapper/inspectionMapper/inspectionChecklistMapper"
+import { normalizeDeviceType } from "../../mapper/deviceTypeMapper"
+import { normalizeDeviceModel } from "../../mapper/deviceModelMapper"
+import { normalizeInspectionChecklistItem } from "../../mapper/inspectionMapper/inspectionChecklistItemMapper"
+import {normalizeInspectionChecklistItemOption} from "../../mapper/inspectionMapper/inspectionChecklistItemOptionMapper"
+import { normalizeInspectionItemCategory } from "../../mapper/inspectionMapper/inspectionItemCategoryMapper"
 
 // dnd
 import {

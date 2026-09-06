@@ -4,7 +4,7 @@ import { getInspectionItemCategoriesFromApi } from "../../../inspection/inspecti
 import {
     normalizeInspectionItemCategory,
     toCreateInspectionItemCategoryRequest
-} from "../../../../utils/inspectionMapper/inspectionItemCategoryMapper"
+} from "../../../../mapper/inspectionMapper/inspectionItemCategoryMapper"
 
 
 type CreateInspectionItemCategoryTransactionParams = {

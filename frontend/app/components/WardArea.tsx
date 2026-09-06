@@ -14,7 +14,7 @@ import { WardInfectionType } from "../types/wardInfectionTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 
 import RoomContainer from "./RoomContainer"
-import { formatDateTime } from "../utils/dateUtils"
+import { formatDateTime } from "../utils/dateTime/dateUtils"
 
 import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 

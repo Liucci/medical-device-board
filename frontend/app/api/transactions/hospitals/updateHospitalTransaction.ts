@@ -6,7 +6,7 @@ import { HospitalManagementType } from "../../../types/hospitalTypes"
 import {
   normalizeHospitalManagement,
   toUpdateHospitalRequest
-} from "../../../utils/hospitalMapper"
+} from "../../../mapper/hospitalMapper"
 import {  } from "../../client/apiClient"
 
 type UpdateHospitalTransactionParams = {

@@ -5,7 +5,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeStockArea,
          toDeleteStockAreasRequest
-       } from "../../../utils/stockAreaMapper"
+       } from "../../../mapper/stockAreaMapper"
 
 type DeleteStockAreaTransactionParams = {
                                           stockAreaIds: number[]

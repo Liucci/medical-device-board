@@ -1,7 +1,7 @@
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { createPdfDoc }
-from "./pdf/createPdfDoc"
+from "./createPdfDoc"
 
 type Row = {
   wardName: string
