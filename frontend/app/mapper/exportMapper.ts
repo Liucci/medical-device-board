@@ -1,8 +1,14 @@
 import {
+  InspectionExportUIType,
+  InspectionExportDBType,
+  InspectionExportInspectionUIType,
+  InspectionExportInspectionDBType,
+  InspectionResultExportUIType,
+  InspectionResultExportDBType,
+  ExportInspectionRequest,
   HistoryExportRow,
   HistoryExportRowDB,
   ExportHistoriesRequest,
-
   DeviceListExportUIType,
   DeviceListExportDBType,
   DeviceListExportTypeRequest
@@ -84,4 +90,46 @@ export const normalizeDeviceListExportRow = (
   note:row.note,
   maintenanceName:row.maintenance_name,
   dueAt:row.due_at
+})
+
+
+// inspection result export
+
+export const InspectionResultExportDBMapper = (
+  result: InspectionResultExportUIType
+): InspectionResultExportDBType => ({
+  item_name: result.itemName,
+  value: result.value ?? null
+})
+
+export const InspectionExportInspectionDBMapper = (
+  inspection: InspectionExportInspectionUIType
+): InspectionExportInspectionDBType => ({
+  created_at: inspection.createdAt,
+  performed_by_name: inspection.performedByName ?? null,
+  results: inspection.results.map(
+    InspectionResultExportDBMapper
+  )
+})
+
+export const InspectionExportDBMapper = (
+  row: InspectionExportUIType
+): InspectionExportDBType => ({
+  management_number: row.managementNumber ?? null,
+  serial_number: row.serialNumber ?? null,
+  device_type_name: row.deviceTypeName ?? null,
+  device_model_name: row.deviceModelName ?? null,
+  inspection_type_name: row.inspectionTypeName ?? null,
+  checklist_name: row.checklistName ?? null,
+  inspections: row.inspections.map(
+    InspectionExportInspectionDBMapper
+  )
+})
+
+export const toExportInspectionRequest = (
+  rows: InspectionExportUIType[]
+): ExportInspectionRequest => ({
+  rows: rows.map(
+    InspectionExportDBMapper
+  )
 })

@@ -34,6 +34,7 @@ import { getInspectionsFromApi } from "../api/inspection/inspections/fetchInspec
 import { normalizeInspection } from "../mapper/inspectionMapper/inspectionMapper"
 
 
+
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
 import {

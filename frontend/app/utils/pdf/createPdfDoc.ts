@@ -1,7 +1,9 @@
 import jsPDF from "jspdf"
 // ===== 日本語font取得 =====
-export const createPdfDoc = async () => {
-
+//引数無い場合は初期設定横書き
+export const createPdfDoc = async (
+  orientation: "portrait" | "landscape" = "landscape"
+) => {
   const doc = new jsPDF({
     orientation: "landscape"
   })

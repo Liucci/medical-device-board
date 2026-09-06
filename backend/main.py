@@ -139,6 +139,9 @@ from schemas.export_schemas import (DeviceListExportSchemaRequest)
 from transactions.exports.export_device_list_pdf_transaction import (export_device_list_pdf_transaction)
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
+from schemas.export_schemas import ExportInspectionPdfRequest
+from transactions.exports.export_inspection_pdf_transaction import (export_inspection_pdf_transaction)
+
 
 from schemas.infection_type_schemas import (
                                             InfectionTypeResponse,
@@ -1597,6 +1600,39 @@ async def export_device_list_pdf_route(
                                             "attachment; filename=device_list.pdf"
                                         }
                             )
+
+@app.post("/export-inspection-pdf")
+async def export_inspection_pdf_route(
+                                        request: ExportInspectionPdfRequest,
+                                        session: BackendSession = Depends(get_current_session),
+                                    ):
+
+    hospital = fetch_hospital(
+                                session.client,
+                                session.hospital_id
+                            )
+
+    hospital_name = hospital["hospital_name"]
+
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin","normal"]
+                    )
+
+    pdf_buffer = export_inspection_pdf_transaction(
+                                                        request.rows,
+                                                        hospital_name
+                                                    )
+
+    return StreamingResponse(
+                                pdf_buffer,
+                                media_type="application/pdf",
+                                headers={
+                                    "Content-Disposition":
+                                    "attachment; filename=inspection_results.pdf"
+                                }
+                            )
+
 
 
 @app.post("/export-device-list-csv")

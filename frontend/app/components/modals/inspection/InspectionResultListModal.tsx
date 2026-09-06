@@ -3,7 +3,14 @@
 import { createPortal } from "react-dom"
 import { useMemo, useState } from "react"
 import type { Inspection } from "../../../types/inspectionTypes/inspectionTypes"
+import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
+import {getInspectionResultsFromApi} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
+import {normalizeInspectionResult} from "../../../mapper/inspectionMapper/inspectionResultMapper"
+
 import InspectionResultDetailModal from "./InspectionResultDetailModal"
+import {  exportInspectionPdfTransaction} from "../../../api/transactions/exports/exportInspectionPdfTransaction"
+
+
 type Props = {
     isOpen: boolean
     onClose: () => void
@@ -72,10 +79,9 @@ export default function InspectionResultModal({
         setSelectedPerformer
     ] = useState("")
 
-const [openDetailModal, setOpenDetailModal] = useState(false)
-const [selectedInspection, setSelectedInspection] =
-    useState<Inspection | null>(null)
-
+    const [openDetailModal, setOpenDetailModal] = useState(false)
+    const [selectedInspection, setSelectedInspection] =useState<Inspection | null>(null)
+    const [inspectionResults, setInspectionResults] =useState<Record<number, InspectionResult[]>>({})
 
     // =========================================================
     // チェックボックス選択切り替え
@@ -228,9 +234,7 @@ const [selectedInspection, setSelectedInspection] =
     // 検索候補
     // =========================================================
 
-    // ---------------------------------------------------------
     // 機種
-    // ---------------------------------------------------------
 
     const deviceTypeOptions = useMemo(() => {
 
@@ -248,12 +252,8 @@ const [selectedInspection, setSelectedInspection] =
 
     }, [inspectionRows])
 
-
-    // ---------------------------------------------------------
     // 型式
-    //
     // 機種を選択した場合は、その機種に属する型式だけ表示
-    // ---------------------------------------------------------
 
     const deviceModelOptions = useMemo(() => {
 
@@ -287,10 +287,7 @@ const [selectedInspection, setSelectedInspection] =
         selectedDeviceTypes,
     ])
 
-
-    // ---------------------------------------------------------
     // 病棟
-    // ---------------------------------------------------------
 
     const wardOptions = useMemo(() => {
 
@@ -308,10 +305,7 @@ const [selectedInspection, setSelectedInspection] =
 
     }, [inspectionRows])
 
-
-    // ---------------------------------------------------------
     // 管理番号
-    // ---------------------------------------------------------
 
     const managementNumberOptions = useMemo(() => {
 
@@ -329,10 +323,7 @@ const [selectedInspection, setSelectedInspection] =
 
     }, [inspectionRows])
 
-
-    // ---------------------------------------------------------
     // 実施者
-    // ---------------------------------------------------------
 
     const performerOptions = useMemo(() => {
 
@@ -352,10 +343,7 @@ const [selectedInspection, setSelectedInspection] =
 
     }, [inspectionRows])
 
-
-    // =========================================================
     // 検索・ソート済み一覧
-    // =========================================================
 
     const filteredInspectionRows = useMemo(() => {
 
@@ -534,12 +522,35 @@ const [selectedInspection, setSelectedInspection] =
         selectedManagementNumber,
         selectedPerformer,
     ])
+    //検索結果のinspection idに紐づくinspection resultを取得する関数
+    const getResultsByInspectionId = async (
+        rows: typeof filteredInspectionRows
+    ) => {
+        console.log("getResultsByInspectionId")
 
+        const resultsByInspectionId: Record<
+            number,
+            InspectionResult[]
+        > = {}
 
-    // =========================================================
+        for (const row of rows) {
+            const inspectionId = row.inspection.id
+
+            const resultsData =
+                await getInspectionResultsFromApi(
+                    inspectionId
+                )
+
+            resultsByInspectionId[inspectionId] =
+                resultsData.map(
+                    normalizeInspectionResult
+                )
+        }
+
+        return resultsByInspectionId
+    }
+
     // 検索条件リセット
-    // =========================================================
-
     const resetSearch = () => {
 
         setStartDate("")
@@ -555,10 +566,34 @@ const [selectedInspection, setSelectedInspection] =
     }
 
 
-    // =========================================================
-    // Modal
-    // =========================================================
+    //PDFボタン処理
+    const handleExportPdf = async () => {
+        console.log("handleExportPdf")
 
+        const resultsByInspectionId =
+            await getResultsByInspectionId(
+                filteredInspectionRows
+            )
+
+        console.log(
+            "PDF対象のinspection:",
+            JSON.stringify(
+                filteredInspectionRows,
+                null,
+                2
+            )
+        )
+
+        console.log(
+            "PDF対象のinspection results:",
+            JSON.stringify(
+                resultsByInspectionId,
+                null,
+                2
+            )
+        )
+    }
+    // Modal
     if (!isOpen) {
         return null
     }
@@ -640,6 +675,7 @@ const [selectedInspection, setSelectedInspection] =
 
                         <button
                             type="button"
+                            onClick={handleExportPdf}
                             className="
                                 px-3
                                 py-1
