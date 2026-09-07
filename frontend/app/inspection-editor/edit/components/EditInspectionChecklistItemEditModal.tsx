@@ -17,7 +17,8 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
-        options: InspectionChecklistItemOption[]
+        options: InspectionChecklistItemOption[],
+        unit: string | null
     ) => void
 }
 
@@ -32,6 +33,7 @@ export default function EditInspectionChecklistItemEditModal({
 }: Props)
 {
     const [name, setName] = useState("")
+    const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
@@ -42,6 +44,7 @@ export default function EditInspectionChecklistItemEditModal({
         if (open && item)
         {
             setName(item.itemName)
+            setUnit(item.unit ?? "")
             setCategoryId(item.categoryId)
             setItemTypeId(item.itemTypeId)
 
@@ -58,6 +61,7 @@ export default function EditInspectionChecklistItemEditModal({
         if (!open)
         {
             setName("")
+            setUnit("")
             setCategoryId(null)
             setItemTypeId(null)
             setOptions([])
@@ -70,7 +74,7 @@ export default function EditInspectionChecklistItemEditModal({
         (itemType) => itemType.id === itemTypeId
     )
     const isCustomOption =selectedItemType?.isCustomOption === true
-
+    const isNumberInput =selectedItemType?.name === "数値入力"
 
     if (!open)
     {
@@ -113,6 +117,11 @@ export default function EditInspectionChecklistItemEditModal({
         {
             setOptions([])
         }
+        if (nextItemType?.name !== "数値入力")
+        {
+            setUnit("")
+        }
+
     }
 
 
@@ -226,7 +235,10 @@ export default function EditInspectionChecklistItemEditModal({
             name.trim(),
             categoryId,
             itemTypeId,
-            normalizedOptions
+            normalizedOptions,
+            isNumberInput
+                ? unit.trim() || null
+                : null
         )
     }
 
@@ -264,7 +276,7 @@ export default function EditInspectionChecklistItemEditModal({
 
                 {/* Header */}
 
-                <div className="border-b px-6 py-4">
+                <div className="px-6 py-4">
 
                     <h2 className="text-lg font-semibold text-gray-800">
                         点検項目を編集
@@ -503,13 +515,54 @@ export default function EditInspectionChecklistItemEditModal({
 
                         </div>
                     )}
+                    {isNumberInput && (
+                        <div>
+
+                            <label
+                                className="
+                                    mb-2
+                                    block
+                                    text-sm
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                単位
+                            </label>
+
+                            <input
+                                type="text"
+                                value={unit}
+                                onChange={(event) =>
+                                    setUnit(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="例：mmHg、回、個"
+                                className="
+                                    w-full
+                                    rounded-lg
+                                    border
+                                    border-gray-500
+                                    px-4
+                                    py-2.5
+                                    text-sm
+                                    outline-none
+                                    focus:border-blue-500
+                                    focus:ring-2
+                                    focus:ring-blue-100
+                                "
+                            />
+
+                        </div>
+                    )}
 
                 </div>
 
 
                 {/* Footer */}
 
-                <div className="flex justify-end gap-3 border-t px-6 py-4">
+                <div className="flex justify-end gap-3  px-6 py-4">
 
                     <button
                         type="button"

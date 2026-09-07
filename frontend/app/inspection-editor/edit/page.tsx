@@ -1057,7 +1057,8 @@ export default function InspectionChecklistEditPage()
                             name,
                             categoryId,
                             itemTypeId,
-                            options
+                            options,
+                            unit
                     ) => {
                         setInspectionChecklistItems(
                             (prev) => [
@@ -1073,7 +1074,7 @@ export default function InspectionChecklistEditPage()
                                     defaultValue:null,
                                     // ★ optionsをそのまま保持
                                     options,
-                                    unit:null,
+                                    unit,
                                 },
                             ]
                         )
@@ -1099,7 +1100,7 @@ export default function InspectionChecklistEditPage()
                         setIsEditItemModalOpen(false)
                         setEditingChecklistItem(null)
                     }}
-                    onSave={(itemId, name, categoryId,itemTypeId, options) => {
+                    onSave={(itemId, name, categoryId,itemTypeId, options,unit) => {
                         setInspectionChecklistItems((prev) =>
                             prev.map((item) =>
                                 item.id === itemId
@@ -1109,6 +1110,7 @@ export default function InspectionChecklistEditPage()
                                         categoryId,
                                         itemTypeId,
                                         options,
+                                        unit
                                     }
                                     : item
                             )

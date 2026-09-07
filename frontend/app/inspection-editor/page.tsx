@@ -222,7 +222,7 @@ export default function InspectionEditorPage()
                 options: Array.isArray(item.options)
                             ? item.options
                             : null,
-                unit: null,
+                unit: item.unit,
             })),
         }    
         await executeWithErrorAndLoading({
@@ -733,7 +733,7 @@ return (
     inspectionItemTypes={inspectionItemTypes}
     inspectionItemCategories={inspectionItemCategories}
     onClose={() =>setIsAddItemModalOpen(false)}
-    onAdd={(name, categoryId, itemTypeId, options) =>
+    onAdd={(name, categoryId, itemTypeId, options,unit) =>
     {
         setInspectionChecklistItems((prev) =>
             [
@@ -747,7 +747,7 @@ return (
                     required: false,
                     defaultValue: null,
                     options,
-                    unit: null,
+                    unit,
                 },
             ]
         )
@@ -766,7 +766,7 @@ return (
                     setIsEditItemModalOpen(false)
                     setEditingChecklistItem(null)
                 }}
-                onSave={(itemId, name, categoryId, itemTypeId, options) => {
+                onSave={(itemId, name, categoryId, itemTypeId, options,unit) => {
                     setInspectionChecklistItems((prev) =>
                         prev.map((item) =>
                             item.id === itemId
@@ -776,6 +776,7 @@ return (
                                     categoryId,
                                     itemTypeId,
                                     options,
+                                    unit
                                 }
                                 : item
                         )

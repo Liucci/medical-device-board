@@ -14,7 +14,8 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
-        options: InspectionChecklistItemOption[]
+        options: InspectionChecklistItemOption[],
+        unit:string | null
     ) => void
 }
 
@@ -28,6 +29,7 @@ export default function AddInspectionChecklistItemEditModal({
 }: Props)
 {
     const [name, setName] = useState("")
+    const [unit, setUnit] = useState("")
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
     const [categoryId, setCategoryId] = useState<number | null>(null)   
@@ -40,6 +42,7 @@ export default function AddInspectionChecklistItemEditModal({
             setItemTypeId(null)
             setOptions([])
             setCategoryId(null)
+            setUnit("")
         }
     }, [open])
 
@@ -58,7 +61,8 @@ export default function AddInspectionChecklistItemEditModal({
 
     const isCustomOption =
         selectedItemType?.isCustomOption === true
-
+    const isNumberInput =
+        selectedItemType?.name === "数値入力"
 
     const handleAdd = () =>
     {
@@ -94,7 +98,8 @@ export default function AddInspectionChecklistItemEditModal({
             name.trim(),
             categoryId,
             itemTypeId,
-            normalizedOptions
+            normalizedOptions,
+            unit.trim()
         )
     }
 
@@ -266,6 +271,11 @@ export default function AddInspectionChecklistItemEditModal({
                                         },
                                     ])
                                 }
+
+                                if (selectedItemType?.name !== "数値")
+                                {
+                                    setUnit("")
+                                }
                             }}
                             className="
                                 w-full
@@ -421,6 +431,34 @@ export default function AddInspectionChecklistItemEditModal({
 
                             </div>
 
+                        </div>
+                    )}
+
+                    {isNumberInput && (
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                単位
+                            </label>
+
+                            <input
+                                type="text"
+                                value={unit}
+                                onChange={(event) =>
+                                    setUnit(event.target.value)
+                                }
+                                placeholder="例：mmHg、回、個"
+                                className="
+                                                    w-full
+                                                    rounded-lg
+                                                    border border-gray-500
+                                                    bg-white
+                                                    px-4 py-2.5
+                                                    text-sm
+                                                    outline-none
+                                                    focus:border-blue-500
+                                                    focus:ring-2
+                                                    focus:ring-blue-100            "
+                            />
                         </div>
                     )}
 

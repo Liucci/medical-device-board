@@ -39,7 +39,8 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
-        options: InspectionChecklistItemOption[]
+        options: InspectionChecklistItemOption[],
+        unit: string | null
     ) => void
 }
 
@@ -54,6 +55,7 @@ export default function EditInspectionChecklistItemModal({
 }: Props)
 {
     const [name, setName] = useState("")
+    const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
@@ -68,6 +70,7 @@ export default function EditInspectionChecklistItemModal({
         if (open && item)
         {
             setName(item.name)
+            setUnit(item.unit ?? "")
             setCategoryId(item.categoryId)
             setItemTypeId(item.itemTypeId)
 
@@ -84,6 +87,7 @@ export default function EditInspectionChecklistItemModal({
         if (!open)
         {
             setName("")
+            setUnit("")
             setCategoryId(null)
             setItemTypeId(null)
             setOptions([])
@@ -101,6 +105,7 @@ export default function EditInspectionChecklistItemModal({
                 itemType.id === itemTypeId
         )
     const isCustomOption =selectedItemType?.isCustomOption === true
+    const isNumberInput =selectedItemType?.name === "数値入力"
     if (!open)
     {
         return null
@@ -144,7 +149,11 @@ export default function EditInspectionChecklistItemModal({
         {
             setOptions([])
         }
-    }
+        if (nextItemType?.name !== "数値入力")
+        {
+            setUnit("")
+        }
+        }
 
 
     // =========================================
@@ -270,7 +279,10 @@ export default function EditInspectionChecklistItemModal({
             name.trim(),
             categoryId,
             itemTypeId,
-            normalizedOptions
+            normalizedOptions,
+            isNumberInput
+                ? unit.trim() || null
+                : null
         )
     }
 
@@ -516,7 +528,6 @@ export default function EditInspectionChecklistItemModal({
 
 
                     {/* 任意選択肢 */}
-
                     {isCustomOption && (
                         <div>
 
@@ -632,6 +643,49 @@ export default function EditInspectionChecklistItemModal({
 
                         </div>
                     )}
+                    {/* 単位 */}
+                    {isNumberInput && (
+                        <div>
+
+                            <label
+                                className="
+                                    mb-2
+                                    block
+                                    text-sm
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                単位
+                            </label>
+
+                            <input
+                                type="text"
+                                value={unit}
+                                onChange={(event) =>
+                                    setUnit(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder="例：mmHg、回、個"
+                                className="
+                                    w-full
+                                    rounded-lg
+                                    border
+                                    border-gray-500
+                                    px-4
+                                    py-2.5
+                                    text-sm
+                                    outline-none
+                                    focus:border-blue-500
+                                    focus:ring-2
+                                    focus:ring-blue-100
+                                "
+                            />
+
+                        </div>
+                    )}
+
 
                 </div>
 

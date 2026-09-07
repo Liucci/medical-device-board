@@ -15,7 +15,8 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
-        options: InspectionChecklistItemOption[]
+        options: InspectionChecklistItemOption[],
+        unit:string | null
     ) => void
 }
 
@@ -28,6 +29,7 @@ export default function AddInspectionChecklistItemModal({
 }: Props)
 {
     const [name, setName] = useState("")
+    const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
@@ -40,6 +42,7 @@ export default function AddInspectionChecklistItemModal({
             setCategoryId(null)
             setItemTypeId(null)
             setOptions([])
+            setUnit("")
         }
     }, [open])
 
@@ -56,7 +59,8 @@ export default function AddInspectionChecklistItemModal({
 
     const isCustomOption =
         selectedItemType?.isCustomOption === true
-
+    const isNumberInput =
+        selectedItemType?.name === "数値入力"
 
     const handleAdd = () =>
     {
@@ -99,7 +103,8 @@ export default function AddInspectionChecklistItemModal({
             name.trim(),
             categoryId,
             itemTypeId,
-            normalizedOptions
+            normalizedOptions,
+            unit.trim()
         )
     }
 
@@ -246,7 +251,6 @@ export default function AddInspectionChecklistItemModal({
                                     event.target.value === ""
                                         ? null
                                         : Number(event.target.value)
-
                                 setItemTypeId(newItemTypeId)
 
                                 const selectedItemType =
@@ -268,6 +272,13 @@ export default function AddInspectionChecklistItemModal({
                                         },
                                     ])
                                 }
+
+                                if (selectedItemType?.name !== "数値")
+                                {
+                                    setUnit("")
+                                }
+
+
                             }}
                             className="
                                 w-full
@@ -426,9 +437,36 @@ export default function AddInspectionChecklistItemModal({
                         </div>
                     )}
 
+                    {isNumberInput && (
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                                単位
+                            </label>
+
+                            <input
+                                type="text"
+                                value={unit}
+                                onChange={(event) =>
+                                    setUnit(event.target.value)
+                                }
+                                placeholder="例：mmHg、回、個"
+                                className="
+                                                    w-full
+                                                    rounded-lg
+                                                    border border-gray-500
+                                                    bg-white
+                                                    px-4 py-2.5
+                                                    text-sm
+                                                    outline-none
+                                                    focus:border-blue-500
+                                                    focus:ring-2
+                                                    focus:ring-blue-100            "
+                            />
+                        </div>
+                    )}
+
+
                 </div>
-
-
                 {/* Footer */}
                 <div className="flex justify-end gap-3 px-6 py-4">
 

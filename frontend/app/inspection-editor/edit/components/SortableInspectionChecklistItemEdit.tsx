@@ -257,7 +257,11 @@ export default function SortableInspectionChecklistItemEdit({
                     </div>
 
                 )}
-
+                
+                {/* 単位表示 */}
+                <div className="w-20 shrink-0 text-center text-sm text-gray-500">
+                    {item.unit ?? "-"}
+                </div>
 
                 {/* Drag handle */}
                 <button
