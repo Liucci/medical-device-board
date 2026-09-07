@@ -264,7 +264,7 @@ export default function InspectionChecklistEditPage()
                                 item.id
                             )
 
-                        console.log("options:", options)
+                        //console.log("options:", options)
 
                         return {
                             ...item,

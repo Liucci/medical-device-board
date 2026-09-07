@@ -224,7 +224,8 @@ export default function InspectionEditorPage()
                             : null,
                 unit: item.unit,
             })),
-        }    
+        }  
+          //console.log("create inspection checklist request:",JSON.stringify(request, null, 2))
         await executeWithErrorAndLoading({
                 setLoading,
                 action: async () => {

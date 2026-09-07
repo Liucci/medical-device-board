@@ -107,6 +107,11 @@ export default function InspectionExecutionPage() {
                 })
             )
         }
+console.log(
+    "保存する点検結果:",
+    JSON.stringify(inspection, null, 2)
+)
+
         await executeWithErrorAndLoading({
                 setLoading,
                 action: async () => {

@@ -9,6 +9,8 @@ export type InspectionResult = {
     inspectionId: number
     checklistItemId: number
     value: string | null
+    categoryName: string
+    categoryDisplayOrder: number
 }
 
 export type InspectionResultDB = {
@@ -16,8 +18,9 @@ export type InspectionResultDB = {
     inspection_id: number
     checklist_item_id: number
     value: string | null
+    category_name: string
+    category_display_order: number
 }
-
 
 // =========================
 // API

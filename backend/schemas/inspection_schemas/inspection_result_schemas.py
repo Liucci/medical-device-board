@@ -6,6 +6,8 @@ class InspectionResultResponse(BaseModel):
     inspection_id: int
     checklist_item_id: int
     value: str | None = None
+    category_name: str
+    category_display_order: int
 
 
 class AddInspectionResultRequest(BaseModel):

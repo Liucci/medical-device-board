@@ -15,7 +15,10 @@ export async function createInspectionTransaction({
 }: CreateInspectionTransactionParams)
 {
     console.log("createInspectionTransaction")
+    const request = toCreateInspectionTransactionRequest(inspection)
+    //console.log( "型変換後の点検結果:",JSON.stringify(request, null, 2))
 
+    
     await fetch(
         `${API_BASE_URL}/create-inspection`,
         {
@@ -24,11 +27,8 @@ export async function createInspectionTransaction({
                 "Content-Type": "application/json"
             },
             credentials: "include",
-            body: JSON.stringify(
-                toCreateInspectionTransactionRequest(
-                    inspection
-                )
-            )
+            body: JSON.stringify(request)           
+            
         }
     )
 
