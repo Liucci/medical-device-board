@@ -67,21 +67,22 @@ def create_inspection_transaction(
                 if category["id"] == checklist_item["category_id"]
             )
 
+            add_inspection_result(
+                client=client,
+                inspection_result=result,
+                inspection_id=inspection_id,
+                category_name=category["name"],
+                category_display_order=category["display_order"],
+            )
+
+
+            
+
     except Exception as e:
         print("failed to fetch inspection item/category:", e)
         return None
 
-    # --------------------------------------------------
-    # inspection_result 登録
-    # --------------------------------------------------
-    for result in results:
 
-        add_inspection_result(
-            client=client,
-            inspection_result=result,
-            inspection_id=inspection_id,
-            category_name=category["name"],
-            category_display_order=category["display_order"],
-        )
+
 
     return inspection_response

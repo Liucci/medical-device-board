@@ -24,3 +24,57 @@ export type CreateInspectionTransactionBackType = {
     inspection: AddInspectionBackType
     results: AddInspectionResultBackType[]
 }
+
+
+//InspectionListResponseをfrontで受け取る用の型定義
+//inspection内の各idを基に、他tableから必要情報をかき集めたものをbackから受け取る用
+export type InspectionListType = {
+    id: number
+    checklistId:number
+    createdAt: string
+    inspectionTypeName: string
+    deviceTypeName: string
+    deviceModelName: string
+    managementNumber: string | null
+    serialNumber: string | null
+    wardName: string
+    roomName: string
+    performedByName: string
+    comment: string | null
+    overallResult: string | null
+}
+
+export type InspectionListDBType = {
+    id: number
+    checklist_id:number
+    created_at: string
+    inspection_type_name: string
+    device_type_name: string
+    device_model_name: string
+    management_number: string | null
+    serial_number: string | null
+    ward_name: string
+    room_name: string
+    performed_by_name: string
+    comment: string | null
+    overall_result: string | null
+}
+
+//result内のitem id,category idをもとに他tableから情報取得し加工しfrontに戻す用
+export type InspectionResultDetailType = {
+    categoryName: string
+    categoryDisplayOrder: number
+    itemName: string
+    unit: string | null
+    itemDisplayOrder: number
+    value: string | null
+}
+
+export type InspectionResultDetailDBType = {
+    category_name: string
+    category_display_order: number
+    item_name: string
+    unit: string | null
+    item_display_order: number
+    value: string | null
+}

@@ -1,46 +1,59 @@
 "use client"
 
 import { createPortal } from "react-dom"
-import { useMemo, useState } from "react"
-import type { Inspection } from "../../../types/inspectionTypes/inspectionTypes"
+import { useEffect, useMemo, useState } from "react"
+
+import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
-import {getInspectionResultsFromApi} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
-import {normalizeInspectionResult} from "../../../mapper/inspectionMapper/inspectionResultMapper"
+
+import {
+    fetchInspectionList,
+} from "../../../api/transactions/inspection/inspections/fetchInspectionList"
+
+import {
+    normalizeInspectionList,
+} from "../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
+
+import {
+    getInspectionResultsFromApi,
+} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
+
+import {
+    normalizeInspectionResult,
+} from "../../../mapper/inspectionMapper/inspectionResultMapper"
 
 import InspectionResultDetailModal from "./InspectionResultDetailModal"
-import {  exportInspectionPdfTransaction} from "../../../api/transactions/exports/exportInspectionPdfTransaction"
+
+import {
+    exportInspectionPdfTransaction,
+} from "../../../api/transactions/exports/exportInspectionPdfTransaction"
 
 
 type Props = {
     isOpen: boolean
     onClose: () => void
-
-    loading: boolean
-
-    inspections: Inspection[]
-
-    devices: any[]
-    rooms: any[]
-    wards: any[]
-
-    deviceTypes: any[]
-    deviceModels: any[]
-
-    inspectionTypes: any[]
 }
+
 
 export default function InspectionResultModal({
     isOpen,
     onClose,
-    loading,
-    inspections,
-    devices,
-    rooms,
-    wards,
-    deviceTypes,
-    deviceModels,
-    inspectionTypes,
 }: Props) {
+
+    // =========================================================
+    // 点検結果一覧
+    // =========================================================
+
+    const [
+        inspections,
+        setInspections
+    ] = useState<InspectionListType[]>([])
+
+    const [
+        loading,
+        setLoading
+    ] = useState(false)
+
 
     // =========================================================
     // 検索条件
@@ -79,9 +92,83 @@ export default function InspectionResultModal({
         setSelectedPerformer
     ] = useState("")
 
-    const [openDetailModal, setOpenDetailModal] = useState(false)
-    const [selectedInspection, setSelectedInspection] =useState<Inspection | null>(null)
-    const [inspectionResults, setInspectionResults] =useState<Record<number, InspectionResult[]>>({})
+
+    // =========================================================
+    // 詳細Modal
+    // =========================================================
+
+    const [
+        openDetailModal,
+        setOpenDetailModal
+    ] = useState(false)
+
+    const [
+        selectedInspection,
+        setSelectedInspection
+    ] = useState<InspectionListType | null>(null)
+
+
+    // =========================================================
+    // inspection result
+    // =========================================================
+
+    const [
+        inspectionResults,
+        setInspectionResults
+    ] = useState<Record<number, InspectionResult[]>>({})
+
+
+    // =========================================================
+    // 点検結果一覧取得
+    // Modalを開いたときに取得
+    // =========================================================
+
+    useEffect(() => {
+
+        if (!isOpen) {
+            return
+        }
+
+        const fetchData = async () => {
+
+            setLoading(true)
+
+            try {
+
+                console.log("fetchInspectionList")
+
+                const data =
+                    await fetchInspectionList()
+
+                const normalizedData =
+                    data.map(
+                        normalizeInspectionList
+                    )
+
+                setInspections(
+                    normalizedData
+                )
+
+            } catch (error) {
+
+                console.error(
+                    "点検結果一覧取得エラー:",
+                    error
+                )
+
+                setInspections([])
+
+            } finally {
+
+                setLoading(false)
+
+            }
+        }
+
+        fetchData()
+
+    }, [isOpen])
+
 
     // =========================================================
     // チェックボックス選択切り替え
@@ -96,7 +183,9 @@ export default function InspectionResultModal({
         if (list.includes(value)) {
 
             setList(
-                list.filter(v => v !== value)
+                list.filter(
+                    v => v !== value
+                )
             )
 
         } else {
@@ -111,137 +200,20 @@ export default function InspectionResultModal({
 
 
     // =========================================================
-    // 点検結果一覧用データ作成
-    // =========================================================
-
-    const inspectionRows = useMemo(() => {
-
-        return inspections
-            .map((inspection) => {
-
-                // -------------------------------------------------
-                // 機器
-                // -------------------------------------------------
-
-                const device =
-                    devices.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(inspection.deviceId)
-                    )
-
-
-                // -------------------------------------------------
-                // 部屋
-                // -------------------------------------------------
-
-                const room =
-                    rooms.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(inspection.roomId)
-                    )
-
-
-                // -------------------------------------------------
-                // 病棟
-                // -------------------------------------------------
-
-                const ward =
-                    wards.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(room?.wardId)
-                    )
-
-
-                // -------------------------------------------------
-                // 機種
-                // -------------------------------------------------
-
-                const deviceType =
-                    deviceTypes.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(device?.type)
-                    )
-
-
-                // -------------------------------------------------
-                // 型式
-                // -------------------------------------------------
-
-                const deviceModel =
-                    deviceModels.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(device?.model)
-                    )
-
-
-                // -------------------------------------------------
-                // 点検種別
-                // -------------------------------------------------
-
-                const inspectionType =
-                    inspectionTypes.find(
-                        (item) =>
-                            Number(item.id) ===
-                            Number(
-                                inspection.inspectionTypeId
-                            )
-                    )
-
-
-                return {
-
-                    inspection,
-
-                    deviceTypeName:
-                        deviceType?.name ?? "-",
-
-                    deviceModelName:
-                        deviceModel?.name ?? "-",
-
-                    managementNumber:
-                        device?.managementNumber ?? "-",
-
-                    wardName:
-                        ward?.name ?? "-",
-
-                    roomName:
-                        room?.name ?? "-",
-
-                    inspectionTypeName:
-                        inspectionType?.name ?? "-",
-
-                }
-
-            })
-
-    }, [
-        inspections,
-        devices,
-        rooms,
-        wards,
-        deviceTypes,
-        deviceModels,
-        inspectionTypes,
-    ])
-
-
-    // =========================================================
     // 検索候補
+    // Backendから取得した一覧だけから生成
     // =========================================================
 
     // 機種
-
     const deviceTypeOptions = useMemo(() => {
 
         return Array.from(
             new Set(
-                inspectionRows
-                    .map(row => row.deviceTypeName)
+                inspections
+                    .map(
+                        inspection =>
+                            inspection.deviceTypeName
+                    )
                     .filter(
                         value =>
                             value &&
@@ -250,30 +222,36 @@ export default function InspectionResultModal({
             )
         ).sort()
 
-    }, [inspectionRows])
+    }, [inspections])
+
 
     // 型式
-    // 機種を選択した場合は、その機種に属する型式だけ表示
+    // 機種を選択した場合は、
+    // その機種に属する型式だけ表示
 
     const deviceModelOptions = useMemo(() => {
 
         return Array.from(
             new Set(
-                inspectionRows
-                    .filter(row => {
+                inspections
+                    .filter(
+                        inspection => {
 
-                        if (
-                            selectedDeviceTypes.length === 0
-                        ) {
-                            return true
+                            if (
+                                selectedDeviceTypes.length === 0
+                            ) {
+                                return true
+                            }
+
+                            return selectedDeviceTypes.includes(
+                                inspection.deviceTypeName ?? ""
+                            )
                         }
-
-                        return selectedDeviceTypes.includes(
-                            row.deviceTypeName
-                        )
-
-                    })
-                    .map(row => row.deviceModelName)
+                    )
+                    .map(
+                        inspection =>
+                            inspection.deviceModelName
+                    )
                     .filter(
                         value =>
                             value &&
@@ -283,18 +261,21 @@ export default function InspectionResultModal({
         ).sort()
 
     }, [
-        inspectionRows,
+        inspections,
         selectedDeviceTypes,
     ])
 
-    // 病棟
 
+    // 病棟
     const wardOptions = useMemo(() => {
 
         return Array.from(
             new Set(
-                inspectionRows
-                    .map(row => row.wardName)
+                inspections
+                    .map(
+                        inspection =>
+                            inspection.wardName
+                    )
                     .filter(
                         value =>
                             value &&
@@ -303,36 +284,39 @@ export default function InspectionResultModal({
             )
         ).sort()
 
-    }, [inspectionRows])
+    }, [inspections])
+
 
     // 管理番号
-
     const managementNumberOptions = useMemo(() => {
 
         return Array.from(
             new Set(
-                inspectionRows
-                    .map(row => row.managementNumber)
+                inspections
+                    .map(
+                        inspection =>
+                            inspection.managementNumber
+                    )
                     .filter(
-                        value =>
-                            value &&
+                        (value): value is string =>
+                            value !== null &&
                             value !== "-"
                     )
             )
         ).sort()
 
-    }, [inspectionRows])
+    }, [inspections])
+
 
     // 実施者
-
     const performerOptions = useMemo(() => {
 
         return Array.from(
             new Set(
-                inspectionRows
+                inspections
                     .map(
-                        row =>
-                            row.inspection.performedBy
+                        inspection =>
+                            inspection.performedByName
                     )
                     .filter(
                         value =>
@@ -341,21 +325,24 @@ export default function InspectionResultModal({
             )
         ).sort()
 
-    }, [inspectionRows])
+    }, [inspections])
 
+
+    // =========================================================
     // 検索・ソート済み一覧
+    // =========================================================
 
-    const filteredInspectionRows = useMemo(() => {
+    const filteredInspections = useMemo(() => {
 
-        return inspectionRows
-            .filter((row) => {
+        return inspections
+            .filter((inspection) => {
 
                 // -------------------------------------------------
                 // 点検日：開始日
                 // -------------------------------------------------
 
                 const inspectionDate =
-                    row.inspection.createdAt ?? ""
+                    inspection.createdAt ?? ""
 
                 const date =
                     inspectionDate
@@ -378,7 +365,6 @@ export default function InspectionResultModal({
                     ) {
                         return false
                     }
-
                 }
 
 
@@ -401,7 +387,6 @@ export default function InspectionResultModal({
                     ) {
                         return false
                     }
-
                 }
 
 
@@ -412,12 +397,10 @@ export default function InspectionResultModal({
                 if (
                     selectedDeviceTypes.length > 0 &&
                     !selectedDeviceTypes.includes(
-                        row.deviceTypeName
+                        inspection.deviceTypeName ?? ""
                     )
                 ) {
-
                     return false
-
                 }
 
 
@@ -428,12 +411,10 @@ export default function InspectionResultModal({
                 if (
                     selectedDeviceModels.length > 0 &&
                     !selectedDeviceModels.includes(
-                        row.deviceModelName
+                        inspection.deviceModelName ?? ""
                     )
                 ) {
-
                     return false
-
                 }
 
 
@@ -444,12 +425,10 @@ export default function InspectionResultModal({
                 if (
                     selectedWards.length > 0 &&
                     !selectedWards.includes(
-                        row.wardName
+                        inspection.wardName ?? ""
                     )
                 ) {
-
                     return false
-
                 }
 
 
@@ -459,12 +438,10 @@ export default function InspectionResultModal({
 
                 if (
                     selectedManagementNumber &&
-                    row.managementNumber !==
+                    inspection.managementNumber !==
                         selectedManagementNumber
                 ) {
-
                     return false
-
                 }
 
 
@@ -474,13 +451,10 @@ export default function InspectionResultModal({
 
                 if (
                     selectedPerformer &&
-                    String(
-                        row.inspection.performedBy ?? ""
-                    ) !== selectedPerformer
+                    inspection.performedByName !==
+                        selectedPerformer
                 ) {
-
                     return false
-
                 }
 
 
@@ -497,12 +471,12 @@ export default function InspectionResultModal({
 
                 const dateA =
                     new Date(
-                        a.inspection.createdAt ?? ""
+                        a.createdAt ?? ""
                     ).getTime()
 
                 const dateB =
                     new Date(
-                        b.inspection.createdAt ?? ""
+                        b.createdAt ?? ""
                     ).getTime()
 
                 return dateB - dateA
@@ -510,7 +484,7 @@ export default function InspectionResultModal({
             })
 
     }, [
-        inspectionRows,
+        inspections,
 
         startDate,
         endDate,
@@ -522,35 +496,51 @@ export default function InspectionResultModal({
         selectedManagementNumber,
         selectedPerformer,
     ])
-    //検索結果のinspection idに紐づくinspection resultを取得する関数
+
+
+    // =========================================================
+    // inspection id に紐づく inspection result を取得
+    // =========================================================
+
     const getResultsByInspectionId = async (
-        rows: typeof filteredInspectionRows
+        rows: InspectionListType[]
     ) => {
-        console.log("getResultsByInspectionId")
 
-        const resultsByInspectionId: Record<
-            number,
-            InspectionResult[]
-        > = {}
+        console.log(
+            "getResultsByInspectionId"
+        )
 
-        for (const row of rows) {
-            const inspectionId = row.inspection.id
+        const resultsByInspectionId:
+            Record<number, InspectionResult[]> = {}
+
+
+        for (const inspection of rows) {
+
+            const inspectionId =
+                inspection.id
 
             const resultsData =
                 await getInspectionResultsFromApi(
                     inspectionId
                 )
 
-            resultsByInspectionId[inspectionId] =
+            resultsByInspectionId[
+                inspectionId
+            ] =
                 resultsData.map(
                     normalizeInspectionResult
                 )
         }
 
+
         return resultsByInspectionId
     }
 
+
+    // =========================================================
     // 検索条件リセット
+    // =========================================================
+
     const resetSearch = () => {
 
         setStartDate("")
@@ -566,23 +556,32 @@ export default function InspectionResultModal({
     }
 
 
-    //PDFボタン処理
+    // =========================================================
+    // PDFボタン処理
+    // =========================================================
+
     const handleExportPdf = async () => {
-        console.log("handleExportPdf")
+
+        console.log(
+            "handleExportPdf"
+        )
+
 
         const resultsByInspectionId =
             await getResultsByInspectionId(
-                filteredInspectionRows
+                filteredInspections
             )
+
 
         console.log(
             "PDF対象のinspection:",
             JSON.stringify(
-                filteredInspectionRows,
+                filteredInspections,
                 null,
                 2
             )
         )
+
 
         console.log(
             "PDF対象のinspection results:",
@@ -592,8 +591,14 @@ export default function InspectionResultModal({
                 2
             )
         )
+
     }
+
+
+    // =========================================================
     // Modal
+    // =========================================================
+
     if (!isOpen) {
         return null
     }
@@ -1272,7 +1277,7 @@ export default function InspectionResultModal({
                             "
                         >
                             検索結果：
-                            {filteredInspectionRows.length}
+                            {filteredInspections.length}
                             件
                         </div>
 
@@ -1421,178 +1426,183 @@ export default function InspectionResultModal({
 
                             <tbody>
 
-                                {filteredInspectionRows.map(
-                                    (row) => {
+                                {filteredInspections.map(
+                                    (inspection) => (
 
-                                        const inspection =
-                                            row.inspection
+                                        <tr
+                                            key={
+                                                inspection.id
+                                            }
+                                            className="
+                                                hover:bg-gray-50
+                                            "
+                                        >
 
+                                            {/* 詳細 */}
 
-                                        return (
-
-                                            <tr
-                                                key={
-                                                    inspection.id
-                                                }
+                                            <td
                                                 className="
-                                                    hover:bg-gray-50
+                                                    border
+                                                    p-2
+                                                    text-center
                                                 "
                                             >
 
-                                                {/* 詳細 */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
 
-                                                <td
+                                                        setSelectedInspection(
+                                                            inspection
+                                                        )
+
+                                                        setOpenDetailModal(
+                                                            true
+                                                        )
+
+                                                    }}
                                                     className="
-                                                        border
-                                                        p-2
-                                                        text-center
+                                                        px-3
+                                                        py-1
+                                                        rounded
+                                                        bg-gray-200
+                                                        hover:bg-gray-300
                                                     "
                                                 >
+                                                    詳細
+                                                </button>
 
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setSelectedInspection(inspection)
-                                                            setOpenDetailModal(true)
-                                                        }}
-                                                            className="
-                                                            px-3
-                                                            py-1
-                                                            rounded
-                                                            bg-gray-200
-                                                            hover:bg-gray-300
-                                                        "
-                                                    >
-                                                        詳細
-                                                    </button>
-
-                                                </td>
+                                            </td>
 
 
-                                                {/* 点検日時 */}
+                                            {/* 点検日時 */}
 
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                        whitespace-nowrap
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.createdAt
-                                                            ? new Date(
-                                                                inspection.createdAt
-                                                            ).toLocaleString(
-                                                                "ja-JP"
-                                                            )
-                                                            : "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 点検種別 */}
-
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.inspectionTypeName
-                                                    }
-                                                </td>
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                {
+                                                    inspection.createdAt
+                                                        ? new Date(
+                                                            inspection.createdAt
+                                                        ).toLocaleString(
+                                                            "ja-JP"
+                                                        )
+                                                        : "-"
+                                                }
+                                            </td>
 
 
-                                                {/* 機種 */}
+                                            {/* 点検種別 */}
 
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.deviceTypeName
-                                                    }
-                                                </td>
-
-
-                                                {/* 型式 */}
-
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.deviceModelName
-                                                    }
-                                                </td>
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.inspectionTypeName ??
+                                                    "-"
+                                                }
+                                            </td>
 
 
-                                                {/* 管理番号 */}
+                                            {/* 機種 */}
 
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.managementNumber
-                                                    }
-                                                </td>
-
-
-                                                {/* 病棟 */}
-
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.wardName
-                                                    }
-                                                </td>
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.deviceTypeName ??
+                                                    "-"
+                                                }
+                                            </td>
 
 
-                                                {/* 部屋 */}
+                                            {/* 型式 */}
 
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        row.roomName
-                                                    }
-                                                </td>
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.deviceModelName ??
+                                                    "-"
+                                                }
+                                            </td>
 
 
-                                                {/* 実施者 */}
+                                            {/* 管理番号 */}
 
-                                                <td
-                                                    className="
-                                                        border
-                                                        p-2
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.performedBy ??
-                                                        "-"
-                                                    }
-                                                </td>
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.managementNumber ??
+                                                    "-"
+                                                }
+                                            </td>
 
-                                            </tr>
 
-                                        )
+                                            {/* 病棟 */}
 
-                                    }
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.wardName ??
+                                                    "-"
+                                                }
+                                            </td>
+
+
+                                            {/* 部屋 */}
+
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.roomName ??
+                                                    "-"
+                                                }
+                                            </td>
+
+
+                                            {/* 実施者 */}
+
+                                            <td
+                                                className="
+                                                    border
+                                                    p-2
+                                                "
+                                            >
+                                                {
+                                                    inspection.performedByName ??
+                                                    "-"
+                                                }
+                                            </td>
+
+                                        </tr>
+
+                                    )
                                 )}
 
 
@@ -1600,7 +1610,7 @@ export default function InspectionResultModal({
                                     検索結果なし
                                 ===================================== */}
 
-                                {filteredInspectionRows.length === 0 && (
+                                {filteredInspections.length === 0 && (
 
                                     <tr>
 
@@ -1629,16 +1639,26 @@ export default function InspectionResultModal({
                 )}
 
             </div>
+
+
+            {/* =====================================================
+                詳細Modal
+            ===================================================== */}
+
             <InspectionResultDetailModal
                 isOpen={openDetailModal}
                 onClose={() => {
+
                     setOpenDetailModal(false)
                     setSelectedInspection(null)
+
                 }}
                 inspection={selectedInspection}
             />
+
         </div>,
 
         document.body
+
     )
 }

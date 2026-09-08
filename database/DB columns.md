@@ -144,7 +144,6 @@
 | inspection_results                | 4                | value                   | text                        |     |                               | YES         |
 | inspection_results                | 5                | category_name           | text                        |     |                               | NO          |
 | inspection_results                | 6                | category_display_order  | integer                     |     |                               | NO          |
-| inspection_results                | 7                | item_display_order      | integer                     |     |                               | NO          |
 | inspection_types                  | 1                | id                      | integer                     | YES |                               | NO          |
 | inspection_types                  | 2                | name                    | text                        |     |                               | NO          |
 | inspection_types                  | 4                | is_active               | boolean                     |     |                               | NO          |

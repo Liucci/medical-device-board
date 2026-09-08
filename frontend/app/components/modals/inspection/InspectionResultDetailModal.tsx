@@ -3,31 +3,20 @@
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 
-import type { Inspection } from "../../../types/inspectionTypes/inspectionTypes"
-import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
-import type { InspectionChecklistItem } from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
+import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
+import type { InspectionResultDetailType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
+
+import { fetchInspectionResulttransaction,} from "../../../api/transactions/inspection/inspections/fetchInspectionResultTransaction"
 
 import {
-    getInspectionResultsFromApi,
-} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
-
-import {
-    getInspectionChecklistItemsFromApi,
-} from "../../../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
-
-import {
-    normalizeInspectionResult,
-} from "../../../mapper/inspectionMapper/inspectionResultMapper"
-
-import {
-    normalizeInspectionChecklistItem,
-} from "../../../mapper/inspectionMapper/inspectionChecklistItemMapper"
+    normalizeInspectionResultDetails,
+} from "../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
 
 
 type Props = {
     isOpen: boolean
     onClose: () => void
-    inspection: Inspection | null
+    inspection: InspectionListType | null
 }
 
 
@@ -41,18 +30,20 @@ export default function InspectionResultDetailModal({
     // State
     // =========================================================
 
-    const [results, setResults] =
-        useState<InspectionResult[]>([])
+    const [
+        results,
+        setResults
+    ] = useState<InspectionResultDetailType[]>([])
 
-    const [checklistItems, setChecklistItems] =
-        useState<InspectionChecklistItem[]>([])
-
-    const [loading, setLoading] =
-        useState(false)
+    const [
+        loading,
+        setLoading
+    ] = useState(false)
 
 
     // =========================================================
-    // 点検結果・点検項目取得
+    // 点検結果取得
+    // Modalを開いたときに取得
     // =========================================================
 
     useEffect(() => {
@@ -61,54 +52,26 @@ export default function InspectionResultDetailModal({
             return
         }
 
-
         const fetchData = async () => {
 
             setLoading(true)
 
             try {
 
-                // -------------------------------------------------
-                // 点検結果取得
-                // -------------------------------------------------
-
-                const resultsData =
-                    await getInspectionResultsFromApi(
-                        inspection.id
-                    )
-
-                const normalizedResults =
-                    resultsData.map(
-                        normalizeInspectionResult
-                    )
-
-
-                // -------------------------------------------------
-                // 点検項目取得
-                //
-                // inspection.checklistId に紐づく
-                // inspection_checklist_items を取得
-                // -------------------------------------------------
-
-                const checklistItemsData =
-                    await getInspectionChecklistItemsFromApi(
+                const data =
+                    await fetchInspectionResulttransaction(
+                        inspection.id,
                         inspection.checklistId
                     )
 
-                const normalizedChecklistItems =
-                    checklistItemsData.map(
-                        normalizeInspectionChecklistItem
+                const normalizedData =
+                    normalizeInspectionResultDetails(
+                        data
                     )
 
-
                 setResults(
-                    normalizedResults
+                    normalizedData
                 )
-
-                setChecklistItems(
-                    normalizedChecklistItems
-                )
-
 
             } catch (error) {
 
@@ -118,16 +81,13 @@ export default function InspectionResultDetailModal({
                 )
 
                 setResults([])
-                setChecklistItems([])
 
             } finally {
 
                 setLoading(false)
 
             }
-
         }
-
 
         fetchData()
 
@@ -144,6 +104,28 @@ export default function InspectionResultDetailModal({
     if (!isOpen || !inspection) {
         return null
     }
+
+
+    // =========================================================
+    // 大項目ごとにグループ化
+    // =========================================================
+
+    const categories = Array.from(
+        new Map(
+            results.map(result => [
+                result.categoryName,
+                {
+                    name: result.categoryName,
+                    displayOrder:
+                        result.categoryDisplayOrder,
+                },
+            ])
+        ).values()
+    ).sort(
+        (a, b) =>
+            a.displayOrder -
+            b.displayOrder
+    )
 
 
     return createPortal(
@@ -252,6 +234,8 @@ export default function InspectionResultDetailModal({
                             "
                         >
 
+                            {/* 点検日時 */}
+
                             <div>
 
                                 <div className="text-sm text-gray-500">
@@ -273,6 +257,116 @@ export default function InspectionResultDetailModal({
                             </div>
 
 
+                            {/* 点検種別 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    点検種別
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.inspectionTypeName ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 機種 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    機種
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.deviceTypeName ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 型式 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    型式
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.deviceModelName ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 管理番号 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    管理番号
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.managementNumber ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 病棟 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    病棟
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.wardName ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 部屋 */}
+
+                            <div>
+
+                                <div className="text-sm text-gray-500">
+                                    部屋
+                                </div>
+
+                                <div>
+                                    {
+                                        inspection.roomName ??
+                                        "-"
+                                    }
+                                </div>
+
+                            </div>
+
+
+                            {/* 実施者 */}
+
                             <div>
 
                                 <div className="text-sm text-gray-500">
@@ -281,13 +375,15 @@ export default function InspectionResultDetailModal({
 
                                 <div>
                                     {
-                                        inspection.performedBy ??
+                                        inspection.performedByName ??
                                         "-"
                                     }
                                 </div>
 
                             </div>
 
+
+                            {/* 総合結果 */}
 
                             <div>
 
@@ -305,7 +401,9 @@ export default function InspectionResultDetailModal({
                             </div>
 
 
-                            <div>
+                            {/* コメント */}
+
+                            <div className="col-span-2">
 
                                 <div className="text-sm text-gray-500">
                                     コメント
@@ -368,139 +466,128 @@ export default function InspectionResultDetailModal({
 
                         ) : (
 
-                            <table
-                                className="
-                                    w-full
-                                    border-collapse
-                                    text-sm
-                                "
-                            >
+                            <div className="space-y-6">
 
-                                <thead>
+                                {categories.map(
+                                    category => {
 
-                                    <tr
-                                        className="
-                                            bg-gray-100
-                                        "
-                                    >
-
-                                        <th className="border p-2 w-16">
-                                            No.
-                                        </th>
-
-                                        <th className="border p-2">
-                                            点検項目
-                                        </th>
-
-                                        <th className="border p-2 w-40">
-                                            結果
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody>
-
-                                    {results
-                                        .map((result) => {
-
-                                            const item =
-                                                checklistItems.find(
-                                                    (checklistItem) =>
-                                                        Number(
-                                                            checklistItem.id
-                                                        ) ===
-                                                        Number(
-                                                            result.checklistItemId
-                                                        )
+                                        const categoryResults =
+                                            results
+                                                .filter(
+                                                    result =>
+                                                        result.categoryName ===
+                                                        category.name
+                                                )
+                                                .sort(
+                                                    (a, b) =>
+                                                        a.itemDisplayOrder -
+                                                        b.itemDisplayOrder
                                                 )
 
-                                            return {
-                                                result,
-                                                item,
-                                            }
+                                        return (
 
-                                        })
-                                        .sort(
-                                            (a, b) =>
-                                                (
-                                                    a.item?.displayOrder ??
-                                                    999999
-                                                ) -
-                                                (
-                                                    b.item?.displayOrder ??
-                                                    999999
-                                                )
-                                        )
-                                        .map(
-                                            ({
-                                                result,
-                                                item,
-                                            }) => (
+                                            <div
+                                                key={category.name}
+                                            >
 
-                                                <tr
-                                                    key={result.id}
+                                                {/* 大項目 */}
+
+                                                <div
                                                     className="
-                                                        hover:bg-gray-50
+                                                        font-bold
+                                                        bg-gray-100
+                                                        border
+                                                        px-3
+                                                        py-2
+                                                    "
+                                                >
+                                                    {category.name}
+                                                </div>
+
+
+                                                {/* 点検項目 */}
+
+                                                <div
+                                                    className="
+                                                        border-x
+                                                        border-b
                                                     "
                                                 >
 
-                                                    {/* No. */}
+                                                    {categoryResults.map(
+                                                        result => (
 
-                                                    <td
-                                                        className="
-                                                            border
-                                                            p-2
-                                                            text-center
-                                                        "
-                                                    >
-                                                        {
-                                                            item?.displayOrder ??
-                                                            "-"
-                                                        }
-                                                    </td>
+                                                            <div
+                                                                key={`${result.categoryName}-${result.itemDisplayOrder}`}
+                                                                className="
+                                                                    grid
+                                                                    grid-cols-[1fr_160px_100px]
+                                                                    border-b
+                                                                    last:border-b-0
+                                                                "
+                                                            >
 
+                                                                {/* 点検項目 */}
 
-                                                    {/* 項目名 */}
-
-                                                    <td
-                                                        className="
-                                                            border
-                                                            p-2
-                                                        "
-                                                    >
-                                                        {
-                                                            item?.itemName ??
-                                                            "-"
-                                                        }
-                                                    </td>
+                                                                <div
+                                                                    className="
+                                                                        px-3
+                                                                        py-2
+                                                                    "
+                                                                >
+                                                                    {
+                                                                        result.itemName
+                                                                    }
+                                                                </div>
 
 
-                                                    {/* 結果 */}
+                                                                {/* 点検結果 */}
 
-                                                    <td
-                                                        className="
-                                                            border
-                                                            p-2
-                                                            text-center
-                                                        "
-                                                    >
-                                                        {
-                                                            result.value ??
-                                                            "-"
-                                                        }
-                                                    </td>
+                                                                <div
+                                                                    className="
+                                                                        px-3
+                                                                        py-2
+                                                                        text-center
+                                                                        border-l
+                                                                    "
+                                                                >
+                                                                    {
+                                                                        result.value ??
+                                                                        "-"
+                                                                    }
+                                                                </div>
 
-                                                </tr>
 
-                                            )
-                                        )}
+                                                                {/* unit */}
 
-                                </tbody>
+                                                                <div
+                                                                    className="
+                                                                        px-3
+                                                                        py-2
+                                                                        border-l
+                                                                    "
+                                                                >
+                                                                    {
+                                                                        result.unit ??
+                                                                        ""
+                                                                    }
+                                                                </div>
 
-                            </table>
+                                                            </div>
+
+                                                        )
+                                                    )}
+
+                                                </div>
+
+                                            </div>
+
+                                        )
+
+                                    }
+                                )}
+
+                            </div>
 
                         )}
 

@@ -364,14 +364,6 @@ const openInspectionResult = async () => {
           <InspectionResultModal
               isOpen={openInspectionResultModal}
               onClose={() =>setOpenInspectionResultModal(false)}
-              loading={inspectionResultsLoading}
-              inspections={inspections}
-              devices={deviceList}
-              rooms={rooms}
-              wards={wards}
-              deviceTypes={deviceTypes}
-              deviceModels={deviceModels}
-              inspectionTypes={inspectionTypes}
           />
       )}
 
