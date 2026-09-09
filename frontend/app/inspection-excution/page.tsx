@@ -442,6 +442,17 @@ return (
                                     {device?.managementNumber ?? "－"}
                                 </p>
 
+                                {/* 患者名 */}
+
+                                <p>
+                                    <span className="font-medium">
+                                        患者名：
+                                    </span>
+                                    {room?.patientName ?? "－"}
+                                </p>
+
+
+
                                 <p>
                                     <span className="font-medium">
                                         病棟：

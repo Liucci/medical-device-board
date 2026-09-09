@@ -9,6 +9,7 @@ export type Inspection = {
     hospitalId: string
     deviceId: number
     roomId: number | null
+    patientName: string | null
     inspectionTypeId: number
     checklistId: number
     performedBy: string | null
@@ -22,6 +23,7 @@ export type InspectionDB = {
     hospital_id: string
     device_id: number
     room_id: number | null
+    patient_name: string | null
     inspection_type_id: number
     checklist_id: number
     performed_by: string | null

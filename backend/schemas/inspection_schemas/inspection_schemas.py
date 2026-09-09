@@ -8,6 +8,7 @@ class InspectionResponse(BaseModel):
     hospital_id: str
     device_id: int
     room_id: int | None = None
+    patient_name: str | None = None
     inspection_type_id: int
     checklist_id: int
     performed_by: str | None = None

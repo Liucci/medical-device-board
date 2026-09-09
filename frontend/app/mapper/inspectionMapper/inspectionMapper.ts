@@ -18,6 +18,7 @@ export const normalizeInspection = (
     hospitalId: inspection.hospital_id,
     deviceId: inspection.device_id,
     roomId: inspection.room_id,
+    patientName:inspection.patient_name,
     inspectionTypeId: inspection.inspection_type_id,
     checklistId: inspection.checklist_id,
     performedBy: inspection.performed_by,
