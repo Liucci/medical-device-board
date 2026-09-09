@@ -10,18 +10,21 @@ import {
 
 
 // DB → UI
-
 export const normalizeInspection = (
     inspection: InspectionDB
 ): Inspection => ({
     id: inspection.id,
     hospitalId: inspection.hospital_id,
-    deviceId: inspection.device_id,
-    roomId: inspection.room_id,
-    patientName:inspection.patient_name,
-    inspectionTypeId: inspection.inspection_type_id,
-    checklistId: inspection.checklist_id,
-    performedBy: inspection.performed_by,
+    deviceTypeName: inspection.device_type_name,
+    deviceModelName: inspection.device_model_name,
+    managementNumber: inspection.management_number,
+    serialNumber: inspection.serial_number,
+    wardName: inspection.ward_name,
+    roomName: inspection.room_name,
+    patientName: inspection.patient_name,
+    inspectionTypeName: inspection.inspection_type_name,
+    checklistName: inspection.checklist_name,
+    performedByName: inspection.performed_by_name,
     overallResult: inspection.overall_result,
     comment: inspection.comment,
     createdAt: inspection.created_at

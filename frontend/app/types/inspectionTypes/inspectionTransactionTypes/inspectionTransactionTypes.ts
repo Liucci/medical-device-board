@@ -30,36 +30,37 @@ export type CreateInspectionTransactionBackType = {
 //inspection内の各idを基に、他tableから必要情報をかき集めたものをbackから受け取る用
 export type InspectionListType = {
     id: number
-    checklistId:number
     createdAt: string
     inspectionTypeName: string
+    checklistName: string
     deviceTypeName: string
     deviceModelName: string
     managementNumber: string | null
     serialNumber: string | null
-    wardName: string
-    roomName: string
-    performedByName: string
+    wardName: string | null
+    roomName: string | null
+    patientName: string | null
+    performedByName: string | null
     comment: string | null
     overallResult: string | null
 }
 
 export type InspectionListDBType = {
     id: number
-    checklist_id:number
     created_at: string
     inspection_type_name: string
+    checklist_name: string
     device_type_name: string
     device_model_name: string
     management_number: string | null
     serial_number: string | null
-    ward_name: string
-    room_name: string
-    performed_by_name: string
+    ward_name: string | null
+    room_name: string | null
+    patient_name: string | null
+    performed_by_name: string | null
     comment: string | null
     overall_result: string | null
 }
-
 //result内のitem id,category idをもとに他tableから情報取得し加工しfrontに戻す用
 export type InspectionResultDetailType = {
     categoryName: string

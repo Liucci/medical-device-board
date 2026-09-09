@@ -33,19 +33,21 @@ export const normalizeInspectionList = (
     inspection: InspectionListDBType
 ): InspectionListType => ({
     id: inspection.id,
-    checklistId:inspection.checklist_id,
     createdAt: inspection.created_at,
     inspectionTypeName: inspection.inspection_type_name,
+    checklistName: inspection.checklist_name,
     deviceTypeName: inspection.device_type_name,
     deviceModelName: inspection.device_model_name,
     managementNumber: inspection.management_number,
     serialNumber: inspection.serial_number,
     wardName: inspection.ward_name,
     roomName: inspection.room_name,
+    patientName: inspection.patient_name,
     performedByName: inspection.performed_by_name,
     comment: inspection.comment,
     overallResult: inspection.overall_result
 })
+
 
 //resultをUI用に加工したものをbackから受け取りUI用に変換用（単一result用）
 export const normalizeInspectionResultDetail = (

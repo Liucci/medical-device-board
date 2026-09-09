@@ -14,6 +14,7 @@ created_at → 含めない
 inspection_id → 含めない
  """
 #点検結果を保存するとき用
+#frontからFAST apiを叩くときに送られるjsonの型定義
 class CreateInspectionTransactionRequest(BaseModel):
     inspection: AddInspectionRequest
     results: list[AddInspectionResultRequest]
@@ -22,16 +23,17 @@ class CreateInspectionTransactionRequest(BaseModel):
 #checklist_idをもたせてresult tableと紐づけ
 class InspectionListResponse(BaseModel):
     id: int
-    checklist_id:int
     created_at: str
     inspection_type_name: str
+    checklist_name: str
     device_type_name: str
     device_model_name: str
     management_number: str | None
     serial_number: str | None
-    ward_name: str
-    room_name: str
-    performed_by_name: str
+    ward_name: str | None
+    room_name: str | None
+    patient_name: str | None
+    performed_by_name: str | None
     comment: str | None
     overall_result: str | None
 
@@ -43,3 +45,28 @@ class InspectionResultDetailResponse(BaseModel):
     unit: str | None
     item_display_order: int
     value: str | None
+
+
+#frontから受け取ったAddInspectionRequestをDBのcolumnに合わせて加工後inspection tableに保存する用
+#backendとDB間だけの型定義なのでこのschemaのtypr,mapperは不要
+class AddInspectionSnapshotRequest(BaseModel):
+    device_type_name: str
+    device_model_name: str
+    management_number: str | None = None
+    serial_number: str | None = None
+    ward_name: str | None = None
+    room_name: str | None = None
+    patient_name: str | None = None
+    inspection_type_name: str
+    checklist_name: str
+    overall_result: str | None = None
+    comment: str | None = None
+
+class AddInspectionResultSnapshotRequest(BaseModel):
+    inspection_id: int
+    category_name: str
+    category_display_order: int
+    item_name: str
+    item_display_order: int
+    unit: str | None = None
+    value: str | None = None

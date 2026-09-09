@@ -17,10 +17,12 @@ export const normalizeInspectionResult = (
 ): InspectionResult => ({
     id: result.id,
     inspectionId: result.inspection_id,
-    checklistItemId: result.checklist_item_id,
-    value: result.value,
     categoryName: result.category_name,
     categoryDisplayOrder: result.category_display_order,
+    itemName: result.item_name,
+    itemDisplayOrder: result.item_display_order,
+    unit: result.unit,
+    value: result.value
 })
 
 
