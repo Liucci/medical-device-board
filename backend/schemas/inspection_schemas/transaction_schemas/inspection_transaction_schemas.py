@@ -20,7 +20,7 @@ class CreateInspectionTransactionRequest(BaseModel):
     results: list[AddInspectionResultRequest]
 
 #点検結果内の各idをもとに他tableから情報取得し加工しfrontに点検結果として表示させる
-#checklist_idをもたせてresult tableと紐づけ
+
 class InspectionListResponse(BaseModel):
     id: int
     created_at: str

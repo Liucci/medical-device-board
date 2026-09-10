@@ -4,13 +4,15 @@ import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 
 import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
-import type { InspectionResultDetailType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
-
-import { fetchInspectionResulttransaction,} from "../../../api/transactions/inspection/inspections/fetchInspectionResultTransaction"
+import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
 
 import {
-    normalizeInspectionResultDetails,
-} from "../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
+    getInspectionResultsFromApi,
+} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
+
+import {
+    normalizeInspectionResult,
+} from "../../../mapper/inspectionMapper/inspectionResultMapper"
 
 
 type Props = {
@@ -33,7 +35,7 @@ export default function InspectionResultDetailModal({
     const [
         results,
         setResults
-    ] = useState<InspectionResultDetailType[]>([])
+    ] = useState<InspectionResult[]>([])
 
     const [
         loading,
@@ -58,15 +60,16 @@ export default function InspectionResultDetailModal({
 
             try {
 
+                console.log("fetchInspectionResults")
+
                 const data =
-                    await fetchInspectionResulttransaction(
-                        inspection.id,
-                        inspection.checklistId
+                    await getInspectionResultsFromApi(
+                        inspection.id
                     )
 
                 const normalizedData =
-                    normalizeInspectionResultDetails(
-                        data
+                    data.map(
+                        normalizeInspectionResult
                     )
 
                 setResults(
@@ -128,345 +131,410 @@ export default function InspectionResultDetailModal({
     )
 
 
-    return createPortal(
+return createPortal(
+
+    <div
+        className="
+            fixed
+            inset-0
+            z-[1100]
+            flex
+            items-center
+            justify-center
+            bg-black/50
+            p-4
+        "
+    >
 
         <div
             className="
-                fixed
-                inset-0
-                z-[1100]
+                bg-gray-200
+                rounded-2xl
+                shadow-2xl
+                w-[1200px]
+                max-w-[95vw]
+                h-[80vh]
+                max-h-[900px]
                 flex
-                items-center
-                justify-center
-                bg-black/50
+                flex-col
+                overflow-hidden
             "
         >
 
+            {/* =================================================
+                Header
+            ================================================= */}
+
             <div
                 className="
-                    bg-white
-                    rounded-xl
-                    shadow-xl
-                    w-[1000px]
-                    max-w-[95vw]
-                    h-[70vh]
                     flex
-                    flex-col
+                    items-center
+                    justify-between
+                    px-6
+                    py-4
+                    bg-white
+                    shrink-0
                 "
             >
 
-                {/* =================================================
-                    Header
-                ================================================= */}
-
-                <div
-                    className="
-                        flex
-                        items-center
-                        justify-between
-                        border-b
-                        px-6
-                        py-4
-                    "
-                >
+                <div>
 
                     <h2
                         className="
                             text-xl
                             font-bold
+                            text-gray-800
                         "
                     >
                         点検結果詳細
                     </h2>
 
-
-                    <button
-                        type="button"
-                        onClick={onClose}
+                    <div
                         className="
-                            px-3
-                            py-1
-                            bg-gray-300
-                            rounded
-                            hover:bg-gray-400
+                            text-xs
+                            text-gray-500
+                            mt-1
                         "
                     >
-                        閉じる
-                    </button>
+                        点検結果の詳細情報
+                    </div>
 
                 </div>
 
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="
+                        px-4
+                        py-2
+                        text-sm
+                        font-medium
+                        text-gray-700
+                        bg-gray-100
+                        rounded-lg
+                        hover:bg-gray-200
+                        transition
+                    "
+                >
+                    閉じる
+                </button>
+
+            </div>
+
+
+            {/* =================================================
+                Main
+            ================================================= */}
+
+            <div
+                className="
+                    flex
+                    flex-1
+                    min-h-0
+                "
+            >
 
                 {/* =================================================
-                    Content
+                    Left
+                    点検情報
                 ================================================= */}
 
                 <div
                     className="
-                        flex-1
-                        overflow-auto
-                        p-6
+                        w-1/3
+                        min-w-[320px]
+                        px-6
+                        py-5
+                        overflow-y-auto
                     "
                 >
 
-                    {/* =================================================
-                        点検情報
-                    ================================================= */}
-
-                    <div className="mb-6">
+                    <div
+                        className="
+                            mb-5
+                        "
+                    >
 
                         <h3
                             className="
                                 text-lg
-                                font-bold
-                                mb-3
+                                font-semibold
+                                text-gray-800
                             "
                         >
                             点検情報
                         </h3>
 
-
-                        <div
+                        <p
                             className="
-                                grid
-                                grid-cols-2
-                                gap-4
+                                mt-1
+                                text-sm
+                                text-gray-500
                             "
                         >
+                            点検時の登録情報
+                        </p>
 
-                            {/* 点検日時 */}
+                    </div>
+
+
+                    <div
+                        className="
+                            bg-white
+                            rounded-xl
+                            p-6
+                            shadow-sm
+                        "
+                    >
+
+                        <div className="space-y-5">
 
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     点検日時
                                 </div>
-
-                                <div>
+                                <div className="text-sm font-medium text-gray-800">
                                     {
                                         inspection.createdAt
                                             ? new Date(
                                                 inspection.createdAt
-                                            ).toLocaleString(
-                                                "ja-JP"
-                                            )
+                                            ).toLocaleString("ja-JP")
                                             : "-"
                                     }
                                 </div>
-
                             </div>
 
-
-                            {/* 点検種別 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     点検種別
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.inspectionTypeName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.inspectionTypeName ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 機種 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     機種
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.deviceTypeName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.deviceTypeName ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 型式 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     型式
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.deviceModelName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.deviceModelName ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 管理番号 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     管理番号
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.managementNumber ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.managementNumber ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 病棟 */}
+                            <div>
+                                <div className="mb-1 text-xs text-gray-500">
+                                    患者名
+                                </div>
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.patientName ?? "-"}
+                                </div>
+                            </div>
 
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     病棟
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.wardName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.wardName ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 部屋 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     部屋
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.roomName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.roomName ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* 実施者 */}
-
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     実施者
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.performedByName ??
-                                        "-"
-                                    }
+                                <div className="text-sm font-medium text-gray-800">
+                                    {inspection.performedByName ?? "-"}
                                 </div>
-
                             </div>
-
-
-                            {/* 総合結果 */}
 
                             <div>
-
-                                <div className="text-sm text-gray-500">
+                                <div className="mb-1 text-xs text-gray-500">
                                     総合結果
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.overallResult ??
-                                        "-"
-                                    }
+                                <div
+                                    className="
+                                        inline-flex
+                                        items-center
+                                        rounded-lg
+                                        bg-gray-100
+                                        px-3
+                                        py-1.5
+                                        text-sm
+                                        font-semibold
+                                        text-gray-800
+                                    "
+                                >
+                                    {inspection.overallResult ?? "-"}
                                 </div>
-
                             </div>
 
-
-                            {/* コメント */}
-
-                            <div className="col-span-2">
-
-                                <div className="text-sm text-gray-500">
+                            <div>
+                                <div className="mb-1 text-xs text-gray-500">
                                     コメント
                                 </div>
-
-                                <div>
-                                    {
-                                        inspection.comment ??
-                                        "-"
-                                    }
+                                <div
+                                    className="
+                                        text-sm
+                                        text-gray-800
+                                        whitespace-pre-wrap
+                                        break-words
+                                    "
+                                >
+                                    {inspection.comment ?? "-"}
                                 </div>
-
                             </div>
 
                         </div>
 
                     </div>
 
+                </div>
+
+
+                {/* =================================================
+                    Right
+                    点検項目結果
+                ================================================= */}
+
+                <div
+                    className="
+                        flex-1
+                        min-w-0
+                        flex
+                        flex-col
+                        px-6
+                        py-5
+                    "
+                >
+
+                    <div
+                        className="
+                            flex
+                            items-center
+                            justify-between
+                            mb-4
+                            shrink-0
+                        "
+                    >
+
+                        <div>
+
+                            <h3
+                                className="
+                                    text-lg
+                                    font-semibold
+                                    text-gray-800
+                                "
+                            >
+                                点検項目結果
+                            </h3>
+
+                            <p
+                                className="
+                                    mt-1
+                                    text-sm
+                                    text-gray-500
+                                "
+                            >
+                                {inspection.checklistName}
+                            </p>
+
+                        </div>
+
+
+                    </div>
+
 
                     {/* =================================================
-                        点検項目結果
+                        Result Container
                     ================================================= */}
 
-                    <div>
-
-                        <h3
-                            className="
-                                text-lg
-                                font-bold
-                                mb-3
-                            "
-                        >
-                            点検項目結果
-                        </h3>
-
+                    <div
+                        className="
+                            flex-1
+                            min-h-0
+                            overflow-y-auto
+                            pr-2
+                        "
+                    >
 
                         {loading ? (
 
                             <div
                                 className="
-                                    py-8
-                                    text-center
-                                    text-gray-500
+                                    h-full
+                                    flex
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-white
+                                    shadow-sm
                                 "
                             >
-                                点検結果を取得しています...
+
+                                <div className="text-sm text-gray-500">
+                                    点検結果を取得しています...
+                                </div>
+
                             </div>
 
                         ) : results.length === 0 ? (
 
                             <div
                                 className="
-                                    py-8
-                                    text-center
-                                    text-gray-500
+                                    h-full
+                                    flex
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-white
+                                    shadow-sm
                                 "
                             >
-                                点検項目結果はありません
+
+                                <div className="text-sm text-gray-500">
+                                    点検項目結果はありません
+                                </div>
+
                             </div>
 
                         ) : (
 
-                            <div className="space-y-6">
+                            <div
+                                className="
+                                    space-y-5
+                                    pb-2
+                                "
+                            >
 
                                 {categories.map(
                                     category => {
@@ -488,31 +556,41 @@ export default function InspectionResultDetailModal({
 
                                             <div
                                                 key={category.name}
+                                                className="
+                                                    rounded-xl
+                                                    bg-white
+                                                    p-6
+                                                    shadow-sm
+                                                "
                                             >
 
-                                                {/* 大項目 */}
+                                                {/* カテゴリ */}
 
                                                 <div
                                                     className="
-                                                        font-bold
-                                                        bg-gray-100
-                                                        border
-                                                        px-3
-                                                        py-2
+                                                        mb-4
+                                                        pb-3
                                                     "
                                                 >
-                                                    {category.name}
+
+                                                    <h3
+                                                        className="
+                                                            text-lg
+                                                            font-semibold
+                                                            text-gray-800
+                                                        "
+                                                    >
+                                                        {category.name}
+                                                    </h3>
+
+
+
                                                 </div>
 
 
-                                                {/* 点検項目 */}
+                                                {/* 項目 */}
 
-                                                <div
-                                                    className="
-                                                        border-x
-                                                        border-b
-                                                    "
-                                                >
+                                                <div className="space-y-3">
 
                                                     {categoryResults.map(
                                                         result => (
@@ -520,10 +598,16 @@ export default function InspectionResultDetailModal({
                                                             <div
                                                                 key={`${result.categoryName}-${result.itemDisplayOrder}`}
                                                                 className="
-                                                                    grid
-                                                                    grid-cols-[1fr_160px_100px]
-                                                                    border-b
-                                                                    last:border-b-0
+                                                                    flex
+                                                                    items-center
+                                                                    justify-between
+                                                                    gap-6
+                                                                    rounded-lg
+                                                                    bg-gray-50
+                                                                    px-4
+                                                                    py-3
+                                                                    transition
+                                                                    hover:bg-gray-100
                                                                 "
                                                             >
 
@@ -531,46 +615,57 @@ export default function InspectionResultDetailModal({
 
                                                                 <div
                                                                     className="
-                                                                        px-3
-                                                                        py-2
+                                                                        min-w-0
+                                                                        flex-1
+                                                                        text-sm
+                                                                        font-medium
+                                                                        text-gray-800
                                                                     "
                                                                 >
-                                                                    {
-                                                                        result.itemName
-                                                                    }
+                                                                    {result.itemName}
                                                                 </div>
 
 
-                                                                {/* 点検結果 */}
+                                                                {/* 結果 + 単位 */}
 
                                                                 <div
                                                                     className="
-                                                                        px-3
-                                                                        py-2
-                                                                        text-center
-                                                                        border-l
+                                                                        flex
+                                                                        shrink-0
+                                                                        items-center
+                                                                        gap-2
                                                                     "
                                                                 >
-                                                                    {
-                                                                        result.value ??
-                                                                        "-"
-                                                                    }
-                                                                </div>
 
+                                                                    <span
+                                                                        className="
+                                                                            inline-flex
+                                                                            min-w-[72px]
+                                                                            justify-center
+                                                                            rounded-lg
+                                                                            bg-white
+                                                                            px-3
+                                                                            py-1.5
+                                                                            text-sm
+                                                                            font-semibold
+                                                                            text-gray-800
+                                                                            shadow-sm
+                                                                        "
+                                                                    >
+                                                                        {result.value ?? "-"}
+                                                                    </span>
 
-                                                                {/* unit */}
+                                                                    {result.unit && (
+                                                                        <span
+                                                                            className="
+                                                                                text-sm
+                                                                                text-gray-500
+                                                                            "
+                                                                        >
+                                                                            {result.unit}
+                                                                        </span>
+                                                                    )}
 
-                                                                <div
-                                                                    className="
-                                                                        px-3
-                                                                        py-2
-                                                                        border-l
-                                                                    "
-                                                                >
-                                                                    {
-                                                                        result.unit ??
-                                                                        ""
-                                                                    }
                                                                 </div>
 
                                                             </div>
@@ -597,8 +692,11 @@ export default function InspectionResultDetailModal({
 
             </div>
 
-        </div>,
+        </div>
 
-        document.body
-    )
+    </div>,
+
+    document.body
+
+)
 }

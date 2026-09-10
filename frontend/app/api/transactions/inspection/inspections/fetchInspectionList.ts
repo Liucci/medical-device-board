@@ -1,5 +1,5 @@
 
-import { API_BASE_URL } from "../../../client/apiClient"
+/* import { API_BASE_URL } from "../../../client/apiClient"
 
 export async function fetchInspectionList() {
     console.log("fetchInspectionList")
@@ -17,4 +17,4 @@ export async function fetchInspectionList() {
 
     return await response.json()
 }
-
+ */
