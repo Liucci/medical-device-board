@@ -3,7 +3,7 @@ from schemas.inspection_schemas.inspection_checklist_schemas import (
     DeleteInspectionChecklistsRequest
 )
 
-
+#該当のhospital idを持つchecklist を削除する
 def delete_inspection_checklists(
     client: Client,
     inspection_checklist: DeleteInspectionChecklistsRequest,
