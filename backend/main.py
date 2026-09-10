@@ -769,12 +769,21 @@ def delete_device_type_route(
                     )
 
 
-    delete_device_type_transaction(
-                                    session.client, 
-                                    device_type,
-                                    hospital_id=session.hospital_id
-                                  )
+    try:
+            delete_device_type_transaction(
+                                                session.client,
+                                                device_type,
+                                                hospital_id=session.hospital_id
+                                            )
 
+            return {"message": "機種を削除しました。"}
+
+    except ValueError as e:
+            raise HTTPException(
+                                    status_code=400,
+                                    detail=str(e)
+                                )
+    
 @app.get("/device-models")
 def get_device_models(
                         session: BackendSession = Depends(get_current_session),

@@ -125,6 +125,12 @@ export default function DeviceTypeSettingsModal({
 
   const handleDeleteType = async() => {
       if (!selectedTypeId) {return}
+    const confirmed = window.confirm(
+      "この機種を削除しますか？\n関連付けられた型式、点検表、点検項目、選択肢も削除されます。\nこの操作は元に戻せません。"
+    )
+
+    if (!confirmed) return
+
   await executeWithErrorAndLoading({
     setLoading,
     action: async () => {

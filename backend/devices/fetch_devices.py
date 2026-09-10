@@ -2,22 +2,6 @@ from supabase import Client
 
 #特定のhospitalの全device情報取得
 
-"""
-def fetch_devices(hospital_id: str):
-
-    print("fetch_devices")
-
-    response = (
-                  supabase
-                  .table("devices")
-                  .select("*")
-                  .eq("hospital_id", hospital_id)
-                  .execute()
-                )
-    return response.data
- """
-
-
 def fetch_devices(
                     client: Client,
                     hospital_id: str,
@@ -74,6 +58,27 @@ def fetch_devices_by_room_id(
                )
 
     return response.data
+
+from supabase import Client
+
+#device typeで検索する
+def fetch_devices_by_device_type_id(
+                                            client: Client,
+                                            device_type_id: int,
+                                            hospital_id: str
+                                        ):
+    print("fetch_devices_by_device_type_id")
+
+    response = (
+        client
+        .table("devices")
+        .select("id")
+        .eq("type", device_type_id)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data or []
 
 #すべてのdevice情報を取得
 def fetch_all_devices(client:Client,):
