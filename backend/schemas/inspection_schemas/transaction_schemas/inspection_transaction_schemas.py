@@ -26,6 +26,8 @@ class InspectionListResponse(BaseModel):
     created_at: str
     inspection_type_name: str
     checklist_name: str
+    checklist_id: int
+    checklist_version: int
     device_type_name: str
     device_model_name: str
     management_number: str | None
@@ -59,6 +61,8 @@ class AddInspectionSnapshotRequest(BaseModel):
     patient_name: str | None = None
     inspection_type_name: str
     checklist_name: str
+    checklist_id: int
+    checklist_version: int
     overall_result: str | None = None
     comment: str | None = None
 

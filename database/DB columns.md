@@ -140,24 +140,31 @@
 | inspection_item_types             | 7                | is_custom_option        | boolean                     |     |                               | NO          |
 | inspection_results                | 1                | id                      | bigint                      | YES |                               | NO          |
 | inspection_results                | 2                | inspection_id           | bigint                      |     | inspections.id                | NO          |
-| inspection_results                | 3                | checklist_item_id       | integer                     |     | inspection_checklist_items.id | NO          |
 | inspection_results                | 4                | value                   | text                        |     |                               | YES         |
 | inspection_results                | 5                | category_name           | text                        |     |                               | NO          |
 | inspection_results                | 6                | category_display_order  | integer                     |     |                               | NO          |
+| inspection_results                | 8                | item_name               | text                        |     |                               | YES         |
+| inspection_results                | 9                | item_display_order      | integer                     |     |                               | YES         |
+| inspection_results                | 10               | unit                    | text                        |     |                               | YES         |
 | inspection_types                  | 1                | id                      | integer                     | YES |                               | NO          |
 | inspection_types                  | 2                | name                    | text                        |     |                               | NO          |
 | inspection_types                  | 4                | is_active               | boolean                     |     |                               | NO          |
 | inspection_types                  | 5                | hospital_id             | uuid                        |     | hospitals.id                  | YES         |
 | inspections                       | 1                | id                      | bigint                      | YES |                               | NO          |
 | inspections                       | 2                | hospital_id             | uuid                        |     | hospitals.id                  | NO          |
-| inspections                       | 3                | device_id               | integer                     |     | devices.id                    | NO          |
-| inspections                       | 4                | room_id                 | integer                     |     | rooms.id                      | YES         |
-| inspections                       | 5                | inspection_type_id      | integer                     |     | inspection_types.id           | NO          |
-| inspections                       | 6                | checklist_id            | integer                     |     | inspection_checklists.id      | NO          |
-| inspections                       | 7                | performed_by            | uuid                        |     | users.id                      | YES         |
 | inspections                       | 9                | overall_result          | text                        |     |                               | YES         |
 | inspections                       | 10               | comment                 | text                        |     |                               | YES         |
 | inspections                       | 11               | created_at              | timestamp with time zone    |     |                               | NO          |
+| inspections                       | 12               | patient_name            | text                        |     |                               | YES         |
+| inspections                       | 13               | device_type_name        | text                        |     |                               | YES         |
+| inspections                       | 14               | device_model_name       | text                        |     |                               | YES         |
+| inspections                       | 15               | management_number       | text                        |     |                               | YES         |
+| inspections                       | 16               | serial_number           | text                        |     |                               | YES         |
+| inspections                       | 17               | ward_name               | text                        |     |                               | YES         |
+| inspections                       | 18               | room_name               | text                        |     |                               | YES         |
+| inspections                       | 19               | performed_by_name       | text                        |     |                               | YES         |
+| inspections                       | 20               | inspection_type_name    | text                        |     |                               | YES         |
+| inspections                       | 21               | checklist_name          | text                        |     |                               | YES         |
 | invite_codes                      | 2                | code                    | text                        |     |                               | NO          |
 | invite_codes                      | 3                | hospital_id             | uuid                        |     |                               | YES         |
 | invite_codes                      | 4                | role                    | text                        |     |                               | NO          |

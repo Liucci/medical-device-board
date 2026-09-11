@@ -33,7 +33,7 @@ from inspection.inspection_checklist_items.fetch_inspection_checklist_items impo
 from inspection.inspection_item_categories.fetch_inspection_item_categories import (
     fetch_inspection_item_categories
 )
-
+from users.fetch_users_by_hospital import fetch_users_by_hospital
 
 def create_inspection_transaction(
     client: Client,
@@ -45,6 +45,20 @@ def create_inspection_transaction(
     print("create_inspection_transaction")
 
     try:
+        users = fetch_users_by_hospital(
+                                        client,
+                                        hospital_id
+        )
+        user = next(
+                    (
+                        item
+                        for item in users
+                        if item["id"] == user_id
+                    ),
+                    None
+        )
+        if not user:raise ValueError("実施者ユーザーが見つかりません")
+
         device = fetch_device(
             client,
             inspection.device_id,
@@ -85,7 +99,7 @@ def create_inspection_transaction(
             inspection.checklist_id,
             hospital_id
         )
-
+        print("checklist",checklist)
         inspection_snapshot = AddInspectionSnapshotRequest(
             device_type_name=device_type["name"],
             device_model_name=device_model["name"],
@@ -96,6 +110,8 @@ def create_inspection_transaction(
             patient_name=room.get("patient_name") if room else None,
             inspection_type_name=inspection_type["name"],
             checklist_name=checklist["name"],
+            checklist_id=checklist["id"],
+            checklist_version=checklist["version"],
             overall_result=inspection.overall_result,
             comment=inspection.comment
         )
@@ -104,7 +120,7 @@ def create_inspection_transaction(
             client=client,
             inspection=inspection_snapshot,
             hospital_id=hospital_id,
-            performed_by_name=user_id
+            performed_by_name=user["display_name"]
         )
 
         inspection_id = inspection_response["id"]

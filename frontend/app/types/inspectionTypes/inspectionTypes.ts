@@ -15,6 +15,8 @@ export type Inspection = {
     patientName: string | null
     inspectionTypeName: string
     checklistName: string
+    checklistId: number
+    checklistVersion: number
     performedByName: string | null
     overallResult: string | null
     comment: string | null
@@ -33,6 +35,8 @@ export type InspectionDB = {
     patient_name: string | null
     inspection_type_name: string
     checklist_name: string
+    checklist_id: number
+    checklist_version: number
     performed_by_name: string | null
     overall_result: string | null
     comment: string | null

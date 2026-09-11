@@ -27,6 +27,8 @@ def add_inspection(
             "patient_name": inspection.patient_name,
             "inspection_type_name": inspection.inspection_type_name,
             "checklist_name": inspection.checklist_name,
+            "checklist_id":inspection.checklist_id,
+            "checklist_version":inspection.checklist_version,
             "performed_by_name": performed_by_name,
             "overall_result": inspection.overall_result,
             "comment": inspection.comment

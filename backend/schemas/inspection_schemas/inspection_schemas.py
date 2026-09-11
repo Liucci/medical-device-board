@@ -15,6 +15,8 @@ class InspectionResponse(BaseModel):
     patient_name: str | None = None
     inspection_type_name: str
     checklist_name: str
+    checklist_id: int
+    checklist_version: int
     performed_by_name: str | None = None
     overall_result: str | None = None
     comment: str | None = None

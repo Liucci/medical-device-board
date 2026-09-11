@@ -36,6 +36,8 @@ export const normalizeInspectionList = (
     createdAt: inspection.created_at,
     inspectionTypeName: inspection.inspection_type_name,
     checklistName: inspection.checklist_name,
+    checklistId:inspection.checklist_id,
+    checklistVersion:inspection.checklist_version,
     deviceTypeName: inspection.device_type_name,
     deviceModelName: inspection.device_model_name,
     managementNumber: inspection.management_number,

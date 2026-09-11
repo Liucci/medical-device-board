@@ -59,8 +59,6 @@ from transactions.inspection.inspection_checklists.add_inspection_checklist_tran
 from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import add_inspection_checklist_items_transaction
 from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
-from transactions.inspection.inspections.fetch_inspection_list_transaction import (fetch_inspection_list_transaction)
-from transactions.inspection.inspections.fetch_inspection_result_transaction import (fetch_inspection_result_transaction)
 inspection_router = APIRouter()
 
 
@@ -120,16 +118,6 @@ def get_inspections(
     )
 
 
-""" #inspection table取得後、UI表示用に様々加工
-@inspection_router.get("/inspection-list")
-def get_inspection_list(
-    session: BackendSession = Depends(get_current_session),
-):
-    return fetch_inspection_list_transaction(
-        client=session.client,
-        hospital_id=session.hospital_id,
-    )
- """
 
 # inspection_results
 @inspection_router.get("/inspection-results/{inspection_id}")
@@ -142,17 +130,6 @@ def get_inspection_results(
         inspection_id=inspection_id
     )
 
-""" @inspection_router.get("/inspection-result-detail/{inspection_id}")
-def get_inspection_result_detail(
-    inspection_id: int,
-    checklist_id: int,
-    session: BackendSession = Depends(get_current_session),
-):
-    return fetch_inspection_result_transaction(
-        client=session.client,
-        inspection_id=inspection_id,
-        checklist_id=checklist_id,
-    ) """
 
 
 @inspection_router.post("/create-inspection")

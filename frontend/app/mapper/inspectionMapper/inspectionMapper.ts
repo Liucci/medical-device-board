@@ -24,6 +24,8 @@ export const normalizeInspection = (
     patientName: inspection.patient_name,
     inspectionTypeName: inspection.inspection_type_name,
     checklistName: inspection.checklist_name,
+    checklistId:inspection.checklist_id,
+    checklistVersion:inspection.checklist_version,
     performedByName: inspection.performed_by_name,
     overallResult: inspection.overall_result,
     comment: inspection.comment,

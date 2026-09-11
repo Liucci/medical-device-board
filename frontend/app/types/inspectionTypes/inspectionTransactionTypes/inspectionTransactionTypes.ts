@@ -33,6 +33,8 @@ export type InspectionListType = {
     createdAt: string
     inspectionTypeName: string
     checklistName: string
+    checklistId: number
+    checklistVersion: number
     deviceTypeName: string
     deviceModelName: string
     managementNumber: string | null
@@ -50,6 +52,8 @@ export type InspectionListDBType = {
     created_at: string
     inspection_type_name: string
     checklist_name: string
+    checklist_id: number
+    checklist_version: number
     device_type_name: string
     device_model_name: string
     management_number: string | null
