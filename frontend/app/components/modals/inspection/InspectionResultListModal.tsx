@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
+import { HospitalSettingsType } from "../../../types/hospitalSettingTypes"
 
 import {
     getInspectionsFromApi
@@ -32,12 +33,15 @@ import {
 type Props = {
     isOpen: boolean
     onClose: () => void
+    hospitalSettings: HospitalSettingsType | null
+    
 }
 
 
 export default function InspectionResultModal({
     isOpen,
-    onClose,
+    onClose, 
+    hospitalSettings,
 }: Props) {
 
     // =========================================================
@@ -1520,7 +1524,7 @@ return createPortal(
                                             管理番号
                                         </th>
 
-
+                                    {hospitalSettings?.showPatientName === true && (
                                         <th
                                             className="
                                                 border-b
@@ -1535,8 +1539,7 @@ return createPortal(
                                         >
                                             患者名
                                         </th>
-
-
+                                    )}
                                         <th
                                             className="
                                                 border-b
@@ -1742,7 +1745,7 @@ return createPortal(
 
 
                                                 {/* 患者名 */}
-
+                                            {hospitalSettings?.showPatientName === true && (
                                                 <td
                                                     className="
                                                         border-b
@@ -1757,7 +1760,7 @@ return createPortal(
                                                         "-"
                                                     }
                                                 </td>
-
+                                            )}
 
                                                 {/* 病棟 */}
 
@@ -1869,6 +1872,7 @@ return createPortal(
 
                 }}
                 inspection={selectedInspection}
+                hospitalSettings={hospitalSettings}
             />
 
         </div>

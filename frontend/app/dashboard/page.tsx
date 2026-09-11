@@ -328,40 +328,57 @@ export default function Page() {
                                   stockAreaId: number
                                 ) => {
 
-  if (!device?.id) {return}
+    if (!device?.id) {return}
+    if (device.status === "room") {
+      if (!device?.roomId) {return}
+      const confirmed = window.confirm("機器を倉庫へ移動しますか？")
+      if (!confirmed) return
+      await executeWithErrorAndLoading({
+                                        setLoading,
+                                        action: async () => {
+                                          if (device.id === undefined) return
+                                          if (device.roomId === undefined) return
+                                                      await moveRoomToStockTransaction({
+                                                                                          deviceId: device.id,
+                                                                                          roomId: device.roomId,
+                                                                                          stockAreaId,
+                                                                                          setDevices: setDeviceList,
+                                                                                          setRooms,
+                                                                                          setHistories,
+                                                                                          setTasks,
+                                                                                          setRoomInfections,
+                                                                                          devices:deviceList
+                                                    })
+                                                        setStockLastUpdated(await fetchStockLastUpdated())
+                                                        //ward更新日にはstock更新日を格納する
+                                                        setWardLastUpdated(await fetchStockLastUpdated())
+                                                        setDraggingDevice(null)
+                                          }
+      })
+      return
+    }
 
-  if (device.status === "room") {
-    if (!device?.roomId) {return}
-    await moveRoomToStockTransaction({
-                                        deviceId: device.id,
-                                        roomId: device.roomId,
-                                        stockAreaId,
-                                        setDevices: setDeviceList,
-                                        setRooms,
-                                        setHistories,
-                                        setTasks,
-                                        setRoomInfections,
-                                        devices:deviceList
-  })
 
-      setStockLastUpdated(await fetchStockLastUpdated())
-      //ward更新日にはstock更新日を格納する
-      setWardLastUpdated(await fetchStockLastUpdated())
-      setDraggingDevice(null)
-    return
-  }
+    const confirmed = window.confirm("機器の保管場所を変更しますか？")
+    if (!confirmed) return
+    await executeWithErrorAndLoading({
+              setLoading,
+              action: async () => {
+                        if (device.id === undefined) return
+                        await moveStockToStockTransaction({
+                                                            deviceId: device.id,
+                                                            stockAreaId,
+                                                            setDevices: setDeviceList,
+                                                            setHistories,
+                                                            devices:deviceList
+                                                          })
+                        //stock areaのみ更新日更新                              
+                        setStockLastUpdated(await fetchStockLastUpdated())
+                        //setWardLastUpdated(await fetchWardLastUpdated())                                  
+                        setDraggingDevice(null)
+              }
+    })
 
-  await moveStockToStockTransaction({
-                                      deviceId: device.id,
-                                      stockAreaId,
-                                      setDevices: setDeviceList,
-                                      setHistories,
-                                      devices:deviceList
-                                    })
-      //stock areaのみ更新日更新                              
-      setStockLastUpdated(await fetchStockLastUpdated())
-      //setWardLastUpdated(await fetchWardLastUpdated())                                  
-      setDraggingDevice(null)
   }
 
   const handleDropToWard = async (

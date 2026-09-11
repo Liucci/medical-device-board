@@ -80,6 +80,26 @@ def fetch_devices_by_device_type_id(
 
     return response.data or []
 
+#複数のdevice modelに紐付くdeviceを抽出
+def fetch_devices_by_device_model_ids(
+    client: Client,
+    device_model_ids: list[int],
+    hospital_id: str
+):
+    print("fetch_devices_by_device_model_ids")
+
+    response = (
+        client
+        .table("devices")
+        .select("id")
+        .in_("model", device_model_ids)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data or []
+
+
 #すべてのdevice情報を取得
 def fetch_all_devices(client:Client,):
 

@@ -202,137 +202,473 @@ export default function WardAreaSettingsModal({
 
   return (
     <>
-    <div className="space-y-6">
+      <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-      <div className="space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-        <div className="flex gap-2">
+          {/* ===================================================== */}
+          {/* 左：病棟 */}
+          {/* ===================================================== */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
 
-          <select
-            value={selectedWardId ?? ""}
-            onChange={(e) => {
-              const val = Number(e.target.value)
-              setSelectedWardId(val || null)
-              setCheckedRoomIds([])
-            }}
-            className="border px-2 py-1 rounded"
-          >
-            <option value="">
-              病棟選択
-            </option>
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">
+                病棟
+              </h3>
 
-            {wards.map(w => (
-              <option
-                key={w.id}
-                value={w.id}
-              >
-                {w.name}
-              </option>
-            ))}
-          </select>
+              <p className="mt-1 text-sm text-gray-500">
+                病棟を選択して、名前の変更や削除を行います
+              </p>
+            </div>
 
-          <button
-            onClick={handleUpdateWard}
-            className="px-2 bg-gray-200 rounded"
-          >
-            ✏
-          </button>
 
-          <button
-            onClick={handleDeleteWard}
-            className="px-2 bg-red-500 text-white rounded"
-          >
-            削除
-          </button>
+            {/* ================================================= */}
+            {/* 病棟選択 */}
+            {/* ================================================= */}
+            <div className="space-y-2">
 
-        </div>
+              <label className="block text-xs font-medium text-gray-600">
+                病棟を選択
+              </label>
 
-        {!selectedWardId && (
-          <div className="flex gap-2">
+              <div className="flex items-center gap-2">
 
-            <input
-              value={newWardName}
-              onChange={(e) => setNewWardName(e.target.value)}
-              placeholder="新規病棟名"
-              className="border px-2 py-1 flex-1 rounded"
-            />
+                <select
+                  value={selectedWardId ?? ""}
+                  onChange={(e) => {
+                    const val = Number(e.target.value)
 
-            <button
-              onClick={handleAddWard}
-              className="px-3 bg-blue-500 text-white rounded"
-            >
-              追加
-            </button>
+                    setSelectedWardId(val || null)
+                    setCheckedRoomIds([])
+                  }}
+                  className="
+                    min-w-0
+                    flex-1
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                >
+                  <option value="">
+                    選択してください
+                  </option>
 
-          </div>
-        )}
+                  {wards.map((ward) => (
+                    <option
+                      key={ward.id}
+                      value={ward.id}
+                    >
+                      {ward.name}
+                    </option>
+                  ))}
+                </select>
 
-      </div>
 
-      <div className="space-y-2">
+                {/* 名前変更 */}
+                <button
+                  onClick={handleUpdateWard}
+                  disabled={!selectedWardId}
+                  className="
+                    shrink-0
+                    rounded-lg
+                    bg-gray-100
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-gray-600
+                    transition
+                    hover:bg-gray-200
+                    hover:text-gray-800
+                    disabled:cursor-not-allowed
+                    disabled:opacity-40
+                  "
+                >
+                  ✏
+                </button>
 
-        <div className="border rounded p-2 max-h-60 overflow-y-auto">
-
-          {filteredRooms.map(room => (
-
-            <div
-              key={room.id}
-              className="flex items-center gap-2 py-1"
-            >
-
-              <input
-                type="checkbox"
-                checked={checkedRoomIds.includes(room.id)}
-                onChange={() => toggleRoom(room.id)}
-              />
-
-              <span className="flex-1">
-                {room.name}
-              </span>
-
-              <button
-                onClick={() => handleRenameRoom(room)}
-                className="px-2 bg-gray-200 rounded"
-              >
-                ✏
-              </button>
+              </div>
 
             </div>
 
-          ))}
+
+            {/* ================================================= */}
+            {/* 病棟削除 */}
+            {/* ================================================= */}
+            {selectedWardId && (
+              <div className="mt-6">
+
+                <button
+                  onClick={handleDeleteWard}
+                  className="
+                    rounded-lg
+                    bg-red-50
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-red-600
+                    transition
+                    hover:bg-red-100
+                  "
+                >
+                  病棟を削除
+                </button>
+
+              </div>
+            )}
+
+
+            {/* ================================================= */}
+            {/* 新しい病棟を追加 */}
+            {/* ================================================= */}
+            {!selectedWardId && (
+              <div className="mt-8">
+
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-800">
+                    新しい病棟を追加
+                  </h4>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    新しい病棟名を入力してください
+                  </p>
+                </div>
+
+                <div className="flex items-end gap-3">
+
+                  <div className="min-w-0 flex-1">
+
+                    <label className="mb-2 block text-xs font-medium text-gray-600">
+                      病棟名
+                    </label>
+
+                    <input
+                      value={newWardName}
+                      onChange={(e) =>
+                        setNewWardName(e.target.value)
+                      }
+                      placeholder="例：ICU"
+                      className="
+                        w-full
+                        rounded-lg
+                        border
+                        border-gray-300
+                        bg-white
+                        px-3
+                        py-2.5
+                        text-sm
+                        text-gray-700
+                        outline-none
+                        transition
+                        focus:border-blue-500
+                        focus:ring-2
+                        focus:ring-blue-100
+                      "
+                    />
+
+                  </div>
+
+
+                  <button
+                    onClick={handleAddWard}
+                    className="
+                      shrink-0
+                      rounded-lg
+                      bg-blue-500
+                      px-4
+                      py-2.5
+                      text-sm
+                      font-medium
+                      text-white
+                      transition
+                      hover:bg-blue-600
+                    "
+                  >
+                    追加
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+
+          {/* ===================================================== */}
+          {/* 右：部屋 */}
+          {/* ===================================================== */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+
+            <div className="mb-6">
+
+              <h3 className="text-lg font-semibold text-gray-800">
+                部屋
+              </h3>
+
+              <p className="mt-1 text-sm text-gray-500">
+                選択した病棟の部屋を管理します
+              </p>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 選択中の病棟 */}
+            {/* ================================================= */}
+            <div className="mb-5">
+
+              <div className="text-xs font-medium text-gray-600">
+                選択中の病棟
+              </div>
+
+              <div className="mt-1 text-base font-semibold text-gray-800">
+
+                {selectedWardId
+                  ? wards.find(
+                      (ward) => ward.id === selectedWardId
+                    )?.name
+                  : "病棟を選択してください"}
+
+              </div>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 部屋一覧ヘッダー */}
+            {/* ================================================= */}
+            <div className="mb-3 flex items-center justify-between">
+
+              <div>
+
+                <div className="text-sm font-semibold text-gray-800">
+                  登録されている部屋
+                </div>
+
+                {selectedWardId && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    {filteredRooms.length} 件
+                  </div>
+                )}
+
+              </div>
+
+
+              {checkedRoomIds.length > 0 && (
+                <button
+                  onClick={handleDeleteRooms}
+                  className="
+                    rounded-lg
+                    bg-red-50
+                    px-3
+                    py-2
+                    text-sm
+                    font-medium
+                    text-red-600
+                    transition
+                    hover:bg-red-100
+                  "
+                >
+                  選択削除
+                </button>
+              )}
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 部屋一覧 */}
+            {/* ================================================= */}
+            <div className="max-h-[420px] overflow-y-auto">
+
+              {!selectedWardId ? (
+
+                <div className="py-12 text-center text-sm text-gray-400">
+                  病棟を選択してください
+                </div>
+
+              ) : filteredRooms.length === 0 ? (
+
+                <div className="py-12 text-center text-sm text-gray-400">
+                  登録されている部屋はありません
+                </div>
+
+              ) : (
+
+                <div>
+
+                  {filteredRooms.map((room) => (
+
+                    <div
+                      key={room.id}
+                      className="
+                        flex
+                        items-center
+                        gap-3
+                        border-b
+                        border-gray-100
+                        py-3
+                        last:border-b-0
+                        hover:bg-gray-50
+                      "
+                    >
+
+                      {/* チェックボックス */}
+                      <input
+                        type="checkbox"
+                        checked={checkedRoomIds.includes(room.id)}
+                        onChange={() => toggleRoom(room.id)}
+                        className="
+                          h-4
+                          w-4
+                          cursor-pointer
+                          rounded
+                          border-gray-300
+                          text-blue-500
+                          focus:ring-blue-400
+                        "
+                      />
+
+
+                      {/* 部屋名 */}
+                      <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
+                        {room.name}
+                      </span>
+
+
+                      {/* 編集 */}
+                      <button
+                        onClick={() => handleRenameRoom(room)}
+                        className="
+                          shrink-0
+                          rounded-lg
+                          bg-gray-100
+                          px-3
+                          py-1.5
+                          text-sm
+                          font-medium
+                          text-gray-600
+                          transition
+                          hover:bg-gray-200
+                          hover:text-gray-800
+                        "
+                      >
+                        ✏
+                      </button>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 部屋追加 */}
+            {/* ================================================= */}
+            <div className="mt-8">
+
+              <div className="mb-4">
+
+                <h4 className="text-sm font-semibold text-gray-800">
+                  新しい部屋を追加
+                </h4>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  選択中の病棟に部屋を追加します
+                </p>
+
+              </div>
+
+
+              <div className="flex gap-3">
+
+                <input
+                  value={newRoomName}
+                  onChange={(e) =>
+                    setNewRoomName(e.target.value)
+                  }
+                  placeholder={
+                    selectedWardId
+                      ? "例：101号室"
+                      : "先に病棟を選択してください"
+                  }
+                  disabled={!selectedWardId}
+                  className="
+                    min-w-0
+                    flex-1
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    disabled:cursor-not-allowed
+                    disabled:bg-gray-100
+                    disabled:text-gray-400
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                />
+
+                <button
+                  onClick={handleAddRoom}
+                  disabled={!selectedWardId}
+                  className="
+                    shrink-0
+                    rounded-lg
+                    bg-blue-500
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-white
+                    transition
+                    hover:bg-blue-600
+                    disabled:cursor-not-allowed
+                    disabled:bg-gray-300
+                  "
+                >
+                  追加
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
-
-        <div className="flex gap-2">
-
-          <input
-            value={newRoomName}
-            onChange={(e) => setNewRoomName(e.target.value)}
-            placeholder="新規部屋名"
-            className="border px-2 py-1 flex-1 rounded"
-          />
-
-          <button
-            onClick={handleAddRoom}
-            className="px-3 bg-blue-500 text-white rounded"
-          >
-            追加
-          </button>
-
-        </div>
-
-        <button
-          onClick={handleDeleteRooms}
-          className="px-3 py-1 bg-red-500 text-white rounded"
-        >
-          選択削除
-        </button>
-
       </div>
 
-    </div>
 
-        <LoadingOverlay loading={loading} />
-  </>
+      {/* ===================================================== */}
+      {/* Loading */}
+      {/* ===================================================== */}
+      <LoadingOverlay loading={loading} />
+
+    </>
   )
+
 }

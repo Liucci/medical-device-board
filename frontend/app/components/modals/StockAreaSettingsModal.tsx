@@ -87,58 +87,232 @@ export default function StockAreaSettingsModal({
 
   return (
     <>
-    <div className="space-y-4">
+      <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-      {/* 一覧 */}
-      <div className="border rounded p-2 max-h-60 overflow-y-auto">
-        {stockAreas.map(area => (
-        <div key={area.id} className="flex items-center gap-2 py-1">
-            <input
-            type="checkbox"
-            checked={checkedIds.includes(area.id)}
-            onChange={() => toggleCheck(area.id)}
-            />
+        <div className="w-full rounded-xl bg-white p-6 shadow-sm">
 
-            <span className="flex-1">{area.name}</span>
+          {/* ================================================= */}
+          {/* タイトル */}
+          {/* ================================================= */}
+          <div className="mb-6">
 
-            {/* 🔥 編集ボタン */}
-            <button
-            onClick={() => handleRename(area.id, area.name)}
-            className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-            >
-            編集
-            </button>
+            <h3 className="text-lg font-semibold text-gray-800">
+              ストックエリア
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-500">
+              ストックエリアの追加、名前の変更、削除を行います
+            </p>
+
+          </div>
+
+
+          {/* ================================================= */}
+          {/* 一覧ヘッダー */}
+          {/* ================================================= */}
+          <div className="mb-3 flex items-center justify-between">
+
+            <div>
+
+              <div className="text-sm font-semibold text-gray-800">
+                登録されているストックエリア
+              </div>
+
+              <div className="mt-1 text-xs text-gray-500">
+                {stockAreas.length} 件
+              </div>
+
+            </div>
+
+
+            {/* 選択削除 */}
+            {checkedIds.length > 0 && (
+              <button
+                onClick={handleDelete}
+                className="
+                  rounded-lg
+                  bg-red-50
+                  px-3
+                  py-2
+                  text-sm
+                  font-medium
+                  text-red-600
+                  transition
+                  hover:bg-red-100
+                "
+              >
+                選択削除
+              </button>
+            )}
+
+          </div>
+
+
+          {/* ================================================= */}
+          {/* 一覧 */}
+          {/* ================================================= */}
+          <div className="max-h-[calc(90vh-280px)] overflow-y-auto">
+
+            {stockAreas.length === 0 ? (
+
+              <div className="py-12 text-center text-sm text-gray-400">
+                登録されているストックエリアはありません
+              </div>
+
+            ) : (
+
+              <div>
+
+                {stockAreas.map((area) => (
+
+                  <div
+                    key={area.id}
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                      border-b
+                      border-gray-100
+                      py-3
+                      last:border-b-0
+                      hover:bg-gray-50
+                    "
+                  >
+
+                    {/* チェックボックス */}
+                    <input
+                      type="checkbox"
+                      checked={checkedIds.includes(area.id)}
+                      onChange={() => toggleCheck(area.id)}
+                      className="
+                        h-4
+                        w-4
+                        cursor-pointer
+                        rounded
+                        border-gray-300
+                        text-blue-500
+                        focus:ring-blue-400
+                      "
+                    />
+
+
+                    {/* ストックエリア名 */}
+                    <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
+                      {area.name}
+                    </span>
+
+
+                    {/* 編集 */}
+                    <button
+                      onClick={() =>
+                        handleRename(area.id, area.name)
+                      }
+                      className="
+                        shrink-0
+                        rounded-lg
+                        bg-gray-100
+                        px-3
+                        py-1.5
+                        text-sm
+                        font-medium
+                        text-gray-600
+                        transition
+                        hover:bg-gray-200
+                        hover:text-gray-800
+                      "
+                    >
+                      ✏
+                    </button>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </div>
+
+
+          {/* ================================================= */}
+          {/* ストックエリア追加 */}
+          {/* ================================================= */}
+          <div className="mt-8">
+
+            <div className="mb-4">
+
+              <h4 className="text-sm font-semibold text-gray-800">
+                新しいストックエリアを追加
+              </h4>
+
+              <p className="mt-1 text-xs text-gray-500">
+                新しいストックエリア名を入力してください
+              </p>
+
+            </div>
+
+
+            <div className="flex gap-3">
+
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) =>
+                  setNewName(e.target.value)
+                }
+                placeholder="例：中央材料室"
+                className="
+                  min-w-0
+                  flex-1
+                  rounded-lg
+                  border
+                  border-gray-300
+                  bg-white
+                  px-3
+                  py-2.5
+                  text-sm
+                  text-gray-700
+                  outline-none
+                  transition
+                  placeholder:text-gray-400
+                  focus:border-blue-500
+                  focus:ring-2
+                  focus:ring-blue-100
+                "
+              />
+
+              <button
+                onClick={handleAdd}
+                className="
+                  shrink-0
+                  rounded-lg
+                  bg-blue-500
+                  px-4
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-white
+                  transition
+                  hover:bg-blue-600
+                "
+              >
+                追加
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
-        ))}      </div>
-
-      {/* 追加 */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          placeholder="新規ストックエリア名"
-          className="border px-2 py-1 flex-1 rounded"
-        />
-        <button
-          onClick={handleAdd}
-          className="px-3 py-1 bg-blue-500 text-white rounded"
-        >
-          追加
-        </button>
       </div>
 
-      {/* 削除 */}
-      <button
-        onClick={handleDelete}
-        className="px-3 py-1 bg-red-500 text-white rounded"
-      >
-        選択削除
-      </button>
 
-    </div>
+      {/* ================================================= */}
+      {/* Loading */}
+      {/* ================================================= */}
+      <LoadingOverlay loading={loading} />
 
-        <LoadingOverlay loading={loading} />
-  </>
+    </>
   )
 }

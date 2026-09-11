@@ -819,11 +819,20 @@ def delete_device_models_route(
                         current_user=session,
                         allowed_roles=["admin"]
                     )
-    delete_device_models_transaction(
+    try:
+        delete_device_models_transaction(
                                     session.client,
                                     device_model,
                                     session.hospital_id
                                     )
+        return {"message": "機種を削除しました。"}
+
+    except ValueError as e:
+            raise HTTPException(
+                                    status_code=400,
+                                    detail=str(e)
+                                )
+    
 
 @app.post("/update-device-model")
 def update_device_model_route(

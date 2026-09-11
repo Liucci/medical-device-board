@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
+import { HospitalSettingsType } from "../../../types/hospitalSettingTypes"
 
 import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
@@ -19,6 +20,7 @@ type Props = {
     isOpen: boolean
     onClose: () => void
     inspection: InspectionListType | null
+    hospitalSettings: HospitalSettingsType | null
 }
 
 
@@ -26,6 +28,7 @@ export default function InspectionResultDetailModal({
     isOpen,
     onClose,
     inspection,
+    hospitalSettings,
 }: Props) {
 
     // =========================================================
@@ -340,6 +343,7 @@ return createPortal(
                                 </div>
                             </div>
 
+                            {hospitalSettings?.showPatientName === true && (
                             <div>
                                 <div className="mb-1 text-xs text-gray-500">
                                     患者名
@@ -348,6 +352,7 @@ return createPortal(
                                     {inspection.patientName ?? "-"}
                                 </div>
                             </div>
+                            )}
 
                             <div>
                                 <div className="mb-1 text-xs text-gray-500">

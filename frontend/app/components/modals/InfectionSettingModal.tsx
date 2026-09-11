@@ -143,90 +143,296 @@ export default function InfectionSettingsModal({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-        {/* 一覧 */}
-        <div className="border rounded p-2 max-h-60 overflow-y-auto">
+        <div className="w-full rounded-xl bg-white p-6 shadow-sm">
 
-          {infectionTypes.map(infectionType => (
+          {/* ================================================= */}
+          {/* タイトル */}
+          {/* ================================================= */}
+          <div className="mb-6">
 
-            <div
-              key={infectionType.id}
-              className="flex items-center gap-3 py-1"
-            >
+            <h3 className="text-lg font-semibold text-gray-800">
+              感染症
+            </h3>
 
-              <input
-                type="checkbox"
-                checked={checkedIds.includes(infectionType.id)}
-                onChange={() => toggleCheck(infectionType.id)}
-              />
+            <p className="mt-1 text-sm text-gray-500">
+              感染症の追加、名前や色の変更、削除を行います
+            </p>
 
-              <span className="flex-1">
-                {infectionType.name}
-              </span>
+          </div>
 
-              <input
-                type="color"
-                value={infectionType.color}
-                onChange={e =>
-                  handleColorChange(
-                    infectionType,
-                    e.target.value
-                  )
-                }
-                className="w-10 h-8 border rounded cursor-pointer"
-              />
 
+          {/* ================================================= */}
+          {/* 一覧ヘッダー */}
+          {/* ================================================= */}
+          <div className="mb-3 flex items-center justify-between">
+
+            <div>
+
+              <div className="text-sm font-semibold text-gray-800">
+                登録されている感染症
+              </div>
+
+              <div className="mt-1 text-xs text-gray-500">
+                {infectionTypes.length} 件
+              </div>
+
+            </div>
+
+
+            {/* 選択削除 */}
+            {checkedIds.length > 0 && (
               <button
-                onClick={() => handleRename(infectionType)}
-                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={handleDelete}
+                className="
+                  rounded-lg
+                  bg-red-50
+                  px-3
+                  py-2
+                  text-sm
+                  font-medium
+                  text-red-600
+                  transition
+                  hover:bg-red-100
+                "
               >
-                編集
+                選択削除
+              </button>
+            )}
+
+          </div>
+
+
+          {/* ================================================= */}
+          {/* 感染症一覧 */}
+          {/* ================================================= */}
+          <div className="max-h-[calc(90vh-280px)] overflow-y-auto">
+
+            {infectionTypes.length === 0 ? (
+
+              <div className="py-12 text-center text-sm text-gray-400">
+                登録されている感染症はありません
+              </div>
+
+            ) : (
+
+              <div>
+
+                {infectionTypes.map((infectionType) => (
+
+                  <div
+                    key={infectionType.id}
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                      border-b
+                      border-gray-100
+                      py-3
+                      last:border-b-0
+                      hover:bg-gray-50
+                    "
+                  >
+
+                    {/* チェックボックス */}
+                    <input
+                      type="checkbox"
+                      checked={checkedIds.includes(infectionType.id)}
+                      onChange={() =>
+                        toggleCheck(infectionType.id)
+                      }
+                      className="
+                        h-4
+                        w-4
+                        cursor-pointer
+                        rounded
+                        border-gray-300
+                        text-blue-500
+                        focus:ring-blue-400
+                      "
+                    />
+
+
+                    {/* 感染症名 */}
+                    <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
+                      {infectionType.name}
+                    </span>
+
+
+                    {/* 色 */}
+                    <input
+                      type="color"
+                      value={infectionType.color}
+                      onChange={(e) =>
+                        handleColorChange(
+                          infectionType,
+                          e.target.value
+                        )
+                      }
+                      className="
+                        h-9
+                        w-12
+                        shrink-0
+                        cursor-pointer
+                        rounded-lg
+                        border
+                        border-gray-300
+                        bg-white
+                        p-1
+                      "
+                    />
+
+
+                    {/* 編集 */}
+                    <button
+                      onClick={() =>
+                        handleRename(infectionType)
+                      }
+                      className="
+                        shrink-0
+                        rounded-lg
+                        bg-gray-100
+                        px-3
+                        py-1.5
+                        text-sm
+                        font-medium
+                        text-gray-600
+                        transition
+                        hover:bg-gray-200
+                        hover:text-gray-800
+                      "
+                    >
+                      ✏
+                    </button>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </div>
+
+
+          {/* ================================================= */}
+          {/* 新しい感染症を追加 */}
+          {/* ================================================= */}
+          <div className="mt-8">
+
+            <div className="mb-4">
+
+              <h4 className="text-sm font-semibold text-gray-800">
+                新しい感染症を追加
+              </h4>
+
+              <p className="mt-1 text-xs text-gray-500">
+                感染症名と表示色を設定してください
+              </p>
+
+            </div>
+
+
+            <div className="flex items-end gap-3">
+
+              {/* 感染症名 */}
+              <div className="min-w-0 flex-1">
+
+                <label className="mb-2 block text-xs font-medium text-gray-600">
+                  感染症名
+                </label>
+
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) =>
+                    setNewName(e.target.value)
+                  }
+                  placeholder="例：MRSA"
+                  className="
+                    w-full
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    placeholder:text-gray-400
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                />
+
+              </div>
+
+
+              {/* 色 */}
+              <div>
+
+                <label className="mb-2 block text-xs font-medium text-gray-600">
+                  色
+                </label>
+
+                <input
+                  type="color"
+                  value={newColor}
+                  onChange={(e) =>
+                    setNewColor(e.target.value)
+                  }
+                  className="
+                    h-10
+                    w-14
+                    cursor-pointer
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    p-1
+                  "
+                />
+
+              </div>
+
+
+              {/* 追加 */}
+              <button
+                onClick={handleAdd}
+                className="
+                  shrink-0
+                  rounded-lg
+                  bg-blue-500
+                  px-4
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-white
+                  transition
+                  hover:bg-blue-600
+                "
+              >
+                追加
               </button>
 
             </div>
 
-          ))}
+          </div>
 
         </div>
-
-        {/* 追加 */}
-        <div className="flex items-center gap-2">
-
-          <input
-            type="text"
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-            placeholder="感染症名"
-            className="border px-2 py-1 flex-1 rounded"
-          />
-
-          <input
-            type="color"
-            value={newColor}
-            onChange={e => setNewColor(e.target.value)}
-            className="w-10 h-10 border rounded cursor-pointer"
-          />
-
-          <button
-            onClick={handleAdd}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            追加
-          </button>
-
-        </div>
-
-        {/* 削除 */}
-        <button
-          onClick={handleDelete}
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          選択削除
-        </button>
-
       </div>
+
+
+      {/* ================================================= */}
+      {/* Loading */}
+      {/* ================================================= */}
       <LoadingOverlay loading={loading} />
+
     </>
   )
 }

@@ -364,6 +364,7 @@ const openInspectionResult = async () => {
           <InspectionResultModal
               isOpen={openInspectionResultModal}
               onClose={() =>setOpenInspectionResultModal(false)}
+              hospitalSettings={hospitalSettings}
           />
       )}
 

@@ -55,3 +55,22 @@ def fetch_inspection_checklists_by_device_type_id(
     )
 
     return response.data
+
+#device model idを条件にchecklistを取得する
+def fetch_inspection_checklists_by_device_model_ids(
+                                                    client: Client,
+                                                    device_model_ids: list[int],
+                                                    hospital_id: str
+                                                  ):
+    print("fetch_inspection_checklists_by_device_model_ids")
+
+    response = (
+        client
+        .table("inspection_checklists")
+        .select("id")
+        .in_("device_model_id", device_model_ids)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data

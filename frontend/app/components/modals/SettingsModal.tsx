@@ -189,12 +189,19 @@ export default function SettingsModal({
 
   return (
     <>
-      <CommonModal
-          open={true}
-          onClose={onClose}
-          title="設定"
-          maxWidth="max-w-[500px]"
-      > 
+<CommonModal
+  open={true}
+  onClose={onClose}
+  title="設定"
+  maxWidth={
+      mode === "maintenance" 
+    ||mode === "deviceType"
+    ||mode === "ward"
+      ? "max-w-[1000px]"
+      : "max-w-[500px]"
+  }
+>
+      
         {mode === "menu" && (
           <>
 

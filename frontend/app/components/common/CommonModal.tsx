@@ -40,64 +40,69 @@ export default function CommonModal({
     }, [open, onClose])
     if (!open) return null
 
-    return createPortal(
+  return createPortal(
 
-        <div
-            className="
-                fixed
-                inset-0
-                z-50
-                flex
-                items-center
-                justify-center
-                bg-black/30
-                p-4
-            "
+    <div
+      className="
+        fixed
+        inset-0
+        z-50
+        flex
+        items-center
+        justify-center
+        bg-black/30
+        p-4
+      "
+      onClick={onClose}
+    >
+
+      <div
+        className={`
+          relative
+          w-full
+          ${maxWidth}
+          ${height ?? ""}
+          max-h-[90vh]
+          min-h-0
+          overflow-hidden
+          rounded-xl
+          bg-white
+          p-6
+          shadow-xl
+          flex
+          flex-col
+        `}
+        onClick={(e) => e.stopPropagation()}
+      >
+
+        <div className="mb-4 flex shrink-0 items-center justify-between">
+
+          <button
             onClick={onClose}
-        >
+            className="text-xl text-gray-500 hover:text-black"
+          >
+            ✕
+          </button>
 
-            <div
-                className={`
-                    relative
-                    w-full
-                    ${maxWidth}
-                    ${height ?? ""}
-                    rounded-xl
-                    bg-white
-                    shadow-xl
-                    p-6
-                    flex
-                    flex-col
-                `}
-                onClick={(e) => e.stopPropagation()}
-            >
+          <h2 className="text-xl font-bold">
+            {title}
+          </h2>
 
-                    <div className="flex items-center justify-between mb-4">
+          <div>
+            {rightContent}
+          </div>
 
-                        <button
-                            onClick={onClose}
-                            className="text-xl text-gray-500 hover:text-black"
-                        >
-                            ✕
-                        </button>
+        </div>
 
-                        <h2 className="text-xl font-bold">
-                            {title}
-                        </h2>
+        <div className="min-h-0 flex-1">
+          {children}
+        </div>
 
-                        <div>
-                            {rightContent}
-                        </div>
+      </div>
 
-                    </div>
+    </div>,
 
-                {children}
+    document.body
 
-            </div>
-
-        </div>,
-
-        document.body
-
-    )
+  )    
 }

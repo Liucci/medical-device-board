@@ -188,6 +188,11 @@ export default function DeviceTypeSettingsModal({
 
   const handleDeleteModels = async () => {
     if (checkedModelIds.length === 0) {return}
+    const confirmed = window.confirm(
+      "この型式を削除しますか？\n関連付けられた点検表、点検項目、選択肢も削除されます。\nこの操作は元に戻せません。"
+    )
+     if (!confirmed) return
+
     await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
@@ -228,135 +233,566 @@ export default function DeviceTypeSettingsModal({
 
   return (
     <>
+<div className="w-full rounded-2xl bg-gray-200 p-5">
 
-    <div className="space-y-6">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* ===================================================== */}
+          {/* 左：機種 */}
+          {/* ===================================================== */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
 
-      {/* ===== deviceType操作 ===== */}
-      <div className="space-y-2">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">
+                機種
+              </h3>
 
-        <div className="flex gap-2">
-          <select
-            value={selectedTypeId ?? ""}
-            onChange={(e) => {
-              const val = Number(e.target.value)
-              setSelectedTypeId(val || null)
-              setCheckedModelIds([])
-              const selectedType =
-                deviceTypes.find((t) => t.id === val)
-
-              if (selectedType) {
-                setEditIconColor(selectedType.iconColor)
-              }
+              <p className="mt-1 text-sm text-gray-500">
+                機種を選択して、名前や色の変更、削除を行います
+              </p>
+            </div>
 
 
+            {/* ================================================= */}
+            {/* 機種選択 */}
+            {/* ================================================= */}
+            <div className="space-y-2">
+
+              <label className="block text-xs font-medium text-gray-600">
+                機種を選択
+              </label>
+
+              <div className="flex items-center gap-2">
+
+                <select
+                  value={selectedTypeId ?? ""}
+                  onChange={(e) => {
+                    const val = Number(e.target.value)
+
+                    setSelectedTypeId(val || null)
+                    setCheckedModelIds([])
+
+                    const selectedType =
+                      deviceTypes.find((t) => t.id === val)
+
+                    if (selectedType) {
+                      setEditIconColor(selectedType.iconColor)
+                    }
+                  }}
+                  className="
+                    min-w-0
+                    flex-1
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                >
+                  <option value="">
+                    選択してください
+                  </option>
+
+                  {deviceTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
 
 
-            }}
-            className="border px-2 py-1 rounded"
-          >
-            <option value="">機種選択</option>
-            {deviceTypes.map(t => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
-          <button onClick={handleRenameType} className="px-2 bg-gray-200 rounded">✏</button>
+                {/* 名前変更 */}
+                <button
+                  onClick={handleRenameType}
+                  disabled={!selectedTypeId}
+                  className="
+                    shrink-0
+                    rounded-lg
+                    bg-gray-100
+                    px-3
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-gray-600
+                    transition
+                    hover:bg-gray-200
+                    hover:text-gray-800
+                    disabled:cursor-not-allowed
+                    disabled:opacity-40
+                  "
+                >
+                  ✏
+                </button>
 
-          <input
-            type="color"
-            value={editIconColor}
-            onChange={(e) => setEditIconColor(e.target.value)}
-            className="w-10 h-10"
-          />
-          <button onClick={handleChangeColor} className="px-2 bg-gray-200  rounded">確定</button>
-
-          <button onClick={handleDeleteType} className="px-2 bg-red-500 text-white rounded">削除</button>
-        </div>
-
-        {/* 未選択時のみ表示 */}
-        {!selectedTypeId && (
-          <div className="flex gap-2">
-            <input
-              value={newTypeName}
-              onChange={(e) => setNewTypeName(e.target.value)}
-              placeholder="新規機種名"
-              className="border px-2 py-1 flex-1 rounded"
-            />
-            <input
-              type="color"
-              value={newIconColor}
-              onChange={(e) => setNewIconColor(e.target.value)}
-              className="w-12 h-10"
-            />
-
-            <button onClick={handleAddType} className="px-3 bg-blue-500 text-white rounded">
-              追加
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* ===== deviceModel操作 ===== */}
-      <div className="space-y-2">
-
-        <div className="border rounded p-2 max-h-60 overflow-y-auto">
-          {filteredModels.map(model => (
-            <div key={model.id} className="flex items-center gap-2 py-1">
-
-              <input
-                type="checkbox"
-                checked={checkedModelIds.includes(model.id)}
-                onChange={() => toggleModel(model.id)}
-              />
-
-              <span className="flex-1">{model.name}</span>
-
-              <button
-                onClick={() => handleRenameModel(model)}
-                className="px-2 bg-gray-200 rounded"
-              >
-                ✏
-              </button>
+              </div>
 
             </div>
-          ))}
+
+
+            {/* ================================================= */}
+            {/* 色変更 */}
+            {/* ================================================= */}
+            {selectedTypeId && (
+              <div className="mt-6">
+
+                <label className="mb-2 block text-xs font-medium text-gray-600">
+                  アイコン色
+                </label>
+
+                <div className="flex items-center gap-3">
+
+                  <input
+                    type="color"
+                    value={editIconColor}
+                    onChange={(e) =>
+                      setEditIconColor(e.target.value)
+                    }
+                    className="
+                      h-10
+                      w-14
+                      cursor-pointer
+                      rounded-lg
+                      border
+                      border-gray-300
+                      bg-white
+                      p-1
+                    "
+                  />
+
+                  <button
+                    onClick={handleChangeColor}
+                    className="
+                      rounded-lg
+                      bg-gray-100
+                      px-4
+                      py-2.5
+                      text-sm
+                      font-medium
+                      text-gray-700
+                      transition
+                      hover:bg-gray-200
+                    "
+                  >
+                    色を変更
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+
+            {/* ================================================= */}
+            {/* 機種削除 */}
+            {/* ================================================= */}
+            {selectedTypeId && (
+              <div className="mt-6">
+
+                <button
+                  onClick={handleDeleteType}
+                  className="
+                    rounded-lg
+                    bg-red-50
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-red-600
+                    transition
+                    hover:bg-red-100
+                  "
+                >
+                  機種を削除
+                </button>
+
+              </div>
+            )}
+
+
+            {/* ================================================= */}
+            {/* 新しい機種を追加 */}
+            {/* ================================================= */}
+            {!selectedTypeId && (
+              <div className="mt-8">
+
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-800">
+                    新しい機種を追加
+                  </h4>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    機種名とアイコン色を設定してください
+                  </p>
+                </div>
+
+                <div className="flex items-end gap-3">
+
+                  <div className="min-w-0 flex-1">
+
+                    <label className="mb-2 block text-xs font-medium text-gray-600">
+                      機種名
+                    </label>
+
+                    <input
+                      value={newTypeName}
+                      onChange={(e) =>
+                        setNewTypeName(e.target.value)
+                      }
+                      placeholder="例：人工呼吸器"
+                      className="
+                        w-full
+                        rounded-lg
+                        border
+                        border-gray-300
+                        bg-white
+                        px-3
+                        py-2.5
+                        text-sm
+                        text-gray-700
+                        outline-none
+                        transition
+                        focus:border-blue-500
+                        focus:ring-2
+                        focus:ring-blue-100
+                      "
+                    />
+
+                  </div>
+
+
+                  <div>
+
+                    <label className="mb-2 block text-xs font-medium text-gray-600">
+                      色
+                    </label>
+
+                    <input
+                      type="color"
+                      value={newIconColor}
+                      onChange={(e) =>
+                        setNewIconColor(e.target.value)
+                      }
+                      className="
+                        h-10
+                        w-14
+                        cursor-pointer
+                        rounded-lg
+                        border
+                        border-gray-300
+                        bg-white
+                        p-1
+                      "
+                    />
+
+                  </div>
+
+
+                  <button
+                    onClick={handleAddType}
+                    className="
+                      shrink-0
+                      rounded-lg
+                      bg-blue-500
+                      px-4
+                      py-2.5
+                      text-sm
+                      font-medium
+                      text-white
+                      transition
+                      hover:bg-blue-600
+                    "
+                  >
+                    追加
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+
+          {/* ===================================================== */}
+          {/* 右：型式 */}
+          {/* ===================================================== */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+
+            <div className="mb-6">
+
+              <h3 className="text-lg font-semibold text-gray-800">
+                型式
+              </h3>
+
+              <p className="mt-1 text-sm text-gray-500">
+                選択した機種の型式を管理します
+              </p>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 選択中の機種 */}
+            {/* ================================================= */}
+            <div className="mb-5">
+
+              <div className="text-xs font-medium text-gray-600">
+                選択中の機種
+              </div>
+
+              <div className="mt-1 text-base font-semibold text-gray-800">
+
+                {selectedTypeId
+                  ? deviceTypes.find(
+                      (type) => type.id === selectedTypeId
+                    )?.name
+                  : "機種を選択してください"}
+
+              </div>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 型式一覧ヘッダー */}
+            {/* ================================================= */}
+            <div className="mb-3 flex items-center justify-between">
+
+              <div>
+
+                <div className="text-sm font-semibold text-gray-800">
+                  登録されている型式
+                </div>
+
+                {selectedTypeId && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    {filteredModels.length} 件
+                  </div>
+                )}
+
+              </div>
+
+
+              {checkedModelIds.length > 0 && (
+                <button
+                  onClick={handleDeleteModels}
+                  className="
+                    rounded-lg
+                    bg-red-50
+                    px-3
+                    py-2
+                    text-sm
+                    font-medium
+                    text-red-600
+                    transition
+                    hover:bg-red-100
+                  "
+                >
+                  選択削除
+                </button>
+              )}
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 型式一覧 */}
+            {/* ================================================= */}
+            <div className="max-h-[420px] overflow-y-auto">
+
+              {!selectedTypeId ? (
+
+                <div className="py-12 text-center text-sm text-gray-400">
+                  機種を選択してください
+                </div>
+
+              ) : filteredModels.length === 0 ? (
+
+                <div className="py-12 text-center text-sm text-gray-400">
+                  登録されている型式はありません
+                </div>
+
+              ) : (
+
+                <div>
+
+                  {filteredModels.map((model) => (
+
+                    <div
+                      key={model.id}
+                      className="
+                        flex
+                        items-center
+                        gap-3
+                        border-b
+                        border-gray-100
+                        py-3
+                        last:border-b-0
+                        hover:bg-gray-50
+                      "
+                    >
+
+                      {/* チェックボックス */}
+                      <input
+                        type="checkbox"
+                        checked={checkedModelIds.includes(model.id)}
+                        onChange={() => toggleModel(model.id)}
+                        className="
+                          h-4
+                          w-4
+                          cursor-pointer
+                          rounded
+                          border-gray-300
+                          text-blue-500
+                          focus:ring-blue-400
+                        "
+                      />
+
+
+                      {/* 型式名 */}
+                      <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
+                        {model.name}
+                      </span>
+
+
+                      {/* 編集 */}
+                      <button
+                        onClick={() => handleRenameModel(model)}
+                        className="
+                          shrink-0
+                          rounded-lg
+                          bg-gray-100
+                          px-3
+                          py-1.5
+                          text-sm
+                          font-medium
+                          text-gray-600
+                          transition
+                          hover:bg-gray-200
+                          hover:text-gray-800
+                        "
+                      >
+                        ✏
+                      </button>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* 型式追加 */}
+            {/* ================================================= */}
+            <div className="mt-8">
+
+              <div className="mb-4">
+
+                <h4 className="text-sm font-semibold text-gray-800">
+                  新しい型式を追加
+                </h4>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  選択中の機種に型式を追加します
+                </p>
+
+              </div>
+
+
+              <div className="flex gap-3">
+
+                <input
+                  value={newModelName}
+                  onChange={(e) =>
+                    setNewModelName(e.target.value)
+                  }
+                  placeholder={
+                    selectedTypeId
+                      ? "例：Servo-i"
+                      : "先に機種を選択してください"
+                  }
+                  disabled={!selectedTypeId}
+                  className="
+                    min-w-0
+                    flex-1
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    disabled:cursor-not-allowed
+                    disabled:bg-gray-100
+                    disabled:text-gray-400
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                />
+
+                <button
+                  onClick={handleAddModel}
+                  disabled={!selectedTypeId}
+                  className="
+                    shrink-0
+                    rounded-lg
+                    bg-blue-500
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-white
+                    transition
+                    hover:bg-blue-600
+                    disabled:cursor-not-allowed
+                    disabled:bg-gray-300
+                  "
+                >
+                  追加
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
-
-        <div className="flex gap-2">
-          <input
-            value={newModelName}
-            onChange={(e) => setNewModelName(e.target.value)}
-            placeholder="新規型式名"
-            className="border px-2 py-1 flex-1 rounded"
-          />
-
-          <button
-            onClick={handleAddModel}
-            className="px-3 bg-blue-500 text-white rounded"
-          >
-            追加
-          </button>
-        </div>
-
-        <button
-          onClick={handleDeleteModels}
-          className="px-3 py-1 bg-red-500 text-white rounded"
-        >
-          選択削除
-        </button>
-
       </div>
 
-    </div>
-   
+
+      {/* ===================================================== */}
+      {/* 型式編集Modal */}
+      {/* ===================================================== */}
       <DeviceModelEditModal
-          isOpen={editDeviceModel !== null}
-          deviceModel={editDeviceModel}
-          onClose={() => setEditDeviceModel(null)}
-          onSave={handleSaveModel}
+        isOpen={editDeviceModel !== null}
+        deviceModel={editDeviceModel}
+        onClose={() => setEditDeviceModel(null)}
+        onSave={handleSaveModel}
       />
 
+
+      {/* ===================================================== */}
+      {/* Loading */}
+      {/* ===================================================== */}
       <LoadingOverlay loading={loading} />
 
-  </>
-  )
+    </>
+  )  
 }
