@@ -26,9 +26,13 @@ import {
 import InspectionResultDetailModal from "./InspectionResultDetailModal"
 
 import {
-    exportInspectionPdfTransaction,
-} from "../../../api/transactions/exports/exportInspectionPdfTransaction"
-
+    getInspectionIdsForPdf,
+} from "../../../api/exports/getInspectionIdsForPdf"
+import {
+    createInspectionPdfTransaction,
+} from "../../../api/transactions/exports/createInspectionPdfTransaction"
+import { getInspectionIdsForCsv } from "../../../api/exports/getInspectionIdsForCsv"
+import { createInspectionCsvTransaction } from "../../../api/transactions/exports/createInspectionCsvTransaction"
 
 type Props = {
     isOpen: boolean
@@ -565,40 +569,85 @@ export default function InspectionResultModal({
     // PDFボタン処理
     // =========================================================
 
-    const handleExportPdf = async () => {
+const handleExportPdf = async () => {
 
-        console.log(
-            "handleExportPdf"
+    console.log(
+        "handleExportPdf"
+    )
+
+    const inspectionIds =
+        getInspectionIdsForPdf(
+            filteredInspections
         )
 
+    console.log(
+        "PDF対象のinspection_ids:",
+        inspectionIds
+    )
 
-        const resultsByInspectionId =
-            await getResultsByInspectionId(
-                filteredInspections
-            )
-
-
-        console.log(
-            "PDF対象のinspection:",
-            JSON.stringify(
-                filteredInspections,
-                null,
-                2
-            )
+    const blob =
+        await createInspectionPdfTransaction(
+            inspectionIds
         )
 
+    console.log(
+        "PDF Blob:",
+        blob
+    )
 
-        console.log(
-            "PDF対象のinspection results:",
-            JSON.stringify(
-                resultsByInspectionId,
-                null,
-                2
-            )
+    const url =
+        URL.createObjectURL(blob)
+
+    const link =
+        document.createElement("a")
+
+    link.href = url
+    link.download = "inspection.pdf"
+
+    link.click()
+
+    URL.revokeObjectURL(url)
+}
+
+const handleExportCsv = async () => {
+
+    console.log(
+        "handleExportCsv"
+    )
+
+    const inspectionIds =
+        getInspectionIdsForCsv(
+            filteredInspections
         )
 
-    }
+    console.log(
+        "CSV対象のinspection_ids:",
+        inspectionIds
+    )
 
+    const blob =
+        await createInspectionCsvTransaction(
+            inspectionIds
+        )
+
+    console.log(
+        "CSV Blob:",
+        blob
+    )
+
+    const url =
+        URL.createObjectURL(blob)
+
+    const link =
+        document.createElement("a")
+
+    link.href = url
+    link.download = "inspection.csv"
+
+    link.click()
+
+    URL.revokeObjectURL(url)
+}
 
     // =========================================================
     // Modal
@@ -689,6 +738,7 @@ return createPortal(
 
                     <button
                         type="button"
+                        onClick={handleExportCsv}
                         className="
                             rounded-lg
                             bg-gray-100

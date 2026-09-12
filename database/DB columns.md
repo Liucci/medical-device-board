@@ -165,6 +165,8 @@
 | inspections                       | 19               | performed_by_name       | text                        |     |                               | YES         |
 | inspections                       | 20               | inspection_type_name    | text                        |     |                               | YES         |
 | inspections                       | 21               | checklist_name          | text                        |     |                               | YES         |
+| inspections                       | 22               | checklist_id            | bigint                      |     |                               | YES         |
+| inspections                       | 23               | checklist_version       | integer                     |     |                               | YES         |
 | invite_codes                      | 2                | code                    | text                        |     |                               | NO          |
 | invite_codes                      | 3                | hospital_id             | uuid                        |     |                               | YES         |
 | invite_codes                      | 4                | role                    | text                        |     |                               | NO          |

@@ -36,3 +36,24 @@ def fetch_inspection(
     )
 
     return response.data
+
+
+#複数のinspection idから情報を取得するとき
+def fetch_inspections_by_ids(
+    client: Client,
+    inspection_ids: list[int],
+    hospital_id: str
+):
+
+    print("fetch_inspections_by_ids")
+
+    response = (
+        client
+        .table("inspections")
+        .select("*")
+        .in_("id", inspection_ids)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data

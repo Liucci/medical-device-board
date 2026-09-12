@@ -140,7 +140,6 @@ from transactions.exports.export_device_list_pdf_transaction import (export_devi
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
 from schemas.export_schemas import ExportInspectionPdfRequest
-from transactions.exports.export_inspection_pdf_transaction import (export_inspection_pdf_transaction)
 
 
 from schemas.infection_type_schemas import (

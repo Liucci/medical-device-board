@@ -1,6 +1,6 @@
 import fastapi
 from fastapi import APIRouter, Depends
-
+from fastapi import Depends, Response
 from schemas.session_schemas import BackendSession
 from auth.get_current_session import get_current_session
 #CRUD
@@ -60,7 +60,10 @@ from transactions.inspection.inspection_checklist_items.add_inspection_checklist
 from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
 inspection_router = APIRouter()
-
+from transactions.exports.create_inspection_pdf_transaction import create_inspection_pdf_transaction
+from exports.pdf.generate_inspection_pdf import generate_inspection_pdf
+from transactions.exports.create_inspection_csv_transaction import (create_inspection_csv_transaction)
+from exports.csv.generate_inspection_csv import generate_inspection_csv
 
 # inspection_types
 @inspection_router.get("/inspection-types")
@@ -155,6 +158,62 @@ def create_inspection_type(
         client=session.client,
         inspection_type=inspection_type,
         hospital_id=session.hospital_id,
+    )
+
+
+@inspection_router.post("/create-inspection-pdf")
+def create_inspection_pdf(
+    inspection_ids: list[int],
+    session: BackendSession = Depends(get_current_session),
+):
+
+    (pdf_tables_by_checklist,hospital_name) =create_inspection_pdf_transaction(
+                                                                    client=session.client,
+                                                                    inspection_ids=inspection_ids,
+                                                                    hospital_id=session.hospital_id
+                                                )
+
+    pdf_bytes = generate_inspection_pdf(
+                                        pdf_tables_by_checklist=pdf_tables_by_checklist,
+                                        orientation="portrait",
+                                        font_size=8,
+                                        hospital_name=hospital_name
+                )
+
+    print("PDF bytes:",len(pdf_bytes))
+
+    return Response(
+                    content=pdf_bytes,
+                    media_type="application/pdf"
+    )    
+
+@inspection_router.post("/create-inspection-csv")
+def create_inspection_csv(
+    inspection_ids: list[int],
+    session: BackendSession = Depends(get_current_session),
+):
+
+    (
+        csv_tables_by_checklist,
+        hospital_name
+    ) = create_inspection_csv_transaction(
+        client=session.client,
+        inspection_ids=inspection_ids,
+        hospital_id=session.hospital_id
+    )
+
+    csv_bytes = generate_inspection_csv(
+        csv_tables_by_checklist=csv_tables_by_checklist
+    )
+
+    print(
+        "CSV bytes:",
+        len(csv_bytes)
+    )
+
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv; charset=utf-8"
     )
 
 

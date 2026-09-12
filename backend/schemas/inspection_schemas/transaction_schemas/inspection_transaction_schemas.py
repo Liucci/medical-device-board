@@ -49,8 +49,10 @@ class InspectionResultDetailResponse(BaseModel):
     value: str | None
 
 
+#snapshopの型定義をもつtableからほかtableを参照してはならない
 #frontから受け取ったAddInspectionRequestをDBのcolumnに合わせて加工後inspection tableに保存する用
-#backendとDB間だけの型定義なのでこのschemaのtypr,mapperは不要
+#backendからDBへのewquest時だけの型定義なのでこのschemaのtype,mapperは不要
+#同一の点検表の判定のためにchecklist idを持たせるがFKではなくsnap shotなid。このidでchecklist tableを参照してはならない
 class AddInspectionSnapshotRequest(BaseModel):
     device_type_name: str
     device_model_name: str
