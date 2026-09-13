@@ -36,6 +36,7 @@ type Props = {
   openWardInfoModal:(ward:WardType)=>void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   wardCellSize: number
+  inspectionCounts: Record<number, number>
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser:CurrentUser 
   scrollRef: React.RefObject<HTMLDivElement | null>
@@ -70,6 +71,7 @@ export default function WardArea({
                                   managementNumber,
                                   serialNumber,
                                   setWardCellSize,
+                                  inspectionCounts,
                                   currentUser,
                                   scrollRef,
                                   isDragging,
@@ -295,6 +297,7 @@ return (
                       }
                       getMAlert={getMAlert}
                       cellSize={wardCellSize}
+                      inspectionCounts={inspectionCounts}
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
                       currentUser={currentUser}

@@ -19,10 +19,10 @@ class CreateInspectionTransactionRequest(BaseModel):
     inspection: AddInspectionRequest
     results: list[AddInspectionResultRequest]
 
-#点検結果内の各idをもとに他tableから情報取得し加工しfrontに点検結果として表示させる
 
 class InspectionListResponse(BaseModel):
     id: int
+    device_id: int
     created_at: str
     inspection_type_name: str
     checklist_name: str
@@ -54,6 +54,7 @@ class InspectionResultDetailResponse(BaseModel):
 #backendからDBへのewquest時だけの型定義なのでこのschemaのtype,mapperは不要
 #同一の点検表の判定のためにchecklist idを持たせるがFKではなくsnap shotなid。このidでchecklist tableを参照してはならない
 class AddInspectionSnapshotRequest(BaseModel):
+    device_id: int
     device_type_name: str
     device_model_name: str
     management_number: str | None = None

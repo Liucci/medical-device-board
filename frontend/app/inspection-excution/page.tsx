@@ -19,7 +19,7 @@ import { getInspectionChecklistItemOptionsFromApi } from "../api/inspection/insp
 import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
 import { createInspectionTransaction } from "../api/transactions/inspection/inspections/createInspectionTransaction"
-
+import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchTodayInspections"
 // types
 import type { CurrentUser } from "../types/userTypes"
 import type { Device } from "../types/deviceTypes"
@@ -107,25 +107,23 @@ export default function InspectionExecutionPage() {
                 })
             )
         }
-console.log(
+/* console.log(
     "保存する点検結果:",
     JSON.stringify(inspection, null, 2)
 )
-
+ */
         await executeWithErrorAndLoading({
                 setLoading,
                 action: async () => {
                         await createInspectionTransaction({
-                            inspection,
-                            onClose: () => router.push("/dashboard")
+                            inspection,                           
                         })
                 }
-            })
+            })      
         alert("点検結果を保存しました")
-
-
-
+        router.push("/dashboard")
     }
+
 
     useEffect(() => {
         console.log("inspectionResults:", inspectionResults)

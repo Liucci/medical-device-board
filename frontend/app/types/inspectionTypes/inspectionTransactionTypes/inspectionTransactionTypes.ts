@@ -30,6 +30,7 @@ export type CreateInspectionTransactionBackType = {
 //inspection内の各idを基に、他tableから必要情報をかき集めたものをbackから受け取る用
 export type InspectionListType = {
     id: number
+    deviceId:number
     createdAt: string
     inspectionTypeName: string
     checklistName: string
@@ -49,6 +50,7 @@ export type InspectionListType = {
 
 export type InspectionListDBType = {
     id: number
+    device_id:number
     created_at: string
     inspection_type_name: string
     checklist_name: string

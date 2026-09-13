@@ -101,6 +101,7 @@ def create_inspection_transaction(
         )
         print("checklist",checklist)
         inspection_snapshot = AddInspectionSnapshotRequest(
+            device_id=inspection.device_id,
             device_type_name=device_type["name"],
             device_model_name=device_model["name"],
             management_number=device.get("management_number"),

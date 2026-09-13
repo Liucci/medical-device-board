@@ -33,6 +33,7 @@ export const normalizeInspectionList = (
     inspection: InspectionListDBType
 ): InspectionListType => ({
     id: inspection.id,
+    deviceId:inspection.device_id,
     createdAt: inspection.created_at,
     inspectionTypeName: inspection.inspection_type_name,
     checklistName: inspection.checklist_name,

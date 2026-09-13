@@ -6,6 +6,7 @@ from schemas.inspection_schemas.inspection_result_schemas import AddInspectionRe
 class InspectionResponse(BaseModel):
     id: int
     hospital_id: str
+    device_id: int
     device_type_name: str
     device_model_name: str
     management_number: str | None = None

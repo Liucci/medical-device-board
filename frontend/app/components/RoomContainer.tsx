@@ -34,6 +34,7 @@ type Props = {
   openRoomDeviceInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   cellSize: number
+  inspectionCounts: Record<number, number>
   currentUser: any
   isDragging: boolean
   infectionTypes:InfectionTypeType[]
@@ -56,6 +57,7 @@ export default function RoomContainer({
                             openRoomDeviceInfoModal,
                             getMAlert,
                             cellSize,
+                            inspectionCounts,
                             managementNumber,
                             serialNumber,
                             currentUser,
@@ -282,6 +284,7 @@ return (
               rentalEndDate={d.rentalEndDate}
               mAlert={getMAlert(d.id)}
               cellSize={cellSize}
+              inspectionCount={inspectionCounts[d.id] ?? 0}
               isUnderMaintenance={d.isUnderMaintenance}
               standby={d.standby}
               standbyStartedAt={d.standbyStartedAt}

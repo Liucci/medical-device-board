@@ -86,7 +86,7 @@ import { updateMaintenanceTaskDueAtTransaction } from "../api/transactions/tasks
 import { cancelMaintenanceTaskTransaction } from "../api/transactions/tasks/cancelMaintenanceTaskTransaction"
 import { CompleteMaintenanceTask } from "../types/taskTypes"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTypes"
-
+import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchTodayInspections"
 //infection系
 import { getInfectionTypesFromApi } from "../api/infectionTypes/fetchInfectionTypes"
 import { getRoomInfectionsFromApi } from "../api/roomInfections/fetchRoomInfections"
@@ -125,7 +125,7 @@ import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksR
 import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
 import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 import { subscribeHospitalSettingsRealtime } from "../realtime/hospitalSettingsRealtime"
-
+import {subscribeInspectionsRealtime} from "../realtime/inspectionsRealtime"
 //お知らせ表示用
 import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
@@ -155,7 +155,7 @@ export default function Page() {
   const [wardInfections, setWardInfections] = useState<any[]>([])
   const [inspectionTypes, setInspectionTypes] = useState<any[]>([])
   const [inspectionItemCategories, setInspectionItemCategories] =useState<any[]>([])
-
+  const [inspectionCounts, setInspectionCounts] = useState<Record<number, number>>({})
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
   const [serialNumber, setSerialNumber] = useState<string | undefined>(undefined)
@@ -1088,7 +1088,7 @@ useEffect(() => {
                                                                                     setAnnouncements: setActiveAnnouncements
     })
   const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
-
+  const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts})
   return () => {
     console.log("[Realtime] unsubscribe")
     unsubscribeDevices()
@@ -1104,6 +1104,7 @@ useEffect(() => {
     unsubscribeAnnouncements()
     unsubscribeAnnouncementHospitals()
     unsubscribeHospitalSettingRealtime()
+    unsubscribeInspections()
   }
 }, [currentUser])
 
@@ -1151,7 +1152,16 @@ useEffect(() => {
                   setWardLastUpdated(wardLastUpdated)
                   //お知らせ表示
                   //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
-                  await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
+                  await fetchHospitalSettingsTransaction({setHospitalSettings})
+                  const todayInspections = await getTodayInspectionsFromApi()
+                  const counts: Record<number, number> = {}
+
+                  todayInspections.forEach(inspection => {
+                      counts[inspection.device_id] =
+                          (counts[inspection.device_id] ?? 0) + 1
+                  }
+                )                                                                                                                               
+            setInspectionCounts(counts)                  
           },
     })
   
@@ -1221,6 +1231,7 @@ if (!currentUser) {
           getMAlert={getMAlert}
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
+          inspectionCounts={inspectionCounts}
           currentUser={currentUser}
           scrollRef={wardScrollRef}
           isDragging={isDragging}

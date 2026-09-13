@@ -18,6 +18,7 @@ type Props = {
   standby?: boolean
   standbyStartedAt?: string
   createAt?: string
+  inspectionCount?: number
 }
 
 export default function DeviceIcon({
@@ -34,6 +35,7 @@ export default function DeviceIcon({
   standby,
   standbyStartedAt,
   createAt,
+  inspectionCount = 0,
 }: Props) {
   // ===== 表示レベル =====
   const displayLevel =
@@ -229,6 +231,34 @@ export default function DeviceIcon({
         />
       )}
 
+      {/* ===== 点検実施インジケータ ===== */}
+      {showIndicator && inspectionCount > 0 && (
+        <div
+          className="
+            absolute
+            top-1
+            right-1
+            z-30
+            rounded-full
+            bg-white
+            text-black
+            font-bold
+            flex
+            items-center
+            justify-center
+            shadow-sm
+            border
+          "
+          style={{
+            width: cellSize >= 88 ? 18 : 14,
+            height: cellSize >= 88 ? 18 : 14,
+            fontSize: cellSize >= 88 ? 10 : 8,
+            lineHeight: 1,
+          }}
+        >
+          {inspectionCount}
+        </div>
+      )}
       {/* ===== レンタル ===== */}
       {showIndicator && assetType === "レンタル" && (
         <div

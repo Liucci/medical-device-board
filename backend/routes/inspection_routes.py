@@ -64,7 +64,7 @@ from transactions.exports.create_inspection_pdf_transaction import create_inspec
 from exports.pdf.generate_inspection_pdf import generate_inspection_pdf
 from transactions.exports.create_inspection_csv_transaction import (create_inspection_csv_transaction)
 from exports.csv.generate_inspection_csv import generate_inspection_csv
-
+from inspection.inspections.fetch_inspections import fetch_today_inspections
 # inspection_types
 @inspection_router.get("/inspection-types")
 def get_inspection_types(
@@ -120,6 +120,15 @@ def get_inspections(
         hospital_id=session.hospital_id
     )
 
+
+@inspection_router.get("/inspections/today")
+def get_today_inspections(
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_today_inspections(
+                                    client=session.client,
+                                    hospital_id=session.hospital_id
+    )
 
 
 # inspection_results

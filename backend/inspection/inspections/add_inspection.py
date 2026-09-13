@@ -18,6 +18,7 @@ def add_inspection(
         .table("inspections")
         .insert({
             "hospital_id": hospital_id,
+            "device_id":inspection.device_id,
             "device_type_name": inspection.device_type_name,
             "device_model_name": inspection.device_model_name,
             "management_number": inspection.management_number,
