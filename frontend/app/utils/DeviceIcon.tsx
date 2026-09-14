@@ -236,7 +236,7 @@ export default function DeviceIcon({
         <div
           className="
             absolute
-            top-1
+            top-0.5
             right-1
             z-30
             rounded-full
@@ -252,8 +252,8 @@ export default function DeviceIcon({
           style={{
             width: cellSize >= 88 ? 18 : 14,
             height: cellSize >= 88 ? 18 : 14,
-            fontSize: cellSize >= 88 ? 10 : 8,
-            lineHeight: 1,
+            fontSize: cellSize >= 88 ? 10 : 10,
+            lineHeight: 2,
           }}
         >
           {inspectionCount}

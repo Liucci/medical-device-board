@@ -36,8 +36,6 @@ from schemas.inspection_schemas.inspection_checklist_schemas import (
 )
 from schemas.inspection_schemas.inspection_checklist_item_schemas import (
     AddInspectionChecklistItemRequest,
-    UpdateInspectionChecklistItemRequest,
-    DeleteInspectionChecklistItemsRequest,
 )
 from schemas.inspection_schemas.inspection_item_category_schema import (
     AddInspectionItemCategoryRequest,
@@ -59,12 +57,15 @@ from transactions.inspection.inspection_checklists.add_inspection_checklist_tran
 from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import add_inspection_checklist_items_transaction
 from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
-inspection_router = APIRouter()
+from transactions.inspection.inspections.fetch_today_inspections_transaction import (fetch_today_inspections_transaction)
 from transactions.exports.create_inspection_pdf_transaction import create_inspection_pdf_transaction
 from exports.pdf.generate_inspection_pdf import generate_inspection_pdf
 from transactions.exports.create_inspection_csv_transaction import (create_inspection_csv_transaction)
 from exports.csv.generate_inspection_csv import generate_inspection_csv
-from inspection.inspections.fetch_inspections import fetch_today_inspections
+
+inspection_router = APIRouter()
+
+
 # inspection_types
 @inspection_router.get("/inspection-types")
 def get_inspection_types(
@@ -125,9 +126,9 @@ def get_inspections(
 def get_today_inspections(
     session: BackendSession = Depends(get_current_session),
 ):
-    return fetch_today_inspections(
-                                    client=session.client,
-                                    hospital_id=session.hospital_id
+    return fetch_today_inspections_transaction(
+        client=session.client,
+        hospital_id=session.hospital_id
     )
 
 

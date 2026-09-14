@@ -352,6 +352,10 @@ export default function Page() {
                                                         setStockLastUpdated(await fetchStockLastUpdated())
                                                         //ward更新日にはstock更新日を格納する
                                                         setWardLastUpdated(await fetchStockLastUpdated())
+                                                        setInspectionCounts(prev => ({
+                                                                                        ...prev,
+                                                                                        [device.id]: 0,
+                                                                                      }))
                                                         setDraggingDevice(null)
                                           }
       })
@@ -422,22 +426,30 @@ export default function Page() {
     patientName: string
   ) => {
     if (!pendingDevice?.id) {return}
-    setPendingDevice(null)
-    setRoomModalOpen(false)
-    await moveStockToRoomTransaction({
-                                      deviceId: pendingDevice.id,
-                                      roomId,
-                                      patientName,
-                                      setDevices: setDeviceList,
-                                      setRooms,
-                                      setHistories,
-                                      setTasks,
-                                      devices:deviceList
-                                    })
-    //stock area更新日はward更新日を格納                                
-    setStockLastUpdated(await fetchWardLastUpdated())
-    setWardLastUpdated(await fetchWardLastUpdated())
-    setTargetWardId(null)
+    await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+              if (pendingDevice.id === undefined) return
+              setPendingDevice(null)
+              setRoomModalOpen(false)
+              await moveStockToRoomTransaction({
+                                                deviceId: pendingDevice.id,
+                                                roomId,
+                                                patientName,
+                                                setDevices: setDeviceList,
+                                                setRooms,
+                                                setHistories,
+                                                setTasks,
+                                                devices:deviceList
+                                              })
+              //stock area更新日はward更新日を格納                                
+              setStockLastUpdated(await fetchWardLastUpdated())
+              setWardLastUpdated(await fetchWardLastUpdated())
+              setTargetWardId(null)
+              }
+    })
+
+
   }
 
 
@@ -457,40 +469,52 @@ export default function Page() {
 
     if (!pendingDevice?.id) {return}
     if (!pendingDevice?.roomId) {return}
-    setRoomToRoomModalOpen(false)
-    setPendingDevice(null)
+    await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+              if (pendingDevice.id === undefined) return
+              if (pendingDevice.roomId === undefined) return
+          setRoomToRoomModalOpen(false)
+          setPendingDevice(null)
 
-    if (samePatient) {
-      await moveRoomToRoomTransaction({
-                                        deviceId: pendingDevice.id,
-                                        preRoomId: pendingDevice.roomId,
-                                        postRoomId: roomId,
-                                        patientName,
-                                        setDevices: setDeviceList,
-                                        setRooms,
-                                        setHistories,
-                                        setRoomInfections,
-                                        devices:deviceList
-                                      })
-      } 
-      else {
-        await moveRoomToRoomNewPatientTransaction({
-                                                    deviceId: pendingDevice.id,
-                                                    preRoomId: pendingDevice.roomId,
-                                                    postRoomId: roomId,
-                                                    patientName,
-                                                    setDevices: setDeviceList,
-                                                    setRooms,
-                                                    setHistories,
-                                                    setTasks,
-                                                    setRoomInfections,
-                                                    devices:deviceList
+          if (samePatient) {
+            await moveRoomToRoomTransaction({
+                                              deviceId: pendingDevice.id,
+                                              preRoomId: pendingDevice.roomId,
+                                              postRoomId: roomId,
+                                              patientName,
+                                              setDevices: setDeviceList,
+                                              setRooms,
+                                              setHistories,
+                                              setRoomInfections,
+                                              devices:deviceList
+                                            })
+            } 
+            else {
+              await moveRoomToRoomNewPatientTransaction({
+                                                          deviceId: pendingDevice.id,
+                                                          preRoomId: pendingDevice.roomId,
+                                                          postRoomId: roomId,
+                                                          patientName,
+                                                          setDevices: setDeviceList,
+                                                          setRooms,
+                                                          setHistories,
+                                                          setTasks,
+                                                          setRoomInfections,
+                                                          devices:deviceList
                                                   })
-      }
-    //ward areaは更新しない  
-    //setStockLastUpdated(await fetchStockLastUpdated())
-    setWardLastUpdated(await fetchWardLastUpdated())
-    setTargetWardId(null)
+              }
+              //ward areaは更新しない  
+              //setStockLastUpdated(await fetchStockLastUpdated())
+              setWardLastUpdated(await fetchWardLastUpdated())
+              setInspectionCounts(prev => ({
+              ...prev,
+              [pendingDevice.id]: 0,
+              }))    
+              setTargetWardId(null)
+              }
+    })
+
   }
 
   const handleRoomToRoomCancel = () => {
