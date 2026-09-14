@@ -364,6 +364,7 @@ export default function Page() {
                                                                                         ...prev,
                                                                                         [device.id]: 0,
                                                                                       }))
+                                                        setTodayInspections([])
                                                         setDraggingDevice(null)
                                           }
       })
@@ -519,6 +520,7 @@ export default function Page() {
               ...prev,
               [pendingDevice.id]: 0,
               }))    
+              setTodayInspections([])
               setTargetWardId(null)
               }
     })
@@ -1120,7 +1122,7 @@ useEffect(() => {
                                                                                     setAnnouncements: setActiveAnnouncements
     })
   const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
-  const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts})
+  const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts, setTodayInspections,})
   return () => {
     console.log("[Realtime] unsubscribe")
     unsubscribeDevices()
