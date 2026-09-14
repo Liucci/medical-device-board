@@ -15,6 +15,7 @@ import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
 import { RoomInfectionType } from "../../types/roomInfectionTypes"
 import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+import { TodayInspectionFrontType } from "../../types/inspectionTypes/inspectionTypes"
 //表示データ
 import { Device } from "../../types/deviceTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
@@ -69,6 +70,7 @@ roomInfections:RoomInfectionType[]
 setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
 onDelete: (deviceId: number) => Promise<void>
 hospitalSettings: HospitalSettingsType | null
+todayInspections?: TodayInspectionFrontType[]
 }
 
 export default function RoomDeviceInfoModal({
@@ -94,7 +96,8 @@ export default function RoomDeviceInfoModal({
   roomInfections,
   setRoomInfections,
   onDelete,
-  hospitalSettings
+  hospitalSettings,
+  todayInspections,
 }: Props) {
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
@@ -163,7 +166,11 @@ const deviceTasks =
     task => task.deviceId === selectedRoomDevice.id
   )
 
-
+const deviceTodayInspections =
+  todayInspections?.filter(
+    inspection =>
+      inspection.deviceId === selectedRoomDevice.id
+  ) ?? []
 
 
     // 🔽 共通表示行
@@ -362,6 +369,35 @@ return (
           >
             点検実施
           </button>
+
+          {/* 本日の点検実施時刻 */}
+          <div className="mt-2 rounded-lg border bg-gray-50 px-3 py-2">
+            <div className="text-sm font-bold text-gray-600">
+              本日の点検
+            </div>
+
+            {deviceTodayInspections.length === 0 ? (
+              <div className="mt-1 text-sm text-gray-400">
+                未実施
+              </div>
+            ) : (
+              <div className="mt-1 flex flex-wrap gap-2">
+                {deviceTodayInspections.map((inspection, index) => (
+                  <span
+                    key={index}
+                    className="rounded bg-white px-2 py-1 text-sm font-medium shadow-sm"
+                  >
+                    {new Date(
+                      inspection.createdAt
+                    ).toLocaleTimeString("ja-JP", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* 詳細情報 */}
           <div className="border-t pt-2 mt-3 space-y-1">

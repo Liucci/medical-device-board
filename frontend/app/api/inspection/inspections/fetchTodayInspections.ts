@@ -1,7 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
-
-export async function getTodayInspectionsFromApi()
-{
+import type { TodayInspectionBackType } from "../../../types/inspectionTypes/inspectionTypes"
+export const getTodayInspectionsFromApi = async (): Promise<TodayInspectionBackType[]> => {
     console.log("fetchTodayInspections")
 
     const response = await fetch(

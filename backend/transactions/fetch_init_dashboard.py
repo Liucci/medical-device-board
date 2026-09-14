@@ -15,7 +15,8 @@ from ward_infections.fetch_ward_infections import fetch_ward_infections
 from announcements.fetch_active_announcements import fetch_active_announcements
 from inspection.inspection_types.fetch_inspection_types import fetch_inspection_types
 from inspection.inspection_item_categories.fetch_inspection_item_categories import fetch_inspection_item_categories
-#transactionではclientの種類の情報は持たない
+from transactions.inspection.inspections.fetch_today_inspections_transaction import (fetch_today_inspections_transaction)
+
 def fetch_init_dashboard(
                             client: Client,
                             hospital_id: str,
@@ -38,7 +39,7 @@ def fetch_init_dashboard(
     active_announcements=fetch_active_announcements(client,hospital_id)
     inspection_types = fetch_inspection_types(client, hospital_id)
     inspection_item_categories= fetch_inspection_item_categories(client, hospital_id)
-
+    today_inspections = fetch_today_inspections_transaction(client=client,hospital_id=hospital_id)
     return {
         "devices": devices,
         "stock_areas": stock_areas,
@@ -55,5 +56,5 @@ def fetch_init_dashboard(
         "active_announcements":active_announcements,
         "inspection_types": inspection_types, 
         "inspection_item_categories": inspection_item_categories, 
-
+        "today_inspections": today_inspections,
     }

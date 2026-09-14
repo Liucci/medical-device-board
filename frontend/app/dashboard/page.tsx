@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState,useRef } from "react"
 
 import { initDashboard } from "../dashboard/initDashboard"
 import styles from "../page.module.css"
@@ -12,12 +13,12 @@ import StockInfoModal from "../components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
 import WardInfoModal from "../components/modals/WardInfoModal"
 import LowStockPanel from "../components/LowStockPanel"
-
+//type
 import { CurrentUser } from "../types/userTypes"
 import { WardType,UpdateWardInfoType} from "../types/wardTypes"
-
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
-import { useEffect, useState,useRef } from "react"
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
+//mapper
 import { normalizeDevice,toDBDevice} from "../mapper/deviceMapper"
 import { normalizeRoom } from "../mapper/roomsMapper"
 import { normalizeWard } from "../mapper/wardsMapper"
@@ -32,6 +33,9 @@ import { normalizeRoomInfection} from "../mapper/roomInfectionMapper"
 import { normalizeWardInfection } from "../mapper/wardInfectionMapper"
 import { normalizeActiveAnnouncement } from "../mapper/announcementMapper"
 import{normalizeInspectionType} from "../mapper/inspectionMapper/inspectionTypeMapper"
+import { normalizeTodayInspection } from "../mapper/inspectionMapper/inspectionMapper"
+
+
 //check系
 import { checkWardWarning } from "../utils/checkWardWarning"
 
@@ -155,6 +159,7 @@ export default function Page() {
   const [wardInfections, setWardInfections] = useState<any[]>([])
   const [inspectionTypes, setInspectionTypes] = useState<any[]>([])
   const [inspectionItemCategories, setInspectionItemCategories] =useState<any[]>([])
+  const [todayInspections, setTodayInspections] =useState<TodayInspectionFrontType[]>([])
   const [inspectionCounts, setInspectionCounts] = useState<Record<number, number>>({})
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
@@ -338,9 +343,12 @@ export default function Page() {
                                         action: async () => {
                                           if (device.id === undefined) return
                                           if (device.roomId === undefined) return
+                                            const deviceId = device.id
+                                            const roomId = device.roomId
+
                                                       await moveRoomToStockTransaction({
-                                                                                          deviceId: device.id,
-                                                                                          roomId: device.roomId,
+                                                                                          deviceId,
+                                                                                          roomId,
                                                                                           stockAreaId,
                                                                                           setDevices: setDeviceList,
                                                                                           setRooms,
@@ -1167,7 +1175,7 @@ useEffect(() => {
                   setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
                   setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
                   setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
-                  //setWardInfections(data.ward_infections.map(normalizeWardInfection))
+
                   //最終更新日を取得用APIをたたく
                   const stockLastUpdated = await fetchStockLastUpdated()
                   const wardLastUpdated = await fetchWardLastUpdated()
@@ -1176,19 +1184,17 @@ useEffect(() => {
                   setWardLastUpdated(wardLastUpdated)
                   //お知らせ表示
                   //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
-                  await fetchHospitalSettingsTransaction({setHospitalSettings})
-                  const todayInspections = await getTodayInspectionsFromApi()
+                  const todayInspections: TodayInspectionFrontType[] = data.today_inspections.map(normalizeTodayInspection)
                   const counts: Record<number, number> = {}
-
-                  todayInspections.forEach(inspection => {
-                      counts[inspection.device_id] =
-                          (counts[inspection.device_id] ?? 0) + 1
-                  }
-                )                                                                                                                               
-            setInspectionCounts(counts)                  
+                  todayInspections.forEach(inspection => 
+                  {
+                    counts[inspection.deviceId] =
+                      (counts[inspection.deviceId] ?? 0) + 1
+                  })
+                  setTodayInspections(todayInspections)
+                  setInspectionCounts(counts)
           },
     })
-  
   }
   fetchData()}, [currentUser])
   
@@ -1256,6 +1262,7 @@ if (!currentUser) {
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
           inspectionCounts={inspectionCounts}
+          todayInspections={todayInspections}
           currentUser={currentUser}
           scrollRef={wardScrollRef}
           isDragging={isDragging}
@@ -1473,6 +1480,7 @@ if (!currentUser) {
         setRoomInfections={setRoomInfections}
         onDelete={deleteDevice}
         hospitalSettings={hospitalSettings}
+        todayInspections={todayInspections}
       />
       <WardInfoModal
         isOpen={wardInfoModalOpen}

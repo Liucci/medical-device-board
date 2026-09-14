@@ -1,7 +1,9 @@
 // DeviceIcon.tsx
 // 機器アイコン表示コンポーネント
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
 
 type Props = {
+  deviceId: number
   typeName: string
   modelName: string
   assetType: string
@@ -19,9 +21,11 @@ type Props = {
   standbyStartedAt?: string
   createAt?: string
   inspectionCount?: number
+  todayInspections?: TodayInspectionFrontType[]
 }
 
 export default function DeviceIcon({
+  deviceId,
   typeName,
   modelName,
   assetType,
@@ -36,6 +40,7 @@ export default function DeviceIcon({
   standbyStartedAt,
   createAt,
   inspectionCount = 0,
+  todayInspections,
 }: Props) {
   // ===== 表示レベル =====
   const displayLevel =
@@ -233,32 +238,73 @@ export default function DeviceIcon({
 
       {/* ===== 点検実施インジケータ ===== */}
       {showIndicator && inspectionCount > 0 && (
-        <div
-          className="
-            absolute
-            top-0.5
-            right-1
-            z-30
-            rounded-full
-            bg-white
-            text-black
-            font-bold
-            flex
-            items-center
-            justify-center
-            shadow-sm
-            border
-          "
-          style={{
-            width: cellSize >= 88 ? 18 : 14,
-            height: cellSize >= 88 ? 18 : 14,
-            fontSize: cellSize >= 88 ? 10 : 10,
-            lineHeight: 2,
-          }}
-        >
-          {inspectionCount}
+        <div className="absolute top-0.5 right-1 z-30 group">
+
+          {/* インジケータ */}
+          <div
+            className="
+              rounded-full
+              bg-white
+              text-black
+              font-bold
+              flex
+              items-center
+              justify-center
+              shadow-sm
+              border
+            "
+            style={{
+              width: cellSize >= 88 ? 18 : 14,
+              height: cellSize >= 88 ? 18 : 14,
+              fontSize: cellSize >= 88 ? 10 : 10,
+              lineHeight: 2,
+            }}
+          >
+            {inspectionCount}
+          </div>
+
+          {/* ホバー時の点検日時 */}
+          <div
+            className="
+              hidden
+              group-hover:block
+              absolute
+              right-0
+              top-5
+              bg-black
+              text-white
+              text-xs
+              rounded-md
+              px-3
+              py-2
+              whitespace-nowrap
+              shadow-lg
+            "
+          >
+            <div className="font-semibold mb-1">
+              本日の点検
+            </div>
+
+            {todayInspections
+              ?.filter(
+                inspection => inspection.deviceId === deviceId
+              )
+              .map((inspection, index) => (
+                <div key={index}>
+                  {new Date(inspection.createdAt).toLocaleTimeString(
+                    "ja-JP",
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )}
+                </div>
+              ))}
+          </div>
+
         </div>
       )}
+
       {/* ===== レンタル ===== */}
       {showIndicator && assetType === "レンタル" && (
         <div
@@ -294,6 +340,7 @@ export default function DeviceIcon({
           レ
         </div>
       )}
+
 
       {/* ===== 代替機 ===== */}
       {showIndicator && assetType === "代替機" && (

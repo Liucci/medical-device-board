@@ -5,7 +5,8 @@ import {
     AddInspectionBackType,
     UpdateInspectionFrontType,
     UpdateInspectionBackType,
-    DeleteInspections
+    TodayInspectionFrontType,
+    TodayInspectionBackType,
 } from "../../types/inspectionTypes/inspectionTypes"
 
 
@@ -59,3 +60,15 @@ export const toUpdateInspectionRequest = (
     overall_result: inspection.overallResult,
     comment: inspection.comment
 })
+
+
+
+
+export const normalizeTodayInspection = (
+  data: TodayInspectionBackType
+): TodayInspectionFrontType => {
+  return {
+    deviceId: data.device_id,
+    createdAt: data.created_at,
+  }
+}

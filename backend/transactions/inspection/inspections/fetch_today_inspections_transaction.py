@@ -1,19 +1,18 @@
 from inspection.inspections.fetch_inspections import fetch_today_inspections
 from histories.fetch_histories import fetch_latest_move_history
-
+from schemas.inspection_schemas.inspection_schemas import TodayInspectionSchema
 
 def fetch_today_inspections_transaction(
-    client,
-    hospital_id: str
-):
+                                        client,
+                                        hospital_id: str
+                                        ) -> list[TodayInspectionSchema]:
+    print("fetch_today_inspections_transaction")
     inspections = fetch_today_inspections(
-        client=client,
-        hospital_id=hospital_id
+                                            client=client,
+                                            hospital_id=hospital_id
     )
 
     result = []
-
-    # deviceごとの最新move時刻をキャッシュ
     latest_move_cache = {}
 
     for inspection in inspections:

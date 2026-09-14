@@ -83,6 +83,14 @@ export type UpdateInspectionBackType = {
     comment?: string | null
 }
 
-export type DeleteInspections = {
-    ids: number[]
+export type TodayInspectionBackType = {
+  device_id: number
+  created_at: string
 }
+
+export type TodayInspectionFrontType = {
+  deviceId: number
+  createdAt: string
+}
+
+

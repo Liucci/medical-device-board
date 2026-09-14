@@ -12,6 +12,7 @@ import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { RoomInfectionType } from "../types/roomInfectionTypes"
 import { WardInfectionType } from "../types/wardInfectionTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
 
 import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateTime/dateUtils"
@@ -37,6 +38,7 @@ type Props = {
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   wardCellSize: number
   inspectionCounts: Record<number, number>
+  todayInspections?: TodayInspectionFrontType[]
   setWardCellSize: React.Dispatch<React.SetStateAction<number>>
   currentUser:CurrentUser 
   scrollRef: React.RefObject<HTMLDivElement | null>
@@ -72,6 +74,7 @@ export default function WardArea({
                                   serialNumber,
                                   setWardCellSize,
                                   inspectionCounts,
+                                  todayInspections,
                                   currentUser,
                                   scrollRef,
                                   isDragging,
@@ -298,6 +301,7 @@ return (
                       getMAlert={getMAlert}
                       cellSize={wardCellSize}
                       inspectionCounts={inspectionCounts}
+                      todayInspections={todayInspections}
                       managementNumber={managementNumber}
                       serialNumber={serialNumber}
                       currentUser={currentUser}

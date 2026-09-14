@@ -47,3 +47,7 @@ class UpdateInspectionRequest(BaseModel):
 class DeleteInspectionsRequest(BaseModel):
     ids: list[int]
 
+
+class TodayInspectionSchema(BaseModel):
+    device_id: int
+    created_at: str
