@@ -180,201 +180,292 @@ export default function EditChecklistItemCategoryModal({
 
     return (
         <>
-            <div className="space-y-4">
+            <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-                {/* =========================
-                    一覧
-                ========================= */}
+                <div className="flex h-[600px] min-h-0 w-full flex-col rounded-xl bg-white p-6 shadow-sm">
 
-                <div
-                    className="
-                        border
-                        border-gray-300
-                        rounded
-                        p-2
-                        max-h-60
-                        overflow-y-auto
-                    "
-                >
+                    {/* ================================================= */}
+                    {/* タイトル */}
+                    {/* ================================================= */}
+                    <div className="mb-6 shrink-0">
 
-                    {inspectionItemCategories.length === 0 ? (
+                        <h3 className="text-lg font-semibold text-gray-800">
+                            点検項目の大項目
+                        </h3>
 
-                        <div
-                            className="
-                                py-4
-                                text-center
-                                text-gray-500
-                            "
-                        >
-                            大項目がありません
+                        <p className="mt-1 text-sm text-gray-500">
+                            大項目の追加、名前の変更、有効・無効の切り替えを行います
+                        </p>
+
+                    </div>
+
+
+                    {/* ================================================= */}
+                    {/* 一覧ヘッダー */}
+                    {/* ================================================= */}
+                    <div className="mb-3 flex shrink-0 items-center justify-between">
+
+                        <div>
+
+                            <div className="text-sm font-semibold text-gray-800">
+                                登録されている大項目
+                            </div>
+
+                            <div className="mt-1 text-xs text-gray-500">
+                                {inspectionItemCategories.length} 件
+                            </div>
+
                         </div>
 
-                    ) : (
+                    </div>
 
-                            inspectionItemCategories
-                                .slice()
-                                .sort((a, b) => {
-                                    // 基本設定（hospitalId === null）を上に
-                                    if (a.hospitalId === null && b.hospitalId !== null) {
-                                        return -1
-                                    }
 
-                                    if (a.hospitalId !== null && b.hospitalId === null) {
-                                        return 1
-                                    }
+                    {/* ================================================= */}
+                    {/* 一覧 */}
+                    {/* ================================================= */}
+                    <div className="min-h-0 flex-1 overflow-y-auto">
 
-                                    // 同じグループ内では displayOrder 順
-                                    return a.displayOrder - b.displayOrder
-                                })
-                                .map(category => (
+                        {inspectionItemCategories.length === 0 ? (
 
-                                <div
-                                    key={category.id}
-                                    className={`
-                                        flex
-                                        items-center
-                                        gap-2
-                                        py-2
-                                        px-2
-                                        border-b
-                                        last:border-b-0
-                                        ${
-                                            category.hospitalId === null
-                                                ? "bg-gray-100"
-                                                : "bg-white"
+                            <div className="py-12 text-center text-sm text-gray-400">
+                                登録されている大項目はありません
+                            </div>
+
+                        ) : (
+
+                            <div>
+
+                                {inspectionItemCategories
+                                    .slice()
+                                    .sort((a, b) => {
+
+                                        // 基本設定を上に
+                                        if (
+                                            a.hospitalId === null &&
+                                            b.hospitalId !== null
+                                        ) {
+                                            return -1
                                         }
-                                    `}
-                                >
 
-                                    {/* 名前 */}
+                                        if (
+                                            a.hospitalId !== null &&
+                                            b.hospitalId === null
+                                        ) {
+                                            return 1
+                                        }
 
-                                    <span className="flex-1">
-                                        {category.name}
-                                    </span>
+                                        // 同じグループ内では displayOrder 順
+                                        return a.displayOrder - b.displayOrder
+                                    })
+                                    .map((category) => {
 
+                                        const isCommon =
+                                            category.hospitalId === null
 
-                                    {/* =========================
-                                        共通設定
-                                    ========================= */}
-
-                                    {category.hospitalId === null ? (
-
-                                        <span className="text-gray-500 text-sm">
-                                            編集不可
-                                        </span>
-
-                                    ) : (
-
-                                        <>
-                                            {/* 状態 */}
-
-                                            <span
-                                                className={
-                                                    category.isActive
-                                                        ? "text-green-600 text-sm"
-                                                        : "text-gray-400 text-sm"
-                                                }
-                                            >
-                                                {category.isActive
-                                                    ? "有効"
-                                                    : "無効"
-                                                }
-                                            </span>
-
-
-                                            {/* 編集 */}
-
-                                            <button
-                                                onClick={() =>
-                                                    handleRename(
-                                                        category
-                                                    )
-                                                }
+                                        return (
+                                            <div
+                                                key={category.id}
                                                 className="
-                                                    px-2
-                                                    py-1
-                                                    bg-gray-200
-                                                    rounded
-                                                    hover:bg-gray-300
+                                                    flex
+                                                    items-center
+                                                    gap-3
+                                                    border-b
+                                                    border-gray-100
+                                                    py-3
+                                                    last:border-b-0
+                                                    hover:bg-gray-50
                                                 "
                                             >
-                                                編集
-                                            </button>
+
+                                                {/* ================================================= */}
+                                                {/* 大項目名 */}
+                                                {/* ================================================= */}
+                                                <div className="min-w-0 flex-1">
+
+                                                    <div className="truncate text-sm text-gray-800">
+                                                        {category.name}
+                                                    </div>
+
+                                                    <div className="mt-1">
+
+                                                        {isCommon ? (
+
+                                                            <span className="text-xs text-gray-400">
+                                                                共通・編集不可
+                                                            </span>
+
+                                                        ) : category.isActive ? (
+
+                                                            <span className="text-xs text-blue-500">
+                                                                有効
+                                                            </span>
+
+                                                        ) : (
+
+                                                            <span className="text-xs text-gray-400">
+                                                                無効
+                                                            </span>
+
+                                                        )}
+
+                                                    </div>
+
+                                                </div>
 
 
-                                            {/* 有効 / 無効 */}
+                                                {/* ================================================= */}
+                                                {/* 操作 */}
+                                                {/* ================================================= */}
+                                                {!isCommon && (
+                                                    <div className="flex shrink-0 items-center gap-2">
 
-                                            <button
-                                                onClick={() =>
-                                                    handleToggleActive(
-                                                        category
-                                                    )
-                                                }
-                                                className="
-                                                    px-2
-                                                    py-1
-                                                    bg-gray-200
-                                                    rounded
-                                                    hover:bg-gray-300
-                                                "
-                                            >
-                                                {category.isActive
-                                                    ? "無効"
-                                                    : "有効"
-                                                }
-                                            </button>
-                                        </>
-
-                                    )}
-
-                                </div>
-                            ))
-                    )}
-
-                </div>
+                                                        {/* 編集 */}
+                                                        <button
+                                                            onClick={() =>
+                                                                handleRename(category)
+                                                            }
+                                                            className="
+                                                                rounded-lg
+                                                                bg-gray-100
+                                                                px-3
+                                                                py-1.5
+                                                                text-sm
+                                                                font-medium
+                                                                text-gray-600
+                                                                transition
+                                                                hover:bg-gray-200
+                                                                hover:text-gray-800
+                                                            "
+                                                        >
+                                                            ✏
+                                                        </button>
 
 
-                {/* =========================
-                    追加
-                ========================= */}
+                                                        {/* 有効 / 無効 */}
+                                                        <button
+                                                            onClick={() =>
+                                                                handleToggleActive(category)
+                                                            }
+                                                            className={`
+                                                                rounded-lg
+                                                                px-3
+                                                                py-1.5
+                                                                text-sm
+                                                                font-medium
+                                                                transition
+                                                                ${
+                                                                    category.isActive
+                                                                        ? `
+                                                                            bg-gray-100
+                                                                            text-gray-600
+                                                                            hover:bg-gray-200
+                                                                            hover:text-gray-800
+                                                                          `
+                                                                        : `
+                                                                            bg-blue-50
+                                                                            text-blue-600
+                                                                            hover:bg-blue-100
+                                                                          `
+                                                                }
+                                                            `}
+                                                        >
+                                                            {category.isActive
+                                                                ? "無効"
+                                                                : "有効"}
+                                                        </button>
 
-                <div className="flex gap-2">
+                                                    </div>
+                                                )}
 
-                    <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) =>
-                            setNewName(e.target.value)
-                        }
-                        placeholder="新規大項目名"
-                        className="
-                            border
-                            border-gray-400
-                            px-2
-                            py-1
-                            flex-1
-                            rounded
-                        "
-                    />
+                                            </div>
+                                        )
+                                    })}
 
-                    <button
-                        onClick={handleAdd}
-                        className="
-                            px-3
-                            py-1
-                            bg-blue-500
-                            text-white
-                            rounded
-                            hover:bg-blue-600
-                        "
-                    >
-                        追加
-                    </button>
+                            </div>
+
+                        )}
+
+                    </div>
+
+
+                    {/* ================================================= */}
+                    {/* 大項目追加 */}
+                    {/* ================================================= */}
+                    <div className="mt-8 shrink-0">
+
+                        <div className="mb-4">
+
+                            <h4 className="text-sm font-semibold text-gray-800">
+                                新しい大項目を追加
+                            </h4>
+
+                            <p className="mt-1 text-xs text-gray-500">
+                                新しい大項目名を入力してください
+                            </p>
+
+                        </div>
+
+
+                        <div className="flex gap-3">
+
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) =>
+                                    setNewName(e.target.value)
+                                }
+                                placeholder="例：外観・動作確認"
+                                className="
+                                    min-w-0
+                                    flex-1
+                                    rounded-lg
+                                    border
+                                    border-gray-300
+                                    bg-white
+                                    px-3
+                                    py-2.5
+                                    text-sm
+                                    text-gray-700
+                                    outline-none
+                                    transition
+                                    placeholder:text-gray-400
+                                    focus:border-blue-500
+                                    focus:ring-2
+                                    focus:ring-blue-100
+                                "
+                            />
+
+
+                            <button
+                                onClick={handleAdd}
+                                className="
+                                    shrink-0
+                                    rounded-lg
+                                    bg-blue-500
+                                    px-4
+                                    py-2.5
+                                    text-sm
+                                    font-medium
+                                    text-white
+                                    transition
+                                    hover:bg-blue-600
+                                "
+                            >
+                                追加
+                            </button>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
 
+
+            {/* ================================================= */}
+            {/* Loading */}
+            {/* ================================================= */}
             <LoadingOverlay loading={loading} />
         </>
     )

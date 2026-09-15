@@ -26,35 +26,38 @@ export default function SortableWardItem({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-     zIndex: isDragging ? 1000 : undefined
+    transition: isDragging ? "none" : transition,
+    zIndex: isDragging ? 1000 : undefined
   }
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`
-       w-full flex items-center justify-between
-        rounded border
-        px-2 py-1
-        text-sm
-        bg-white
-        ${isDragging ? "opacity-50" : ""}
-      `}
-    >
-      <span>{ward.name}</span>
+return (
+  <div
+    ref={setNodeRef}
+    style={style}
+    className={`
+      flex w-full items-center justify-between
+      rounded-lg border border-gray-200
+      bg-white px-4 py-3
+      text-sm text-gray-800
+      shadow-sm transition
+      ${isDragging
+        ? "opacity-50 shadow-md"
+        : "hover:border-gray-300 hover:bg-gray-50"}
+    `}
+  >
+    <span className="min-w-0 flex-1 truncate font-medium">
+      {ward.name}
+    </span>
 
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing"
-      >
-        <GripVertical
-          size={16}
-          className="text-gray-500"
-        />
-      </div>
+    <div
+      {...attributes}
+      {...listeners}
+      className="ml-3 flex shrink-0 cursor-grab items-center justify-center rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing"
+      title="ドラッグして並び替え"
+    >
+      <GripVertical size={18} />
     </div>
-  )
+  </div>
+)
+
 }

@@ -89,12 +89,12 @@ export default function StockAreaSettingsModal({
     <>
       <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-        <div className="w-full rounded-xl bg-white p-6 shadow-sm">
+        <div className="flex h-[600px] min-h-0 w-full flex-col rounded-xl bg-white p-6 shadow-sm">
 
           {/* ================================================= */}
           {/* タイトル */}
           {/* ================================================= */}
-          <div className="mb-6">
+          <div className="mb-6 shrink-0">
 
             <h3 className="text-lg font-semibold text-gray-800">
               ストックエリア
@@ -106,11 +106,10 @@ export default function StockAreaSettingsModal({
 
           </div>
 
-
           {/* ================================================= */}
           {/* 一覧ヘッダー */}
           {/* ================================================= */}
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex shrink-0 items-center justify-between">
 
             <div>
 
@@ -123,7 +122,6 @@ export default function StockAreaSettingsModal({
               </div>
 
             </div>
-
 
             {/* 選択削除 */}
             {checkedIds.length > 0 && (
@@ -147,11 +145,10 @@ export default function StockAreaSettingsModal({
 
           </div>
 
-
           {/* ================================================= */}
           {/* 一覧 */}
           {/* ================================================= */}
-          <div className="max-h-[calc(90vh-280px)] overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto">
 
             {stockAreas.length === 0 ? (
 
@@ -195,12 +192,10 @@ export default function StockAreaSettingsModal({
                       "
                     />
 
-
                     {/* ストックエリア名 */}
                     <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
                       {area.name}
                     </span>
-
 
                     {/* 編集 */}
                     <button
@@ -234,11 +229,10 @@ export default function StockAreaSettingsModal({
 
           </div>
 
-
           {/* ================================================= */}
           {/* ストックエリア追加 */}
           {/* ================================================= */}
-          <div className="mt-8">
+          <div className="mt-8 shrink-0">
 
             <div className="mb-4">
 
@@ -251,7 +245,6 @@ export default function StockAreaSettingsModal({
               </p>
 
             </div>
-
 
             <div className="flex gap-3">
 
@@ -305,8 +298,8 @@ export default function StockAreaSettingsModal({
           </div>
 
         </div>
-      </div>
 
+      </div>
 
       {/* ================================================= */}
       {/* Loading */}
@@ -314,5 +307,5 @@ export default function StockAreaSettingsModal({
       <LoadingOverlay loading={loading} />
 
     </>
-  )
+  )  
 }

@@ -221,7 +221,6 @@ export default function WardAreaSettingsModal({
               </p>
             </div>
 
-
             {/* ================================================= */}
             {/* 病棟選択 */}
             {/* ================================================= */}
@@ -273,7 +272,6 @@ export default function WardAreaSettingsModal({
                   ))}
                 </select>
 
-
                 {/* 名前変更 */}
                 <button
                   onClick={handleUpdateWard}
@@ -301,7 +299,6 @@ export default function WardAreaSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 病棟削除 */}
             {/* ================================================= */}
@@ -327,7 +324,6 @@ export default function WardAreaSettingsModal({
 
               </div>
             )}
-
 
             {/* ================================================= */}
             {/* 新しい病棟を追加 */}
@@ -379,7 +375,6 @@ export default function WardAreaSettingsModal({
 
                   </div>
 
-
                   <button
                     onClick={handleAddWard}
                     className="
@@ -405,13 +400,12 @@ export default function WardAreaSettingsModal({
 
           </div>
 
-
           {/* ===================================================== */}
           {/* 右：部屋 */}
           {/* ===================================================== */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="flex max-h-[600px] min-h-0 flex-col rounded-xl bg-white p-6 shadow-sm">
 
-            <div className="mb-6">
+            <div className="mb-6 shrink-0">
 
               <h3 className="text-lg font-semibold text-gray-800">
                 部屋
@@ -423,11 +417,10 @@ export default function WardAreaSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 選択中の病棟 */}
             {/* ================================================= */}
-            <div className="mb-5">
+            <div className="mb-5 shrink-0">
 
               <div className="text-xs font-medium text-gray-600">
                 選択中の病棟
@@ -445,11 +438,10 @@ export default function WardAreaSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 部屋一覧ヘッダー */}
             {/* ================================================= */}
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex shrink-0 items-center justify-between">
 
               <div>
 
@@ -464,7 +456,6 @@ export default function WardAreaSettingsModal({
                 )}
 
               </div>
-
 
               {checkedRoomIds.length > 0 && (
                 <button
@@ -487,11 +478,10 @@ export default function WardAreaSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 部屋一覧 */}
             {/* ================================================= */}
-            <div className="max-h-[420px] overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto">
 
               {!selectedWardId ? (
 
@@ -541,12 +531,10 @@ export default function WardAreaSettingsModal({
                         "
                       />
 
-
                       {/* 部屋名 */}
                       <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
                         {room.name}
                       </span>
-
 
                       {/* 編集 */}
                       <button
@@ -578,11 +566,10 @@ export default function WardAreaSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 部屋追加 */}
             {/* ================================================= */}
-            <div className="mt-8">
+            <div className="mt-8 shrink-0">
 
               <div className="mb-4">
 
@@ -595,7 +582,6 @@ export default function WardAreaSettingsModal({
                 </p>
 
               </div>
-
 
               <div className="flex gap-3">
 
@@ -660,8 +646,8 @@ export default function WardAreaSettingsModal({
           </div>
 
         </div>
-      </div>
 
+      </div>
 
       {/* ===================================================== */}
       {/* Loading */}
@@ -670,5 +656,4 @@ export default function WardAreaSettingsModal({
 
     </>
   )
-
 }

@@ -57,21 +57,21 @@ export default function CommonModal({
     >
 
       <div
-        className={`
-          relative
-          w-full
-          ${maxWidth}
-          ${height ?? ""}
-          max-h-[90vh]
-          min-h-0
-          overflow-hidden
-          rounded-xl
-          bg-white
-          p-6
-          shadow-xl
-          flex
-          flex-col
-        `}
+  className={`
+    relative
+    w-full
+    ${maxWidth}
+    ${height ?? ""}
+    max-h-[90vh]
+    min-h-0
+    overflow-y-auto
+    rounded-xl
+    bg-white
+    p-6
+    shadow-xl
+    flex
+    flex-col
+  `}
         onClick={(e) => e.stopPropagation()}
       >
 

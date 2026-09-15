@@ -194,10 +194,12 @@ export default function SettingsModal({
   onClose={onClose}
   title="設定"
   maxWidth={
-      mode === "maintenance" 
-    ||mode === "deviceType"
-    ||mode === "ward"
+    mode === "maintenance"
+    || mode === "deviceType"
+    || mode === "ward"
       ? "max-w-[1000px]"
+      : mode === "stock"
+      ? "max-w-[600px]"
       : "max-w-[500px]"
   }
 >

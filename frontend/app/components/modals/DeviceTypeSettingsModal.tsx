@@ -233,9 +233,9 @@ export default function DeviceTypeSettingsModal({
 
   return (
     <>
-<div className="w-full rounded-2xl bg-gray-200 p-5">
+      <div className="w-full rounded-2xl bg-gray-200 p-5">
 
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* ===================================================== */}
           {/* 左：機種 */}
           {/* ===================================================== */}
@@ -250,7 +250,6 @@ export default function DeviceTypeSettingsModal({
                 機種を選択して、名前や色の変更、削除を行います
               </p>
             </div>
-
 
             {/* ================================================= */}
             {/* 機種選択 */}
@@ -307,7 +306,6 @@ export default function DeviceTypeSettingsModal({
                   ))}
                 </select>
 
-
                 {/* 名前変更 */}
                 <button
                   onClick={handleRenameType}
@@ -334,7 +332,6 @@ export default function DeviceTypeSettingsModal({
               </div>
 
             </div>
-
 
             {/* ================================================= */}
             {/* 色変更 */}
@@ -388,7 +385,6 @@ export default function DeviceTypeSettingsModal({
               </div>
             )}
 
-
             {/* ================================================= */}
             {/* 機種削除 */}
             {/* ================================================= */}
@@ -414,7 +410,6 @@ export default function DeviceTypeSettingsModal({
 
               </div>
             )}
-
 
             {/* ================================================= */}
             {/* 新しい機種を追加 */}
@@ -466,7 +461,6 @@ export default function DeviceTypeSettingsModal({
 
                   </div>
 
-
                   <div>
 
                     <label className="mb-2 block text-xs font-medium text-gray-600">
@@ -493,7 +487,6 @@ export default function DeviceTypeSettingsModal({
 
                   </div>
 
-
                   <button
                     onClick={handleAddType}
                     className="
@@ -519,13 +512,13 @@ export default function DeviceTypeSettingsModal({
 
           </div>
 
-
           {/* ===================================================== */}
           {/* 右：型式 */}
           {/* ===================================================== */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-
-            <div className="mb-6">
+<div className="flex h-[600px] max-h-[600px] min-h-0 flex-col overflow-hidden rounded-xl bg-white p-6 shadow-sm">            {/* ================================================= */}
+            {/* ヘッダー */}
+            {/* ================================================= */}
+            <div className="mb-6 shrink-0">
 
               <h3 className="text-lg font-semibold text-gray-800">
                 型式
@@ -537,33 +530,29 @@ export default function DeviceTypeSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 選択中の機種 */}
             {/* ================================================= */}
-            <div className="mb-5">
+            <div className="mb-5 shrink-0">
 
               <div className="text-xs font-medium text-gray-600">
                 選択中の機種
               </div>
 
               <div className="mt-1 text-base font-semibold text-gray-800">
-
                 {selectedTypeId
                   ? deviceTypes.find(
                       (type) => type.id === selectedTypeId
                     )?.name
                   : "機種を選択してください"}
-
               </div>
 
             </div>
 
-
             {/* ================================================= */}
             {/* 型式一覧ヘッダー */}
             {/* ================================================= */}
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex shrink-0 items-center justify-between">
 
               <div>
 
@@ -578,7 +567,6 @@ export default function DeviceTypeSettingsModal({
                 )}
 
               </div>
-
 
               {checkedModelIds.length > 0 && (
                 <button
@@ -601,11 +589,10 @@ export default function DeviceTypeSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 型式一覧 */}
             {/* ================================================= */}
-            <div className="max-h-[420px] overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto">
 
               {!selectedTypeId ? (
 
@@ -655,12 +642,10 @@ export default function DeviceTypeSettingsModal({
                         "
                       />
 
-
                       {/* 型式名 */}
                       <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
                         {model.name}
                       </span>
-
 
                       {/* 編集 */}
                       <button
@@ -692,11 +677,10 @@ export default function DeviceTypeSettingsModal({
 
             </div>
 
-
             {/* ================================================= */}
             {/* 型式追加 */}
             {/* ================================================= */}
-            <div className="mt-8">
+            <div className="mt-8 shrink-0">
 
               <div className="mb-4">
 
@@ -709,7 +693,6 @@ export default function DeviceTypeSettingsModal({
                 </p>
 
               </div>
-
 
               <div className="flex gap-3">
 
@@ -774,8 +757,8 @@ export default function DeviceTypeSettingsModal({
           </div>
 
         </div>
-      </div>
 
+      </div>
 
       {/* ===================================================== */}
       {/* 型式編集Modal */}
@@ -787,7 +770,6 @@ export default function DeviceTypeSettingsModal({
         onSave={handleSaveModel}
       />
 
-
       {/* ===================================================== */}
       {/* Loading */}
       {/* ===================================================== */}
@@ -795,4 +777,5 @@ export default function DeviceTypeSettingsModal({
 
     </>
   )  
+  
 }

@@ -113,109 +113,250 @@ export default function DeviceModal({
       //setWardLastUpdated(await fetchWardLastUpdated())
   }
 
-  return (
-    <>
-          <CommonModal
-                      open={true}
-                      onClose={onClose}
-                      title="機器登録"
-                      maxWidth="max-w-md"
-          >
-                <div className="space-y-4">
-                      
-                <select
-                  className="border border-gray-300 rounded px-3 py-2 w-full"
-                  value={selectedTypeID}
-                  onChange={(e) => setSelectedTypeID(Number(e.target.value))}
-                >
-                  <option value="">機種選択</option>
-                  {deviceTypes.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+return (
+  <>
+    <CommonModal
+      open={true}
+      onClose={onClose}
+      title="機器登録"
+      maxWidth="max-w-[600px]"
+    >
+      <div className="w-full rounded-xl bg-gray-200 p-5">
+        <div className="rounded-xl bg-white p-6 shadow-sm">
 
-                <select
-                  className="border border-gray-300 rounded px-3 py-2 w-full"
-                  value={selectedModelID}
-                  onChange={(e) => setSelectedModelID(Number(e.target.value))}
-                  disabled={modelsForType.length === 0}
-                >
-                  <option value="">型式選択</option>
-                  {modelsForType.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
-                </select>
+          <div className="space-y-5">
 
-                {/* stock areaを選択し初期位置を指定する */}
-                <select
-                  className="border border-gray-300 rounded px-3 py-2 w-full"
-                  value={selectedStockAreaID}
-                  onChange={(e) =>
-                    setSelectedStockAreaID(Number(e.target.value))
-                  }
-                >
-                  <option value="">
-                    保管場所選択
-                  </option>
+            {/* ===================================================== */}
+            {/* 機器情報 */}
+            {/* ===================================================== */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                機器情報
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                登録する機器の情報を入力してください。
+              </p>
+            </div>
 
-                  {stockAreas.map(area => (
-                    <option
-                      key={area.id}
-                      value={area.id}
-                    >
-                      {area.name}
-                    </option>
-                  ))}
-                </select>
-                {/* 登録台数を指定する */}
-                  <select
-                    className="border border-gray-300 rounded px-3 py-2 w-full"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
+            {/* 機種 */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                機種
+              </label>
+
+              <select
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                value={selectedTypeID}
+                onChange={(e) =>
+                  setSelectedTypeID(Number(e.target.value))
+                }
+              >
+                <option value="">
+                  機種を選択
+                </option>
+
+                {deviceTypes.map(t => (
+                  <option
+                    key={t.id}
+                    value={t.id}
                   >
-                    {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-                      <option
-                        key={n}
-                        value={n}
-                      >
-                        {n}台
-                      </option>
-                    ))}
-                  </select>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                    <select
-                      className="border border-gray-300 rounded px-3 py-2 w-full"
-                      value={selectedAssetType}
+            {/* 型式 */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                型式
+              </label>
+
+              <select
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-400"
+                value={selectedModelID}
+                onChange={(e) =>
+                  setSelectedModelID(Number(e.target.value))
+                }
+                disabled={modelsForType.length === 0}
+              >
+                <option value="">
+                  型式を選択
+                </option>
+
+                {modelsForType.map(m => (
+                  <option
+                    key={m.id}
+                    value={m.id}
+                  >
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+
+              {modelsForType.length === 0 && (
+                <p className="mt-1 text-xs text-gray-400">
+                  先に機種を選択してください。
+                </p>
+              )}
+            </div>
+
+            {/* 保管場所 */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                保管場所
+              </label>
+
+              <select
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                value={selectedStockAreaID}
+                onChange={(e) =>
+                  setSelectedStockAreaID(Number(e.target.value))
+                }
+              >
+                <option value="">
+                  保管場所を選択
+                </option>
+
+                {stockAreas.map(area => (
+                  <option
+                    key={area.id}
+                    value={area.id}
+                  >
+                    {area.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 登録台数 */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                登録台数
+              </label>
+
+              <select
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                value={quantity}
+                onChange={(e) =>
+                  setQuantity(Number(e.target.value))
+                }
+              >
+                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                  <option
+                    key={n}
+                    value={n}
+                  >
+                    {n}台
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 資産区分 */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                資産区分
+              </label>
+
+              <select
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                value={selectedAssetType}
+                onChange={(e) =>
+                  setSelectedAssetType(
+                    e.target.value as typeof AssetTypes[number]
+                  )
+                }
+              >
+                {AssetTypes.map(a => (
+                  <option
+                    key={a}
+                    value={a}
+                  >
+                    {a}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* ===================================================== */}
+            {/* レンタル・代替機 */}
+            {/* ===================================================== */}
+            {(selectedAssetType === "レンタル" ||
+              selectedAssetType === "代替機") && (
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <h4 className="text-sm font-semibold text-gray-800">
+                  貸与期間
+                </h4>
+
+                <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                  {/* 開始日 */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">
+                      貸与開始日
+                    </label>
+
+                    <input
+                      type="date"
+                      value={rentalStartDate}
                       onChange={(e) =>
-                        setSelectedAssetType(e.target.value as typeof AssetTypes[number])
+                        setRentalStartDate(e.target.value)
                       }
-                    >
-                      {AssetTypes.map(a => (
-                        <option key={a} value={a}>{a}</option>
-                      ))}
-                    </select>
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
                   </div>
 
-                <div className="mt-6 flex justify-end gap-4">
+                  {/* 終了日 */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">
+                      返却日
+                    </label>
 
-                    <button
-                        onClick={onClose}
-                        className="rounded-lg bg-gray-300 px-4 py-2 hover:bg-gray-400"
-                    >
-                        キャンセル
-                    </button>
-
-                    <button
-                        onClick={handleSubmit}
-                        disabled={loading}
-                        className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400"
-                    >
-                        {loading ? "登録中..." : "登録"}
-                    </button>
+                    <input
+                      type="date"
+                      value={rentalEndDate}
+                      onChange={(e) =>
+                        setRentalEndDate(e.target.value)
+                      }
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
 
                 </div>
-        </CommonModal>
-        <LoadingOverlay loading={loading} />
-          
-    </>
-)}
+              </div>
+            )}
+
+            {/* ===================================================== */}
+            {/* ボタン */}
+            {/* ===================================================== */}
+            <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+
+              <button
+                onClick={onClose}
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+              >
+                キャンセル
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+              >
+                {loading ? "登録中..." : "登録"}
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </CommonModal>
+
+    <LoadingOverlay loading={loading} />
+  </>
+)
+
+
+}
