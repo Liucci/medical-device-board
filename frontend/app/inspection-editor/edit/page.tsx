@@ -113,22 +113,14 @@ export default function InspectionChecklistEditPage()
             return
         }
 
-        const [
-            inspectionTypesData,
-            inspectionItemTypesData,
-            inspectionChecklistsDate,
-            deviceTypesData,
-            deviceModelsData,
-            inspectionItemCategoriesData,
-
-        ] = await Promise.all([
-            getInspectionTypes(),
-            getInspectionItemTypesFromApi(),
-            getInspectionChecklistsFromApi(),
-            getDeviceTypesFromApi(),
-            getDeviceModelsFromApi(),
-            getInspectionItemCategoriesFromApi(),
-        ])
+        const inspectionTypesData = await getInspectionTypes()
+        const inspectionItemTypesData = await getInspectionItemTypesFromApi()
+        const inspectionChecklistsDate = await getInspectionChecklistsFromApi()
+        await new Promise(resolve => setTimeout(resolve, 300))
+        const deviceTypesData = await getDeviceTypesFromApi()
+        const deviceModelsData = await getDeviceModelsFromApi()
+        const inspectionItemCategoriesData =await getInspectionItemCategoriesFromApi()
+        
         setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
         setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
         setInspectionChecklists(inspectionChecklistsDate.map(normalizeInspectionChecklist))

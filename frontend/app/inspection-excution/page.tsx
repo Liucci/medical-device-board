@@ -145,36 +145,22 @@ export default function InspectionExecutionPage() {
                 const currentUser = await fetchCurrentUser()
                 if (!currentUser) return
                 const userInfo = normalizeCurrentUser(currentUser)
-                console.log("userInfo:",userInfo)
-                
-
-                const [
-                    devicesData,
-                    deviceTypesData,
-                    deviceModelsData,
-                    wardsData,
-                    roomsData,
-                    roomInfectionsData,
-                    infectionTypesData,
-                    inspectionChecklistsData,
-                    inspectionTypesData,
-                    inspectionItemCategoriesData,
-                    inspectionItemTypesData,
-                    hospitalSettingsData,
-                ] = await Promise.all([
-                    getDevicesFromApi(),
-                    getDeviceTypesFromApi(),
-                    getDeviceModelsFromApi(),
-                    getWardsFromApi(),
-                    getRoomsFromApi(),
-                    getRoomInfectionsFromApi(),
-                    getInfectionTypesFromApi(),
-                    getInspectionChecklistsFromApi(),
-                    getInspectionTypes(),
-                    getInspectionItemCategoriesFromApi(),
-                    getInspectionItemTypesFromApi(),
-                    fetchHospitalSettingsTransaction(),
-                ])
+                await new Promise(resolve => setTimeout(resolve, 300))
+                const devicesData = await getDevicesFromApi()
+                const deviceTypesData = await getDeviceTypesFromApi()
+                const deviceModelsData = await getDeviceModelsFromApi()
+                await new Promise(resolve => setTimeout(resolve, 300))
+                const wardsData = await getWardsFromApi()
+                const roomsData = await getRoomsFromApi()
+                const roomInfectionsData = await getRoomInfectionsFromApi()
+                const infectionTypesData = await getInfectionTypesFromApi()
+                await new Promise(resolve => setTimeout(resolve, 300))
+                const inspectionChecklistsData = await getInspectionChecklistsFromApi()
+                const inspectionTypesData = await getInspectionTypes()
+                const inspectionItemCategoriesData = await getInspectionItemCategoriesFromApi()
+                await new Promise(resolve => setTimeout(resolve, 300))
+                const inspectionItemTypesData = await getInspectionItemTypesFromApi()
+                const hospitalSettingsData = await fetchHospitalSettingsTransaction()
 
                 const devices: Device[] =
                     devicesData.map(normalizeDevice)
