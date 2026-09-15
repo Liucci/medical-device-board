@@ -273,11 +273,19 @@ const deviceTodayInspections =
   const handleInspection = () => {
     if (!selectedRoomDevice?.id) return
 
+    const managementNumber = selectedRoomDevice.managementNumber?.trim() ?? ""
+    const serialNumber = selectedRoomDevice.serialNumber?.trim() ?? ""
+
+    if (!managementNumber && !serialNumber) {
+      alert("管理番号またはシリアル番号を入力してください。")
+      return
+    }
+
     router.push(
       `/inspection-excution?deviceId=${selectedRoomDevice.id}`
     )
   }
-
+  
   if (!isOpen || !selectedRoomDevice) return null
 
 

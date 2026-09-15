@@ -20,6 +20,7 @@ import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspection
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
 import { createInspectionTransaction } from "../api/transactions/inspection/inspections/createInspectionTransaction"
 import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchTodayInspections"
+import { fetchHospitalSettingsTransaction } from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 // types
 import type { CurrentUser } from "../types/userTypes"
 import type { Device } from "../types/deviceTypes"
@@ -35,6 +36,7 @@ import type { InspectionChecklistItem } from "../types/inspectionTypes/inspectio
 import type { InspectionChecklistItemOptionFrontType } from "../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 import type { InspectionItemCategoryType } from "../types/inspectionTypes/inspectionItemCategoryTypes"
 import type { InspectionItemType } from "../types/inspectionTypes/inspectionItemTypeTypes"
+import type { HospitalSettingsType } from "../types/hospitalSettingTypes"
 // normalizer
 import {normalizeCurrentUser} from "../mapper/userMapper"
 import { normalizeDevice } from "../mapper/deviceMapper"
@@ -50,6 +52,8 @@ import { normalizeInspectionChecklistItem } from "../mapper/inspectionMapper/ins
 import { normalizeInspectionChecklistItemOption } from "../mapper/inspectionMapper/inspectionChecklistItemOptionMapper"
 import { normalizeInspectionItemCategory } from "../mapper/inspectionMapper/inspectionItemCategoryMapper"
 import { normalizeInspectionItemType } from "../mapper/inspectionMapper/inspectionItemTypeMapper"
+import { normalizeHospitalSettings } from "../mapper/hospitalSettingMapper"
+
 //buid
 import { buildInspection } from "./utils/buildInspection"
 // 処理中表示
@@ -71,6 +75,7 @@ export default function InspectionExecutionPage() {
     const [room, setRoom] = useState<RoomType | null>(null)
     const [roomInfections, setRoomInfections] = useState<RoomInfectionType[]>([])
     const [infectionTypes, setInfectionTypes] = useState<InfectionTypeType[]>([])
+    const [hospitalSettings, setHospitalSettings] = useState<HospitalSettingsType | null>(null)
 //点検情報
     const [inspectionTypes, setInspectionTypes] = useState<InspectionType[]>([])
     const [inspectionChecklists, setInspectionChecklists] = useState<InspectionChecklist[]>([])
@@ -88,6 +93,8 @@ export default function InspectionExecutionPage() {
             [itemId]: value
         }))
     } 
+    const [loading, setLoading] = useState(false)
+
     
     const handleSave = async () => {
         if (!selectedChecklist) return
@@ -125,12 +132,6 @@ export default function InspectionExecutionPage() {
     }
 
 
-    useEffect(() => {
-        console.log("inspectionResults:", inspectionResults)
-    }, [inspectionResults])
-
-
-    const [loading, setLoading] = useState(false)
 
 
     //初期化hook
@@ -159,6 +160,7 @@ export default function InspectionExecutionPage() {
                     inspectionTypesData,
                     inspectionItemCategoriesData,
                     inspectionItemTypesData,
+                    hospitalSettingsData,
                 ] = await Promise.all([
                     getDevicesFromApi(),
                     getDeviceTypesFromApi(),
@@ -171,32 +173,52 @@ export default function InspectionExecutionPage() {
                     getInspectionTypes(),
                     getInspectionItemCategoriesFromApi(),
                     getInspectionItemTypesFromApi(),
-
+                    fetchHospitalSettingsTransaction(),
                 ])
 
-const devices = devicesData.map(normalizeDevice)
-const deviceTypes = deviceTypesData.map(normalizeDeviceType)
-const deviceModels = deviceModelsData.map(normalizeDeviceModel)
-const wards = wardsData.map(normalizeWard)
-const rooms = roomsData.map(normalizeRoom)
-const roomInfections = roomInfectionsData.map(normalizeRoomInfection)
-const infectionTypes = infectionTypesData.map(normalizeInfectionType)
-const inspectionChecklists = inspectionChecklistsData.map(normalizeInspectionChecklist)
-const inspectionTypes = inspectionTypesData.map(normalizeInspectionType)
-const inspectionItemCategories = inspectionItemCategoriesData.map(normalizeInspectionItemCategory)
-const inspectionItemTypes = inspectionItemTypesData.map(normalizeInspectionItemType)
+                const devices: Device[] =
+                    devicesData.map(normalizeDevice)
 
-const device = devices.find(d => String(d.id) === String(deviceId))
+                const deviceTypes: DeviceTypeType[] =
+                    deviceTypesData.map(normalizeDeviceType)
 
-if (!device) return
+                const deviceModels: DeviceModelType[] =
+                    deviceModelsData.map(normalizeDeviceModel)
 
-const deviceType = deviceTypes.find(d => d.id === device.type)
-const deviceModel = deviceModels.find(d => d.id === device.model)
-const room = rooms.find(r => r.id === device.roomId)
-const targetRoomInfections = roomInfections.filter(
-    roomInfection => roomInfection.roomId === device.roomId
-)
-const ward = wards.find(w => w.id === room?.wardId)
+                const wards: WardType[] =
+                    wardsData.map(normalizeWard)
+
+                const rooms: RoomType[] =
+                    roomsData.map(normalizeRoom)
+
+                const roomInfections: RoomInfectionType[] =
+                    roomInfectionsData.map(normalizeRoomInfection)
+
+                const infectionTypes: InfectionTypeType[] =
+                    infectionTypesData.map(normalizeInfectionType)
+
+                const inspectionChecklists: InspectionChecklist[] =
+                    inspectionChecklistsData.map(normalizeInspectionChecklist)
+
+                const inspectionTypes: InspectionType[] =
+                    inspectionTypesData.map(normalizeInspectionType)
+
+                const inspectionItemCategories: InspectionItemCategoryType[] =
+                    inspectionItemCategoriesData.map(normalizeInspectionItemCategory)
+
+                const inspectionItemTypes: InspectionItemType[] =
+                    inspectionItemTypesData.map(normalizeInspectionItemType)
+                const device = devices.find(d => String(d.id) === String(deviceId))
+
+                if (!device) return
+
+                const deviceType = deviceTypes.find(d => d.id === device.type)
+                const deviceModel = deviceModels.find(d => d.id === device.model)
+                const room = rooms.find(r => r.id === device.roomId)
+                const targetRoomInfections = roomInfections.filter(
+                    roomInfection => roomInfection.roomId === device.roomId
+                )
+                const ward = wards.find(w => w.id === room?.wardId)
                 setCurrentUser(userInfo)
                 setDevice(device)
 
@@ -214,15 +236,17 @@ const ward = wards.find(w => w.id === room?.wardId)
                             checklist.deviceModelId === device.model
                     )
                 )
-                setInspectionItemCategories(inspectionItemCategories)
                 setInspectionItemTypes(inspectionItemTypes)
+                setInspectionItemCategories(inspectionItemCategories)
+                setHospitalSettings(hospitalSettingsData)
+                console.log("hospitalSettings:",hospitalSettingsData)
             } finally {
                 setLoading(false)
             }
         }
-
         fetchInitialData()
     }, [deviceId])
+
     //点検表を選択したとき発動
     useEffect(() => {
         const fetchChecklistItems = async () => {
@@ -231,36 +255,19 @@ const ward = wards.find(w => w.id === room?.wardId)
                 setInspectionChecklistItemOptions({})
                 return
             }
-
-            const selectedChecklist = inspectionChecklists.find(
-                checklist => String(checklist.id) === selectedChecklistId
-            )
-
-            console.log("selected checklist:", selectedChecklist)
-
+            const selectedChecklist = inspectionChecklists.find(checklist => String(checklist.id) === selectedChecklistId)
             const inspectionChecklistItemsData = await getInspectionChecklistItemsFromApi(Number(selectedChecklistId))
             const inspectionChecklistItems = inspectionChecklistItemsData.map(normalizeInspectionChecklistItem)
-
-            console.log("selected checklist items:", inspectionChecklistItems)
-
             const optionsByChecklistItemId: Record<number, InspectionChecklistItemOptionFrontType[]> = {}
-
-            await Promise.all(
-                inspectionChecklistItems.map(async item => {
+            inspectionChecklistItems.map(async(item: InspectionChecklistItem) => 
+                {
                     const inspectionChecklistItemOptionsData = await getInspectionChecklistItemOptionsFromApi(item.id)
                     const inspectionChecklistItemOptions = inspectionChecklistItemOptionsData.map(normalizeInspectionChecklistItemOption)
-
                     optionsByChecklistItemId[item.id] = inspectionChecklistItemOptions
                 })
-            )
-
-            console.log("selected checklist item options:", optionsByChecklistItemId)
-
-
             setInspectionChecklistItems(inspectionChecklistItems)
             setInspectionChecklistItemOptions(optionsByChecklistItemId)
         }
-
         fetchChecklistItems()
     }, [selectedChecklistId, inspectionChecklists])
 
@@ -440,15 +447,15 @@ return (
                                     {device?.managementNumber ?? "－"}
                                 </p>
 
-                                {/* 患者名 */}
-
+                            {/* 患者名 */}
+                            {hospitalSettings?.showPatientName === true && (
                                 <p>
                                     <span className="font-medium">
                                         患者名：
                                     </span>
                                     {room?.patientName ?? "－"}
                                 </p>
-
+                            )}
 
 
                                 <p>

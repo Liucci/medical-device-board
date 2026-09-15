@@ -54,5 +54,4 @@ def add_inspection_checklist_transaction(
                 checklist_item["id"],
                 request_item["options"]
             )
-    print("checklist",checklist)
     return checklist

@@ -38,6 +38,4 @@ def fetch_today_inspections_transaction(
             "created_at": inspection["created_at"]
         })
 
-    print("result", result)
-
     return result

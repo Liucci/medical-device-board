@@ -141,6 +141,7 @@ import { normalizeInspectionItemCategory } from "../mapper/inspectionMapper/insp
 //処理中表示
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
+import { normalizeHospitalSettings } from "../mapper/hospitalSettingMapper"
 
 
 export default function Page() {
@@ -1121,7 +1122,7 @@ useEffect(() => {
                                                                                     hospitalId: currentUser.hospitalId,
                                                                                     setAnnouncements: setActiveAnnouncements
     })
-  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
+  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
   const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts, setTodayInspections,})
   return () => {
     console.log("[Realtime] unsubscribe")
@@ -1160,7 +1161,6 @@ useEffect(() => {
             setLoading,
             action: async () => {    
                   const data =await fetchInitDashboard()
-                  console.log("infection_types:",data.infection_types)
                   if (!data) {return}
                   setDeviceList(data.devices.map(normalizeDevice))
                   setStockAreas(data.stock_areas.map(normalizeStockArea))
@@ -1177,11 +1177,10 @@ useEffect(() => {
                   setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
                   setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
                   setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
-
+                  setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
                   //最終更新日を取得用APIをたたく
                   const stockLastUpdated = await fetchStockLastUpdated()
                   const wardLastUpdated = await fetchWardLastUpdated()
-                  console.log("currentUser:",currentUser)
                   setStockLastUpdated(stockLastUpdated)
                   setWardLastUpdated(wardLastUpdated)
                   //お知らせ表示

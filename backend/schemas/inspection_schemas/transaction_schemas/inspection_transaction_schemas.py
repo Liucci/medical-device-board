@@ -77,3 +77,7 @@ class AddInspectionResultSnapshotRequest(BaseModel):
     item_display_order: int
     unit: str | None = None
     value: str | None = None
+
+class CreateInspectionPdfRequest(BaseModel):
+    inspection_ids: list[int]
+    show_patient_name: bool

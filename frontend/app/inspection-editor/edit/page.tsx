@@ -58,7 +58,7 @@ import EditInspectionChecklistItemEditModal from "./components/EditInspectionChe
 
 // transaction
 import { createInspectionChecklistTransaction } from "../../api/transactions/inspection/inspectionChecklists/createInspectionChecklistsTransaction"
-
+import { deleteInspectionChecklistTransaction } from "../../api/transactions/inspection/inspectionChecklists/deleteInspectionChecklistTransaction"
 
 export default function InspectionChecklistEditPage()
 {
@@ -404,6 +404,61 @@ export default function InspectionChecklistEditPage()
         }
     }
 
+    const handleDelete = async () => {
+
+        if (!selectedChecklistId) {
+            alert("点検表を選択してください")
+            return
+        }
+
+        const checklist = inspectionChecklists.find(
+            (item) => item.id === selectedChecklistId
+        )
+
+        if (!checklist) {
+            alert("点検表が見つかりません")
+            return
+        }
+
+        const confirmed = window.confirm(
+            `「${checklist.name}」Ver.${checklist.version} を削除しますか？\n\nこの操作は取り消せません。`
+        )
+
+        if (!confirmed) {
+            return
+        }
+
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+
+                await deleteInspectionChecklistTransaction({
+                    checklistId: checklist.id
+                })
+
+                // UIから削除した点検表を除外
+                setInspectionChecklists((prev) =>
+                    prev.filter(
+                        (item) => item.id !== checklist.id
+                    )
+                )
+
+                // 選択状態を解除
+                setSelectedChecklistId(null)
+
+                // 編集画面の状態も初期化
+                setInspectionName("")
+                setInspectionTypeId(null)
+                setDeviceTypeId(null)
+                setDeviceModelId(null)
+                setInspectionChecklistItems([])
+                setDeleteItemIds([])
+                setOriginalItemIds([])
+            }
+        })
+
+        alert("点検表を削除しました")
+    }    
 
     // =========================================
     // 初期処理
@@ -1018,27 +1073,50 @@ export default function InspectionChecklistEditPage()
                             ダッシュボードに戻る
                         </button>
 
+                        <div className="flex gap-3">
 
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            disabled={loading}
-                            className="
-                                rounded-lg
-                                bg-blue-600
-                                px-6
-                                py-2.5
-                                text-sm
-                                font-medium
-                                text-white
-                                disabled:opacity-50
-                            "
-                        >
-                            保存
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={loading || !selectedChecklistId}
+                                className="
+                                    rounded-lg
+                                    border
+                                    border-red-500
+                                    bg-white
+                                    px-6
+                                    py-2.5
+                                    text-sm
+                                    font-medium
+                                    text-red-600
+                                    hover:bg-red-50
+                                    disabled:opacity-50
+                                "
+                            >
+                                削除
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                disabled={loading}
+                                className="
+                                    rounded-lg
+                                    bg-blue-600
+                                    px-6
+                                    py-2.5
+                                    text-sm
+                                    font-medium
+                                    text-white
+                                    disabled:opacity-50
+                                "
+                            >
+                                保存
+                            </button>
+
+                        </div>
 
                     </div>
-
                 </div>
 
 

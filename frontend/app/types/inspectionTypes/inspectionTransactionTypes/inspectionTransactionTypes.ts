@@ -85,3 +85,13 @@ export type InspectionResultDetailDBType = {
     item_display_order: number
     value: string | null
 }
+
+export type CreateInspectionPdfFrontType = {
+    inspectionIds: number[]
+    showPatientName: boolean
+}
+
+export type CreateInspectionPdfBackType = {
+    inspection_ids: number[]
+    show_patient_name: boolean
+}

@@ -99,7 +99,6 @@ def create_inspection_transaction(
             inspection.checklist_id,
             hospital_id
         )
-        print("checklist",checklist)
         inspection_snapshot = AddInspectionSnapshotRequest(
             device_id=inspection.device_id,
             device_type_name=device_type["name"],

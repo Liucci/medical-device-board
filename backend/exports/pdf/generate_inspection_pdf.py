@@ -47,7 +47,8 @@ def generate_inspection_pdf(
     pdf_tables_by_checklist: dict,
     orientation: str,
     font_size: int,
-    hospital_name: str
+    hospital_name: str,
+    display_patient_name:bool
 ) -> bytes:
 
     print(
@@ -235,22 +236,13 @@ def generate_inspection_pdf(
 
         header_data = [
             [
+                Paragraph("患者名",header_label_style),
                 Paragraph(
-                    "患者名",
-                    header_label_style
+                        str(inspection.get("patient_name") or "")
+                        if display_patient_name else "非表示",
+                        header_value_style
                 ),
-                Paragraph(
-                    str(
-                        inspection.get(
-                            "patient_name"
-                        ) or ""
-                    ),
-                    header_value_style
-                ),
-                Paragraph(
-                    "機器種別",
-                    header_label_style
-                ),
+                Paragraph("機器種別",header_label_style),
                 Paragraph(
                     str(
                         inspection.get(

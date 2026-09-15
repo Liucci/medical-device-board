@@ -245,7 +245,6 @@ return (
                       longPress.current,
                       () => {
                     console.log("シングルクリック")
-                    console.log("roomDevice", d)
                     openRoomDeviceInfoModal(d)
                       },
                       isDragging

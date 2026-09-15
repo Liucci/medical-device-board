@@ -2,7 +2,9 @@
 
 import {
     CreateInspectionTransactionFrontType,
-    CreateInspectionTransactionBackType
+    CreateInspectionTransactionBackType,
+    CreateInspectionPdfFrontType,
+    CreateInspectionPdfBackType
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 
 import {
@@ -70,3 +72,12 @@ export const normalizeInspectionResultDetails = (
     data: InspectionResultDetailDBType[]
 ): InspectionResultDetailType[] =>
     data.map(normalizeInspectionResultDetail)
+
+//PDF化対象のinspection idsをAPIに送る用
+//一緒にshow_patient_nameも送り患者非表示にも対応
+export const toCreateInspectionPdfRequest = (
+    data: CreateInspectionPdfFrontType
+): CreateInspectionPdfBackType => ({
+    inspection_ids: data.inspectionIds,
+    show_patient_name: data.showPatientName
+})

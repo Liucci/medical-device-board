@@ -5,18 +5,12 @@ type FetchHospitalSettingsTransactionParams = {
     setHospitalSettings: (hospitalSettings: any) => void
 }
 
-export async function fetchHospitalSettingsTransaction({
-    setHospitalSettings
-}: FetchHospitalSettingsTransactionParams)
+export async function fetchHospitalSettingsTransaction()
 {
     console.log("fetchHospitalSettingsTransaction")
 
     const hospitalSettings = await fetchHospitalSettings()
-    if (!hospitalSettings) {
-                            setHospitalSettings(null)
-                            return
-    }
-    setHospitalSettings(
-        normalizeHospitalSettings(hospitalSettings)
-    )
+    if (!hospitalSettings)
+        {return null}
+    return normalizeHospitalSettings(hospitalSettings)
 }

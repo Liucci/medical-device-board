@@ -2,6 +2,8 @@
 
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
+import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
+import {LoadingOverlay} from "../../common/LoadingOverlay"
 
 import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
@@ -52,15 +54,8 @@ export default function InspectionResultModal({
     // 点検結果一覧
     // =========================================================
 
-    const [
-        inspections,
-        setInspections
-    ] = useState<InspectionListType[]>([])
-
-    const [
-        loading,
-        setLoading
-    ] = useState(false)
+    const [inspections,setInspections] = useState<InspectionListType[]>([])
+    const [loading,setLoading] = useState(false)
 
 
     // =========================================================
@@ -569,85 +564,44 @@ export default function InspectionResultModal({
     // PDFボタン処理
     // =========================================================
 
-const handleExportPdf = async () => {
+    const handleExportPdf = async () => {
+        console.log("handleExportPdf")
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+                const inspectionIds =getInspectionIdsForPdf(filteredInspections)
+                const blob =await createInspectionPdfTransaction(
+                                                                {inspectionIds,
+                                                                showPatientName:hospitalSettings?.showPatientName === true
+                })
 
-    console.log(
-        "handleExportPdf"
-    )
+                const url =URL.createObjectURL(blob)
+                const link =document.createElement("a")
+                link.href = url
+                link.download = "inspection.pdf"
+                link.click()
+                URL.revokeObjectURL(url)
+            }
+        })
 
-    const inspectionIds =
-        getInspectionIdsForPdf(
-            filteredInspections
-        )
+    }
 
-    console.log(
-        "PDF対象のinspection_ids:",
-        inspectionIds
-    )
-
-    const blob =
-        await createInspectionPdfTransaction(
-            inspectionIds
-        )
-
-    console.log(
-        "PDF Blob:",
-        blob
-    )
-
-    const url =
-        URL.createObjectURL(blob)
-
-    const link =
-        document.createElement("a")
-
-    link.href = url
-    link.download = "inspection.pdf"
-
-    link.click()
-
-    URL.revokeObjectURL(url)
-}
-
-const handleExportCsv = async () => {
-
-    console.log(
-        "handleExportCsv"
-    )
-
-    const inspectionIds =
-        getInspectionIdsForCsv(
-            filteredInspections
-        )
-
-    console.log(
-        "CSV対象のinspection_ids:",
-        inspectionIds
-    )
-
-    const blob =
-        await createInspectionCsvTransaction(
-            inspectionIds
-        )
-
-    console.log(
-        "CSV Blob:",
-        blob
-    )
-
-    const url =
-        URL.createObjectURL(blob)
-
-    const link =
-        document.createElement("a")
-
-    link.href = url
-    link.download = "inspection.csv"
-
-    link.click()
-
-    URL.revokeObjectURL(url)
-}
+    const handleExportCsv = async () => {
+        console.log("handleExportCsv")
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+                const inspectionIds =getInspectionIdsForCsv(filteredInspections)
+                const blob =await createInspectionCsvTransaction(inspectionIds)
+                const url =URL.createObjectURL(blob)
+                const link =document.createElement("a")
+                link.href = url
+                link.download = "inspection.csv"
+                link.click()
+                URL.revokeObjectURL(url)
+            }
+        })
+    }
 
     // =========================================================
     // Modal
@@ -659,7 +613,7 @@ const handleExportCsv = async () => {
 
 
 return createPortal(
-
+<>
     <div
         className="
             fixed
@@ -1927,11 +1881,7 @@ return createPortal(
 
         </div>
     </div>
-        ,
-
-        document.body
-
-    )
-
-    
-}
+    <LoadingOverlay loading={loading} />
+</>,
+document.body
+)}

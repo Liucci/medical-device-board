@@ -1,4 +1,6 @@
 import fastapi
+from fastapi import Body
+
 from fastapi import APIRouter, Depends
 from fastapi import Depends, Response
 from schemas.session_schemas import BackendSession
@@ -15,7 +17,7 @@ from inspection.inspection_results.fetch_inspection_results import fetch_inspect
 from inspection.inspection_item_categories.fetch_inspection_item_categories import fetch_inspection_item_categories
 from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import add_inspection_checklist_item_options
 from inspection.inspection_checklist_item_options.fetch_inspection_checklist_item_options import fetch_inspection_checklist_item_options
-
+from devices.fetch_devices import fetch_device
 #schemas
 from schemas.inspection_schemas.inspection_schemas import AddInspectionRequest
 from schemas.inspection_schemas.inspection_result_schemas import AddInspectionResultRequest
@@ -47,6 +49,7 @@ from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transac
 from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import (
     CreateInspectionTransactionRequest,
 )
+from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import CreateInspectionPdfRequest
 
 #transactions
 from transactions.inspection.inspections.create_inspection_transaction import create_inspection_transaction
@@ -62,6 +65,7 @@ from transactions.exports.create_inspection_pdf_transaction import create_inspec
 from exports.pdf.generate_inspection_pdf import generate_inspection_pdf
 from transactions.exports.create_inspection_csv_transaction import (create_inspection_csv_transaction)
 from exports.csv.generate_inspection_csv import generate_inspection_csv
+from transactions.inspection.inspection_checklists.delete_inspection_checklist_transaction import (delete_inspection_checklist_transaction)
 
 inspection_router = APIRouter()
 
@@ -150,12 +154,25 @@ def create_inspection(
     request: CreateInspectionTransactionRequest,
     session: BackendSession = Depends(get_current_session),
 ):
+    #保存時管理番号とシリアルの入力を確認する
+    device = fetch_device(
+                        client=session.client,
+                        device_id=request.inspection.device_id,
+                        hospital_id=session.hospital_id,
+    )
+
+    management_number = device.get("management_number")
+    serial_number = device.get("serial_number")
+
+    if not management_number and not serial_number:
+        return {"error": "管理番号またはシリアル番号を入力してください"}
+
     return create_inspection_transaction(
-        client=session.client,
-        inspection=request.inspection,
-        results=request.results,
-        hospital_id=session.hospital_id,
-        user_id=session.user_id
+                                        client=session.client,
+                                        inspection=request.inspection,
+                                        results=request.results,
+                                        hospital_id=session.hospital_id,
+                                        user_id=session.user_id
     )
 
 
@@ -173,21 +190,26 @@ def create_inspection_type(
 
 @inspection_router.post("/create-inspection-pdf")
 def create_inspection_pdf(
-    inspection_ids: list[int],
-    session: BackendSession = Depends(get_current_session),
+                            request: CreateInspectionPdfRequest = Body(...),
+                            session: BackendSession = Depends(get_current_session),
 ):
 
-    (pdf_tables_by_checklist,hospital_name) =create_inspection_pdf_transaction(
+    (pdf_tables_by_checklist,
+     hospital_name,
+     display_patient_name
+     ) =create_inspection_pdf_transaction(
                                                                     client=session.client,
-                                                                    inspection_ids=inspection_ids,
-                                                                    hospital_id=session.hospital_id
+                                                                    inspection_ids=request.inspection_ids,
+                                                                    hospital_id=session.hospital_id,
+                                                                    display_patient_name=request.show_patient_name
                                                 )
 
     pdf_bytes = generate_inspection_pdf(
                                         pdf_tables_by_checklist=pdf_tables_by_checklist,
                                         orientation="portrait",
                                         font_size=8,
-                                        hospital_name=hospital_name
+                                        hospital_name=hospital_name,
+                                        display_patient_name=request.show_patient_name
                 )
 
     print("PDF bytes:",len(pdf_bytes))
@@ -291,7 +313,16 @@ def create_inspection_checklist(
                                         hospital_id=session.hospital_id,
     )
 
-
+@inspection_router.delete("/delete-inspection-checklist")
+def delete_inspection_checklist(
+    checklist_id: int,
+    session: BackendSession = Depends(get_current_session),
+):
+    return delete_inspection_checklist_transaction(
+        client=session.client,
+        checklist_id=checklist_id,
+        hospital_id=session.hospital_id,
+    )
 
 
 @inspection_router.post("/create-inspection-checklist-items")

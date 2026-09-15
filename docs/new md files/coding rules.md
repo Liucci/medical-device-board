@@ -1,4 +1,6 @@
 # Coding Rules
+AIからのコード出力はテキスト形式ではなく、type script形式で表示し
+IDEにそのままコピー＆ペーストできること
 
 ## Purpose
 

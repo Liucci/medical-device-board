@@ -5,7 +5,8 @@ from hospitals.fetch_hospital import fetch_hospital
 def create_inspection_pdf_transaction(
                                         client,
                                         inspection_ids: list[int],
-                                        hospital_id: str
+                                        hospital_id: str,
+                                        display_patient_name: bool
 ):
 
     print("create_inspection_pdf_transaction")
@@ -168,5 +169,6 @@ def create_inspection_pdf_transaction(
 
     return (
             pdf_tables_by_checklist,
-            hospital_name
+            hospital_name,
+            display_patient_name
     )

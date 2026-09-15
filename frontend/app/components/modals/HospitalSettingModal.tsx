@@ -27,7 +27,7 @@ export default function HospitalSettingsModal({
     useState<HospitalSettingsType | null>(hospitalSettings)
 
   const [loading, setLoading] = useState(false)
-
+  console.log("HospitalSettingModal hospitalSettings:", hospitalSettings)
   useEffect(() => {
 
     if (!hospitalSettings) {
