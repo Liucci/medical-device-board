@@ -45,6 +45,7 @@ export default function DragLayer({
         className="dragging-effect" //drag開始時アイコン拡大エフェクト
       >
         <DeviceIcon
+          deviceId={draggingDevice.id}
           typeName={typeName}
           modelName={modelName}
           assetType={assetType}
