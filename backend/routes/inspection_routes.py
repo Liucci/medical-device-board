@@ -67,7 +67,31 @@ from transactions.exports.create_inspection_csv_transaction import (create_inspe
 from exports.csv.generate_inspection_csv import generate_inspection_csv
 from transactions.inspection.inspection_checklists.delete_inspection_checklist_transaction import (delete_inspection_checklist_transaction)
 
+#init
+from inits.fetch_init_inspection_excution import (fetch_init_inspection_execution)
+from inits.fetch_init_inspection_editor import fetch_init_inspection_editor
+
 inspection_router = APIRouter()
+
+# inspection execution init
+@inspection_router.get("/init-inspection-execution")
+def get_init_inspection_execution(
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_init_inspection_execution(
+        client=session.client,
+        hospital_id=session.hospital_id,
+    )
+
+# inspection editor init
+@inspection_router.get("/init-inspection-editor")
+def get_init_inspection_editor(
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_init_inspection_editor(
+        client=session.client,
+        hospital_id=session.hospital_id,
+    )
 
 
 # inspection_types

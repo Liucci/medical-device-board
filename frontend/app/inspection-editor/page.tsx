@@ -18,6 +18,7 @@ import {getInspectionChecklistsFromApi} from "../api/inspection/inspectionCheckl
 import { getDeviceTypesFromApi } from "../api/deviceTypes/fetchDeviceTypes"
 import { getDeviceModelsFromApi } from "../api/deviceModels/fetchDeviceModels"
 import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
+import { fetchInitInspectionEditor } from "../api/inits/fetchInitInspectionEditor"
 //types
 import type {InspectionType,} from "../types/inspectionTypes/inspectionTypeTypes"
 import type {InspectionItemType,} from "../types/inspectionTypes/inspectionItemTypeTypes"
@@ -80,37 +81,42 @@ export default function InspectionEditorPage()
     const [inspectionItemCategories, setInspectionItemCategories] =useState<InspectionItemCategoryType[]>([])
     //処理中表示用
     const [loading, setLoading] = useState(false)
-    useEffect(() =>
-    {
-        const fetchInitialData = async () =>
-        {
-        // current user取得
-            const currentUser = await fetchCurrentUser()    
-            // 権限チェック
-            if (!currentUser) {return}
-            if (currentUser?.role !== "admin")
-            {
-                alert("権限がありません")
-                router.push("/dashboard")
-                return
-            }
-const inspectionTypesData = await getInspectionTypes()
-const inspectionItemTypesData = await getInspectionItemTypesFromApi()
-const inspectionChecklistsDate = await getInspectionChecklistsFromApi()
-await new Promise(resolve => setTimeout(resolve, 300))
-const deviceTypesData = await getDeviceTypesFromApi()
-const deviceModelsData = await getDeviceModelsFromApi()
-const inspectionItemCategoriesData = await getInspectionItemCategoriesFromApi()            
-            setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
-            setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
-            setInspectionChecklists(inspectionChecklistsDate.map(normalizeInspectionChecklist))
-            setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
-            setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
-            setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
-        }
 
-        fetchInitialData()
-    }, [])
+    //初期化用
+    const fetchInitialData = async () =>
+    {
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {      
+                    // current user取得
+                    const currentUser = await fetchCurrentUser()    
+                    // 権限チェック
+                    if (!currentUser) {return}
+                    if (currentUser?.role !== "admin")
+                    {
+                        alert("権限がありません")
+                        router.push("/dashboard")
+                        return
+                    }
+
+                    const initData = await fetchInitInspectionEditor()
+                    const inspectionTypesData = initData.inspection_types
+                    const inspectionItemTypesData = initData.inspection_item_types
+                    const inspectionChecklistsData = initData.inspection_checklists
+                    const deviceTypesData = initData.device_types
+                    const deviceModelsData = initData.device_models
+                    const inspectionItemCategoriesData = initData.inspection_item_categories
+                    setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
+                    setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
+                    setInspectionChecklists(inspectionChecklistsData.map(normalizeInspectionChecklist))
+                    setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
+                    setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
+                    setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
+            }
+        })
+
+
+    }
 
     const filteredDeviceModels = deviceModels.filter(
                 (deviceModel) =>deviceModel.deviceTypeId === deviceTypeId
@@ -233,6 +239,16 @@ const inspectionItemCategoriesData = await getInspectionItemCategoriesFromApi()
         alert("点検表の保存に失敗しました")
     }
     }
+
+    // =========================================
+    // 初期処理
+    // =========================================
+
+    useEffect(() =>
+    {
+        fetchInitialData()
+    }, [])
+    
 
 return (
     <>

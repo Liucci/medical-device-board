@@ -81,7 +81,7 @@ from schemas.ward_infection_schemas import (
                                             UpdateWardInfectionsRequest,
                                         )
 
-from transactions.fetch_init_dashboard import (fetch_init_dashboard)
+from inits.fetch_init_dashboard import (fetch_init_dashboard)
 
 from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
