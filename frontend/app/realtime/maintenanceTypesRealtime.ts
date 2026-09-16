@@ -1,6 +1,6 @@
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
-import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
+import { normalizeMaintenanceType } from "../mapper/maintenanceTypeMapper"
 import { MaintenanceTypeDB } from "../types/maintenanceTypeTypes"
 
 type Props = {

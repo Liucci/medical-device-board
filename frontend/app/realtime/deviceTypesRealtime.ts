@@ -1,6 +1,6 @@
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
-import { normalizeDeviceType } from "../utils/deviceTypeMapper"
+import { normalizeDeviceType } from "../mapper/deviceTypeMapper"
 import { DeviceTypeDBType } from "../types/deviceTypeTypes"
 
 type Props = {

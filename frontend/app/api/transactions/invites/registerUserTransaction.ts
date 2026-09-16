@@ -1,6 +1,6 @@
 import { registerUser } from "../../invites/registerUser"
 
-import { normalizeRegisteredUser } from "../../../utils/registerMapper"
+import { normalizeRegisteredUser } from "../../../mapper/registerMapper"
 
 import {
           RegisterUserRequest

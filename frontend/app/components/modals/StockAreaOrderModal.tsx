@@ -96,56 +96,60 @@ export default function StockAreaOrderModal({
         })
   }
 
-  return (
-     <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[400px] h-[500px] rounded-lg bg-white p-6 shadow-lg flex flex-col">
-        <h2 className="mb-4 text-xl font-bold">
-        ストックエリア並び替え
-        </h2>
+return (
+  <>
+    <div className="w-full rounded-xl bg-gray-200 p-5">
+      <div className="rounded-xl bg-white p-6 shadow-sm">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800">
+            ストックエリア並び替え
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            ドラッグ＆ドロップでストックエリアの表示順を変更します
+          </p>
+        </div>
 
-<DndContext
-  collisionDetection={closestCenter}
-  onDragEnd={handleDragEnd}
-   modifiers={[restrictToVerticalAxis]}
->
-  <SortableContext
-    items={editingStockAreas.map((s) => s.id)}
-    strategy={verticalListSortingStrategy}
-  >
-    <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-1 border rounded p-2">
-      {editingStockAreas.map((stockArea) => (
-        <SortableStockAreaItem
-          key={stockArea.id}
-          stockArea={stockArea}
-        />
-      ))}
-    </div>
-  </SortableContext>
-</DndContext>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <SortableContext
+              items={editingStockAreas.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="max-h-[420px] space-y-2 overflow-y-auto overflow-x-hidden">
+                {editingStockAreas.map((stockArea) => (
+                  <SortableStockAreaItem
+                    key={stockArea.id}
+                    stockArea={stockArea}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
 
-        <div className="mt-6 flex justify-end gap-2">
-
+        <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-5">
           <button
             onClick={onClose}
-            className="rounded border px-4 py-2"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-800"
           >
             キャンセル
           </button>
 
           <button
             onClick={handleSave}
-            className="rounded bg-blue-600 px-4 py-2 text-white"
+            className="rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-600"
           >
             保存
           </button>
-
         </div>
-
       </div>
     </div>
-    <LoadingOverlay loading={loading} /> 
-</>
-  )
-  
+
+    <LoadingOverlay loading={loading} />
+  </>
+)  
 }

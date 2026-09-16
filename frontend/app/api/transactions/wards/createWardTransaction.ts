@@ -6,7 +6,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeWard,
          toCreateWardRequest
-       } from "../../../utils/wardsMapper"
+       } from "../../../mapper/wardsMapper"
 
 type CreateWardTransactionParams = {
                                      ward: CreateWardType

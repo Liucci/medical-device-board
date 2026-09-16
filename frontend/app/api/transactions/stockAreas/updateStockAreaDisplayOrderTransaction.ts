@@ -6,7 +6,7 @@ import {  } from "../../client/apiClient"
 import {
   normalizeStockArea,
   toUpdateStockAreaOrdersRequest,
-} from "../../../utils/stockAreaMapper"
+} from "../../../mapper/stockAreaMapper"
 
 type UpdateStockAreaDisplayOrderTransactionParams = {
                                                     stockAreas: UpdateStockAreaOrdersType

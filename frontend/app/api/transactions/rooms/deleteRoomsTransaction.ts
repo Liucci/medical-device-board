@@ -7,7 +7,7 @@ import { getRoomsFromApi } from "../../rooms/fetchRooms"
 import {
          normalizeRoom,
          toDeleteRoomsRequest
-       } from "../../../utils/roomsMapper"
+       } from "../../../mapper/roomsMapper"
 
 type DeleteRoomsTransactionParams = {
                                       rooms: DeleteRoomsType

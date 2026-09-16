@@ -22,7 +22,7 @@ export type DeviceStatus = "stock" | "room"
 //front側の型情報
 //front側にid,hospitalId情報は必須ではない
 export type Device = {
-  id?: number
+  id: number
   hospitalId?:string
   type: DeviceType["typeID"] 
   model: DeviceModel["modelID"]

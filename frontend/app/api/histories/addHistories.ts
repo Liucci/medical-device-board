@@ -1,7 +1,7 @@
 
 import { API_BASE_URL,  } from "../client/apiClient"
 import { History } from "../../types/historyTypes"
-import { toDBHistory, normalizeHistory } from "../../utils/historyMapper"
+import { toDBHistory, normalizeHistory } from "../../mapper/historyMapper"
 
 type AddHistoryParams = Omit<
                                History,

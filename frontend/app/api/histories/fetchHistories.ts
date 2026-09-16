@@ -1,5 +1,5 @@
 import { API_BASE_URL, } from "../client/apiClient"
-import { normalizeHistory } from "@/app/utils/historyMapper"
+import { normalizeHistory } from "@/app/mapper/historyMapper"
 export async function getHistoriesFromApi()
  {
     console.log("fetchHistories")

@@ -93,3 +93,52 @@ export type DeviceListExportTypeRequest = {
   show_patient_name: boolean
 
 }
+
+// inspection result export
+//最上位を「1回の点検」ではなく、同じ管理番号＋同じ点検表にする
+export type InspectionExportUIType = {
+  managementNumber?: string | null
+  serialNumber?: string | null
+  deviceTypeName?: string | null
+  deviceModelName?: string | null
+  inspectionTypeName?: string | null
+  checklistName?: string | null
+  inspections: InspectionExportInspectionUIType[]
+}
+
+export type InspectionExportInspectionUIType = {
+  createdAt: string
+  performedByName?: string | null
+  results: InspectionResultExportUIType[]
+}
+
+export type InspectionResultExportUIType = {
+  itemName: string
+  value?: string | null
+}
+
+//Backendへ送るDB型
+export type InspectionExportDBType = {
+  management_number: string | null
+  serial_number: string | null
+  device_type_name: string | null
+  device_model_name: string | null
+  inspection_type_name: string | null
+  checklist_name: string | null
+  inspections: InspectionExportInspectionDBType[]
+}
+
+export type InspectionExportInspectionDBType = {
+  created_at: string
+  performed_by_name: string | null
+  results: InspectionResultExportDBType[]
+}
+
+export type InspectionResultExportDBType = {
+  item_name: string
+  value: string | null
+}
+
+export type ExportInspectionRequest = {
+  rows: InspectionExportDBType[]
+}

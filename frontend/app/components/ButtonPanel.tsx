@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+//type
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
@@ -10,15 +12,28 @@ import {MaintenanceType } from "../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
-import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
+import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
+import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionItemCategoryTypes"
+//処理中表示
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
-
+//test用
+import { testAddInspectionChecklistItemOptions } from "../api/inspection/inspectionChecklistItemOptions/testAddInspectionChecklistItemOptions"
+//modal
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
 import DeviceListModal from "./modals/DeviceListModal"
 import InviteCreateModal from "./modals/InviteCreateModal"
 import AccountInfoModal from "./modals/AccountInfoModal"
+import InspectionResultModal from "../components/modals/inspection/InspectionResultListModal"
+
+import type { Inspection } from "../types/inspectionTypes/inspectionTypes"
+import { getInspectionsFromApi } from "../api/inspection/inspections/fetchInspections"
+import { normalizeInspection } from "../mapper/inspectionMapper/inspectionMapper"
+
+
 
 import ButtonGrid from "./ButtonGrid"
 import { useState } from "react"
@@ -29,8 +44,10 @@ import {
   FileText,
   LogOut,
   UserPlus,
+  ClipboardCheck,
   TestTube,
-   Shield
+   Shield,
+
 } from "lucide-react"
 //テストボタン用
 
@@ -40,6 +57,7 @@ import { supabase } from "../lib/supabase"
 
 //page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
+  currentUser:CurrentUser
   deviceList:  Device[]
   setDeviceList: React.Dispatch<
                   React.SetStateAction<any[]>
@@ -75,12 +93,17 @@ type Props = {
   setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
   setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
   hospitalSettings: HospitalSettingsType | null
-  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
->
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
+  inspectionTypes: InspectionType[]
+  setInspectionTypes: React.Dispatch<React.SetStateAction<InspectionType[]>>
+  inspectionItemCategories:InspectionItemCategoryType[]
+  setInspectionItemCategories : React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>   
+
 }
 
 
 export default function ButtonPanel({
+  currentUser,
   deviceList,
   setDeviceList,
   deviceTypes,
@@ -111,9 +134,13 @@ export default function ButtonPanel({
   setStockLastUpdated,
   setWardLastUpdated,
   hospitalSettings,
-  setHospitalSettings
-
+  setHospitalSettings,
+  inspectionTypes,
+  setInspectionTypes,
+  inspectionItemCategories,
+  setInspectionItemCategories,
 }: Props) {
+  const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
   const [openHistoryModal, setOpenHistoryModal] = useState(false)
@@ -121,27 +148,33 @@ export default function ButtonPanel({
   const [openInviteModal,setOpenInviteModal] = useState(false)
   const [openAccountInfoModal, setOpenAccountInfoModal] = useState(false)
   const [openHospitalSettingsModal, setOpenHospitalSettingsModal] = useState(false)
+  const [openInspectionResultModal, setOpenInspectionResultModal]= useState(false)
+  const [inspectionResultsLoading, setInspectionResultsLoading] =useState(false)
+  const [inspections, setInspections] =useState<Inspection[]>([])
 
-  const OpenModal = () => {
-    setOpenDeviceModal(true)
+  const OpenModal = () => {setOpenDeviceModal(true)}
+  const openSettings = () => {setOpenSettingsModal(true)}
+  const openHistory = async () => {setOpenHistoryModal(true)
+  await fetchHistories()}
+  const openDeviceList = () => {setOpenDeviceListModal(true)}
+  const openInvite = () => {setOpenInviteModal(true)}
+  const openHospitalSettings = () => {setOpenHospitalSettingsModal(true)}
+
+      //処理中表示用
+  const [loading, setLoading] = useState(false)
+
+  // inspection_checklist_item_options INSERTテスト
+  const testInspectionChecklistItemOptions = async () => {
+    try {
+      const result = await testAddInspectionChecklistItemOptions()
+
+      console.log("TEST OPTIONS INSERT:", result)
+    } catch (error) {
+      console.error("TEST OPTIONS INSERT ERROR:", error)
+    }
   }
-  const openSettings = () => {
-    setOpenSettingsModal(true)
-  }
-  const openHistory = async () => {
-    setOpenHistoryModal(true)
-    await fetchHistories()
-  }
-  const openDeviceList = () => {
-    //機器一覧表のモーダルを開く処理
-    setOpenDeviceListModal(true)
-  }
-  const openInvite = () => {
-    setOpenInviteModal(true)
-  }
- const openHospitalSettings = () => {
-    setOpenHospitalSettingsModal(true)
-}
+
+
   //supabaseのsend-email関数呼び出しテスト
   const testEmail = async () => {
      const { data, error } =
@@ -159,8 +192,30 @@ export default function ButtonPanel({
     console.log(error)
   }
 
+//点検結果ボタン処理内容
+const openInspectionResult = async () => {
+
+    setOpenInspectionResultModal(true)
+
+    try {
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            const data =await getInspectionsFromApi()
+            const normalizedInspections =data.map(normalizeInspection)
+            setInspections(normalizedInspections)
+            }
+        })
+    } catch (error) {
+        console.error("failed to fetch inspections:",error)
+        alert("点検結果の取得に失敗しました")
+        setOpenInspectionResultModal(false)
+    } 
+}
+
 
   return (
+    <>
   <div className="flex flex-col h-full">
     <div>
       <ButtonGrid
@@ -199,6 +254,13 @@ export default function ButtonPanel({
        <div className="h-4" />
 
       <ButtonGrid
+        onAdd={openInspectionResult}
+        title={"点検結果"}
+        titleSize="text-xs"
+        icon={<ClipboardCheck size={38} />}
+      />
+    <div className="h-4" />
+      <ButtonGrid
         onAdd={openInvite}
         title={"招待"}
         titleSize="text-xs"
@@ -212,8 +274,17 @@ export default function ButtonPanel({
         titleSize="text-xs"
         icon={<LogOut size={38} />}
       />
+      <div className="h-4" />
 
-  
+{/*
+      <ButtonGrid
+        onAdd={testInspectionChecklistItemOptions}
+        title={"TEST"}
+        titleSize="text-xs"
+        icon={<TestTube size={38} />}
+      />
+*/}
+ 
   </div>
 
     {/* 下部固定エリア */}
@@ -242,6 +313,7 @@ export default function ButtonPanel({
 
       {openSettingsModal &&
         <SettingsModal
+          currentUser={currentUser}
           onClose={() => setOpenSettingsModal(false)}
           stockAreas={stockAreas}
           setStockAreas={setStockAreas}
@@ -259,7 +331,10 @@ export default function ButtonPanel({
           setInfectionTypes={setInfectionTypes}
           hospitalSettings={hospitalSettings}
           setHospitalSettings={setHospitalSettings}
-
+          inspectionTypes={inspectionTypes}
+          setInspectionTypes={setInspectionTypes}
+          inspectionItemCategories={inspectionItemCategories}
+          setInspectionItemCategories={setInspectionItemCategories}    
 
         />
       }
@@ -287,6 +362,14 @@ export default function ButtonPanel({
         />
       }
 
+      {openInspectionResultModal && (
+          <InspectionResultModal
+              isOpen={openInspectionResultModal}
+              onClose={() =>setOpenInspectionResultModal(false)}
+              hospitalSettings={hospitalSettings}
+          />
+      )}
+
       {openInviteModal &&
         <InviteCreateModal
 
@@ -304,5 +387,11 @@ export default function ButtonPanel({
     userId={userId}
 />
   </div>
+{/* 処理中表示 */}
+<LoadingOverlay loading={loading} />
+
+</>
+
+
   )
 }

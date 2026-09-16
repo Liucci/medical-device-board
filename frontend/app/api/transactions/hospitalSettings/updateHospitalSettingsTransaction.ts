@@ -8,7 +8,7 @@ import {
 import {
   normalizeHospitalSettings,
   toUpdateHospitalSettingsRequest
-} from "../../../utils/hospitalSettingMapper"
+} from "../../../mapper/hospitalSettingMapper"
 
 import { fetchHospitalSettings } from "../../hospitalSettings/fetchHospitalSettings"
 import { updateHospitalSettings } from "../../hospitalSettings/updateHospitalSettings"

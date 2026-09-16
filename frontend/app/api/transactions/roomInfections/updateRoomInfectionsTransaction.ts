@@ -1,7 +1,7 @@
 import { API_BASE_URL, } from "../../client/apiClient"
 import { UpdateRoomInfectionsType } from "../../../types/roomInfectionTypes"
 import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfections"
-import { normalizeRoomInfection,toUpdateRoomInfectionsRequest } from "../../../utils/roomInfectionMapper"
+import { normalizeRoomInfection,toUpdateRoomInfectionsRequest } from "../../../mapper/roomInfectionMapper"
 
 type UpdateRoomInfectionsTransactionParams = {
                                                roomInfection: UpdateRoomInfectionsType

@@ -4,7 +4,7 @@ import { VerifyAccountEditFrontType } from "../../../types/accountEditTypes"
 import {
          toVerifyAccountEditCodeRequest,
          normalizeAccountInfo
-       } from "../../../utils/accountEditMapper"
+       } from "../../../mapper/accountEditMapper"
 
 export const verifyAccountEditCodeTransaction = async (
                                                          request: VerifyAccountEditFrontType

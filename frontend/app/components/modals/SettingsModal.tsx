@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
+
 import {
   Boxes,
   Building2,
@@ -9,8 +11,12 @@ import {
   Wrench,
   GripVertical,
   Biohazard,
-  Shield
+  Shield,
+  ClipboardCheck,
+  ListChecks,
+  Tags
 } from "lucide-react"
+
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
@@ -20,6 +26,10 @@ import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../../types/infectionTypeTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+import { InspectionType } from "../../types/inspectionTypes/inspectionTypeTypes"
+import {InspectionItemCategoryType} from "../../types/inspectionTypes/inspectionItemCategoryTypes"
+
 import CommonModal from "../common/CommonModal"
 import StockAreaSettingsModal from "./StockAreaSettingsModal"
 import WardAreaSettingsModal from "./WardAreaSettingsModal"
@@ -28,9 +38,12 @@ import MaintenanceSettingsModal from "./MaintenanceTypeSettingsModal"
 import WardOrderModal from "./WardOrderModal"
 import StockAreaOrderModal from "./StockAreaOrderModal"
 import InfectionSettingModal from "./InfectionSettingModal"
-import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
 import HospitalSettingModal from "./HospitalSettingModal"
+import EditChecklistTypeModal from "./inspection/EditChecklistTypeModal"
+import EditChecklistItemCategoryModal from "./inspection/EditChecklistItemCategoryModal"
+
 type Props = {
+  currentUser: CurrentUser
   onClose: () => void
   stockAreas: StockAreaType[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
@@ -47,8 +60,12 @@ type Props = {
   infectionTypes:InfectionTypeType[]
   setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
   hospitalSettings: HospitalSettingsType | null
-  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>
->
+  setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
+  inspectionTypes: InspectionType[]
+  setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
+  inspectionItemCategories:InspectionItemCategoryType[]
+  setInspectionItemCategories : React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>   
+
 }
 
 type Mode =
@@ -61,7 +78,10 @@ type Mode =
             | "hospitalSetting"
             | "wardOrder"
             | "stockAreaOrder"
+            | "checklistType"
+            | "checklistCategory"
 export default function SettingsModal({
+  currentUser,
   onClose,
   stockAreas,
   setStockAreas,
@@ -78,9 +98,16 @@ export default function SettingsModal({
   infectionTypes,
   setInfectionTypes,
   hospitalSettings,
-  setHospitalSettings
+  setHospitalSettings,
+  inspectionTypes,
+  setInspectionTypes,
+    inspectionItemCategories,
+  setInspectionItemCategories,
+
+
 }: Props) 
 {
+  const router = useRouter()
   const [mode, setMode] = useState<Mode>("menu")
 
   const menuButtons = [
@@ -123,39 +150,91 @@ export default function SettingsModal({
       label: "ストックエリアレイアウト",
       mode: "stockAreaOrder" as const,
       icon: GripVertical,
-    }
+    },
+    {
+        label: "点検表作成",
+        icon: ClipboardCheck,
+        onClick: () => {
+            if (currentUser.role !== "admin") {
+                alert("権限がありません")
+                return
+            }
+
+            router.push("/inspection-editor")
+        },
+    },
+    {
+      label: "点検表編集",
+      icon: ClipboardCheck,
+      onClick: () => {
+          if (currentUser.role !== "admin") {
+              alert("権限がありません")
+              return
+          }
+          router.push("/inspection-editor/edit")
+      },
+    },
+        {
+        label: "点検表種類",
+        mode: "checklistType" as const,
+        icon: ListChecks,
+    },
+    {
+        label: "点検項目大項目",
+        mode: "checklistCategory" as const,
+        icon: Tags,
+    },
+
   ]
 
   return (
     <>
-      <CommonModal
-          open={true}
-          onClose={onClose}
-          title="設定"
-          maxWidth="max-w-[500px]"
-      > 
+<CommonModal
+  open={true}
+  onClose={onClose}
+  title="設定"
+  maxWidth={
+    mode === "maintenance"
+    || mode === "deviceType"
+    || mode === "ward"
+      ? "max-w-[1000px]"
+      : mode === "stock"
+      ? "max-w-[600px]"
+      : "max-w-[500px]"
+  }
+>
+      
         {mode === "menu" && (
           <>
 
             <div className="grid grid-cols-2 gap-3">
-              {menuButtons.map(({ label, mode, icon: Icon }) => (
-                <button
-                  key={mode}
-                  className={`
-                    flex h-24 flex-col items-center justify-center gap-2
-                    rounded-2xl bg-white text-black
-                    border border-gray-300 shadow-sm
-                    transition hover:bg-gray-100 hover:shadow-md
-                  `}
-                  onClick={() => setMode(mode)}
-                  aria-label={label}
-                >
-                  <span className="text-xs">
-                    {label}
-                  </span>
-                  <Icon size={38} strokeWidth={2} />
-                </button>
+              
+              {menuButtons.map(({ label, mode, icon: Icon, onClick }) => (
+                  <button
+                      key={label}
+                      className={`
+                          flex h-24 flex-col items-center justify-center gap-2
+                          rounded-2xl bg-white text-black
+                          border border-gray-300 shadow-sm
+                          transition hover:bg-gray-100 hover:shadow-md
+                      `}
+                      onClick={() => {
+                          if (onClick) {
+                              onClick()
+                          } else if (mode) {
+                              setMode(mode)
+                          }
+                      }}
+                      aria-label={label}
+                  >
+                      <span className="text-xs">
+                          {label}
+                      </span>
+
+                      <Icon size={38} strokeWidth={2} />
+                  </button>
               ))}
+
             </div>
           </>
         )}
@@ -286,7 +365,37 @@ export default function SettingsModal({
             />
           </>
         )}
+        {mode === "checklistType" && (
+    <>
+        <div className="flex justify-start mb-4">
+            <button onClick={() => setMode("menu")}>
+                ← 戻る
+            </button>
+        </div>
 
+        <EditChecklistTypeModal 
+            inspectionTypes={inspectionTypes}
+            setInspectionTypes={setInspectionTypes}
+
+        />
+      </>
+      )}
+      {mode === "checklistCategory" && (
+          <>
+              <div className="flex justify-start mb-4">
+                  <button onClick={() => setMode("menu")}>
+                      ← 戻る
+                  </button>
+              </div>
+
+              <EditChecklistItemCategoryModal
+                  inspectionItemCategories={inspectionItemCategories}
+                  setInspectionItemCategories={setInspectionItemCategories}    
+
+              />
+
+          </>
+      )}
 
   </CommonModal>
 

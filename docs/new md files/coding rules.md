@@ -1,4 +1,6 @@
 # Coding Rules
+AIからのコード出力はテキスト形式ではなく、type script形式で表示し
+IDEにそのままコピー＆ペーストできること
 
 ## Purpose
 
@@ -49,7 +51,6 @@ pythonは当然だが、type scriptでもインデントを付けて。
 OK
 
 ```ts
-const token = localStorage.getItem("access_token")
 const data = await response.json()
 setDevices(devices)
 ```

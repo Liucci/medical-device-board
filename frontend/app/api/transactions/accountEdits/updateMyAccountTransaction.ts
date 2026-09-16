@@ -1,6 +1,6 @@
 import { updateMyAccount } from "../../accountEdits/updateMyAccount"
 import { UpdateMyAccountFrontType } from "../../../types/accountEditTypes"
-import { toUpdateMyAccountRequest } from "../../../utils/accountEditMapper"
+import { toUpdateMyAccountRequest } from "../../../mapper/accountEditMapper"
 
 export const updateMyAccountTransaction = async (
                                                    request: UpdateMyAccountFrontType

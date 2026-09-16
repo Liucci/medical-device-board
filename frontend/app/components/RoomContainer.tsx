@@ -2,6 +2,7 @@ import { Device } from "../types/deviceTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
 import { RoomInfectionType } from "../types/roomInfectionTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
 
 import { FaVirus } from "react-icons/fa"
 
@@ -34,6 +35,8 @@ type Props = {
   openRoomDeviceInfoModal: (device: Device) => void
   getMAlert: (deviceId?: number) => "red" | "yellow" | "green"| null
   cellSize: number
+  inspectionCounts: Record<number, number>
+  todayInspections?: TodayInspectionFrontType[]
   currentUser: any
   isDragging: boolean
   infectionTypes:InfectionTypeType[]
@@ -56,6 +59,8 @@ export default function RoomContainer({
                             openRoomDeviceInfoModal,
                             getMAlert,
                             cellSize,
+                            inspectionCounts,
+                            todayInspections,
                             managementNumber,
                             serialNumber,
                             currentUser,
@@ -240,7 +245,6 @@ return (
                       longPress.current,
                       () => {
                     console.log("シングルクリック")
-                    console.log("roomDevice", d)
                     openRoomDeviceInfoModal(d)
                       },
                       isDragging
@@ -272,6 +276,7 @@ return (
             }}
           >
             <DeviceIcon 
+              deviceId={d.id}
               typeName={typeName}
               modelName={modelName}
               assetType={assetType}
@@ -282,9 +287,12 @@ return (
               rentalEndDate={d.rentalEndDate}
               mAlert={getMAlert(d.id)}
               cellSize={cellSize}
+              inspectionCount={inspectionCounts[d.id] ?? 0}
+              todayInspections={todayInspections}
               isUnderMaintenance={d.isUnderMaintenance}
               standby={d.standby}
               standbyStartedAt={d.standbyStartedAt}
+              
              />
           </div>
         )

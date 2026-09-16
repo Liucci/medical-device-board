@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState,useRef } from "react"
 
 import { initDashboard } from "../dashboard/initDashboard"
 import styles from "../page.module.css"
@@ -12,25 +13,29 @@ import StockInfoModal from "../components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
 import WardInfoModal from "../components/modals/WardInfoModal"
 import LowStockPanel from "../components/LowStockPanel"
-
+//type
 import { CurrentUser } from "../types/userTypes"
 import { WardType,UpdateWardInfoType} from "../types/wardTypes"
-
 import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
-import { useEffect, useState,useRef } from "react"
-import { normalizeDevice,toDBDevice} from "../utils/deviceMapper"
-import { normalizeRoom } from "../utils/roomsMapper"
-import { normalizeWard } from "../utils/wardsMapper"
-import { normalizeStockArea } from "../utils/stockAreaMapper"
-import { normalizeDeviceType } from "../utils/deviceTypeMapper"
-import { normalizeDeviceModel } from "../utils/deviceModelMapper"
-import { normalizeHistory } from "../utils/historyMapper"
-import { normalizeMaintenanceType } from "../utils/maintenanceTypeMapper"
-import { normalizeMaintenanceTask } from "../utils/taskMapper"
-import { normalizeInfectionType} from "../utils/infectionTypeMapper"
-import { normalizeRoomInfection} from "../utils/roomInfectionMapper"
-import { normalizeWardInfection } from "../utils/wardInfectionMapper"
-import { normalizeActiveAnnouncement } from "../utils/announcementMapper"
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
+//mapper
+import { normalizeDevice,toDBDevice} from "../mapper/deviceMapper"
+import { normalizeRoom } from "../mapper/roomsMapper"
+import { normalizeWard } from "../mapper/wardsMapper"
+import { normalizeStockArea } from "../mapper/stockAreaMapper"
+import { normalizeDeviceType } from "../mapper/deviceTypeMapper"
+import { normalizeDeviceModel } from "../mapper/deviceModelMapper"
+import { normalizeHistory } from "../mapper/historyMapper"
+import { normalizeMaintenanceType } from "../mapper/maintenanceTypeMapper"
+import { normalizeMaintenanceTask } from "../mapper/taskMapper"
+import { normalizeInfectionType} from "../mapper/infectionTypeMapper"
+import { normalizeRoomInfection} from "../mapper/roomInfectionMapper"
+import { normalizeWardInfection } from "../mapper/wardInfectionMapper"
+import { normalizeActiveAnnouncement } from "../mapper/announcementMapper"
+import{normalizeInspectionType} from "../mapper/inspectionMapper/inspectionTypeMapper"
+import { normalizeTodayInspection } from "../mapper/inspectionMapper/inspectionMapper"
+
+
 //check系
 import { checkWardWarning } from "../utils/checkWardWarning"
 
@@ -85,7 +90,7 @@ import { updateMaintenanceTaskDueAtTransaction } from "../api/transactions/tasks
 import { cancelMaintenanceTaskTransaction } from "../api/transactions/tasks/cancelMaintenanceTaskTransaction"
 import { CompleteMaintenanceTask } from "../types/taskTypes"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask} from "../types/taskTypes"
-
+import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchTodayInspections"
 //infection系
 import { getInfectionTypesFromApi } from "../api/infectionTypes/fetchInfectionTypes"
 import { getRoomInfectionsFromApi } from "../api/roomInfections/fetchRoomInfections"
@@ -124,13 +129,20 @@ import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksR
 import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
 import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 import { subscribeHospitalSettingsRealtime } from "../realtime/hospitalSettingsRealtime"
-
+import {subscribeInspectionsRealtime} from "../realtime/inspectionsRealtime"
 //お知らせ表示用
 import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 import { fetchHospitalSettingsTransaction }from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
+import { normalizeInspectionItemCategory } from "../mapper/inspectionMapper/inspectionItemCategoryMapper"
+
+//処理中表示
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
+import { normalizeHospitalSettings } from "../mapper/hospitalSettingMapper"
+
 
 export default function Page() {
   //console.log("Dashboard render")
@@ -146,7 +158,10 @@ export default function Page() {
   const [infectionTypes, setInfectionTypes] = useState<any[]>([])
   const [roomInfections, setRoomInfections] = useState<any[]>([])
   const [wardInfections, setWardInfections] = useState<any[]>([])
-
+  const [inspectionTypes, setInspectionTypes] = useState<any[]>([])
+  const [inspectionItemCategories, setInspectionItemCategories] =useState<any[]>([])
+  const [todayInspections, setTodayInspections] =useState<TodayInspectionFrontType[]>([])
+  const [inspectionCounts, setInspectionCounts] = useState<Record<number, number>>({})
   // 管理番号とシリアル番号の状態
   const [managementNumber, setManagementNumber] = useState<string | undefined>(undefined)
   const [serialNumber, setSerialNumber] = useState<string | undefined>(undefined)
@@ -196,6 +211,8 @@ export default function Page() {
   
   //user情報を格納する関数
   const router = useRouter()
+  //処理中表示用
+  const [loading, setLoading] = useState(false)
 
   const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
   const [accessToken, setAccessToken] =useState<string | null>(null)
@@ -317,40 +334,65 @@ export default function Page() {
                                   stockAreaId: number
                                 ) => {
 
-  if (!device?.id) {return}
+    if (!device?.id) {return}
+    if (device.status === "room") {
+      if (!device?.roomId) {return}
+      const confirmed = window.confirm("機器を倉庫へ移動しますか？")
+      if (!confirmed) return
+      await executeWithErrorAndLoading({
+                                        setLoading,
+                                        action: async () => {
+                                          if (device.id === undefined) return
+                                          if (device.roomId === undefined) return
+                                            const deviceId = device.id
+                                            const roomId = device.roomId
 
-  if (device.status === "room") {
-    if (!device?.roomId) {return}
-    await moveRoomToStockTransaction({
-                                        deviceId: device.id,
-                                        roomId: device.roomId,
-                                        stockAreaId,
-                                        setDevices: setDeviceList,
-                                        setRooms,
-                                        setHistories,
-                                        setTasks,
-                                        setRoomInfections,
-                                        devices:deviceList
-  })
+                                                      await moveRoomToStockTransaction({
+                                                                                          deviceId,
+                                                                                          roomId,
+                                                                                          stockAreaId,
+                                                                                          setDevices: setDeviceList,
+                                                                                          setRooms,
+                                                                                          setHistories,
+                                                                                          setTasks,
+                                                                                          setRoomInfections,
+                                                                                          devices:deviceList
+                                                    })
+                                                        setStockLastUpdated(await fetchStockLastUpdated())
+                                                        //ward更新日にはstock更新日を格納する
+                                                        setWardLastUpdated(await fetchStockLastUpdated())
+                                                        setInspectionCounts(prev => ({
+                                                                                        ...prev,
+                                                                                        [device.id]: 0,
+                                                                                      }))
+                                                        setTodayInspections([])
+                                                        setDraggingDevice(null)
+                                          }
+      })
+      return
+    }
 
-      setStockLastUpdated(await fetchStockLastUpdated())
-      //ward更新日にはstock更新日を格納する
-      setWardLastUpdated(await fetchStockLastUpdated())
-      setDraggingDevice(null)
-    return
-  }
 
-  await moveStockToStockTransaction({
-                                      deviceId: device.id,
-                                      stockAreaId,
-                                      setDevices: setDeviceList,
-                                      setHistories,
-                                      devices:deviceList
-                                    })
-      //stock areaのみ更新日更新                              
-      setStockLastUpdated(await fetchStockLastUpdated())
-      //setWardLastUpdated(await fetchWardLastUpdated())                                  
-      setDraggingDevice(null)
+    const confirmed = window.confirm("機器の保管場所を変更しますか？")
+    if (!confirmed) return
+    await executeWithErrorAndLoading({
+              setLoading,
+              action: async () => {
+                        if (device.id === undefined) return
+                        await moveStockToStockTransaction({
+                                                            deviceId: device.id,
+                                                            stockAreaId,
+                                                            setDevices: setDeviceList,
+                                                            setHistories,
+                                                            devices:deviceList
+                                                          })
+                        //stock areaのみ更新日更新                              
+                        setStockLastUpdated(await fetchStockLastUpdated())
+                        //setWardLastUpdated(await fetchWardLastUpdated())                                  
+                        setDraggingDevice(null)
+              }
+    })
+
   }
 
   const handleDropToWard = async (
@@ -394,22 +436,30 @@ export default function Page() {
     patientName: string
   ) => {
     if (!pendingDevice?.id) {return}
-    setPendingDevice(null)
-    setRoomModalOpen(false)
-    await moveStockToRoomTransaction({
-                                      deviceId: pendingDevice.id,
-                                      roomId,
-                                      patientName,
-                                      setDevices: setDeviceList,
-                                      setRooms,
-                                      setHistories,
-                                      setTasks,
-                                      devices:deviceList
-                                    })
-    //stock area更新日はward更新日を格納                                
-    setStockLastUpdated(await fetchWardLastUpdated())
-    setWardLastUpdated(await fetchWardLastUpdated())
-    setTargetWardId(null)
+    await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+              if (pendingDevice.id === undefined) return
+              setPendingDevice(null)
+              setRoomModalOpen(false)
+              await moveStockToRoomTransaction({
+                                                deviceId: pendingDevice.id,
+                                                roomId,
+                                                patientName,
+                                                setDevices: setDeviceList,
+                                                setRooms,
+                                                setHistories,
+                                                setTasks,
+                                                devices:deviceList
+                                              })
+              //stock area更新日はward更新日を格納                                
+              setStockLastUpdated(await fetchWardLastUpdated())
+              setWardLastUpdated(await fetchWardLastUpdated())
+              setTargetWardId(null)
+              }
+    })
+
+
   }
 
 
@@ -429,40 +479,53 @@ export default function Page() {
 
     if (!pendingDevice?.id) {return}
     if (!pendingDevice?.roomId) {return}
-    setRoomToRoomModalOpen(false)
-    setPendingDevice(null)
+    await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+              if (pendingDevice.id === undefined) return
+              if (pendingDevice.roomId === undefined) return
+          setRoomToRoomModalOpen(false)
+          setPendingDevice(null)
 
-    if (samePatient) {
-      await moveRoomToRoomTransaction({
-                                        deviceId: pendingDevice.id,
-                                        preRoomId: pendingDevice.roomId,
-                                        postRoomId: roomId,
-                                        patientName,
-                                        setDevices: setDeviceList,
-                                        setRooms,
-                                        setHistories,
-                                        setRoomInfections,
-                                        devices:deviceList
-                                      })
-      } 
-      else {
-        await moveRoomToRoomNewPatientTransaction({
-                                                    deviceId: pendingDevice.id,
-                                                    preRoomId: pendingDevice.roomId,
-                                                    postRoomId: roomId,
-                                                    patientName,
-                                                    setDevices: setDeviceList,
-                                                    setRooms,
-                                                    setHistories,
-                                                    setTasks,
-                                                    setRoomInfections,
-                                                    devices:deviceList
+          if (samePatient) {
+            await moveRoomToRoomTransaction({
+                                              deviceId: pendingDevice.id,
+                                              preRoomId: pendingDevice.roomId,
+                                              postRoomId: roomId,
+                                              patientName,
+                                              setDevices: setDeviceList,
+                                              setRooms,
+                                              setHistories,
+                                              setRoomInfections,
+                                              devices:deviceList
+                                            })
+            } 
+            else {
+              await moveRoomToRoomNewPatientTransaction({
+                                                          deviceId: pendingDevice.id,
+                                                          preRoomId: pendingDevice.roomId,
+                                                          postRoomId: roomId,
+                                                          patientName,
+                                                          setDevices: setDeviceList,
+                                                          setRooms,
+                                                          setHistories,
+                                                          setTasks,
+                                                          setRoomInfections,
+                                                          devices:deviceList
                                                   })
-      }
-    //ward areaは更新しない  
-    //setStockLastUpdated(await fetchStockLastUpdated())
-    setWardLastUpdated(await fetchWardLastUpdated())
-    setTargetWardId(null)
+              }
+              //ward areaは更新しない  
+              //setStockLastUpdated(await fetchStockLastUpdated())
+              setWardLastUpdated(await fetchWardLastUpdated())
+              setInspectionCounts(prev => ({
+              ...prev,
+              [pendingDevice.id]: 0,
+              }))    
+              setTodayInspections([])
+              setTargetWardId(null)
+              }
+    })
+
   }
 
   const handleRoomToRoomCancel = () => {
@@ -1059,8 +1122,8 @@ useEffect(() => {
                                                                                     hospitalId: currentUser.hospitalId,
                                                                                     setAnnouncements: setActiveAnnouncements
     })
-  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime({setHospitalSettings})
-
+  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
+  const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts, setTodayInspections,})
   return () => {
     console.log("[Realtime] unsubscribe")
     unsubscribeDevices()
@@ -1076,6 +1139,7 @@ useEffect(() => {
     unsubscribeAnnouncements()
     unsubscribeAnnouncementHospitals()
     unsubscribeHospitalSettingRealtime()
+    unsubscribeInspections()
   }
 }, [currentUser])
 
@@ -1091,35 +1155,47 @@ useEffect(() => {
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
   useEffect(() => {
-
   const fetchData = async () => {
     if (!currentUser) {return}
-    const data =await fetchInitDashboard()
-    console.log("infection_types:",data.infection_types)
-    if (!data) {return}
-    setDeviceList(data.devices.map(normalizeDevice))
-    setStockAreas(data.stock_areas.map(normalizeStockArea))
-    setWards(data.wards.map(normalizeWard))
-    setRooms(data.rooms.map(normalizeRoom))
-    setDeviceTypes(data.device_types.map(normalizeDeviceType))
-    setDeviceModels(data.device_models.map(normalizeDeviceModel))
-    setTasks(data.tasks.map(normalizeMaintenanceTask))
-    setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
-    setHistories(data.histories.map(normalizeHistory))
-    setInfectionTypes(data.infection_types.map(normalizeInfectionType))
-    setRoomInfections(data.room_infections.map(normalizeRoomInfection))
-    setWardInfections(data.ward_infections.map(normalizeWardInfection))
-    setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
-    //setWardInfections(data.ward_infections.map(normalizeWardInfection))
-    //最終更新日を取得用APIをたたく
-    const stockLastUpdated = await fetchStockLastUpdated()
-    const wardLastUpdated = await fetchWardLastUpdated()
-    console.log("currentUser:",currentUser)
-    setStockLastUpdated(stockLastUpdated)
-    setWardLastUpdated(wardLastUpdated)
-    //お知らせ表示
-    //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
-    await fetchHospitalSettingsTransaction({setHospitalSettings})                                        
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {    
+                  const data =await fetchInitDashboard()
+                  if (!data) {return}
+                  setDeviceList(data.devices.map(normalizeDevice))
+                  setStockAreas(data.stock_areas.map(normalizeStockArea))
+                  setWards(data.wards.map(normalizeWard))
+                  setRooms(data.rooms.map(normalizeRoom))
+                  setDeviceTypes(data.device_types.map(normalizeDeviceType))
+                  setDeviceModels(data.device_models.map(normalizeDeviceModel))
+                  setTasks(data.tasks.map(normalizeMaintenanceTask))
+                  setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
+                  setHistories(data.histories.map(normalizeHistory))
+                  setInfectionTypes(data.infection_types.map(normalizeInfectionType))
+                  setRoomInfections(data.room_infections.map(normalizeRoomInfection))
+                  setWardInfections(data.ward_infections.map(normalizeWardInfection))
+                  setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
+                  setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
+                  setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
+                  setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
+                  //最終更新日を取得用APIをたたく
+                  const stockLastUpdated = await fetchStockLastUpdated()
+                  const wardLastUpdated = await fetchWardLastUpdated()
+                  setStockLastUpdated(stockLastUpdated)
+                  setWardLastUpdated(wardLastUpdated)
+                  //お知らせ表示
+                  //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
+                  const todayInspections: TodayInspectionFrontType[] = data.today_inspections.map(normalizeTodayInspection)
+                  const counts: Record<number, number> = {}
+                  todayInspections.forEach(inspection => 
+                  {
+                    counts[inspection.deviceId] =
+                      (counts[inspection.deviceId] ?? 0) + 1
+                  })
+                  setTodayInspections(todayInspections)
+                  setInspectionCounts(counts)
+          },
+    })
   }
   fetchData()}, [currentUser])
   
@@ -1157,6 +1233,7 @@ if (!currentUser) {
 }
 
     return (
+      <>
       <div
         //page.module.cssのlayoutクラスと
         // draggingDeviceが存在する場合はdraggingクラスを呼び出す
@@ -1185,6 +1262,8 @@ if (!currentUser) {
           getMAlert={getMAlert}
           wardCellSize={wardCellSize}
           setWardCellSize={setWardCellSize}
+          inspectionCounts={inspectionCounts}
+          todayInspections={todayInspections}
           currentUser={currentUser}
           scrollRef={wardScrollRef}
           isDragging={isDragging}
@@ -1277,6 +1356,7 @@ if (!currentUser) {
       {/* ボタンパネル */}
       <div className={styles.button}>
         <ButtonPanel 
+          currentUser={currentUser}
           deviceList={deviceList}
           setDeviceList={setDeviceList}
           deviceTypes={deviceTypes}
@@ -1311,7 +1391,12 @@ if (!currentUser) {
           setWardLastUpdated={setWardLastUpdated}
           hospitalSettings={hospitalSettings}
           setHospitalSettings={setHospitalSettings}
-        />
+
+          inspectionTypes={inspectionTypes}
+          setInspectionTypes={setInspectionTypes}   
+          inspectionItemCategories={inspectionItemCategories}
+          setInspectionItemCategories={setInspectionItemCategories}    
+           />
       </div>
       {/*機器残数表示パネル */}
       <LowStockPanel
@@ -1396,6 +1481,7 @@ if (!currentUser) {
         setRoomInfections={setRoomInfections}
         onDelete={deleteDevice}
         hospitalSettings={hospitalSettings}
+        todayInspections={todayInspections}
       />
       <WardInfoModal
         isOpen={wardInfoModalOpen}
@@ -1411,5 +1497,10 @@ if (!currentUser) {
       
 
     </div>
+  {/* 処理中表示 */}
+  <LoadingOverlay loading={loading} />
+</>
+
+
   )
 }

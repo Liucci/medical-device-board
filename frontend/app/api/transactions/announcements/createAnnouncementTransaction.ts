@@ -8,7 +8,7 @@ import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
 import {
     normalizeAnnouncement,
     toCreateAnnouncementRequest
-} from "../../../utils/announcementMapper"
+} from "../../../mapper/announcementMapper"
 
 type CreateAnnouncementTransactionParams = {
                                             announcement: CreateAnnouncementFrontType

@@ -1,6 +1,6 @@
 import { getUserManagementFromApi } from "../../users/fetchUserManagement"
 
-import { normalizeUserManagement } from "../../../utils/userMapper"
+import { normalizeUserManagement } from "../../../mapper/userMapper"
 import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 import { Dispatch, SetStateAction } from "react"
 

@@ -1,7 +1,7 @@
 import { API_BASE_URL, } from "../client/apiClient"
 
 import { CancelMaintenanceTask } from "../../types/taskTypes"
-import { toCancelMaintenanceTaskRequest } from "../../utils/taskMapper"
+import { toCancelMaintenanceTaskRequest } from "../../mapper/taskMapper"
 
 export async function cancelMaintenanceTask(task: CancelMaintenanceTask)
  {

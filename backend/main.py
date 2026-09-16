@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Header, Depends, Response,Request,Co
 from fastapi.middleware.cors import (CORSMiddleware)
 from pydantic import BaseModel
 import os
+from routes.inspection_routes import inspection_router
 
 from auth.login import (login_user)
 from auth.logout import logout
@@ -80,7 +81,7 @@ from schemas.ward_infection_schemas import (
                                             UpdateWardInfectionsRequest,
                                         )
 
-from transactions.fetch_init_dashboard import (fetch_init_dashboard)
+from inits.fetch_init_dashboard import (fetch_init_dashboard)
 
 from transactions.devices.create_device_transaction import (create_device_transaction)
 from transactions.devices.delete_device_transaction import ( delete_device_transaction ) 
@@ -138,6 +139,8 @@ from schemas.export_schemas import (DeviceListExportSchemaRequest)
 from transactions.exports.export_device_list_pdf_transaction import (export_device_list_pdf_transaction)
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
+from schemas.export_schemas import ExportInspectionPdfRequest
+from transactions.exports.create_inspection_pdf_transaction import create_inspection_pdf_transaction
 
 from schemas.infection_type_schemas import (
                                             InfectionTypeResponse,
@@ -199,7 +202,6 @@ from schemas.announcement_schemas import (
 from transactions.announcements.create_announcement_transaction import (create_announcement_transaction)
 from transactions.announcements.update_announcement_transaction import (update_announcement_transaction)
 from transactions.announcements.fetch_announcements_transaction import (fetch_announcements_transaction)
-from schemas.announcement_schemas import FetchActiveAnnouncementsRequest
 from transactions.announcements.fetch_active_announcements_transaction import fetch_active_announcements_transaction
 
 #hospital setting用
@@ -239,6 +241,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(inspection_router)
+
 class LoginRequest(BaseModel):
                                 email: str
                                 password: str
@@ -275,6 +279,8 @@ def login(
                                                 client,
                                                 auth_user_id
                                                 )
+    auth_user_response = client.auth.get_user()
+    print("AUTH USER:", auth_user_response)
 
     # Backend Session作成
     backend_session = BackendSession(
@@ -762,12 +768,21 @@ def delete_device_type_route(
                     )
 
 
-    delete_device_type_transaction(
-                                    session.client, 
-                                    device_type,
-                                    hospital_id=session.hospital_id
-                                  )
+    try:
+            delete_device_type_transaction(
+                                                session.client,
+                                                device_type,
+                                                hospital_id=session.hospital_id
+                                            )
 
+            return {"message": "機種を削除しました。"}
+
+    except ValueError as e:
+            raise HTTPException(
+                                    status_code=400,
+                                    detail=str(e)
+                                )
+    
 @app.get("/device-models")
 def get_device_models(
                         session: BackendSession = Depends(get_current_session),
@@ -803,11 +818,20 @@ def delete_device_models_route(
                         current_user=session,
                         allowed_roles=["admin"]
                     )
-    delete_device_models_transaction(
+    try:
+        delete_device_models_transaction(
                                     session.client,
                                     device_model,
                                     session.hospital_id
                                     )
+        return {"message": "機種を削除しました。"}
+
+    except ValueError as e:
+            raise HTTPException(
+                                    status_code=400,
+                                    detail=str(e)
+                                )
+    
 
 @app.post("/update-device-model")
 def update_device_model_route(
@@ -1593,6 +1617,39 @@ async def export_device_list_pdf_route(
                                             "attachment; filename=device_list.pdf"
                                         }
                             )
+
+@app.post("/export-inspection-pdf")
+async def export_inspection_pdf_route(
+                                        request: ExportInspectionPdfRequest,
+                                        session: BackendSession = Depends(get_current_session),
+                                    ):
+
+    hospital = fetch_hospital(
+                                session.client,
+                                session.hospital_id
+                            )
+
+    hospital_name = hospital["hospital_name"]
+
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin","normal"]
+                    )
+
+    pdf_buffer = create_inspection_pdf_transaction(
+                                                        request.rows,
+                                                        hospital_name
+                                                    )
+
+    return StreamingResponse(
+                                pdf_buffer,
+                                media_type="application/pdf",
+                                headers={
+                                    "Content-Disposition":
+                                    "attachment; filename=inspection_results.pdf"
+                                }
+                            )
+
 
 
 @app.post("/export-device-list-csv")

@@ -3,8 +3,8 @@ import { API_BASE_URL } from "../../client/apiClient"
 import { getDevicesFromApi } from "../../devices/fetchDevices"
 import { getHistoriesFromApi } from "../../histories/fetchHistories"
 
-import { normalizeDevice } from "../../../utils/deviceMapper"
-import { normalizeHistory } from "../../../utils/historyMapper"
+import { normalizeDevice } from "../../../mapper/deviceMapper"
+import { normalizeHistory } from "../../../mapper/historyMapper"
 import {  } from "../../client/apiClient"
 import{Device} from "../../../types/deviceTypes"
 type MoveStockToStockTransactionParams = {

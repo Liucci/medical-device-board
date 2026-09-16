@@ -7,7 +7,7 @@ import { getHospitalManagementFromApi } from "../../hospitals/fetchHospitalManag
 import {
   normalizeHospitalManagement,
   toAddHospitalRequest
-} from "../../../utils/hospitalMapper"
+} from "../../../mapper/hospitalMapper"
 import {  } from "../../client/apiClient"
 
 type CreateHospitalTransactionParams = {

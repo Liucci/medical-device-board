@@ -4,7 +4,7 @@ import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfectio
 import {
          normalizeRoomInfection,
          toDeleteRoomInfectionsRequest
-       } from "../../../utils/roomInfectionMapper"
+       } from "../../../mapper/roomInfectionMapper"
 import {  } from "../../client/apiClient"
 
 type DeleteRoomInfectionsTransactionParams = {

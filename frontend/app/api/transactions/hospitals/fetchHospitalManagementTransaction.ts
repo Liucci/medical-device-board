@@ -2,7 +2,7 @@ import { useState } from "react"
 import { getHospitalManagementFromApi } from "../../hospitals/fetchHospitalManagement"
 import { Dispatch, SetStateAction } from "react"
 import { HospitalManagementType } from "../../../types/hospitalTypes"
-import {normalizeHospitalManagement} from "../../../utils/hospitalMapper"
+import {normalizeHospitalManagement} from "../../../mapper/hospitalMapper"
 import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 
 type FetchHospitalManagementTransactionParams = {

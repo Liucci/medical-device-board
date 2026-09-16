@@ -5,7 +5,7 @@ import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
 import {
             normalizeAnnouncement,
             toUpdateAnnouncementRequest
-} from "../../../utils/announcementMapper"
+} from "../../../mapper/announcementMapper"
 
 type UpdateAnnouncementTransactionParams = {
                                             announcement: UpdateAnnouncementFrontType

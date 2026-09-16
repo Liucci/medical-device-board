@@ -1,28 +1,36 @@
 "use client"
 import { useState } from "react"
-import CommonModal from "../common/CommonModal"
-import { Device } from "../../types/deviceTypes"
+import { useRouter } from "next/navigation"
+
+//user、認証
+import {CurrentUser  } from "../../types/userTypes"
+
+//type
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
 import { WardType } from "../../types/wardTypes"
-import {CurrentUser  } from "../../types/userTypes"
 import { RoomType } from "../../types/roomTypes"
 import {MaintenanceType } from "../../types/maintenanceTypeTypes"
+import { InfectionTypeType } from "../../types/infectionTypeTypes"
+import { RoomInfectionType } from "../../types/roomInfectionTypes"
+import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
+import { TodayInspectionFrontType } from "../../types/inspectionTypes/inspectionTypes"
+//表示データ
+import { Device } from "../../types/deviceTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
 import { createPortal } from "react-dom"
 import { FaTrashAlt } from "react-icons/fa"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
+
+//icon
+import { FaVirus } from "react-icons/fa"
+//modal
+import CommonModal from "../common/CommonModal"
 import { executeWithLoading } from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
-
 import {LoadingOverlay} from "../common/LoadingOverlay"
-import { InfectionTypeType } from "../../types/infectionTypeTypes"
-import { RoomInfectionType } from "../../types/roomInfectionTypes"
 import InfectionSelectModal from "./InfectionSelectModal"
-import { HospitalSettingsType } from "../../types/hospitalSettingTypes"
-
-import { FaVirus } from "react-icons/fa"
 
 //page.tsxから
 //stateレス化
@@ -62,6 +70,7 @@ roomInfections:RoomInfectionType[]
 setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
 onDelete: (deviceId: number) => Promise<void>
 hospitalSettings: HospitalSettingsType | null
+todayInspections?: TodayInspectionFrontType[]
 }
 
 export default function RoomDeviceInfoModal({
@@ -87,11 +96,12 @@ export default function RoomDeviceInfoModal({
   roomInfections,
   setRoomInfections,
   onDelete,
-  hospitalSettings
+  hospitalSettings,
+  todayInspections,
 }: Props) {
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
-
+const router = useRouter()
 
 if (!isOpen || !selectedRoomDevice) return null
 
@@ -156,7 +166,11 @@ const deviceTasks =
     task => task.deviceId === selectedRoomDevice.id
   )
 
-
+const deviceTodayInspections =
+  todayInspections?.filter(
+    inspection =>
+      inspection.deviceId === selectedRoomDevice.id
+  ) ?? []
 
 
     // 🔽 共通表示行
@@ -255,615 +269,699 @@ const deviceTasks =
        }
   })
   }
-return (
-   <>
-<CommonModal
-    open={isOpen}
-    onClose={onCancel}
-    title="病棟機器情報"
-    maxWidth="max-w-[850px]"
-    height="h-[70vh]"
-    rightContent={
-        <button
-            onClick={handleDelete}
-            className="text-gray-400 hover:text-red-500"
-        >
-            <FaTrashAlt size={18}/>
-        </button>
+
+  const handleInspection = () => {
+    if (!selectedRoomDevice?.id) return
+
+    const managementNumber = selectedRoomDevice.managementNumber?.trim() ?? ""
+    const serialNumber = selectedRoomDevice.serialNumber?.trim() ?? ""
+
+    if (!managementNumber && !serialNumber) {
+      alert("管理番号またはシリアル番号を入力してください。")
+      return
     }
-> 
+
+    router.push(
+      `/inspection-excution?deviceId=${selectedRoomDevice.id}`
+    )
+  }
+  
+  if (!isOpen || !selectedRoomDevice) return null
 
 
 
-      <div className="flex gap-4 mt-4 flex-1 overflow-hidden">
+return (
+  <>
+    <CommonModal
+      open={isOpen}
+      onClose={onCancel}
+      title="病棟機器情報"
+      maxWidth="max-w-[1200px]"
+      height="h-[70vh]"
+      rightContent={
+        <button
+          onClick={handleDelete}
+          className="rounded-lg bg-red-50 px-3 py-2 text-red-600 hover:bg-red-100"
+        >
+          <FaTrashAlt size={18} />
+        </button>
+      }
+    >
+      <div className="rounded-xl h-full w-full bg-gray-200 p-5">
+        <div className="grid h-full min-h-0 grid-cols-1 gap-5 lg:grid-cols-2">
 
-        {/* ===== 左 ===== */}
-        <div className="w-[420px] overflow-y-auto">
+          {/* ===================================================== */}
+          {/* 左：機器情報 */}
+          {/* ===================================================== */}
+          <div className="min-h-0 overflow-y-auto rounded-xl bg-white p-6 shadow-sm">
 
-          {/* 機種 + 型式 */}
-          <div>
-            <div className="text-lg font-bold">
-              {typeName}　{modelName}　{selectedRoomDevice.assetType}
+            <div className="space-y-5">
 
-              {(selectedRoomDevice.assetType === "レンタル" ||
-                selectedRoomDevice.assetType === "代替機") &&
-                rentalEndDate && (() => {
-
-                  const today = new Date()
-                  const end = new Date(rentalEndDate)
-
-                  today.setHours(0,0,0,0)
-                  end.setHours(0,0,0,0)
-
-                  const diff =
-                    end.getTime() - today.getTime()
-
-                  const days =
-                    Math.ceil(diff / (1000 * 60 * 60 * 24))
-
-                  if (days < 0) {
-                    return (
-                      <span className="ml-3 text-sm text-red-600 font-bold">
-                        返却日超過
-                      </span>
-                    )
-                  }
-
-                  if (days === 0) {
-                    return (
-                      <span className="ml-3 text-sm text-red-600 font-bold">
-                        本日返却
-                      </span>
-                    )
-                  }
-
-                  if (days <= 2) {
-                    return (
-                      <span className="ml-3 text-sm text-red-600 font-bold">
-                        返却まで{days}日
-                      </span>
-                    )
-                  }
-
-                  return null
-
-                })()}
-            </div>
-
-            <div className="text-gray-600">
-              {wardName}　{roomName}
-            </div>
-          </div>
-
-          {/* 詳細情報 */}
-          <div className="border-t pt-2 mt-3 space-y-1">
-
-          {hospitalSettings?.showPatientName && (
-            <InfoRow
-              label="患者"
-              value={patientName}
-              onEdit={async () => {
-                const roomId = selectedRoomDevice.roomId
-                if (!roomId) return
-
-                const val = prompt(
-                  "患者名を入力",
-                  patientName
-                )
-
-                if (val === null) return
-                await executeWithErrorAndLoading({
-                    setLoading,
-                    action: async () => {
-      
-                  const success =
-                          await renamePatientName(
-                            roomId,
-                            val
-                          )
-
-                if (!success) return
-
-                }
-                })
-
-                
-              }}
-            />
-          )}
-
-            {/* 感染症 */}
-            
-            <div className="flex items-start justify-between py-2">
-              <div className="flex">
-
-                <span className="text-sm text-gray-500 whitespace-nowrap">
-                  感染症：
-                </span>
-
-                <div className="ml-2 flex flex-col gap-1">
-
-                  {room &&
-                  roomInfections.filter(
-                    ri => ri.roomId === room.id
-                  ).length > 0 ? (
-
-                    roomInfections
-                      .filter(
-                        ri => ri.roomId === room.id
+              {/* 機種 + 型式 */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {typeName}　{modelName}　{selectedRoomDevice.assetType}
+                  {(selectedRoomDevice.assetType === "レンタル" ||
+                    selectedRoomDevice.assetType === "代替機") &&
+                    rentalEndDate &&
+                    (() => {
+                      const today = new Date()
+                      const end = new Date(rentalEndDate)
+                      today.setHours(0, 0, 0, 0)
+                      end.setHours(0, 0, 0, 0)
+                      const diff =
+                        end.getTime() - today.getTime()
+                      const days = Math.ceil(
+                        diff / (1000 * 60 * 60 * 24)
                       )
-                      .map(ri => {
-                        const infection =
-                          infectionTypes.find(
-                            i => i.id === ri.infectionTypeId
-                          )
 
+                      if (days < 0) {
                         return (
-                          <div
-                            key={ri.id}
-                            className="flex items-center gap-1 text-sm"
-                          >
-                            <FaVirus
-                              size={12}
-                              color={infection?.color}
-                            />
-
-                            <span>
-                              {infection?.name}
-                            </span>
-                          </div>
+                          <span className="ml-3 text-sm font-bold text-red-600">
+                            返却日超過
+                          </span>
                         )
-                      })
+                      }
 
-                  ) : (
+                      if (days === 0) {
+                        return (
+                          <span className="ml-3 text-sm font-bold text-red-600">
+                            本日返却
+                          </span>
+                        )
+                      }
 
-                    <span className="text-sm text-gray-400">
-                      （なし）
-                    </span>
+                      if (days <= 2) {
+                        return (
+                          <span className="ml-3 text-sm font-bold text-red-600">
+                            返却まで{days}日
+                          </span>
+                        )
+                      }
 
-                  )}
+                      return null
+                    })()}
+                </h3>
 
+                <p className="mt-1 text-sm text-gray-500">
+                  {wardName}　{roomName}
+                </p>
+              </div>
+
+              {/* 点検実施 */}
+              <button
+                type="button"
+                onClick={handleInspection}
+                className="
+                  w-full
+                  rounded-lg
+                  bg-blue-500
+                  px-4
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-white
+                  shadow-sm
+                  transition
+                  hover:bg-blue-600
+                  hover:shadow
+                  active:scale-[0.99]
+                "
+              >
+                点検実施
+              </button>
+
+              {/* 本日の点検 */}
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                <div className="text-sm font-semibold text-gray-800">
+                  本日の点検
                 </div>
 
+                {deviceTodayInspections.length === 0 ? (
+                  <div className="mt-2 text-sm text-gray-400">
+                    未実施
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {deviceTodayInspections.map((inspection, index) => (
+                      <span
+                        key={index}
+                        className="
+                          rounded-full
+                          bg-white
+                          px-3
+                          py-1
+                          text-xs
+                          font-medium
+                          text-gray-600
+                          shadow-sm
+                        "
+                      >
+                        {new Date(
+                          inspection.createdAt
+                        ).toLocaleTimeString("ja-JP", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-              <button
-                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={() => setIsInfectionModalOpen(true)}
-              >
-                編集
-              </button>
-            </div>
 
+              {/* 詳細情報 */}
+              <div className="border-t border-gray-200 pt-4">
 
+                {/* 患者 */}
+                {hospitalSettings?.showPatientName && (
+                  <InfoRow
+                    label="患者"
+                    value={patientName}
+                    onEdit={async () => {
+                      const roomId = selectedRoomDevice.roomId
+                      if (!roomId) return
 
-
-            <InfoRow
-              label="管理番号"
-              value={managementNumber}
-              onEdit={async () => {
-                const deviceId = selectedRoomDevice.id
-
-                if (!deviceId) return
-
-                const val = prompt(
-                  "管理番号を入力",
-                  managementNumber
-                )
-
-                if (val === null) return
-                await executeWithErrorAndLoading({
-                    setLoading,
-                    action: async () => {
-
-                      const success =
-                        await renameManagementNumber(
-                          deviceId,
-                          val
-                        )
-                    if (!success) return
-                    }
-                })
-
-              }}
-            />
-
-            <InfoRow
-              label="シリアル"
-              value={serialNumber}
-              onEdit={async () => {
-                const deviceId = selectedRoomDevice.id
-                if (!deviceId) return
-
-                const val = prompt(
-                  "シリアル番号を入力",
-                  serialNumber
-                )
-
-                if (val === null) return
-                await executeWithErrorAndLoading({
-                    setLoading,
-                    action: async () => {
-
-                    const success =
-                      await renameSerialNumber(
-                        deviceId,
-                        val
+                      const val = prompt(
+                        "患者名を入力",
+                        patientName
                       )
+                      if (val === null) return
 
-                if (!success) return
+                      await executeWithErrorAndLoading({
+                        setLoading,
+                        action: async () => {
+                          const success =
+                            await renamePatientName(roomId, val)
+                          if (!success) return
+                        },
+                      })
+                    }}
+                  />
+                )}
 
-                }
-                })
+                {/* 感染症 */}
+                <div className="flex items-start justify-between border-b border-gray-100 py-3">
+                  <div className="flex min-w-0">
+                    <span className="shrink-0 text-xs font-medium text-gray-600">
+                      感染症：
+                    </span>
 
+                    <div className="ml-2 flex flex-col gap-1">
+                      {room &&
+                      roomInfections.filter(
+                        ri => ri.roomId === room.id
+                      ).length > 0 ? (
+                        roomInfections
+                          .filter(ri => ri.roomId === room.id)
+                          .map(ri => {
+                            const infection =
+                              infectionTypes.find(
+                                i =>
+                                  i.id ===
+                                  ri.infectionTypeId
+                              )
 
-              }}
-            />
+                            return (
+                              <div
+                                key={ri.id}
+                                className="flex items-center gap-1 text-sm text-gray-700"
+                              >
+                                <FaVirus
+                                  size={12}
+                                  color={infection?.color}
+                                />
+                                <span>
+                                  {infection?.name}
+                                </span>
+                              </div>
+                            )
+                          })
+                      ) : (
+                        <span className="text-sm text-gray-400">
+                          （なし）
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-            {(selectedRoomDevice.assetType === "レンタル" ||
-              selectedRoomDevice.assetType === "代替機") && (
-              <>
+                  <button
+                    className="
+                      shrink-0
+                      rounded-lg
+                      bg-gray-100
+                      px-3
+                      py-2
+                      text-xs
+                      font-medium
+                      text-gray-600
+                      transition
+                      hover:bg-gray-200
+                      hover:text-gray-800
+                    "
+                    onClick={() =>
+                      setIsInfectionModalOpen(true)
+                    }
+                  >
+                    編集
+                  </button>
+                </div>
+
+                {/* 管理番号 */}
                 <InfoRow
-                  label="貸与開始日"
-                  value={rentalStartDate}
+                  label="管理番号"
+                  value={managementNumber}
                   onEdit={async () => {
-
-                    const deviceId=selectedRoomDevice.id
+                    const deviceId =
+                      selectedRoomDevice.id
                     if (!deviceId) return
 
                     const val = prompt(
-                      "貸与開始日を入力 (YYYY-MM-DD)",
-                      rentalStartDate
+                      "管理番号を入力",
+                      managementNumber
                     )
-
                     if (val === null) return
-                    await executeWithErrorAndLoading({
-                        setLoading,
-                        action: async () => {
 
+                    await executeWithErrorAndLoading({
+                      setLoading,
+                      action: async () => {
                         const success =
+                          await renameManagementNumber(
+                            deviceId,
+                            val
+                          )
+                        if (!success) return
+                      },
+                    })
+                  }}
+                />
+
+                {/* シリアル */}
+                <InfoRow
+                  label="シリアル"
+                  value={serialNumber}
+                  onEdit={async () => {
+                    const deviceId =
+                      selectedRoomDevice.id
+                    if (!deviceId) return
+
+                    const val = prompt(
+                      "シリアル番号を入力",
+                      serialNumber
+                    )
+                    if (val === null) return
+
+                    await executeWithErrorAndLoading({
+                      setLoading,
+                      action: async () => {
+                        const success =
+                          await renameSerialNumber(
+                            deviceId,
+                            val
+                          )
+                        if (!success) return
+                      },
+                    })
+                  }}
+                />
+
+                {/* 貸与情報 */}
+                {(selectedRoomDevice.assetType === "レンタル" ||
+                  selectedRoomDevice.assetType === "代替機") && (
+                  <>
+                    <InfoRow
+                      label="貸与開始日"
+                      value={rentalStartDate}
+                      onEdit={async () => {
+                        const deviceId =
+                          selectedRoomDevice.id
+                        if (!deviceId) return
+
+                        const val = prompt(
+                          "貸与開始日を入力 (YYYY-MM-DD)",
+                          rentalStartDate
+                        )
+                        if (val === null) return
+
+                        await executeWithErrorAndLoading({
+                          setLoading,
+                          action: async () => {
+                            const success =
                               await renameRentalDates(
                                 deviceId,
                                 val,
                                 rentalEndDate
                               )
+                            if (!success) return
+                          },
+                        })
+                      }}
+                    />
 
-                        if (!success) return
-                        }
-                    })
+                    <InfoRow
+                      label="返却日"
+                      value={rentalEndDate}
+                      onEdit={async () => {
+                        const deviceId =
+                          selectedRoomDevice.id
+                        if (!deviceId) return
 
-                  }}
-                />
+                        const val = prompt(
+                          "返却日を入力 (YYYY-MM-DD)",
+                          rentalEndDate
+                        )
+                        if (val === null) return
 
-                <InfoRow
-                  label="返却日"
-                  value={rentalEndDate}
-                  onEdit={async () => {
-
-                    const deviceId=selectedRoomDevice.id
-                    if (!deviceId) return
-
-                    const val = prompt(
-                      "返却日を入力 (YYYY-MM-DD)",
-                      rentalEndDate
-                    )
-
-                    if (val === null) return
-                    await executeWithErrorAndLoading({
-                        setLoading,
-                        action: async () => {
-          
-                        const success =
+                        await executeWithErrorAndLoading({
+                          setLoading,
+                          action: async () => {
+                            const success =
                               await renameRentalDates(
                                 deviceId,
                                 rentalStartDate,
                                 val
                               )
+                            if (!success) return
+                          },
+                        })
+                      }}
+                    />
+                  </>
+                )}
 
+                {/* 備考 */}
+                <InfoRow
+                  label="備考"
+                  value={note}
+                  onEdit={async () => {
+                    const deviceId =
+                      selectedRoomDevice.id
+                    if (!deviceId) return
+
+                    const val = prompt(
+                      "備考を入力",
+                      note
+                    )
+                    if (val === null) return
+
+                    await executeWithErrorAndLoading({
+                      setLoading,
+                      action: async () => {
+                        const success =
+                          await renameNote(deviceId, val)
                         if (!success) return
-                    }
+                      },
                     })
                   }}
                 />
-              </>
-            )}
-
-            <InfoRow
-              label="備考"
-              value={note}
-              onEdit={async () => {
-                const deviceId=selectedRoomDevice.id
-                if (!deviceId) return
-
-                const val = prompt(
-                  "備考を入力",
-                  note
-                )
-
-                if (val === null) return
-                await executeWithErrorAndLoading({
-                    setLoading,
-                    action: async () => {
-
-                    const success =
-                            await renameNote(
-                              deviceId,
-                              val
-                            )
-                    if (!success) return
-                  }
-                })
-
-              }}
-            />
-
-          </div>
-
-        </div>
-
-        {/* ===== 右 ===== */}
-        <div className="w-[380px] flex flex-col overflow-hidden">
-
-          {/* スタンバイ */}
-          <div className="border rounded p-3">
-
-              <div className="flex items-center justify-between mb-2">
-
-                <div className="font-bold">
-                  スタンバイ
-                </div>
-
-                <button
-                  onClick={handleToggleStandby}
-                  className={`
-                    px-3
-                    py-1
-                    rounded
-                    text-sm
-                    font-bold
-                    ${
-                      standby
-                        ? "bg-yellow-300 text-black hover:bg-yellow-400"
-                        : "bg-gray-200 text-black hover:bg-gray-300"
-                    }
-                  `}
-                >
-                  {standby ? "解除" : "開始"}
-                </button>
-
               </div>
-            {standby ? (
-              <div className="text-sm text-gray-600">
-                待機開始日：
-                {standbyStartedAt || "未設定"}
-              </div>
-            ) : (
-              <div className="text-sm text-gray-500">
-                スタンバイなし
-              </div>
-            )}
-
-            {isStandbyOverOneMonth && (
-              <div className="mt-2 rounded border border-red-300 bg-red-50 p-2 text-sm font-bold text-red-700">
-                スタンバイ開始から1か月経過しています。
-              </div>
-            )}
-
-          </div>
-
-          {/* メンテナンス */}
-          <div className="border rounded p-3 mt-4 flex-1 flex flex-col overflow-hidden">
-
-            <div className="font-bold mb-2">
-              メンテナンス
             </div>
+          </div>
 
-            <div className="flex-1 overflow-y-auto pr-2">
+          {/* ===================================================== */}
+          {/* 右：スタンバイ・メンテナンス */}
+          {/* ===================================================== */}
+          <div className="min-h-0 overflow-y-auto rounded-xl bg-white p-6 shadow-sm">
 
-              {deviceTasks.length === 0 && (
-                <div className="text-gray-500 text-sm">
-                  タスクなし
-                </div>
-              )}
+            <div className="space-y-5">
 
-              {deviceTasks.map(task => {
+              {/* スタンバイ */}
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
 
-                const type =
-                  maintenanceTypes.find(
-                    t => t.id === task.maintenanceTypeId
-                  )
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="text-lg font-semibold text-gray-800">
+                    スタンバイ
+                  </div>
 
-                const status =
-                  getStatus(task.dueAt)
-
-                const isCompleted =
-                  task.completedAt !== null &&
-                  task.completedAt !== undefined
-
-                const isCancelled =
-                  !task.isActive
-
-                const isPending =
-                  task.isActive && !isCompleted
-
-
-
-                return (
-                  <div
-                    key={task.id}
-                    className="flex justify-between items-center py-2 border-b"
+                  <button
+                    onClick={handleToggleStandby}
+                    className={`
+                      rounded-lg
+                      px-3
+                      py-2
+                      text-sm
+                      font-medium
+                      transition
+                      ${
+                        standby
+                          ? "bg-yellow-100 text-gray-700 hover:bg-yellow-200"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }
+                    `}
                   >
+                    {standby ? "解除" : "開始"}
+                  </button>
+                </div>
 
-                    <div>
-                      <div className="font-medium">
-                        {type?.name}
-                      </div>
+                {standby ? (
+                  <div className="text-sm text-gray-500">
+                    待機開始日：
+                    {standbyStartedAt || "未設定"}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    スタンバイなし
+                  </div>
+                )}
 
-                      <div className="text-sm text-gray-500">
-                        {status.label}
-                      </div>
+                {isStandbyOverOneMonth && (
+                  <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-600">
+                    スタンバイ開始から1か月経過しています。
+                  </div>
+                )}
+              </div>
 
-                      <div className="text-xs text-gray-400">
-                        期限：
-                        {new Date(
-                          task.dueAt
-                        ).toLocaleDateString()}
+              {/* メンテナンス */}
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    メンテナンス
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    登録されているメンテナンスタスク
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+
+                  {deviceTasks.length === 0 && (
+                    <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-gray-500">
+                          タスクなし
+                        </div>
                       </div>
                     </div>
+                  )}
 
-                  <div className="flex items-center gap-2">
+                  {deviceTasks.map(task => {
 
-                    {isPending && (
-                      <>
-                        <span>
-                          {status.color === "red" && "🔴"}
-                          {status.color === "yellow" && "🟡"}
-                          {status.color === "green" && "🟢"}
-                        </span>
+                    const type =
+                      maintenanceTypes.find(
+                        t =>
+                          t.id ===
+                          task.maintenanceTypeId
+                      )
 
-                        <button
-                          className="bg-blue-500 text-white px-2 py-1 rounded text-sm"
-                          onClick={async () => {
-                            await executeWithErrorAndLoading({
-                                setLoading,
-                                action: async () => {
-                                  const success =
-                                    await onCompleteTask({
-                                      id: task.id
-                                    })
+                    const status =
+                      getStatus(task.dueAt)
 
-                                  if (!success) return
+                    const isCompleted =
+                      task.completedAt !== null &&
+                      task.completedAt !== undefined
 
-                                }
-                              })
-                          }}
-                        >
-                          実施
-                        </button>
+                    const isCancelled =
+                      !task.isActive
 
-                        <button
-                          className="bg-yellow-500 text-white px-2 py-1 rounded text-sm"
-                          onClick={async () => {
+                    const isPending =
+                      task.isActive &&
+                      !isCompleted
 
-                            const val = prompt(
-                              "メンテ期限を入力 (YYYY-MM-DD)",
-                              task.dueAt.slice(0, 10)
-                            )
-
-                            if (val === null) return
-
-                            if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                              alert("YYYY-MM-DD形式で入力してください")
-                              return
-                            }
-                            await executeWithErrorAndLoading({
-                                setLoading,
-                                action: async () => {
-                                const success =
-                                      await renameMaintenanceTaskDueAt({
-                                        id: task.id,
-                                        dueAt: `${val}T00:00:00`
-                                      })
-                                if (!success) return
-
-                                }
-                              })
-                          }}
-                        >
-                          修正
-                        </button>
-
-                        <button
-                          className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-                          onClick={async () => {
-
-                            const ok = confirm(
-                              "このメンテナンスタスクを中止しますか？"
-                            )
-
-                            if (!ok) return
-                            await executeWithErrorAndLoading({
-                                setLoading,
-                                action: async () => {
-                                const success =
-                                      await cancelTask({
-                                        id: task.id,
-                                        isActive: false
-                                      })
-                                if (!success) return
-                                }
-                              })
-                          }}
-                        >
-                          中止
-                        </button>
-                      </>
-                    )}
-
-                    {isCompleted && (
-                      <div className="text-green-600 font-bold text-sm">
-                        実施済み
-                      </div>
-                    )}
-
-                    {isCancelled && (
-                      <button
-                        className="bg-gray-500 text-white px-2 py-1 rounded text-sm"
-                        onClick={async () => {
-
-                          const ok = confirm(
-                            "中止を解除しますか？"
-                          )
-
-                          if (!ok) return
-                          await executeWithErrorAndLoading({
-                              setLoading,
-                              action: async () => {
-                              const success =
-                                    await cancelTask({
-                                      id: task.id,
-                                      isActive: true
-                                    })
-                              if (!success) return
-                              }
-                        })
-                        }}
+                    return (
+                      <div
+                        key={task.id}
+                        className="
+                          rounded-xl
+                          border
+                          border-gray-200
+                          bg-white
+                          p-4
+                          transition
+                          hover:border-gray-300
+                          hover:bg-gray-50
+                          hover:shadow-sm
+                        "
                       >
-                        中止解除
-                      </button>
-                    )}
+                        <div className="flex items-center justify-between gap-4">
 
-                  </div>
-                  </div>
-                )
-              })}
+                          <div className="min-w-0">
 
+                            <div className="truncate text-sm font-semibold text-gray-800">
+                              {type?.name}
+                            </div>
+
+                            <div className="mt-1 text-xs text-gray-500">
+                              {status.label}
+                            </div>
+
+                            <div className="mt-1 text-xs text-gray-400">
+                              期限：
+                              {new Date(
+                                task.dueAt
+                              ).toLocaleDateString()}
+                            </div>
+
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-2">
+
+                            {isPending && (
+                              <>
+                                <span>
+                                  {status.color === "red" && "🔴"}
+                                  {status.color === "yellow" && "🟡"}
+                                  {status.color === "green" && "🟢"}
+                                </span>
+
+                                <button
+                                  className="rounded-lg bg-blue-500 px-3 py-2 text-xs font-medium text-white hover:bg-blue-600"
+                                  onClick={async () => {
+                                    await executeWithErrorAndLoading({
+                                      setLoading,
+                                      action: async () => {
+                                        const success =
+                                          await onCompleteTask({
+                                            id: task.id,
+                                          })
+                                        if (!success) return
+                                      },
+                                    })
+                                  }}
+                                >
+                                  実施
+                                </button>
+
+                                <button
+                                  className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-200"
+                                  onClick={async () => {
+                                    const val = prompt(
+                                      "メンテ期限を入力 (YYYY-MM-DD)",
+                                      task.dueAt.slice(0, 10)
+                                    )
+
+                                    if (val === null) return
+
+                                    if (
+                                      !/^\d{4}-\d{2}-\d{2}$/.test(
+                                        val
+                                      )
+                                    ) {
+                                      alert(
+                                        "YYYY-MM-DD形式で入力してください"
+                                      )
+                                      return
+                                    }
+
+                                    await executeWithErrorAndLoading({
+                                      setLoading,
+                                      action: async () => {
+                                        const success =
+                                          await renameMaintenanceTaskDueAt({
+                                            id: task.id,
+                                            dueAt: `${val}T00:00:00`,
+                                          })
+                                        if (!success) return
+                                      },
+                                    })
+                                  }}
+                                >
+                                  修正
+                                </button>
+
+                                <button
+                                  className="rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100"
+                                  onClick={async () => {
+                                    const ok = confirm(
+                                      "このメンテナンスタスクを中止しますか？"
+                                    )
+
+                                    if (!ok) return
+
+                                    await executeWithErrorAndLoading({
+                                      setLoading,
+                                      action: async () => {
+                                        const success =
+                                          await cancelTask({
+                                            id: task.id,
+                                            isActive: false,
+                                          })
+                                        if (!success) return
+                                      },
+                                    })
+                                  }}
+                                >
+                                  中止
+                                </button>
+                              </>
+                            )}
+
+                            {isCompleted && (
+                              <div className="text-sm font-medium text-green-600">
+                                実施済み
+                              </div>
+                            )}
+
+                            {isCancelled && (
+                              <button
+                                className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-200"
+                                onClick={async () => {
+                                  const ok = confirm(
+                                    "中止を解除しますか？"
+                                  )
+
+                                  if (!ok) return
+
+                                  await executeWithErrorAndLoading({
+                                    setLoading,
+                                    action: async () => {
+                                      const success =
+                                        await cancelTask({
+                                          id: task.id,
+                                          isActive: true,
+                                        })
+                                      if (!success) return
+                                    },
+                                  })
+                                }}
+                              >
+                                中止解除
+                              </button>
+                            )}
+
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
+      <InfectionSelectModal
+        isOpen={isInfectionModalOpen}
+        onClose={() => setIsInfectionModalOpen(false)}
+        infectionTypes={infectionTypes}
+        roomInfections={roomInfections}
+        roomId={room?.id ?? 0}
+        setRoomInfections={setRoomInfections}
+      />
+    </CommonModal>
 
-    
-
-  
-    <InfectionSelectModal
-      isOpen={isInfectionModalOpen}
-      onClose={() => setIsInfectionModalOpen(false)}
-      infectionTypes={infectionTypes}
-      roomInfections={roomInfections}
-      roomId={room?.id ?? 0}
-      setRoomInfections={setRoomInfections}
-    />
-
-
-  </CommonModal>
-
-      <LoadingOverlay loading={loading} />
+    <LoadingOverlay loading={loading} />
   </>
-
-
-
-)}
+)
+}

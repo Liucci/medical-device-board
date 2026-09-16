@@ -3,8 +3,8 @@ import {  } from "../../client/apiClient"
 import { UpdateWardInfoType } from "../../../types/wardTypes"
 import { getWardsFromApi } from "../../wards/fetchWards"
 import { getWardInfectionsFromApi } from "../../wardInfections/fetchWardInfections"
-import {normalizeWard, toUpdateWardInfoRequest,} from "../../../utils/wardsMapper"
-import {normalizeWardInfection,} from "../../../utils/wardInfectionMapper"
+import {normalizeWard, toUpdateWardInfoRequest,} from "../../../mapper/wardsMapper"
+import {normalizeWardInfection,} from "../../../mapper/wardInfectionMapper"
 
 type UpdateWardInfoTransactionParams = {
                                         ward: UpdateWardInfoType

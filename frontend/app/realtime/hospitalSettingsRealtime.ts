@@ -7,7 +7,7 @@ type Props = {
   setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
 }
 
-export function subscribeHospitalSettingsRealtime({setHospitalSettings}: Props) 
+export function subscribeHospitalSettingsRealtime() 
 {
   console.log("subscribeHospitalSettingsRealtime")
   const channel = supabase
@@ -27,7 +27,7 @@ export function subscribeHospitalSettingsRealtime({setHospitalSettings}: Props)
                                     payload.eventType,
                                     payload
                                     )
-                await fetchHospitalSettingsTransaction({setHospitalSettings})
+                await fetchHospitalSettingsTransaction()
                 }
             )
             .subscribe((status) => {

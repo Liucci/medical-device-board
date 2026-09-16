@@ -4,7 +4,7 @@ import { getRoomInfectionsFromApi } from "../../roomInfections/fetchRoomInfectio
 import {
          normalizeRoomInfection,
          toCreateRoomInfectionRequest
-       } from "../../../utils/roomInfectionMapper"
+       } from "../../../mapper/roomInfectionMapper"
 import {  } from "../../client/apiClient"
 
 type CreateRoomInfectionTransactionParams = {

@@ -4,7 +4,7 @@ import {
 
 import {
   DeviceListExportDBMapper
-} from "@/app/utils/exportMapper"
+} from "@/app/mapper/exportMapper"
 
 import { API_BASE_URL ,}from "../client/apiClient"
 

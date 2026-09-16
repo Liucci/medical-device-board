@@ -8,7 +8,7 @@ import { getWardInfectionsFromApi } from "../../wardInfections/fetchWardInfectio
 import {
   normalizeWardInfection,
   toDeleteWardInfectionsRequest
-} from "../../../utils/wardInfectionMapper"
+} from "../../../mapper/wardInfectionMapper"
 
 type DeleteWardInfectionsTransactionParams = {
   wardInfections: DeleteWardInfectionsType

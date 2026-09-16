@@ -1,7 +1,7 @@
 import { login } from "../../auth/login"
 import { fetchCurrentUser } from "../../auth/fetchCurrentUser"
 
-import { normalizeCurrentUser } from "../../../utils/userMapper"
+import { normalizeCurrentUser } from "../../../mapper/userMapper"
 
 type LoginTransactionParams = {
                                 email: string

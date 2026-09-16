@@ -4,7 +4,7 @@ import {  } from "../../client/apiClient"
 import {
          normalizeRoom,
          toUpdateRoomPatientRequest
-       } from "../../../utils/roomsMapper"
+       } from "../../../mapper/roomsMapper"
 
 import { UpdateRoomPatientType } from "../../../types/roomTypes"
 

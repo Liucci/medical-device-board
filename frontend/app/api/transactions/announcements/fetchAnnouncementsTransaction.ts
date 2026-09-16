@@ -1,6 +1,6 @@
 import { AnnouncementFrontType } from "../../../types/announcementTypes"
 import { getAnnouncementsFromApi } from "../../announcements/fetchAnnouncements"
-import { normalizeAnnouncement } from "../../../utils/announcementMapper"
+import { normalizeAnnouncement } from "../../../mapper/announcementMapper"
 
 type FetchAnnouncementsTransactionParams = {setAnnouncements: any}
 

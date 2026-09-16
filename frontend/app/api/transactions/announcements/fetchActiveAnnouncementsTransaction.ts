@@ -1,5 +1,5 @@
 import { fetchActiveAnnouncements } from "../../announcements/fetchActiveAnnouncements"
-import { normalizeActiveAnnouncement } from "../../../../app/utils/announcementMapper"
+import { normalizeActiveAnnouncement } from "../../../mapper/announcementMapper"
 
 type FetchActiveAnnouncementsTransactionParams = {
                                                     

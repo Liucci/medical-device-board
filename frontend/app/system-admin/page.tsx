@@ -4,7 +4,7 @@ import { useEffect,useState } from "react"
 import { useRouter } from "next/navigation"
 import { CurrentUser } from "../types/userTypes"
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
-import { normalizeCurrentUser } from "../utils/userMapper"
+import { normalizeCurrentUser } from "../mapper/userMapper"
 
 export default function SystemAdminPage() 
 {

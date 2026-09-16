@@ -1,6 +1,6 @@
 import { API_BASE_URL,  } from "../client/apiClient"
 import { WardLastUpdatedResponse } from "@/app/types/deviceTypes"
-import { normalizeWardLastUpdated } from "../../utils/deviceMapper"
+import { normalizeWardLastUpdated } from "../../mapper/deviceMapper"
 
 export async function fetchWardLastUpdated(): Promise<WardLastUpdatedResponse> {
 

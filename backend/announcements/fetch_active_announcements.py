@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from supabase import Client
-from schemas.announcement_schemas import FetchActiveAnnouncementsRequest, FetchActiveAnnouncementsResponse
+from schemas.announcement_schemas import  FetchActiveAnnouncementsResponse
 
 
 def fetch_active_announcements(

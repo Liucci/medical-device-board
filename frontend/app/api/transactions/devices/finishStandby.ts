@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import {
          toFinishStandbyRequest
-       } from "../../../utils/deviceMapper"
+       } from "../../../mapper/deviceMapper"
 import {  } from "../../client/apiClient"
 
 export async function finishStandby(

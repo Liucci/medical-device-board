@@ -1,5 +1,5 @@
 import {DeviceListExportUIType}from "@/app/types/exportTypes"
-import {DeviceListExportDBMapper}from "@/app/utils/exportMapper"
+import {DeviceListExportDBMapper}from "@/app/mapper/exportMapper"
 import { API_BASE_URL,  }from "../client/apiClient"
 
 

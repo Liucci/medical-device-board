@@ -1,5 +1,5 @@
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
-import { normalizeCurrentUser } from "../utils/userMapper"
+import { normalizeCurrentUser } from "../mapper/userMapper"
 
 type InitDashboardParams = {
                             setCurrentUser: (user: any) => void
