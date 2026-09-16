@@ -16,5 +16,5 @@ class AddInspectionItemCategoryRequest(BaseModel):
 class UpdateInspectionItemCategoryRequest(BaseModel):
     id: int
     name: str
-    display_order: int
+    #display_order: int
     is_active: bool

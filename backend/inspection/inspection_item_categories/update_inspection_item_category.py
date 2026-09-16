@@ -13,7 +13,7 @@ def update_inspection_item_category(
         .table("inspection_item_categories")
         .update({
             "name": inspection_item_category.name,
-            "display_order": inspection_item_category.display_order,
+            #"display_order": inspection_item_category.display_order,
             "is_active": inspection_item_category.is_active
         })
         .eq("id", inspection_item_category.id)

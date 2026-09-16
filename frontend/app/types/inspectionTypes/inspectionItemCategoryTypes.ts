@@ -2,7 +2,7 @@ export type InspectionItemCategoryDBType = {
     id: number
     hospital_id: string
     name: string
-    display_order: number
+    //display_order: number
     is_active: boolean
 }
 
@@ -10,7 +10,7 @@ export type InspectionItemCategoryType = {
     id: number
     hospitalId: string
     name: string
-    displayOrder: number
+    //displayOrder: number
     isActive: boolean
 }
 
@@ -29,13 +29,13 @@ export type CreateInspectionItemCategoryBackType = {
 export type UpdateInspectionItemCategoryFrontType = {
     id: number
     name: string
-    displayOrder: number
+    //displayOrder: number
     isActive: boolean
 }
 
 export type UpdateInspectionItemCategoryBackType = {
     id: number
     name: string
-    display_order: number
+    //display_order: number
     is_active: boolean
 }

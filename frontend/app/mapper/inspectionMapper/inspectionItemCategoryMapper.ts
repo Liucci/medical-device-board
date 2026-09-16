@@ -14,7 +14,7 @@ export const normalizeInspectionItemCategory = (
     id: data.id,
     hospitalId: data.hospital_id,
     name: data.name,
-    displayOrder: data.display_order,
+    //displayOrder: data.display_order,
     isActive: data.is_active,
 })
 
@@ -31,6 +31,6 @@ export const toUpdateInspectionItemCategoryRequest = (
 ): UpdateInspectionItemCategoryBackType => ({
     id: data.id,
     name: data.name,
-    display_order: data.displayOrder,
+    //display_order: data.displayOrder,
     is_active: data.isActive,
 })
