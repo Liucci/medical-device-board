@@ -1,6 +1,8 @@
 // DeviceIcon.tsx
 // 機器アイコン表示コンポーネント
-import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes" 
+import { useState } from "react"
+import { createPortal } from "react-dom"
+import { TodayInspectionFrontType } from "../types/inspectionTypes/inspectionTypes"
 
 type Props = {
   deviceId: number
@@ -42,6 +44,29 @@ export default function DeviceIcon({
   inspectionCount = 0,
   todayInspections,
 }: Props) {
+  // ===== 点検日時ツールチップ =====
+  // z-indexでは解決できない親要素のstacking contextを避けるため、
+  // ツールチップはdocument.bodyへPortal表示する。
+  const [inspectionTooltip, setInspectionTooltip] = useState<{
+    top: number
+    left: number
+  } | null>(null)
+
+  const showInspectionTooltip = (
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+
+    setInspectionTooltip({
+      top: rect.bottom + 4,
+      left: rect.right,
+    })
+  }
+
+  const hideInspectionTooltip = () => {
+    setInspectionTooltip(null)
+  }
+
   // ===== 表示レベル =====
   const displayLevel =
     cellSize >= 104
@@ -238,8 +263,11 @@ export default function DeviceIcon({
 
       {/* ===== 点検実施インジケータ ===== */}
       {showIndicator && inspectionCount > 0 && (
-        <div className="absolute top-0.5 right-1 z-30 group">
-
+        <div
+          className="absolute top-0.5 right-1 z-30"
+          onMouseEnter={showInspectionTooltip}
+          onMouseLeave={hideInspectionTooltip}
+        >
           {/* インジケータ */}
           <div
             className="
@@ -262,15 +290,17 @@ export default function DeviceIcon({
           >
             {inspectionCount}
           </div>
+        </div>
+      )}
 
-          {/* ホバー時の点検日時 */}
+      {/* ===== 点検日時ツールチップ ===== */}
+      {inspectionTooltip &&
+        createPortal(
           <div
             className="
-              hidden
-              group-hover:block
-              absolute
-              right-0
-              top-5
+              fixed
+              z-[999999]
+              -translate-x-full
               bg-black
               text-white
               text-xs
@@ -279,7 +309,12 @@ export default function DeviceIcon({
               py-2
               whitespace-nowrap
               shadow-lg
+              pointer-events-none
             "
+            style={{
+              top: inspectionTooltip.top,
+              left: inspectionTooltip.left,
+            }}
           >
             <div className="font-semibold mb-1">
               本日の点検
@@ -300,10 +335,9 @@ export default function DeviceIcon({
                   )}
                 </div>
               ))}
-          </div>
-
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* ===== レンタル ===== */}
       {showIndicator && assetType === "レンタル" && (
@@ -390,6 +424,7 @@ export default function DeviceIcon({
           overflow-hidden
           select-none
           px-1
+          pt-1
           text-center
         "
 

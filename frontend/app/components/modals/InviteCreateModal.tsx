@@ -1,15 +1,10 @@
  "use client"
 
 import { useState } from "react"
-import { createPortal } from "react-dom"
 import { createInviteCodeTransaction }from "../../api/transactions/invites/createInviteCodeTransaction"
 import CommonModal from "../common/CommonModal"
-import {executeWithLoading} from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
-
 import {LoadingOverlay} from "../common/LoadingOverlay"
-//supabase
-import { supabase } from "../../lib/supabase"
 type Props = {
   onClose: () => void
 }
@@ -42,205 +37,150 @@ export default function InviteCreateModal({
   }
 
 return (
-  <>
+    <>
+      <CommonModal
+        open={true}
+        onClose={onClose}
+        title="ユーザー招待"
+        maxWidth="max-w-[600px]"
+      >
+        <div className="w-full rounded-xl bg-gray-200 p-5">
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <div className="space-y-5">
 
+              {isSuccess ? (
+                <>
+                  {/* ===================================================== */}
+                  {/* 招待完了 */}
+                  {/* ===================================================== */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      招待送信完了
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      招待メールを送信しました。
+                    </p>
+                  </div>
 
-        <CommonModal
-            open={true}
-            onClose={onClose}
-            title="ユーザー招待"
-            maxWidth="max-w-[400px]"
-        >
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">
+                        招待先メールアドレス
+                      </p>
+                      <p className="mt-1 break-all text-sm text-gray-700">
+                        {email}
+                      </p>
+                    </div>
 
-      {
-        isSuccess ? (
+                    <div className="mt-4">
+                      <p className="text-xs font-medium text-gray-600">
+                        招待コード
+                      </p>
+                      <p className="mt-1 break-all text-lg font-semibold text-gray-800">
+                        {inviteCode}
+                      </p>
+                    </div>
+                  </div>
 
-          <div className="p-6 text-center">
+                  {/* ===================================================== */}
+                  {/* ボタン */}
+                  {/* ===================================================== */}
+                  <div className="flex justify-end border-t border-gray-200 pt-5">
+                    <button
+                      onClick={onClose}
+                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+                    >
+                      閉じる
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* ===================================================== */}
+                  {/* ユーザー情報 */}
+                  {/* ===================================================== */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      ユーザー情報
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      招待するユーザーの情報を入力してください。
+                    </p>
+                  </div>
 
-            <div
-              className="
-                text-5xl
-                mb-4
-              "
-            >
-              ✅
+                  {/* メールアドレス */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">
+                      メールアドレス
+                    </label>
+
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="メールアドレスを入力"
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
+
+                  {/* 権限 */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">
+                      権限
+                    </label>
+
+                    <select
+                      value={role}
+                      onChange={(e) =>
+                        setRole(
+                          e.target.value as
+                            | "viewer"
+                            | "normal"
+                            | "admin"
+                        )
+                      }
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    >
+                      <option value="viewer">
+                        viewer
+                      </option>
+                      <option value="normal">
+                        normal
+                      </option>
+                      <option value="admin">
+                        admin
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* ===================================================== */}
+                  {/* ボタン */}
+                  {/* ===================================================== */}
+                  <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+                    <button
+                      onClick={onClose}
+                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+                    >
+                      キャンセル
+                    </button>
+
+                    <button
+                      onClick={handleCreate}
+                      disabled={loading}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    >
+                      {loading ? "送信中..." : "招待メール送信"}
+                    </button>
+                  </div>
+                </>
+              )}
+
             </div>
-
-            <h2
-              className="
-                text-2xl
-                font-bold
-                mb-4
-              "
-            >
-              招待送信完了
-            </h2>
-
-            <p
-              className="
-                mb-2
-                break-all
-              "
-            >
-              {email}
-            </p>
-
-            <p
-              className="
-                text-gray-500
-                text-sm
-                mb-6
-              "
-            >
-              に招待メールを送信しました
-            </p>
-
-            <div className="mb-6">
-
-              <p className="mb-2">
-                紹介コード:
-              </p>
-
-              <div
-                className="
-                  text-xl
-                  font-bold
-                  break-all
-                "
-              >
-                {inviteCode}
-              </div>
-
-            </div>
-
-            <button
-
-              onClick={onClose}
-
-              className="
-                px-4 py-2
-                bg-blue-500
-                text-white
-                rounded
-              "
-            >
-              閉じる
-            </button>
-
           </div>
+        </div>
+      </CommonModal>
 
-        ) : (
-
-          <div className="p-2">
-
-            <input
-              type="email"
-
-              value={email}
-
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
-
-              placeholder="メールアドレス"
-
-              className="
-                w-full
-                border
-                rounded
-                px-3 py-2
-                mb-4
-              "
-            />
-
-            <select
-
-              value={role}
-
-              onChange={(e) =>
-                setRole(
-                  e.target.value as  "viewer" |"normal" | "admin"
-                )
-              }
-
-              className="
-                w-full
-                border
-                rounded
-                px-3 py-2
-                mb-4
-              "
-            >
-
-              <option value="viewer">
-                viewer
-              </option>
-              <option value="normal">
-                normal
-              </option>
-
-              <option value="admin">
-                admin
-              </option>
-
-            </select>
-
-            <div
-              className="
-                flex
-                justify-end
-                gap-4
-                mt-6
-              "
-            >
-
-              <button
-
-                onClick={handleCreate}
-
-                disabled={loading}
-
-                className="
-                  px-4 py-2
-                  bg-blue-500
-                  text-white
-                  rounded
-                  disabled:opacity-50
-                "
-              >
-                {
-                  loading
-                    ? "送信中..."
-                    : "紹介コード送信"
-                }
-              </button>
-
-              <button
-
-                onClick={onClose}
-
-                className="
-                  px-4 py-2
-                  bg-gray-300
-                  rounded
-                "
-              >
-                閉じる
-              </button>
-
-            </div>
-
-          </div>
-
-        )
-      }
-    </CommonModal>
-      <LoadingOverlay loading={loading} /> 
-</>
-
-  
-
-)
+      <LoadingOverlay loading={loading} />
+    </>
+  )
 }

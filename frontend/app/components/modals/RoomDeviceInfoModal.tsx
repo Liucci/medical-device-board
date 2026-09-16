@@ -307,7 +307,7 @@ return (
         </button>
       }
     >
-      <div className="h-full w-full bg-gray-200 p-5">
+      <div className="rounded-xl h-full w-full bg-gray-200 p-5">
         <div className="grid h-full min-h-0 grid-cols-1 gap-5 lg:grid-cols-2">
 
           {/* ===================================================== */}

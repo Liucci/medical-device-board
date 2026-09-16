@@ -35,58 +35,75 @@ export default function WardInfectionSelectModal({
 
   if (!isOpen) return null
 
-  return createPortal(
+return createPortal(
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30">
+      <div className="w-[500px] max-w-[calc(100vw-32px)] rounded-xl bg-gray-200 p-5 shadow-xl">
+        <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="space-y-5">
 
-      <div className="w-[420px] rounded-xl bg-white p-6 shadow-xl">
+            {/* ===================================================== */}
+            {/* 感染症情報 */}
+            {/* ===================================================== */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                感染症情報
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                病棟で管理する感染症を選択してください。
+              </p>
+            </div>
 
-        <h2 className="mb-4 text-lg font-bold">
-          病棟感染症設定
-        </h2>
+            {/* ===================================================== */}
+            {/* 感染症一覧 */}
+            {/* ===================================================== */}
+            <div>
+              <label className="text-xs font-medium text-gray-600">
+                感染症
+              </label>
 
-        <div className="max-h-80 overflow-y-auto rounded border p-3">
+              <div className="mt-1 max-h-80 overflow-y-auto rounded-lg border border-gray-300 bg-white p-3">
+                <div className="space-y-1">
+                  {infectionTypes.map(type => (
+                    <label
+                      key={type.id}
+                      className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedInfectionIds.includes(type.id)}
+                        onChange={() => toggle(type.id)}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
 
-          {infectionTypes.map(type => (
-            <label
-              key={type.id}
-              className="flex cursor-pointer items-center gap-2 py-1"
-            >
-              <input
-                type="checkbox"
-                checked={selectedInfectionIds.includes(type.id)}
-                onChange={() => toggle(type.id)}
-              />
-
-              <div className="flex items-center gap-2">
-
-                <FaVirus
-                  size={16}
-                  color={type.color}
-                />
-
-                <span>{type.name}</span>
-
+                      <div className="flex items-center gap-2">
+                        <FaVirus
+                          size={16}
+                          color={type.color}
+                        />
+                        <span>{type.name}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               </div>
+            </div>
 
-            </label>
-          ))}
+            {/* ===================================================== */}
+            {/* ボタン */}
+            {/* ===================================================== */}
+            <div className="flex justify-end border-t border-gray-200 pt-5">
+              <button
+                onClick={onClose}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                OK
+              </button>
+            </div>
 
+          </div>
         </div>
-
-        <div className="mt-5 flex justify-end gap-2">
-
-          <button
-            onClick={onClose}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            OK
-          </button>
-
-        </div>
-
       </div>
-
     </div>,
     document.body
-  )
+  )  
 }

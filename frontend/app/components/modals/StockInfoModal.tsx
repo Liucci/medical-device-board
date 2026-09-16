@@ -149,7 +149,7 @@ return (
         </button>
       }
     >
-      <div className="h-full w-full bg-gray-200 p-5">
+      <div className="h-full rounded-xl w-full bg-gray-200 p-5">
         <div className="h-full min-h-0 overflow-y-auto rounded-xl bg-white p-6 shadow-sm">
 
           <div className="space-y-5">
