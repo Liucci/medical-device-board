@@ -140,7 +140,7 @@ from transactions.exports.export_device_list_pdf_transaction import (export_devi
 from transactions.exports.export_device_list_csv_transaction import (export_device_list_csv_transaction)
 from transactions.exports.export_history_csv_transaction import (export_history_csv_transaction)
 from schemas.export_schemas import ExportInspectionPdfRequest
-
+from transactions.exports.create_inspection_pdf_transaction import create_inspection_pdf_transaction
 
 from schemas.infection_type_schemas import (
                                             InfectionTypeResponse,
@@ -1636,7 +1636,7 @@ async def export_inspection_pdf_route(
                         allowed_roles=["admin","normal"]
                     )
 
-    pdf_buffer = export_inspection_pdf_transaction(
+    pdf_buffer = create_inspection_pdf_transaction(
                                                         request.rows,
                                                         hospital_name
                                                     )
