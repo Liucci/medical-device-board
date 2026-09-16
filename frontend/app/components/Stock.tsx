@@ -178,6 +178,7 @@ const isCurrentDragging = draggingDevice?.id === d.id
               }
             >
           <DeviceIcon
+            deviceId={d.id}
             typeName={typeName}
             modelName={modelName}
             assetType={assetType}
