@@ -167,6 +167,7 @@
 | inspections                       | 21               | checklist_name          | text                        |     |                               | YES         |
 | inspections                       | 22               | checklist_id            | bigint                      |     |                               | YES         |
 | inspections                       | 23               | checklist_version       | integer                     |     |                               | YES         |
+| inspections                       | 24               | device_id               | integer                     |     |                               | NO          |
 | invite_codes                      | 2                | code                    | text                        |     |                               | NO          |
 | invite_codes                      | 3                | hospital_id             | uuid                        |     |                               | YES         |
 | invite_codes                      | 4                | role                    | text                        |     |                               | NO          |
