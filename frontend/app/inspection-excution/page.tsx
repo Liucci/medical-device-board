@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense,useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 // API
@@ -60,7 +60,9 @@ import { buildInspection } from "./utils/buildInspection"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 
-export default function InspectionExecutionPage() {
+
+//Next.js 16では、useSearchParams()をSuspense境界の内側で実行する必要があります。
+function InspectionExecutionPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     //URLからdevice idを取得する（str扱いになるのでnumber変換）
@@ -706,4 +708,13 @@ return (
         
     </>
 )
+}
+
+
+export default function Page() {
+    return (
+        <Suspense fallback={null}>
+            <InspectionExecutionPage />
+        </Suspense>
+    )
 }
