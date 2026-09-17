@@ -211,21 +211,6 @@ export default function SortableInspectionChecklistItem({
                     {index + 1}
                 </div>
 
-
-                {/* 項目名 */}
-
-                <div
-                    className="
-                        min-w-0
-                        flex-1
-                        text-sm
-                        text-gray-800
-                    "
-                >
-                    {item.name}
-                </div>
-
-
                 {/* 大項目 */}
 
                 <div
@@ -241,6 +226,24 @@ export default function SortableInspectionChecklistItem({
                 >
                     {categoryName ?? "未選択"}
                 </div>
+
+
+
+
+                {/* 項目名 */}
+
+                <div
+                    className="
+                        min-w-0
+                        flex-1
+                        text-sm
+                        text-gray-800
+                    "
+                >
+                    {item.name}
+                </div>
+
+
 
 
                 {/* 入力方式 */}

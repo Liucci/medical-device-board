@@ -40,8 +40,7 @@ from schemas.inspection_schemas.inspection_checklist_item_schemas import (
     AddInspectionChecklistItemRequest,
 )
 from schemas.inspection_schemas.inspection_item_category_schema import (
-    AddInspectionItemCategoryRequest,
-    UpdateInspectionItemCategoryRequest,
+SaveInspectionItemCategoriesRequest
 )
 from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
     CreateInspectionChecklistTransactionRequest,
@@ -66,7 +65,7 @@ from exports.pdf.generate_inspection_pdf import generate_inspection_pdf
 from transactions.exports.create_inspection_csv_transaction import (create_inspection_csv_transaction)
 from exports.csv.generate_inspection_csv import generate_inspection_csv
 from transactions.inspection.inspection_checklists.delete_inspection_checklist_transaction import (delete_inspection_checklist_transaction)
-
+from transactions.inspection.inspection_item_categories.save_inspection_item_categories_transaction import (save_inspection_item_categories_transaction)
 #init
 from inits.fetch_init_inspection_excution import (fetch_init_inspection_execution)
 from inits.fetch_init_inspection_editor import fetch_init_inspection_editor
@@ -370,9 +369,20 @@ def get_inspection_item_categories(
         hospital_id=session.hospital_id
     )
 
-@inspection_router.post("/create-inspection-item-categories")
+@inspection_router.post("/save-inspection-item-categories")
+def save_inspection_item_categories_route(
+    request: SaveInspectionItemCategoriesRequest,
+    session: BackendSession = Depends(get_current_session),
+):
+    return save_inspection_item_categories_transaction(
+        client=session.client,
+        request=request,
+        hospital_id=session.hospital_id,
+    )
+
+""" @inspection_router.post("/create-inspection-item-categories")
 def create_inspection_item_category(
-    inspection_item_category: AddInspectionItemCategoryRequest,
+    inspection_item_category: SaveInspectionItemCategoriesRequest,
     session: BackendSession = Depends(get_current_session),
 ):
     return add_inspection_item_category_transaction(
@@ -383,7 +393,7 @@ def create_inspection_item_category(
 
 @inspection_router.post("/update-inspection-item-category")
 def update_inspection_item_category_route(
-    inspection_item_category: UpdateInspectionItemCategoryRequest,
+    inspection_item_category: SaveInspectionItemCategoriesRequest,
     session: BackendSession = Depends(get_current_session),
 ):
     return update_inspection_item_category_transaction(
@@ -391,6 +401,9 @@ def update_inspection_item_category_route(
         inspection_item_category=inspection_item_category,
         hospital_id=session.hospital_id,
     )
+ """
+
+
 
 # inspection_checklist_item_options
 @inspection_router.get("/fetch-inspection-checklist-item-options/{checklist_item_id}")

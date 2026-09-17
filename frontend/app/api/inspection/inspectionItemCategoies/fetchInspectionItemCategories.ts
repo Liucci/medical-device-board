@@ -9,9 +9,7 @@ export async function getInspectionItemCategoriesFromApi()
         `${API_BASE_URL}/get-inspection-item-categories`,
         {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: {"Content-Type": "application/json"},
             credentials: "include",
         }
     )

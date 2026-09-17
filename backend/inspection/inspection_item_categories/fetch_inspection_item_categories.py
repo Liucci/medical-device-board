@@ -10,9 +10,7 @@ def fetch_inspection_item_categories(
         client
         .table("inspection_item_categories")
         .select("*")
-        .or_(
-            f"hospital_id.eq.{hospital_id},hospital_id.is.null"
-        )
+        .eq("hospital_id", hospital_id)
         .order("display_order")
         .execute()
     )

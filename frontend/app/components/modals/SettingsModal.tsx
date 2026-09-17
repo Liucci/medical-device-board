@@ -199,6 +199,7 @@ export default function SettingsModal({
     || mode === "ward"
       ? "max-w-[1000px]"
       : mode === "stock"
+      ||mode === "checklistCategory"
       ? "max-w-[600px]"
       : "max-w-[500px]"
   }
@@ -390,8 +391,8 @@ export default function SettingsModal({
 
               <EditChecklistItemCategoryModal
                   inspectionItemCategories={inspectionItemCategories}
-                  setInspectionItemCategories={setInspectionItemCategories}    
-
+                  setInspectionItemCategories={setInspectionItemCategories} 
+                  onclose={() => setMode("menu")}
               />
 
           </>

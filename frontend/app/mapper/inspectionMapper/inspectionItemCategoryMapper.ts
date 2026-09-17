@@ -1,36 +1,34 @@
 import type {
     InspectionItemCategoryDBType,
     InspectionItemCategoryType,
-    CreateInspectionItemCategoryBackType,
-    CreateInspectionItemCategoryFrontType,
-    UpdateInspectionItemCategoryBackType,
-    UpdateInspectionItemCategoryFrontType,
+    InspectionItemCategoryEditType,
+    SaveInspectionItemCategoriesFrontType,
+    SaveInspectionItemCategoriesBackType,
 } from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 
+// DB → Front
 export const normalizeInspectionItemCategory = (
     data: InspectionItemCategoryDBType
 ): InspectionItemCategoryType => ({
     id: data.id,
     hospitalId: data.hospital_id,
     name: data.name,
-    //displayOrder: data.display_order,
+    displayOrder: data.display_order,
     isActive: data.is_active,
 })
 
 
-export const toCreateInspectionItemCategoryRequest = (
-    data: CreateInspectionItemCategoryFrontType
-): CreateInspectionItemCategoryBackType => ({
-    name: data.name,
-})
-
-
-export const toUpdateInspectionItemCategoryRequest = (
-    data: UpdateInspectionItemCategoryFrontType
-): UpdateInspectionItemCategoryBackType => ({
-    id: data.id,
-    name: data.name,
-    //display_order: data.displayOrder,
-    is_active: data.isActive,
+// Front → Backend
+export const toSaveInspectionItemCategoriesRequest = (
+    data: SaveInspectionItemCategoriesFrontType
+): SaveInspectionItemCategoriesBackType => ({
+    categories: data.categories.map(
+        (category: InspectionItemCategoryEditType) => ({
+            id: category.id,
+            name: category.name,
+            display_order: category.displayOrder,
+            is_active: category.isActive,
+        })
+    ),
 })

@@ -1,19 +1,20 @@
 from supabase import Client
-from schemas.inspection_schemas.inspection_item_category_schema import UpdateInspectionItemCategoryRequest
+from schemas.inspection_schemas.inspection_item_category_schema import InspectionItemCategorySaveItem
 
 
 def update_inspection_item_category(
     client: Client,
-    inspection_item_category: UpdateInspectionItemCategoryRequest,
+    inspection_item_category: InspectionItemCategorySaveItem,
     hospital_id: str
 ):
     print("update_inspection_item_category")
+
     response = (
         client
         .table("inspection_item_categories")
         .update({
             "name": inspection_item_category.name,
-            #"display_order": inspection_item_category.display_order,
+            "display_order": inspection_item_category.display_order,
             "is_active": inspection_item_category.is_active
         })
         .eq("id", inspection_item_category.id)

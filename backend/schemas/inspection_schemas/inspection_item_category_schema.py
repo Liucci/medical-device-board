@@ -9,12 +9,13 @@ class InspectionItemCategoryResponse(BaseModel):
     is_active: bool
 
 
-class AddInspectionItemCategoryRequest(BaseModel):
-    name: str
 
-
-class UpdateInspectionItemCategoryRequest(BaseModel):
-    id: int
+class InspectionItemCategorySaveItem(BaseModel):
+    id: int | None
     name: str
-    #display_order: int
+    display_order: int
     is_active: bool
+
+
+class SaveInspectionItemCategoriesRequest(BaseModel):
+    categories: list[InspectionItemCategorySaveItem]

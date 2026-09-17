@@ -121,6 +121,86 @@ export default function InspectionEditorPage()
     const filteredDeviceModels = deviceModels.filter(
                 (deviceModel) =>deviceModel.deviceTypeId === deviceTypeId
     )
+
+    //追加した小項目がどのcategoryに属するかによって、そのcategoryの大項目位置に強制的に入る
+    const addChecklistItem = (
+        name: string,
+        categoryId: number,
+        itemTypeId: number,
+        options: InspectionChecklistItemOption[],
+        unit: string | null
+    ) => {
+        setInspectionChecklistItems((prev) => {
+            const newItem: InspectionChecklistItemEditor = {
+                id: Date.now(),
+                name,
+                categoryId,
+                itemTypeId,
+                displayOrder: prev.length + 1,
+                required: false,
+                defaultValue: null,
+                options,
+                unit,
+            }
+
+            return sortChecklistItemsByCategory([
+                ...prev,
+                newItem,
+            ])
+        })
+
+        setIsAddItemModalOpen(false)
+    }    
+    //UI上で追加したitemのcategoryを変更したとき「category順に並べる」処理  
+    const sortChecklistItemsByCategory = (
+        items: InspectionChecklistItemEditor[]
+    ) => {
+        return [...items].sort((a, b) => {
+            const categoryA = inspectionItemCategories.find(
+                (category) => category.id === a.categoryId
+            )
+
+            const categoryB = inspectionItemCategories.find(
+                (category) => category.id === b.categoryId
+            )
+
+            return (
+                (categoryA?.displayOrder ?? Number.MAX_SAFE_INTEGER) -
+                (categoryB?.displayOrder ?? Number.MAX_SAFE_INTEGER)
+            )
+        })
+    }
+    //UI上のitem編集を実施確定したときの処理
+    const updateChecklistItem = (
+    itemId: number,
+    name: string,
+    categoryId: number,
+    itemTypeId: number,
+    options: InspectionChecklistItemOption[],
+    unit: string | null
+) => {
+    setInspectionChecklistItems((prev) => {
+        const updatedItems = prev.map((item) =>
+            item.id === itemId
+                ? {
+                    ...item,
+                    name,
+                    categoryId,
+                    itemTypeId,
+                    options,
+                    unit,
+                }
+                : item
+        )
+
+        return sortChecklistItemsByCategory(updatedItems)
+    })
+
+    setIsEditItemModalOpen(false)
+    setEditingChecklistItem(null)
+    }
+
+    //itemをdrop後の処理
     const handleChecklistItemDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
 
@@ -141,6 +221,15 @@ export default function InspectionEditorPage()
                 return items
             }
 
+            const activeItem = items[oldIndex]
+            const overItem = items[newIndex]
+
+            // 大項目が異なる場合は移動させない
+            if (activeItem.categoryId !== overItem.categoryId) {
+                return items
+            }
+
+            // 同じ大項目内だけ並び替え可能
             return arrayMove(
                 items,
                 oldIndex,
@@ -148,7 +237,6 @@ export default function InspectionEditorPage()
             )
         })
     }
-
     const handleSave = async () => 
     {
     try {
@@ -737,33 +825,14 @@ return (
 
 
             {/* 項目追加Modal */}
-<AddInspectionChecklistItemModal
-    open={isAddItemModalOpen}
-    inspectionItemTypes={inspectionItemTypes}
-    inspectionItemCategories={inspectionItemCategories}
-    onClose={() =>setIsAddItemModalOpen(false)}
-    onAdd={(name, categoryId, itemTypeId, options,unit) =>
-    {
-        setInspectionChecklistItems((prev) =>
-            [
-                ...prev,
-                {
-                    id: Date.now(),
-                    name: name,
-                    categoryId,
-                    itemTypeId,
-                    displayOrder: prev.length + 1,
-                    required: false,
-                    defaultValue: null,
-                    options,
-                    unit,
-                },
-            ]
-        )
-
-        setIsAddItemModalOpen(false)
-    }}
-/>
+            <AddInspectionChecklistItemModal
+                open={isAddItemModalOpen}
+                inspectionItemTypes={inspectionItemTypes}
+                inspectionItemCategories={inspectionItemCategories}
+                onClose={() =>setIsAddItemModalOpen(false)}
+                onAdd={addChecklistItem}
+                
+            />
 
             {/* 項目編集Modal */}
             <EditInspectionChecklistItemModal
@@ -775,24 +844,7 @@ return (
                     setIsEditItemModalOpen(false)
                     setEditingChecklistItem(null)
                 }}
-                onSave={(itemId, name, categoryId, itemTypeId, options,unit) => {
-                    setInspectionChecklistItems((prev) =>
-                        prev.map((item) =>
-                            item.id === itemId
-                                ? {
-                                    ...item,
-                                    name,
-                                    categoryId,
-                                    itemTypeId,
-                                    options,
-                                    unit
-                                }
-                                : item
-                        )
-                    )
-                    setIsEditItemModalOpen(false)
-                    setEditingChecklistItem(null)
-                }}
+                onSave={updateChecklistItem}                
             />
 
             </div>

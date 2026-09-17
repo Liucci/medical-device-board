@@ -2,40 +2,45 @@ export type InspectionItemCategoryDBType = {
     id: number
     hospital_id: string
     name: string
-    //display_order: number
+    display_order: number
     is_active: boolean
 }
+
 
 export type InspectionItemCategoryType = {
     id: number
     hospitalId: string
     name: string
-    //displayOrder: number
+    displayOrder: number
     isActive: boolean
 }
 
 
-//create,updateではfrontでhospital idを持たせる必要なし
-//back sessionでhospital id取得する
-//delete操作は不要
-export type CreateInspectionItemCategoryFrontType = {
+// UIで編集するカテゴリー
+// 新規追加の場合はid = null
+export type InspectionItemCategoryEditType = {
+    id: number | null
     name: string
-}
-
-export type CreateInspectionItemCategoryBackType = {
-    name: string
-}
-
-export type UpdateInspectionItemCategoryFrontType = {
-    id: number
-    name: string
-    //displayOrder: number
+    displayOrder: number
     isActive: boolean
 }
 
-export type UpdateInspectionItemCategoryBackType = {
-    id: number
+
+// 一括保存用
+export type SaveInspectionItemCategoriesFrontType = {
+    categories: InspectionItemCategoryEditType[]
+}
+
+
+export type SaveInspectionItemCategoriesBackType = {
+    categories: InspectionItemCategorySaveBackType[]
+}
+
+
+export type InspectionItemCategorySaveBackType = {
+    id: number | null
     name: string
-    //display_order: number
+    display_order: number
     is_active: boolean
 }
+

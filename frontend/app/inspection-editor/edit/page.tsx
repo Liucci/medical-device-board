@@ -195,7 +195,84 @@ export default function InspectionChecklistEditPage()
             checklist.id === selectedChecklistId
     )
 
+    const addChecklistItem = (
+        name: string,
+        categoryId: number,
+        itemTypeId: number,
+        options: InspectionChecklistItem["options"],
+        unit: string | null
+    ) => {
+        setInspectionChecklistItems((prev) => {
+            const newItem: InspectionChecklistItem = {
+                id: Date.now(),
+                categoryId,
+                checklistId: selectedChecklistId!,
+                displayOrder: prev.length + 1,
+                itemName: name,
+                itemTypeId,
+                required: false,
+                defaultValue: null,
+                options,
+                unit,
+            }
 
+            return sortChecklistItemsByCategory([
+                ...prev,
+                newItem,
+            ])
+        })
+
+        setIsAddItemModalOpen(false)
+    }
+
+    const updateChecklistItem = (
+        itemId: number,
+        name: string,
+        categoryId: number,
+        itemTypeId: number,
+        options: InspectionChecklistItem["options"],
+        unit: string | null
+    ) => {
+        setInspectionChecklistItems((prev) => {
+            const updatedItems = prev.map((item) =>
+                item.id === itemId
+                    ? {
+                        ...item,
+                        itemName: name,
+                        categoryId,
+                        itemTypeId,
+                        options,
+                        unit,
+                    }
+                    : item
+            )
+
+            return sortChecklistItemsByCategory(updatedItems)
+        })
+
+        setIsEditItemModalOpen(false)
+        setEditingChecklistItem(null)
+    }
+
+    //UI上で追加したitemのcategoryを変更したとき「category順に並べる」処理  
+    const sortChecklistItemsByCategory = (
+        items: InspectionChecklistItem[]
+    ) => {
+        return [...items].sort((a, b) => {
+            const categoryA = inspectionItemCategories.find(
+                (category) => category.id === a.categoryId
+            )
+
+            const categoryB = inspectionItemCategories.find(
+                (category) => category.id === b.categoryId
+            )
+
+            return (
+                (categoryA?.displayOrder ?? Number.MAX_SAFE_INTEGER) -
+                (categoryB?.displayOrder ?? Number.MAX_SAFE_INTEGER)
+            )
+        })
+    }
     // =========================================
     // 点検表選択時
     // =========================================
@@ -275,7 +352,7 @@ export default function InspectionChecklistEditPage()
             )
 
         setInspectionChecklistItems(
-            itemsWithOptions
+            sortChecklistItemsByCategory(itemsWithOptions)
         )
 
         setOriginalItemIds(
@@ -290,51 +367,24 @@ export default function InspectionChecklistEditPage()
     // 項目並び替え
     // =========================================
 
-    const handleChecklistItemDragEnd = (
-        event: DragEndEvent
-    ) =>
-    {
+    const handleChecklistItemDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
-
         if (!over) return
-
         if (active.id === over.id) return
 
         setInspectionChecklistItems((items) => {
+            const oldIndex = items.findIndex((item) => item.id === active.id)
+            const newIndex = items.findIndex((item) => item.id === over.id)
+            if (oldIndex === -1 || newIndex === -1) return items
 
-            const oldIndex =
-                items.findIndex(
-                    (item) =>
-                        item.id === active.id
-                )
+            const activeItem = items[oldIndex]
+            const overItem = items[newIndex]
+            if (activeItem.categoryId !== overItem.categoryId) return items
 
-            const newIndex =
-                items.findIndex(
-                    (item) =>
-                        item.id === over.id
-                )
-
-            if (
-                oldIndex === -1 ||
-                newIndex === -1
-            ) {
-                return items
-            }
-
-            return arrayMove(
-                items,
-                oldIndex,
-                newIndex
-            ).map(
-                (item, index) => ({
-                    ...item,
-                    displayOrder: index + 1,
-                })
-            )
+            const movedItems = arrayMove(items, oldIndex, newIndex)
+            return sortChecklistItemsByCategory(movedItems)
         })
     }
-
-
     // =========================================
     // 保存
     // =========================================
@@ -1128,35 +1178,7 @@ export default function InspectionChecklistEditPage()
                     onClose={() =>setIsAddItemModalOpen(false)}
 
                     // ★ 新規登録用と同じくoptionsを受け取る
-                    onAdd={(
-                            name,
-                            categoryId,
-                            itemTypeId,
-                            options,
-                            unit
-                    ) => {
-                        setInspectionChecklistItems(
-                            (prev) => [
-                                ...prev,
-                                {
-                                    id: Date.now(),
-                                    categoryId,
-                                    checklistId:selectedChecklistId!,
-                                    displayOrder:prev.length + 1,
-                                    itemName:name,
-                                    itemTypeId:itemTypeId,
-                                    required:false,
-                                    defaultValue:null,
-                                    // ★ optionsをそのまま保持
-                                    options,
-                                    unit,
-                                },
-                            ]
-                        )
-
-                        setIsAddItemModalOpen(false)
-
-                    }}
+                    onAdd={addChecklistItem}
                 />
 
 
@@ -1175,25 +1197,8 @@ export default function InspectionChecklistEditPage()
                         setIsEditItemModalOpen(false)
                         setEditingChecklistItem(null)
                     }}
-                    onSave={(itemId, name, categoryId,itemTypeId, options,unit) => {
-                        setInspectionChecklistItems((prev) =>
-                            prev.map((item) =>
-                                item.id === itemId
-                                    ? {
-                                        ...item,
-                                        name: name,
-                                        categoryId,
-                                        itemTypeId,
-                                        options,
-                                        unit
-                                    }
-                                    : item
-                            )
-                        )
+                    onSave={updateChecklistItem}
 
-                        setIsEditItemModalOpen(false)
-                        setEditingChecklistItem(null)
-                    }}                    
                 />
 
             </div>

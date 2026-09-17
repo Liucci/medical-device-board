@@ -1,7 +1,7 @@
 from supabase import Client
 
 from schemas.inspection_schemas.inspection_item_category_schema import (
-    AddInspectionItemCategoryRequest,
+    SaveInspectionItemCategoriesRequest,
 )
 from inspection.inspection_item_categories.add_inspection_item_category import (
     add_inspection_item_category,
@@ -10,7 +10,7 @@ from inspection.inspection_item_categories.add_inspection_item_category import (
 
 def add_inspection_item_category_transaction(
     client: Client,
-    inspection_item_category: AddInspectionItemCategoryRequest,
+    inspection_item_category: SaveInspectionItemCategoriesRequest,
     hospital_id: str,
 ):
     return add_inspection_item_category(
