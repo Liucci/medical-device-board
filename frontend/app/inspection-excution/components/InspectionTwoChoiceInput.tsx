@@ -11,7 +11,7 @@ export function InspectionTwoChoiceInput({
     value,
     onChange
 }: Props) {
-    console.log("InspectionTwoChoiceInput")
+    //console.log("InspectionTwoChoiceInput")
 
     return (
         <div className="flex gap-2">

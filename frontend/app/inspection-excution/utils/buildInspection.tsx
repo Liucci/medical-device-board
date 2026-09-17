@@ -165,18 +165,18 @@ function getInspectionChecklistItemInput(
 }
 
 export function buildInspection({
-    items,
-    categories,
-    itemTypes,
-    optionsByChecklistItemId,
-    inspectionResults,
-    onChange
-}: BuildInspectionProps) {
+                                    items,
+                                    categories,
+                                    itemTypes,
+                                    optionsByChecklistItemId,
+                                    inspectionResults,
+                                    onChange
+}: BuildInspectionProps) 
+{
     console.log("buildInspection")
-
     const groups = getInspectionChecklistItemGroups(
-        items,
-        categories
+                                                    items,
+                                                    categories
     )
 
     return (

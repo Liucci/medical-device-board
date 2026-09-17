@@ -125,7 +125,7 @@ def generate_inspection_csv(
 
         writer.writerow(
             [
-                "カテゴリ",
+                "大項目（カテゴリ）",
                 "点検項目",
                 "単位",
                 *inspection_datetimes
@@ -133,7 +133,6 @@ def generate_inspection_csv(
         )
 
         for row in rows:
-
             writer.writerow(
                 [
                     row["category_name"],

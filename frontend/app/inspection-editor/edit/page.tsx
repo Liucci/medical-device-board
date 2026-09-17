@@ -409,8 +409,8 @@ export default function InspectionChecklistEditPage()
                     name:checklist.name,
                     version:nextVersion,
                     items:inspectionChecklistItems.map(
-                            (item) => ({
-                                displayOrder:item.displayOrder,
+                            (item,index) => ({
+                                displayOrder: index + 1,
                                 itemName:item.itemName,
                                 categoryId: item.categoryId,
                                 itemTypeId:item.itemTypeId,

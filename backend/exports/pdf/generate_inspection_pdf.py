@@ -127,6 +127,15 @@ def generate_inspection_pdf(
         alignment=TA_LEFT
     )
 
+    category_style = ParagraphStyle(
+        "category",
+        fontName="NotoSansJP-Bold",
+        fontSize=font_size,
+        leading=font_size + 1,
+        alignment=TA_LEFT
+    )
+
+
     table_center_style = ParagraphStyle(
         "table_center",
         fontName="NotoSansJP",
@@ -414,7 +423,8 @@ def generate_inspection_pdf(
             - header_height
             - 5 * mm
         )
-
+    
+    #PDFの表部分のレイアウト処理
     def draw_matrix(
         checklist_inspections,
         rows,
@@ -444,6 +454,40 @@ def generate_inspection_pdf(
             )
         )
 
+        category_groups = []
+        current_category = None
+        current_group = []
+
+        for row in rows:
+
+            category_name = row.get("category_name") or ""
+
+            if category_name != current_category:
+
+                if current_group:
+                    category_groups.append(
+                        {
+                            "category_name": current_category,
+                            "rows": current_group
+                        }
+                    )
+
+                current_category = category_name
+                current_group = [row]
+
+            else:
+                current_group.append(row)
+
+        if current_group:
+            category_groups.append(
+                {
+                    "category_name": current_category,
+                    "rows": current_group
+                }
+            )
+
+        first_page = True
+
         for start_index in range(
             0,
             len(checklist_inspections),
@@ -463,8 +507,6 @@ def generate_inspection_pdf(
                 inspection_area_width
                 / inspection_count
             )
-
-            table_data = []
 
             dates = []
             times = []
@@ -500,7 +542,7 @@ def generate_inspection_pdf(
                     ) or ""
                 )
 
-            table_data.append(
+            header_rows = [
                 [
                     Paragraph(
                         "点検項目",
@@ -513,10 +555,7 @@ def generate_inspection_pdf(
                         )
                         for date in dates
                     ]
-                ]
-            )
-
-            table_data.append(
+                ],
                 [
                     "",
                     *[
@@ -526,10 +565,7 @@ def generate_inspection_pdf(
                         )
                         for time in times
                     ]
-                ]
-            )
-
-            table_data.append(
+                ],
                 [
                     "",
                     *[
@@ -540,145 +576,329 @@ def generate_inspection_pdf(
                         for name in performed_by_names
                     ]
                 ]
-            )
-
-            for row in rows:
-
-                table_data.append(
-                    [
-                        Paragraph(
-                            row["item_name"],
-                            table_body_style
-                        ),
-                        *[
-                            Paragraph(
-                                ""
-                                if value is None
-                                else str(value),
-                                table_center_style
-                            )
-                            for value in row["values"][
-                                start_index:
-                                start_index + max_columns
-                            ]
-                        ]
-                    ]
-                )
-
-            col_widths = [
-                item_width
-            ] + [
-                inspection_column_width
-                for _ in page_inspections
             ]
 
-            table = Table(
-                table_data,
-                colWidths=col_widths,
-                repeatRows=3
-            )
+            vertical_chunks = []
+            current_chunk = []
 
-            table.setStyle(
-                TableStyle(
-                    [
-                        (
-                            "GRID",
-                            (0, 0),
-                            (-1, -1),
-                            0.4,
-                            colors.grey
-                        ),
+            def create_table_data(chunk):
+
+                table_data = [
+                    list(header_rows[0]),
+                    list(header_rows[1]),
+                    list(header_rows[2])
+                ]
+
+                category_row_indexes = []
+
+                for group in chunk:
+
+                    category_row_indexes.append(
+                        len(table_data)
+                    )
+
+                    table_data.append(
+                        [
+                            Paragraph(
+                                f"■ {group['category_name']}",
+                                category_style
+                            ),
+                            *[
+                                ""
+                                for _ in page_inspections
+                            ]
+                        ]
+                    )
+
+                    for row in group["rows"]:
+
+                        table_data.append(
+                            [
+                                Paragraph(
+                                    f"　　{row['item_name']}",
+                                    table_body_style
+                                ),
+                                *[
+                                    Paragraph(
+                                        ""
+                                        if value is None
+                                        else str(value),
+                                        table_center_style
+                                    )
+                                    for value in row["values"][
+                                        start_index:
+                                        start_index + max_columns
+                                    ]
+                                ]
+                            ]
+                        )
+
+                return table_data, category_row_indexes
+
+            def create_table(chunk):
+
+                table_data, category_row_indexes = (
+                    create_table_data(chunk)
+                )
+
+                col_widths = [
+                    item_width
+                ] + [
+                    inspection_column_width
+                    for _ in page_inspections
+                ]
+
+                table = Table(
+                    table_data,
+                    colWidths=col_widths,
+                    repeatRows=3
+                )
+
+                style_commands = [
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.4,
+                        colors.grey
+                    ),
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 2),
+                        colors.lightgrey
+                    ),
+                    (
+                        "SPAN",
+                        (0, 0),
+                        (0, 2)
+                    ),
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "MIDDLE"
+                    ),
+                    (
+                        "ALIGN",
+                        (1, 0),
+                        (-1, -1),
+                        "CENTER"
+                    ),
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        2
+                    ),
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        2
+                    ),
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        2
+                    ),
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        2
+                    )
+                ]
+
+                for row_index in category_row_indexes:
+
+                    style_commands.append(
                         (
                             "BACKGROUND",
-                            (0, 0),
-                            (-1, 2),
+                            (0, row_index),
+                            (-1, row_index),
                             colors.lightgrey
-                        ),
+                        )
+                    )
+
+                    style_commands.append(
                         (
                             "SPAN",
-                            (0, 0),
-                            (0, 2)
-                        ),
-                        (
-                            "VALIGN",
-                            (0, 0),
-                            (-1, -1),
-                            "MIDDLE"
-                        ),
-                        (
-                            "ALIGN",
-                            (1, 0),
-                            (-1, -1),
-                            "CENTER"
-                        ),
-                        (
-                            "LEFTPADDING",
-                            (0, 0),
-                            (-1, -1),
-                            2
-                        ),
-                        (
-                            "RIGHTPADDING",
-                            (0, 0),
-                            (-1, -1),
-                            2
-                        ),
-                        (
-                            "TOPPADDING",
-                            (0, 0),
-                            (-1, -1),
-                            2
-                        ),
-                        (
-                            "BOTTOMPADDING",
-                            (0, 0),
-                            (-1, -1),
-                            2
+                            (0, row_index),
+                            (-1, row_index)
                         )
-                    ]
+                    )
+
+                table.setStyle(
+                    TableStyle(
+                        style_commands
+                    )
                 )
-            )
 
-            table_width, table_height = table.wrap(
-                available_width,
-                available_height
-            )
+                return table
 
-            if (
-                start_index > 0
-                or start_y - table_height < margin_bottom + footer_height
-            ):
+            for group in category_groups:
 
-                pdf.showPage()
+                candidate_chunk = (
+                    current_chunk
+                    + [group]
+                )
+
+                candidate_table = create_table(
+                    candidate_chunk
+                )
+
+                _, candidate_height = candidate_table.wrap(
+                    available_width,
+                    available_height
+                )
+
+                available_table_height = (
+                    start_y
+                    - margin_bottom
+                    - footer_height
+                )
+
+                if (
+                    candidate_height
+                    <= available_table_height
+                ):
+
+                    current_chunk = candidate_chunk
+                    continue
+
+                if current_chunk:
+
+                    vertical_chunks.append(
+                        current_chunk
+                    )
+
+                    current_chunk = [group]
+
+                    single_group_table = create_table(
+                        current_chunk
+                    )
+
+                    _, single_group_height = (
+                        single_group_table.wrap(
+                            available_width,
+                            available_height
+                        )
+                    )
+
+                    if (
+                        single_group_height
+                        > available_table_height
+                    ):
+
+                        split_group = {
+                            "category_name": group["category_name"],
+                            "rows": []
+                        }
+
+                        for row in group["rows"]:
+
+                            candidate_group = {
+                                "category_name": group["category_name"],
+                                "rows": (
+                                    split_group["rows"]
+                                    + [row]
+                                )
+                            }
+
+                            candidate_table = create_table(
+                                [candidate_group]
+                            )
+
+                            _, candidate_height = (
+                                candidate_table.wrap(
+                                    available_width,
+                                    available_height
+                                )
+                            )
+
+                            if (
+                                candidate_height
+                                <= available_table_height
+                            ):
+
+                                split_group["rows"].append(
+                                    row
+                                )
+
+                            else:
+
+                                if split_group["rows"]:
+
+                                    vertical_chunks.append(
+                                        [split_group]
+                                    )
+
+                                split_group = {
+                                    "category_name": group["category_name"],
+                                    "rows": [row]
+                                }
+
+                        if split_group["rows"]:
+
+                            current_chunk = [
+                                split_group
+                            ]
+
+                        else:
+
+                            current_chunk = []
+
+                    continue
+
+                current_chunk = [group]
+
+            if current_chunk:
+
+                vertical_chunks.append(
+                    current_chunk
+                )
+
+            for chunk in vertical_chunks:
+
+                table = create_table(
+                    chunk
+                )
+
+                table_width, table_height = table.wrap(
+                    available_width,
+                    available_height
+                )
+
+                if not first_page:
+
+                    pdf.showPage()
+
+                    draw_footer()
+
+                    inspection = page_inspections[0]
+
+                    start_y = (
+                        page_height
+                        - margin_top
+                    )
+
+                    start_y = draw_inspection_header(
+                        inspection["checklist_name"],
+                        inspection["checklist_version"],
+                        inspection
+                    )
+
+                table.drawOn(
+                    pdf,
+                    margin_left,
+                    start_y - table_height
+                )
 
                 draw_footer()
 
-                start_y = (
-                    page_height
-                    - margin_top
-                )
-
-                inspection = page_inspections[0]
-
-                start_y = draw_inspection_header(
-                    inspection["checklist_name"],
-                    inspection["checklist_version"],
-                    inspection
-                )
-
-            table.drawOn(
-                pdf,
-                margin_left,
-                start_y - table_height
-            )
-
-            draw_footer()
-
-            if (
-                start_index + max_columns
-                < len(checklist_inspections)
-            ):
-                pdf.showPage()
+                first_page = False
 
     for checklist_id, checklist_data in (
         pdf_tables_by_checklist.items()
