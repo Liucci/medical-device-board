@@ -232,19 +232,17 @@ export default function SortableInspectionChecklistItem({
 
                 {/* 項目名 */}
 
-                <div
-                    className="
-                        min-w-0
-                        flex-1
-                        text-sm
-                        text-gray-800
-                    "
-                >
-                    {item.name}
+                <div className="min-w-0 flex-1 flex items-center gap-2 text-sm">
+                    <span className="min-w-0 truncate text-gray-800">
+                        {item.name}
+                    </span>
+
+                    {item.required && (
+                        <span className="shrink-0 text-xs font-medium text-red-600">
+                            入力必須
+                        </span>
+                    )}
                 </div>
-
-
-
 
                 {/* 入力方式 */}
 

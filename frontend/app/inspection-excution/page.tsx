@@ -101,6 +101,22 @@ function InspectionExecutionPage() {
     
     const handleSave = async () => {
         if (!selectedChecklist) return
+        // 必須項目チェック
+        const missingRequiredItems = inspectionChecklistItems.filter(item => {
+            if (!item.required) return false
+            const value = inspectionResults[item.id]
+            return value === null || value === undefined || value.trim() === ""
+        })
+
+        if (missingRequiredItems.length > 0) {
+            alert(
+                `入力必須の項目が未入力です。\n\n${missingRequiredItems
+                    .map(item => `・${item.itemName}`)
+                    .join("\n")}`
+            )
+            return
+        }
+
         const inspection = {
             inspection: {
                 deviceId,

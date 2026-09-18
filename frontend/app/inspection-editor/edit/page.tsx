@@ -199,6 +199,7 @@ export default function InspectionChecklistEditPage()
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItem["options"],
         unit: string | null
     ) => {
@@ -210,7 +211,7 @@ export default function InspectionChecklistEditPage()
                 displayOrder: prev.length + 1,
                 itemName: name,
                 itemTypeId,
-                required: false,
+                required,
                 defaultValue: null,
                 options,
                 unit,
@@ -230,6 +231,7 @@ export default function InspectionChecklistEditPage()
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItem["options"],
         unit: string | null
     ) => {
@@ -241,6 +243,7 @@ export default function InspectionChecklistEditPage()
                         itemName: name,
                         categoryId,
                         itemTypeId,
+                        required,
                         options,
                         unit,
                     }

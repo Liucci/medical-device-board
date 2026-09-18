@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type {InspectionItemType,} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
-import type {InspectionChecklistItem,} from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
-import type{InspectionChecklistItemOption} from"../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
-import type {InspectionItemCategoryType,} from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
+import type { InspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { InspectionChecklistItem } from "../../../types/inspectionTypes/inspectionChecklistItemTypes"
+import type { InspectionChecklistItemOption } from "../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import type { InspectionItemCategoryType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 type Props = {
     open: boolean
@@ -17,11 +17,11 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItemOption[],
         unit: string | null
     ) => void
 }
-
 
 export default function EditInspectionChecklistItemEditModal({
     open,
@@ -36,7 +36,9 @@ export default function EditInspectionChecklistItemEditModal({
     const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-    const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
+    const [required, setRequired] = useState(false)
+    const [options, setOptions] =
+        useState<InspectionChecklistItemOption[]>([])
 
 
     useEffect(() =>
@@ -47,9 +49,10 @@ export default function EditInspectionChecklistItemEditModal({
             setUnit(item.unit ?? "")
             setCategoryId(item.categoryId)
             setItemTypeId(item.itemTypeId)
+            setRequired(item.required)
 
             setOptions(
-                item.options
+                Array.isArray(item.options)
                     ? item.options.map((option, index) => ({
                         value: option.value,
                         displayOrder: index + 1,
@@ -58,23 +61,33 @@ export default function EditInspectionChecklistItemEditModal({
             )
         }
 
+
         if (!open)
         {
             setName("")
             setUnit("")
             setCategoryId(null)
             setItemTypeId(null)
+            setRequired(false)
             setOptions([])
         }
 
     }, [open, item])
 
 
-    const selectedItemType = inspectionItemTypes.find(
-        (itemType) => itemType.id === itemTypeId
-    )
-    const isCustomOption =selectedItemType?.isCustomOption === true
-    const isNumberInput =selectedItemType?.name === "数値入力"
+    const selectedItemType =
+        inspectionItemTypes.find(
+            (itemType) => itemType.id === itemTypeId
+        )
+
+
+    const isCustomOption =
+        selectedItemType?.isCustomOption === true
+
+
+    const isNumberInput =
+        selectedItemType?.name === "数値入力"
+
 
     if (!open)
     {
@@ -95,11 +108,16 @@ export default function EditInspectionChecklistItemEditModal({
                 ? null
                 : Number(value)
 
+
         setItemTypeId(nextItemTypeId)
 
-        const nextItemType = inspectionItemTypes.find(
-            (itemType) => itemType.id === nextItemTypeId
-        )
+
+        const nextItemType =
+            inspectionItemTypes.find(
+                (itemType) =>
+                    itemType.id === nextItemTypeId
+            )
+
 
         if (nextItemType?.isCustomOption === true)
         {
@@ -117,11 +135,12 @@ export default function EditInspectionChecklistItemEditModal({
         {
             setOptions([])
         }
+
+
         if (nextItemType?.name !== "数値入力")
         {
             setUnit("")
         }
-
     }
 
 
@@ -135,13 +154,14 @@ export default function EditInspectionChecklistItemEditModal({
     ) =>
     {
         setOptions((currentOptions) =>
-            currentOptions.map((option, optionIndex) =>
-                optionIndex === index
-                    ? {
-                        ...option,
-                        value,
-                    }
-                    : option
+            currentOptions.map(
+                (option, optionIndex) =>
+                    optionIndex === index
+                        ? {
+                            ...option,
+                            value,
+                        }
+                        : option
             )
         )
     }
@@ -157,7 +177,8 @@ export default function EditInspectionChecklistItemEditModal({
             ...currentOptions,
             {
                 value: "",
-                displayOrder: currentOptions.length + 1,
+                displayOrder:
+                    currentOptions.length + 1,
             },
         ])
     }
@@ -177,10 +198,13 @@ export default function EditInspectionChecklistItemEditModal({
                     (_, optionIndex) =>
                         optionIndex !== index
                 )
-                .map((option, optionIndex) => ({
-                    ...option,
-                    displayOrder: optionIndex + 1,
-                }))
+                .map(
+                    (option, optionIndex) => ({
+                        ...option,
+                        displayOrder:
+                            optionIndex + 1,
+                    })
+                )
         )
     }
 
@@ -191,50 +215,88 @@ export default function EditInspectionChecklistItemEditModal({
 
     const handleSave = () =>
     {
-        if (!item){return}
-        if (!name.trim()){
-            alert("項目名を入力してください")
-            return}
-        if (categoryId === null){
-            alert("カテゴリを選択してください")
-            return}
-        if (itemTypeId === null){
-            alert("入力方式を選択してください")
-            return}
+        if (!item)
+        {
+            return
+        }
 
-        let normalizedOptions: InspectionChecklistItemOption[] = []
+
+        if (!name.trim())
+        {
+            alert("項目名を入力してください")
+            return
+        }
+
+
+        if (categoryId === null)
+        {
+            alert("カテゴリを選択してください")
+            return
+        }
+
+
+        if (itemTypeId === null)
+        {
+            alert("入力方式を選択してください")
+            return
+        }
+
+
+        let normalizedOptions:
+            InspectionChecklistItemOption[] = []
+
 
         if (isCustomOption)
         {
             normalizedOptions = options
                 .map((option) => ({
                     value: option.value.trim(),
-                    displayOrder: option.displayOrder,
+                    displayOrder:
+                        option.displayOrder,
                 }))
                 .filter(
-                    (option) => option.value !== ""
+                    (option) =>
+                        option.value !== ""
                 )
-                .map((option, index) => ({
-                    ...option,
-                    displayOrder: index + 1,
-                }))
+                .map(
+                    (option, index) => ({
+                        ...option,
+                        displayOrder:
+                            index + 1,
+                    })
+                )
+
 
             if (normalizedOptions.length === 0)
-            {alert("選択肢を1つ以上入力してください")
-            return}
+            {
+                alert(
+                    "選択肢を1つ以上入力してください"
+                )
+                return
+            }
         }
+
+
         if (
             isCustomOption &&
-            new Set(normalizedOptions.map((option) => 
-                option.value)).size !==normalizedOptions.length)
-            {alert("同じ選択肢は登録できません")
-            return}
-            
+            new Set(
+                normalizedOptions.map(
+                    (option) => option.value
+                )
+            ).size !== normalizedOptions.length
+        )
+        {
+            alert("同じ選択肢は登録できません")
+            return
+        }
+
+
         onSave(
             item.id,
             name.trim(),
             categoryId,
             itemTypeId,
+            required,
             normalizedOptions,
             isNumberInput
                 ? unit.trim() || null
@@ -257,7 +319,10 @@ export default function EditInspectionChecklistItemEditModal({
             "
             onMouseDown={(event) =>
             {
-                if (event.target === event.currentTarget)
+                if (
+                    event.target ===
+                    event.currentTarget
+                )
                 {
                     onClose()
                 }
@@ -275,7 +340,6 @@ export default function EditInspectionChecklistItemEditModal({
             >
 
                 {/* Header */}
-
                 <div className="px-6 py-4">
 
                     <h2 className="text-lg font-semibold text-gray-800">
@@ -290,11 +354,9 @@ export default function EditInspectionChecklistItemEditModal({
 
 
                 {/* Body */}
-
                 <div className="space-y-5 px-6 py-6">
 
                     {/* 項目名 */}
-
                     <div>
 
                         <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -322,19 +384,44 @@ export default function EditInspectionChecklistItemEditModal({
                         />
 
                     </div>
-                    {/* 大項目 */}
 
+
+                    {/* 入力必須 */}
+                    <div className="flex items-center">
+
+                        <label className="flex cursor-pointer items-center gap-2">
+
+                            <input
+                                type="checkbox"
+                                checked={required}
+                                onChange={(event) =>
+                                    setRequired(
+                                        event.target.checked
+                                    )
+                                }
+                                className="
+                                    h-4
+                                    w-4
+                                    rounded
+                                    border-gray-400
+                                    text-blue-600
+                                    focus:ring-blue-500
+                                "
+                            />
+
+                            <span className="text-sm font-medium text-gray-700">
+                                入力必須
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    {/* 大項目 */}
                     <div>
 
-                        <label
-                            className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-700
-                            "
-                        >
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                             大項目
                         </label>
 
@@ -345,17 +432,17 @@ export default function EditInspectionChecklistItemEditModal({
                                 setCategoryId(
                                     event.target.value === ""
                                         ? null
-                                        : Number(event.target.value)
+                                        : Number(
+                                            event.target.value
+                                        )
                                 )
                             }}
                             className="
                                 w-full
                                 rounded-lg
-                                border
-                                border-gray-500
+                                border border-gray-500
                                 bg-white
-                                px-4
-                                py-2.5
+                                px-4 py-2.5
                                 text-sm
                                 outline-none
                                 focus:border-blue-500
@@ -383,8 +470,8 @@ export default function EditInspectionChecklistItemEditModal({
 
                     </div>
 
-                    {/* 入力方式 */}
 
+                    {/* 入力方式 */}
                     <div>
 
                         <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -416,22 +503,23 @@ export default function EditInspectionChecklistItemEditModal({
                                 選択してください
                             </option>
 
-                            {inspectionItemTypes.map((itemType) => (
-                                <option
-                                    key={itemType.id}
-                                    value={itemType.id}
-                                >
-                                    {itemType.name}
-                                </option>
-                            ))}
+                            {inspectionItemTypes.map(
+                                (itemType) => (
+                                    <option
+                                        key={itemType.id}
+                                        value={itemType.id}
+                                    >
+                                        {itemType.name}
+                                    </option>
+                                )
+                            )}
 
                         </select>
 
                     </div>
 
 
-                    {/* 任意選択肢 */}
-
+                    {/* 任意の選択肢 */}
                     {isCustomOption && (
                         <div>
 
@@ -441,57 +529,78 @@ export default function EditInspectionChecklistItemEditModal({
 
                             <div className="space-y-2">
 
-                                {options.map((option, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center gap-2"
-                                    >
-
-                                        <input
-                                            type="text"
-                                            value={option.value}
-                                            onChange={(event) =>
-                                                handleOptionChange(
-                                                    index,
-                                                    event.target.value
-                                                )
-                                            }
-                                            placeholder={`選択肢 ${index + 1}`}
+                                {options.map(
+                                    (option, index) => (
+                                        <div
+                                            key={index}
                                             className="
-                                                flex-1
-                                                rounded-lg
-                                                border border-gray-500
-                                                px-3 py-2
-                                                text-sm
-                                                outline-none
-                                                focus:border-blue-500
-                                                focus:ring-2
-                                                focus:ring-blue-100
-                                            "
-                                        />
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleDeleteOption(index)
-                                            }
-                                            disabled={options.length <= 1}
-                                            className="
-                                                rounded-lg
-                                                border border-gray-400
-                                                px-3 py-2
-                                                text-sm
-                                                text-gray-600
-                                                hover:bg-gray-50
-                                                disabled:cursor-not-allowed
-                                                disabled:opacity-30
+                                                flex
+                                                items-center
+                                                gap-2
                                             "
                                         >
-                                            削除
-                                        </button>
 
-                                    </div>
-                                ))}
+                                            <input
+                                                type="text"
+                                                value={option.value}
+                                                onChange={(event) =>
+                                                    handleOptionChange(
+                                                        index,
+                                                        event.target.value
+                                                    )
+                                                }
+                                                placeholder="選択肢を入力"
+                                                className="
+                                                    min-w-0
+                                                    flex-1
+                                                    rounded-lg
+                                                    border border-gray-500
+                                                    px-4 py-2.5
+                                                    text-sm
+                                                    outline-none
+                                                    focus:border-blue-500
+                                                    focus:ring-2
+                                                    focus:ring-blue-100
+                                                "
+                                            />
+
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleDeleteOption(
+                                                        index
+                                                    )
+                                                }
+                                                disabled={
+                                                    options.length <= 1
+                                                }
+                                                className="
+                                                    flex
+                                                    h-9
+                                                    w-9
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
+                                                    rounded-lg
+                                                    border
+                                                    border-gray-300
+                                                    text-gray-500
+                                                    hover:border-red-300
+                                                    hover:bg-red-50
+                                                    hover:text-red-500
+                                                    disabled:cursor-not-allowed
+                                                    disabled:opacity-30
+                                                "
+                                                title="削除"
+                                                aria-label="選択肢を削除"
+                                            >
+                                                ×
+                                            </button>
+
+                                        </div>
+                                    )
+                                )}
 
                             </div>
 
@@ -501,13 +610,10 @@ export default function EditInspectionChecklistItemEditModal({
                                 onClick={handleAddOption}
                                 className="
                                     mt-3
-                                    rounded-lg
-                                    border border-blue-500
-                                    px-4 py-2
                                     text-sm
                                     font-medium
                                     text-blue-600
-                                    hover:bg-blue-50
+                                    hover:text-blue-700
                                 "
                             >
                                 ＋ 選択肢を追加
@@ -515,18 +621,13 @@ export default function EditInspectionChecklistItemEditModal({
 
                         </div>
                     )}
+
+
+                    {/* 単位 */}
                     {isNumberInput && (
                         <div>
 
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                "
-                            >
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
                                 単位
                             </label>
 
@@ -542,10 +643,8 @@ export default function EditInspectionChecklistItemEditModal({
                                 className="
                                     w-full
                                     rounded-lg
-                                    border
-                                    border-gray-500
-                                    px-4
-                                    py-2.5
+                                    border border-gray-500
+                                    px-4 py-2.5
                                     text-sm
                                     outline-none
                                     focus:border-blue-500
@@ -561,15 +660,14 @@ export default function EditInspectionChecklistItemEditModal({
 
 
                 {/* Footer */}
-
-                <div className="flex justify-end gap-3  px-6 py-4">
+                <div className="flex justify-end gap-3 px-6 py-4">
 
                     <button
                         type="button"
                         onClick={onClose}
                         className="
                             rounded-lg
-                            border border-gray-500
+                            border border-gray-300
                             bg-white
                             px-5 py-2.5
                             text-sm font-medium
@@ -590,10 +688,10 @@ export default function EditInspectionChecklistItemEditModal({
                             itemTypeId === null ||
                             (
                                 isCustomOption &&
-                                options.filter(
+                                options.every(
                                     (option) =>
-                                        option.value.trim() !== ""
-                                ).length === 0
+                                        !option.value.trim()
+                                )
                             )
                         }
                         className="

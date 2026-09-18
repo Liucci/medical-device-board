@@ -127,6 +127,7 @@ export default function InspectionEditorPage()
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItemOption[],
         unit: string | null
     ) => {
@@ -137,7 +138,7 @@ export default function InspectionEditorPage()
                 categoryId,
                 itemTypeId,
                 displayOrder: prev.length + 1,
-                required: false,
+                required,
                 defaultValue: null,
                 options,
                 unit,
@@ -176,6 +177,7 @@ export default function InspectionEditorPage()
     name: string,
     categoryId: number,
     itemTypeId: number,
+    required: boolean,
     options: InspectionChecklistItemOption[],
     unit: string | null
 ) => {
@@ -187,6 +189,7 @@ export default function InspectionEditorPage()
                     name,
                     categoryId,
                     itemTypeId,
+                    required,
                     options,
                     unit,
                 }
@@ -302,7 +305,7 @@ export default function InspectionEditorPage()
                 itemName: item.name,
                 categoryId: item.categoryId,
                 itemTypeId: item.itemTypeId,
-                required: false,
+                required: item.required,
                 defaultValue: null,
 
                 options: Array.isArray(item.options)

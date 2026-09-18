@@ -203,9 +203,18 @@ export default function SortableInspectionChecklistItemEdit({
                         text-gray-800
                     "
                 >
-                    {item.itemName}
-                </div>
+                    <div className="flex items-center gap-2">
+                        <span className="min-w-0 truncate">
+                            {item.itemName}
+                        </span>
 
+                        {item.required && (
+                            <span className="shrink-0 text-xs font-medium text-red-600">
+                                入力必須
+                            </span>
+                        )}
+                    </div>
+                </div>
 
                 {/* 入力方式 */}
                 {isCustomOption ? (

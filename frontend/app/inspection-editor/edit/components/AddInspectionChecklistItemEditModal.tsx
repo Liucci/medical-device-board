@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import type {InspectionItemType,} from "../../../types/inspectionTypes/inspectionItemTypeTypes"
-import type {InspectionChecklistItemOption} from "../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
+import type { InspectionItemType } from "../../../types/inspectionTypes/inspectionItemTypeTypes"
+import type { InspectionChecklistItemOption } from "../../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 import type { InspectionItemCategoryType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 type Props = {
@@ -14,11 +14,11 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItemOption[],
-        unit:string | null
+        unit: string | null
     ) => void
 }
-
 
 export default function AddInspectionChecklistItemEditModal({
     open,
@@ -31,8 +31,9 @@ export default function AddInspectionChecklistItemEditModal({
     const [name, setName] = useState("")
     const [unit, setUnit] = useState("")
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-    const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
-    const [categoryId, setCategoryId] = useState<number | null>(null)   
+    const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
+    const [categoryId, setCategoryId] = useState<number | null>(null)
+    const [required, setRequired] = useState(false)
 
     useEffect(() =>
     {
@@ -43,6 +44,7 @@ export default function AddInspectionChecklistItemEditModal({
             setOptions([])
             setCategoryId(null)
             setUnit("")
+            setRequired(false)
         }
     }, [open])
 
@@ -61,21 +63,32 @@ export default function AddInspectionChecklistItemEditModal({
 
     const isCustomOption =
         selectedItemType?.isCustomOption === true
+
     const isNumberInput =
         selectedItemType?.name === "数値入力"
 
+
     const handleAdd = () =>
     {
-        if (!name.trim()){
+        if (!name.trim())
+        {
             alert("項目名を入力してください")
-            return}
-        if (categoryId === null){
+            return
+        }
+
+        if (categoryId === null)
+        {
             alert("カテゴリを選択してください")
-            return}
-        if (itemTypeId === null){
+            return
+        }
+
+        if (itemTypeId === null)
+        {
             alert("入力方式を選択してください")
-            return}
-        
+            return
+        }
+
+
         const normalizedOptions = isCustomOption
             ? options
                 .map((option, index) => ({
@@ -84,20 +97,32 @@ export default function AddInspectionChecklistItemEditModal({
                 }))
                 .filter((option) => option.value)
             : []
-        if (isCustomOption &&normalizedOptions.length === 0)
-        {alert("選択肢を1つ以上入力してください")
-        return}
+
+
+        if (isCustomOption && normalizedOptions.length === 0)
+        {
+            alert("選択肢を1つ以上入力してください")
+            return
+        }
+
+
         if (
             isCustomOption &&
-            new Set(normalizedOptions.map((option) => 
-                option.value)).size !==normalizedOptions.length)
-            {alert("同じ選択肢は登録できません")
-            return}
+            new Set(
+                normalizedOptions.map((option) => option.value)
+            ).size !== normalizedOptions.length
+        )
+        {
+            alert("同じ選択肢は登録できません")
+            return
+        }
+
 
         onAdd(
             name.trim(),
             categoryId,
             itemTypeId,
+            required,
             normalizedOptions,
             unit.trim()
         )
@@ -181,6 +206,33 @@ export default function AddInspectionChecklistItemEditModal({
 
                     </div>
 
+                    {/* 入力必須 */}
+                    <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                            <input
+                                type="checkbox"
+                                checked={required}
+                                onChange={(event) =>
+                                    setRequired(event.target.checked)
+                                }
+                                className="
+                                    h-4
+                                    w-4
+                                    rounded
+                                    border-gray-400
+                                    text-blue-600
+                                    focus:ring-blue-500
+                                "
+                            />
+
+                            <span>
+                                入力必須
+                            </span>
+                        </label>
+                    </div>
+
+
+
                     {/* 大項目 */}
                     <div>
 
@@ -229,6 +281,7 @@ export default function AddInspectionChecklistItemEditModal({
 
                     </div>
 
+
                     {/* 入力方式 */}
                     <div>
 
@@ -271,6 +324,7 @@ export default function AddInspectionChecklistItemEditModal({
                                         },
                                     ])
                                 }
+
 
                                 if (selectedItemType?.name !== "数値")
                                 {
@@ -434,8 +488,10 @@ export default function AddInspectionChecklistItemEditModal({
                         </div>
                     )}
 
+
                     {isNumberInput && (
                         <div>
+
                             <label className="mb-2 block text-sm font-medium text-gray-700">
                                 単位
                             </label>
@@ -448,17 +504,19 @@ export default function AddInspectionChecklistItemEditModal({
                                 }
                                 placeholder="例：mmHg、回、個"
                                 className="
-                                                    w-full
-                                                    rounded-lg
-                                                    border border-gray-500
-                                                    bg-white
-                                                    px-4 py-2.5
-                                                    text-sm
-                                                    outline-none
-                                                    focus:border-blue-500
-                                                    focus:ring-2
-                                                    focus:ring-blue-100            "
+                                    w-full
+                                    rounded-lg
+                                    border border-gray-500
+                                    bg-white
+                                    px-4 py-2.5
+                                    text-sm
+                                    outline-none
+                                    focus:border-blue-500
+                                    focus:ring-2
+                                    focus:ring-blue-100
+                                "
                             />
+
                         </div>
                     )}
 

@@ -14,7 +14,8 @@ import type {
     InspectionItemCategoryType,
 } from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
-//checklist idはtype内に不要
+
+// checklist idはtype内に不要
 type InspectionChecklistItem = {
     id: number
     name: string
@@ -39,6 +40,7 @@ type Props = {
         name: string,
         categoryId: number,
         itemTypeId: number,
+        required: boolean,
         options: InspectionChecklistItemOption[],
         unit: string | null
     ) => void
@@ -58,7 +60,8 @@ export default function EditInspectionChecklistItemModal({
     const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-    const [options, setOptions] =useState<InspectionChecklistItemOption[]>([])
+    const [required, setRequired] = useState(false)
+    const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
 
 
     // =========================================
@@ -73,9 +76,10 @@ export default function EditInspectionChecklistItemModal({
             setUnit(item.unit ?? "")
             setCategoryId(item.categoryId)
             setItemTypeId(item.itemTypeId)
+            setRequired(item.required)
 
             setOptions(
-                item.options
+                Array.isArray(item.options)
                     ? item.options.map((option, index) => ({
                         value: option.value,
                         displayOrder: index + 1,
@@ -90,6 +94,7 @@ export default function EditInspectionChecklistItemModal({
             setUnit("")
             setCategoryId(null)
             setItemTypeId(null)
+            setRequired(false)
             setOptions([])
         }
 
@@ -100,12 +105,19 @@ export default function EditInspectionChecklistItemModal({
     // 選択中の入力方式
     // =========================================
 
-    const selectedItemType =inspectionItemTypes.find(
+    const selectedItemType =
+        inspectionItemTypes.find(
             (itemType) =>
                 itemType.id === itemTypeId
         )
-    const isCustomOption =selectedItemType?.isCustomOption === true
-    const isNumberInput =selectedItemType?.name === "数値入力"
+
+    const isCustomOption =
+        selectedItemType?.isCustomOption === true
+
+    const isNumberInput =
+        selectedItemType?.name === "数値入力"
+
+
     if (!open)
     {
         return null
@@ -133,6 +145,7 @@ export default function EditInspectionChecklistItemModal({
                     itemType.id === nextItemTypeId
             )
 
+
         if (nextItemType?.isCustomOption === true)
         {
             if (options.length === 0)
@@ -149,11 +162,13 @@ export default function EditInspectionChecklistItemModal({
         {
             setOptions([])
         }
+
+
         if (nextItemType?.name !== "数値入力")
         {
             setUnit("")
         }
-        }
+    }
 
 
     // =========================================
@@ -167,7 +182,10 @@ export default function EditInspectionChecklistItemModal({
     {
         setOptions((currentOptions) =>
             currentOptions.map(
-                (option, optionIndex) =>
+                (
+                    option,
+                    optionIndex
+                ) =>
                     optionIndex === index
                         ? {
                             ...option,
@@ -211,7 +229,10 @@ export default function EditInspectionChecklistItemModal({
                         optionIndex !== index
                 )
                 .map(
-                    (option, optionIndex) => ({
+                    (
+                        option,
+                        optionIndex
+                    ) => ({
                         ...option,
                         displayOrder:
                             optionIndex + 1,
@@ -227,19 +248,32 @@ export default function EditInspectionChecklistItemModal({
 
     const handleSave = () =>
     {
-        if (!item){return}
-        if (!name.trim()){
+        if (!item)
+        {
+            return
+        }
+
+        if (!name.trim())
+        {
             alert("項目名を入力してください")
-            return}
-        if (categoryId === null){
+            return
+        }
+
+        if (categoryId === null)
+        {
             alert("カテゴリを選択してください")
-            return}
-        if (itemTypeId === null){
+            return
+        }
+
+        if (itemTypeId === null)
+        {
             alert("入力方式を選択してください")
-            return}
+            return
+        }
 
 
-        let normalizedOptions:InspectionChecklistItemOption[] = []
+        let normalizedOptions:
+            InspectionChecklistItemOption[] = []
 
 
         if (isCustomOption)
@@ -263,22 +297,35 @@ export default function EditInspectionChecklistItemModal({
                         })
                     )
 
+
             if (normalizedOptions.length === 0)
-            {alert("選択肢を1つ以上入力してください")
-            return}
+            {
+                alert("選択肢を1つ以上入力してください")
+                return
+            }
         }
+
+
         if (
             isCustomOption &&
-            new Set(normalizedOptions.map((option) => 
-                option.value)).size !==normalizedOptions.length)
-            {alert("同じ選択肢は登録できません")
-            return}
+            new Set(
+                normalizedOptions.map(
+                    (option) => option.value
+                )
+            ).size !== normalizedOptions.length
+        )
+        {
+            alert("同じ選択肢は登録できません")
+            return
+        }
+
 
         onSave(
             item.id,
             name.trim(),
             categoryId,
             itemTypeId,
+            required,
             normalizedOptions,
             isNumberInput
                 ? unit.trim() || null
@@ -322,60 +369,26 @@ export default function EditInspectionChecklistItemModal({
             >
 
                 {/* Header */}
+                <div className="px-6 py-4">
 
-                <div
-                    className="
-                        px-6
-                        py-4
-                    "
-                >
-
-                    <h2
-                        className="
-                            text-lg
-                            font-semibold
-                            text-gray-800
-                        "
-                    >
+                    <h2 className="text-lg font-semibold text-gray-800">
                         点検項目を編集
                     </h2>
 
-                    <p
-                        className="
-                            mt-1
-                            text-sm
-                            text-gray-500
-                        "
-                    >
-                        点検項目の内容・大項目・入力方式を編集してください
+                    <p className="mt-1 text-sm text-gray-500">
+                        点検項目の内容・大項目・入力方式を設定してください
                     </p>
 
                 </div>
 
 
                 {/* Body */}
-
-                <div
-                    className="
-                        space-y-5
-                        px-6
-                        py-6
-                    "
-                >
+                <div className="space-y-5 px-6 py-6">
 
                     {/* 項目名 */}
-
                     <div>
 
-                        <label
-                            className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-700
-                            "
-                        >
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                             項目名
                         </label>
 
@@ -383,18 +396,14 @@ export default function EditInspectionChecklistItemModal({
                             type="text"
                             value={name}
                             onChange={(event) =>
-                                setName(
-                                    event.target.value
-                                )
+                                setName(event.target.value)
                             }
                             placeholder="例：電源が正常に入ること"
                             className="
                                 w-full
                                 rounded-lg
-                                border
-                                border-gray-500
-                                px-4
-                                py-2.5
+                                border border-gray-500
+                                px-4 py-2.5
                                 text-sm
                                 outline-none
                                 focus:border-blue-500
@@ -406,19 +415,42 @@ export default function EditInspectionChecklistItemModal({
                     </div>
 
 
-                    {/* 大項目 */}
+                    {/* 入力必須 */}
+                    <div className="flex items-center">
 
+                        <label className="flex cursor-pointer items-center gap-2">
+
+                            <input
+                                type="checkbox"
+                                checked={required}
+                                onChange={(event) =>
+                                    setRequired(
+                                        event.target.checked
+                                    )
+                                }
+                                className="
+                                    h-4
+                                    w-4
+                                    rounded
+                                    border-gray-400
+                                    text-blue-600
+                                    focus:ring-blue-500
+                                "
+                            />
+
+                            <span className="text-sm font-medium text-gray-700">
+                                入力必須
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    {/* 大項目 */}
                     <div>
 
-                        <label
-                            className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-700
-                            "
-                        >
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                             大項目
                         </label>
 
@@ -429,17 +461,17 @@ export default function EditInspectionChecklistItemModal({
                                 setCategoryId(
                                     event.target.value === ""
                                         ? null
-                                        : Number(event.target.value)
+                                        : Number(
+                                            event.target.value
+                                        )
                                 )
                             }}
                             className="
                                 w-full
                                 rounded-lg
-                                border
-                                border-gray-500
+                                border border-gray-500
                                 bg-white
-                                px-4
-                                py-2.5
+                                px-4 py-2.5
                                 text-sm
                                 outline-none
                                 focus:border-blue-500
@@ -469,18 +501,9 @@ export default function EditInspectionChecklistItemModal({
 
 
                     {/* 入力方式 */}
-
                     <div>
 
-                        <label
-                            className="
-                                mb-2
-                                block
-                                text-sm
-                                font-medium
-                                text-gray-700
-                            "
-                        >
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                             入力方式
                         </label>
 
@@ -494,11 +517,9 @@ export default function EditInspectionChecklistItemModal({
                             className="
                                 w-full
                                 rounded-lg
-                                border
-                                border-gray-500
+                                border border-gray-500
                                 bg-white
-                                px-4
-                                py-2.5
+                                px-4 py-2.5
                                 text-sm
                                 outline-none
                                 focus:border-blue-500
@@ -527,60 +548,39 @@ export default function EditInspectionChecklistItemModal({
                     </div>
 
 
-                    {/* 任意選択肢 */}
+                    {/* 任意の選択肢 */}
                     {isCustomOption && (
                         <div>
 
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                "
-                            >
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
                                 選択肢
                             </label>
 
-                            <div
-                                className="
-                                    space-y-2
-                                "
-                            >
+                            <div className="space-y-2">
 
                                 {options.map(
                                     (option, index) => (
                                         <div
                                             key={index}
-                                            className="
-                                                flex
-                                                items-center
-                                                gap-2
-                                            "
+                                            className="flex items-center gap-2"
                                         >
 
                                             <input
                                                 type="text"
-                                                value={
-                                                    option.value
-                                                }
-                                                onChange={(
-                                                    event
-                                                ) =>
+                                                value={option.value}
+                                                onChange={(event) =>
                                                     handleOptionChange(
                                                         index,
                                                         event.target.value
                                                     )
                                                 }
-                                                placeholder={`選択肢 ${index + 1}`}
+                                                placeholder="選択肢を入力"
                                                 className="
+                                                    min-w-0
                                                     flex-1
                                                     rounded-lg
-                                                    border
-                                                    border-gray-500
-                                                    px-3
-                                                    py-2
+                                                    border border-gray-500
+                                                    px-4 py-2.5
                                                     text-sm
                                                     outline-none
                                                     focus:border-blue-500
@@ -596,23 +596,25 @@ export default function EditInspectionChecklistItemModal({
                                                         index
                                                     )
                                                 }
-                                                disabled={
-                                                    options.length <= 1
-                                                }
                                                 className="
+                                                    flex
+                                                    h-9
+                                                    w-9
+                                                    shrink-0
+                                                    items-center
+                                                    justify-center
                                                     rounded-lg
                                                     border
-                                                    border-gray-400
-                                                    px-3
-                                                    py-2
-                                                    text-sm
-                                                    text-gray-600
-                                                    hover:bg-gray-50
-                                                    disabled:cursor-not-allowed
-                                                    disabled:opacity-30
+                                                    border-gray-300
+                                                    text-gray-500
+                                                    hover:border-red-300
+                                                    hover:bg-red-50
+                                                    hover:text-red-500
                                                 "
+                                                title="削除"
+                                                aria-label="選択肢を削除"
                                             >
-                                                削除
+                                                ×
                                             </button>
 
                                         </div>
@@ -627,15 +629,10 @@ export default function EditInspectionChecklistItemModal({
                                 onClick={handleAddOption}
                                 className="
                                     mt-3
-                                    rounded-lg
-                                    border
-                                    border-blue-500
-                                    px-4
-                                    py-2
                                     text-sm
                                     font-medium
                                     text-blue-600
-                                    hover:bg-blue-50
+                                    hover:text-blue-700
                                 "
                             >
                                 ＋ 選択肢を追加
@@ -643,19 +640,13 @@ export default function EditInspectionChecklistItemModal({
 
                         </div>
                     )}
+
+
                     {/* 単位 */}
                     {isNumberInput && (
                         <div>
 
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                "
-                            >
+                            <label className="mb-2 block text-sm font-medium text-gray-700">
                                 単位
                             </label>
 
@@ -671,10 +662,9 @@ export default function EditInspectionChecklistItemModal({
                                 className="
                                     w-full
                                     rounded-lg
-                                    border
-                                    border-gray-500
-                                    px-4
-                                    py-2.5
+                                    border border-gray-500
+                                    bg-white
+                                    px-4 py-2.5
                                     text-sm
                                     outline-none
                                     focus:border-blue-500
@@ -686,34 +676,21 @@ export default function EditInspectionChecklistItemModal({
                         </div>
                     )}
 
-
                 </div>
 
 
                 {/* Footer */}
-
-                <div
-                    className="
-                        flex
-                        justify-end
-                        gap-3
-                        px-6
-                        py-4
-                    "
-                >
+                <div className="flex justify-end gap-3 px-6 py-4">
 
                     <button
                         type="button"
                         onClick={onClose}
                         className="
                             rounded-lg
-                            border
-                            border-gray-500
+                            border border-gray-300
                             bg-white
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-medium
+                            px-5 py-2.5
+                            text-sm font-medium
                             text-gray-700
                             hover:bg-gray-50
                         "
@@ -731,19 +708,17 @@ export default function EditInspectionChecklistItemModal({
                             itemTypeId === null ||
                             (
                                 isCustomOption &&
-                                options.filter(
+                                options.every(
                                     (option) =>
-                                        option.value.trim() !== ""
-                                ).length === 0
+                                        !option.value.trim()
+                                )
                             )
                         }
                         className="
                             rounded-lg
                             bg-blue-600
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-medium
+                            px-5 py-2.5
+                            text-sm font-medium
                             text-white
                             hover:bg-blue-700
                             disabled:cursor-not-allowed
