@@ -19,5 +19,6 @@ export async function executeWithErrorAndLoading({
     }
     catch (error) {
         showError(error)
+        throw error
     }
 }

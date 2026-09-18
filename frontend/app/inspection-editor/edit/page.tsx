@@ -92,45 +92,34 @@ export default function InspectionChecklistEditPage()
     const [editingChecklistItem, setEditingChecklistItem] =useState<InspectionChecklistItem | null>(null)
     // Loading
     const [loading, setLoading] =useState(false)
-
-
     // =========================================
     // 初期データ取得
     // =========================================
-
     const fetchInitialData = async () =>
     {
-    await executeWithErrorAndLoading({
-            setLoading,
-            action: async () => {
-                    // current user取得
-                    const currentUser = await fetchCurrentUser()
-                    // 権限チェック
-                    if (!currentUser) {
-                        return
-                    }
-                    if (currentUser?.role !== "admin")
-                    {
-                        alert("権限がありません")
-                        router.push("/dashboard")
-                        return
-                    }
-                        const initData = await fetchInitInspectionEditor()
-                        const inspectionTypesData = initData.inspection_types
-                        const inspectionItemTypesData = initData.inspection_item_types
-                        const inspectionChecklistsData = initData.inspection_checklists
-                        const deviceTypesData = initData.device_types
-                        const deviceModelsData = initData.device_models
-                        const inspectionItemCategoriesData = initData.inspection_item_categories
-                        setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
-                        setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
-                        setInspectionChecklists(inspectionChecklistsData.map(normalizeInspectionChecklist))
-                        setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
-                        setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
-                        setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
-            }
-        })
-    
+        try{
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                            const initData = await fetchInitInspectionEditor()
+                            const inspectionTypesData = initData.inspection_types
+                            const inspectionItemTypesData = initData.inspection_item_types
+                            const inspectionChecklistsData = initData.inspection_checklists
+                            const deviceTypesData = initData.device_types
+                            const deviceModelsData = initData.device_models
+                            const inspectionItemCategoriesData = initData.inspection_item_categories
+                            setInspectionTypes(inspectionTypesData.map(normalizeInspectionType))
+                            setInspectionItemTypes(inspectionItemTypesData.map(normalizeInspectionItemType))
+                            setInspectionChecklists(inspectionChecklistsData.map(normalizeInspectionChecklist))
+                            setDeviceTypes(deviceTypesData.map(normalizeDeviceType))
+                            setDeviceModels(deviceModelsData.map(normalizeDeviceModel))
+                            setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
+                }
+            })
+        }catch(error){
+                alert("初期化に失敗しました")
+                router.push("/dashboard")
+        }
     
         }
 

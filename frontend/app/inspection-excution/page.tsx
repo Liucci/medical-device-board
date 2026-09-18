@@ -69,7 +69,10 @@ function InspectionExecutionPage() {
     //URLからdevice idを取得する（str扱いになるのでnumber変換）
     const deviceId = Number(searchParams.get("deviceId"))
     //user
-    const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+    const [currentUser, setCurrentUser] = useState<{
+                                                        displayName: string
+                                                        role: string
+                                                    } | null>(null)
 //機器情報
     const [device, setDevice] = useState<Device | null>(null)
     const [deviceType, setDeviceType] = useState<DeviceTypeType | null>(null)
@@ -152,48 +155,57 @@ function InspectionExecutionPage() {
 
     //初期化
     const fetchInitialData = async () => {
-        if (!deviceId) return
-        setLoading(true)
+        //if (!deviceId) return
         try {
-            const data = await fetchInitInspectionExecution()
-            const currentUserData = await fetchCurrentUser()
-            const currentUser = normalizeCurrentUser(currentUserData)            
-            const devices: Device[] = data.devices.map(normalizeDevice)
-            const deviceTypes: DeviceTypeType[] = data.device_types.map(normalizeDeviceType)
-            const deviceModels: DeviceModelType[] = data.device_models.map(normalizeDeviceModel)
-            const wards: WardType[] = data.wards.map(normalizeWard)
-            const rooms: RoomType[] = data.rooms.map(normalizeRoom)
-            const roomInfections: RoomInfectionType[] = data.room_infections.map(normalizeRoomInfection)
-            const infectionTypes: InfectionTypeType[] = data.infection_types.map(normalizeInfectionType)
-            const inspectionChecklists: InspectionChecklist[] = data.inspection_checklists.map(normalizeInspectionChecklist)
-            const inspectionTypes: InspectionType[] = data.inspection_types.map(normalizeInspectionType)
-            const inspectionItemCategories: InspectionItemCategoryType[] = data.inspection_item_categories.map(normalizeInspectionItemCategory)
-            const inspectionItemTypes: InspectionItemType[] = data.inspection_item_types.map(normalizeInspectionItemType)
-            const device = devices.find(d => String(d.id) === String(deviceId))
-            if (!device) return
-            const deviceType = deviceTypes.find(d => d.id === device.type)
-            const deviceModel = deviceModels.find(d => d.id === device.model)
-            const room = rooms.find(r => r.id === device.roomId)
-            const targetRoomInfections = roomInfections.filter(roomInfection => roomInfection.roomId === device.roomId)
-            const ward = wards.find(w => w.id === room?.wardId)
-            setCurrentUser(currentUser)
-            setDevice(device)
-            setDeviceType(deviceType ?? null)
-            setDeviceModel(deviceModel ?? null)
-            setRoom(room ?? null)
-            setRoomInfections(targetRoomInfections)
-            setInfectionTypes(infectionTypes)
-            setWard(ward ?? null)
-            setInspectionTypes(inspectionTypes)
-            setInspectionChecklists(inspectionChecklists.filter(
-                checklist => checklist.deviceTypeId === device.type && 
-                    (checklist.deviceModelId === device.model ||checklist.deviceModelId === null)
-            ))
-            setInspectionItemTypes(inspectionItemTypes)
-            setInspectionItemCategories(inspectionItemCategories)
-            setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
-        } finally {
-            setLoading(false)
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {      
+            
+                const data = await fetchInitInspectionExecution()
+                const currentUser = {
+                                    displayName: data.current_user.display_name,
+                                    role: data.current_user.role,
+                }                       
+                const devices: Device[] = data.devices.map(normalizeDevice)
+                const deviceTypes: DeviceTypeType[] = data.device_types.map(normalizeDeviceType)
+                const deviceModels: DeviceModelType[] = data.device_models.map(normalizeDeviceModel)
+                const wards: WardType[] = data.wards.map(normalizeWard)
+                const rooms: RoomType[] = data.rooms.map(normalizeRoom)
+                const roomInfections: RoomInfectionType[] = data.room_infections.map(normalizeRoomInfection)
+                const infectionTypes: InfectionTypeType[] = data.infection_types.map(normalizeInfectionType)
+                const inspectionChecklists: InspectionChecklist[] = data.inspection_checklists.map(normalizeInspectionChecklist)
+                const inspectionTypes: InspectionType[] = data.inspection_types.map(normalizeInspectionType)
+                const inspectionItemCategories: InspectionItemCategoryType[] = data.inspection_item_categories.map(normalizeInspectionItemCategory)
+                const inspectionItemTypes: InspectionItemType[] = data.inspection_item_types.map(normalizeInspectionItemType)
+                const device = devices.find(d => String(d.id) === String(deviceId))
+                if (!device) return
+                const deviceType = deviceTypes.find(d => d.id === device.type)
+                const deviceModel = deviceModels.find(d => d.id === device.model)
+                const room = rooms.find(r => r.id === device.roomId)
+                const targetRoomInfections = roomInfections.filter(roomInfection => roomInfection.roomId === device.roomId)
+                const ward = wards.find(w => w.id === room?.wardId)
+                setCurrentUser(currentUser)
+                setDevice(device)
+                setDeviceType(deviceType ?? null)
+                setDeviceModel(deviceModel ?? null)
+                setRoom(room ?? null)
+                setRoomInfections(targetRoomInfections)
+                setInfectionTypes(infectionTypes)
+                setWard(ward ?? null)
+                setInspectionTypes(inspectionTypes)
+                setInspectionChecklists(inspectionChecklists.filter(
+                    checklist => checklist.deviceTypeId === device.type && 
+                        (checklist.deviceModelId === device.model ||checklist.deviceModelId === null)
+                ))
+                setInspectionItemTypes(inspectionItemTypes)
+                setInspectionItemCategories(inspectionItemCategories)
+                setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
+            }
+        })
+
+        }catch(error){
+                alert("初期化に失敗しました")
+                router.push("/dashboard")
         }
     }
     //選択中Checklistをpage側で取得
@@ -206,43 +218,86 @@ function InspectionExecutionPage() {
         fetchInitialData()
     }, [])
 
-    // 点検表を選択したとき発動
+// 点検表を選択したとき発動
     useEffect(() => {
         const fetchChecklistItems = async () => {
+
             if (!selectedChecklistId) {
                 setInspectionChecklistItems([])
                 setInspectionChecklistItemOptions({})
                 return
             }
 
-            const selectedChecklist = inspectionChecklists.find(checklist =>
+            const selectedChecklist = inspectionChecklists.find(
+                checklist =>
                     String(checklist.id) === selectedChecklistId
             )
 
-            if (!selectedChecklist) return
-            const inspectionChecklistItemsData =await getInspectionChecklistItemsFromApi(Number(selectedChecklistId))
-            const inspectionChecklistItems =inspectionChecklistItemsData.map(normalizeInspectionChecklistItem)
+            if (!selectedChecklist) {
+                setInspectionChecklistItems([])
+                setInspectionChecklistItemOptions({})
+                return
+            }
 
-            // 各inspection itemの選択肢を取得
-            const optionsEntries = await Promise.all(
-                inspectionChecklistItems.map(async (item: InspectionChecklistItem) =>
-                    {
-                        const inspectionChecklistItemOptionsData =await getInspectionChecklistItemOptionsFromApi(item.id)
-                        const inspectionChecklistItemOptions =inspectionChecklistItemOptionsData.map(normalizeInspectionChecklistItemOption)
-                        return [item.id, inspectionChecklistItemOptions,] as const
-                    }
-                )
-            )
+            try {
+                await executeWithErrorAndLoading({
+                    setLoading,
+                    action: async () => {
 
-            const optionsByChecklistItemId =Object.fromEntries(optionsEntries)
+                        const inspectionChecklistItemsData =
+                            await getInspectionChecklistItemsFromApi(
+                                Number(selectedChecklistId)
+                            )
 
-            setInspectionChecklistItems(inspectionChecklistItems)
-            setInspectionChecklistItemOptions(optionsByChecklistItemId)
+                        const inspectionChecklistItems =
+                            inspectionChecklistItemsData.map(
+                                normalizeInspectionChecklistItem
+                            )
+
+                        // 各inspection itemの選択肢を取得
+                        const optionsEntries = await Promise.all(
+                            inspectionChecklistItems.map(
+                                async (item: InspectionChecklistItem) => {
+
+                                    const inspectionChecklistItemOptionsData =
+                                        await getInspectionChecklistItemOptionsFromApi(
+                                            item.id
+                                        )
+
+                                    const inspectionChecklistItemOptions =
+                                        inspectionChecklistItemOptionsData.map(
+                                            normalizeInspectionChecklistItemOption
+                                        )
+
+                                    return [
+                                        item.id,
+                                        inspectionChecklistItemOptions,
+                                    ] as const
+                                }
+                            )
+                        )
+
+                        const optionsByChecklistItemId =
+                            Object.fromEntries(optionsEntries)
+
+                        setInspectionChecklistItems(
+                            inspectionChecklistItems
+                        )
+
+                        setInspectionChecklistItemOptions(
+                            optionsByChecklistItemId
+                        )
+                    },
+                })
+            } catch (error) {
+                alert("点検表取得に失敗しました")
+                setInspectionChecklistItems([])
+                setInspectionChecklistItemOptions({})
+            }
         }
+
         fetchChecklistItems()
     }, [selectedChecklistId])
-
-
 
 return (
     <>

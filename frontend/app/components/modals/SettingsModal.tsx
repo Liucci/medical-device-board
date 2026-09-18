@@ -110,79 +110,128 @@ export default function SettingsModal({
   const router = useRouter()
   const [mode, setMode] = useState<Mode>("menu")
 
+  //front権限チェック
+  const checkAdminPermission = () => {
+      if (currentUser.role !== "admin") {
+          alert("権限がありません")
+          return false
+      }
+      return true
+  }
+
   const menuButtons = [
     {
       label: "ストックエリア",
       mode: "stock" as const,
-      icon: Boxes
+      icon: Boxes,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("stock")  
+      }
     },
     {
       label: "病棟エリア",
       mode: "ward" as const,
-      icon: Building2
+      icon: Building2,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("ward")  
+      }
+
     },
     {
       label: "機種編集",
       mode: "deviceType" as const,
-      icon: Settings2
+      icon: Settings2,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("deviceType")  
+      }
+
     },
     {
       label: "メンテナンス編集",
       mode: "maintenance" as const,
-      icon: Wrench
+      icon: Wrench,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("maintenance")  
+      }
+
     },
     {
       label: "感染症編集",
       mode: "infection" as const,
-      icon: Biohazard
+      icon: Biohazard,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("infection")  
+      }
+
     },
     {
       label: "管理",
       mode: "hospitalSetting" as const,
-      icon: Shield
+      icon: Shield,
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("hospitalSetting")  
+      }
+
     },
     {
       label: "病棟レイアウト",
       mode: "wardOrder" as const,
-      icon: GripVertical,
+      icon: GripVertical,      
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("wardOrder")  
+      }
+
     },
         {
       label: "ストックエリアレイアウト",
       mode: "stockAreaOrder" as const,
-      icon: GripVertical,
+      icon: GripVertical,      
+      onClick: () => {
+      if (!checkAdminPermission()) return
+      setMode("stockAreaOrder")  
+      }
+
     },
     {
         label: "点検表作成",
         icon: ClipboardCheck,
         onClick: () => {
-            if (currentUser.role !== "admin") {
-                alert("権限がありません")
-                return
-            }
-
-            router.push("/inspection-editor")
+          if (!checkAdminPermission()) return
+          router.push("/inspection-editor")
         },
     },
     {
       label: "点検表編集",
       icon: ClipboardCheck,
       onClick: () => {
-          if (currentUser.role !== "admin") {
-              alert("権限がありません")
-              return
-          }
-          router.push("/inspection-editor/edit")
+        if (!checkAdminPermission()) return
+        router.push("/inspection-editor/edit")
       },
     },
         {
         label: "点検表種類",
         mode: "checklistType" as const,
         icon: ListChecks,
+        onClick: () => {
+        if (!checkAdminPermission()) return
+        setMode("checklistType")  
+        }
     },
     {
         label: "点検項目大項目",
         mode: "checklistCategory" as const,
         icon: Tags,
+        onClick: () => {
+        if (!checkAdminPermission()) return
+        setMode("checklistCategory")  
+        }
     },
 
   ]

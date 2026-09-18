@@ -85,19 +85,10 @@ export default function InspectionEditorPage()
     //初期化用
     const fetchInitialData = async () =>
     {
+        try{
         await executeWithErrorAndLoading({
             setLoading,
             action: async () => {      
-                    // current user取得
-                    const currentUser = await fetchCurrentUser()    
-                    // 権限チェック
-                    if (!currentUser) {return}
-                    if (currentUser?.role !== "admin")
-                    {
-                        alert("権限がありません")
-                        router.push("/dashboard")
-                        return
-                    }
 
                     const initData = await fetchInitInspectionEditor()
                     const inspectionTypesData = initData.inspection_types
@@ -114,8 +105,10 @@ export default function InspectionEditorPage()
                     setInspectionItemCategories(inspectionItemCategoriesData.map(normalizeInspectionItemCategory))
             }
         })
-
-
+        }catch(error){
+                alert("初期化に失敗しました")
+                router.push("/dashboard")
+        }
     }
 
     const filteredDeviceModels = deviceModels.filter(

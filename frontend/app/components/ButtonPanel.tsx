@@ -152,66 +152,55 @@ export default function ButtonPanel({
   const [inspectionResultsLoading, setInspectionResultsLoading] =useState(false)
   const [inspections, setInspections] =useState<Inspection[]>([])
 
-  const OpenModal = () => {setOpenDeviceModal(true)}
-  const openSettings = () => {setOpenSettingsModal(true)}
-  const openHistory = async () => {setOpenHistoryModal(true)
-  await fetchHistories()}
+  const checkAdminPermission = () => {
+                      if (currentUser.role !== "admin") {
+                          alert("権限がありません")
+                          return false
+                      }
+                      return true
+  }
+
+
+  const OpenModal = () => {
+                            if (!checkAdminPermission()) return
+                            setOpenDeviceModal(true)}
+  const openSettings = () => {
+                            if (!checkAdminPermission()) return
+                             setOpenSettingsModal(true)}
+  const openHistory = async () => {
+                            setOpenHistoryModal(true)
+                            await fetchHistories()}
   const openDeviceList = () => {setOpenDeviceListModal(true)}
-  const openInvite = () => {setOpenInviteModal(true)}
-  const openHospitalSettings = () => {setOpenHospitalSettingsModal(true)}
+
+  const openInvite = () => {
+                            if (!checkAdminPermission()) return
+                            setOpenInviteModal(true)}  
+  const openHospitalSettings = () => {
+                            if (!checkAdminPermission()) return
+                            setOpenHospitalSettingsModal(true)}
 
       //処理中表示用
   const [loading, setLoading] = useState(false)
 
-  // inspection_checklist_item_options INSERTテスト
-  const testInspectionChecklistItemOptions = async () => {
-    try {
-      const result = await testAddInspectionChecklistItemOptions()
-
-      console.log("TEST OPTIONS INSERT:", result)
-    } catch (error) {
-      console.error("TEST OPTIONS INSERT ERROR:", error)
-    }
-  }
-
-
-  //supabaseのsend-email関数呼び出しテスト
-  const testEmail = async () => {
-     const { data, error } =
-      await supabase.functions.invoke(
-        "resend-email",
-        {
-          body: {
-            to: "naoyochism@icloud.com",
-            subject: "テスト",
-            html: "<h1>送信成功</h1>"
-          }
-        }
-      )
-    console.log(data)
-    console.log(error)
-  }
-
 //点検結果ボタン処理内容
-const openInspectionResult = async () => {
+  const openInspectionResult = async () => {
+      setOpenInspectionResultModal(true)
 
-    setOpenInspectionResultModal(true)
-
-    try {
-        await executeWithErrorAndLoading({
-          setLoading,
-          action: async () => {
-            const data =await getInspectionsFromApi()
-            const normalizedInspections =data.map(normalizeInspection)
-            setInspections(normalizedInspections)
-            }
-        })
-    } catch (error) {
-        console.error("failed to fetch inspections:",error)
-        alert("点検結果の取得に失敗しました")
-        setOpenInspectionResultModal(false)
-    } 
-}
+      try {
+          await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+              const data =await getInspectionsFromApi()
+              const normalizedInspections =data.map(normalizeInspection)
+              setInspections(normalizedInspections)
+              }
+          })
+      } catch (error) {
+          console.error("failed to fetch inspections:",error)
+          alert("点検結果の取得に失敗しました")
+          setOpenInspectionResultModal(false)
+      } 
+  }
 
 
   return (

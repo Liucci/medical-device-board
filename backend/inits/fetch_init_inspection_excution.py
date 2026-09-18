@@ -18,6 +18,8 @@ from transactions.hospital_settings.fetch_hospital_settings_transaction import (
 def fetch_init_inspection_execution(
     client: Client,
     hospital_id: str,
+    display_name:str,
+    role:str
 ):
 
     print("fetch_init_inspection_execution")
@@ -48,4 +50,8 @@ def fetch_init_inspection_execution(
         "inspection_item_categories": inspection_item_categories,
         "inspection_item_types": inspection_item_types,
         "hospital_settings": hospital_settings,
+        "current_user": {
+                        "display_name": display_name,
+                        "role": role,    
+                        }
     }

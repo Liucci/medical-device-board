@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from fastapi import Depends, Response
 from schemas.session_schemas import BackendSession
 from auth.get_current_session import get_current_session
+from auth.check_permission import check_permission
 #CRUD
 from inspection.inspection_types.add_inspection_type import add_inspection_type
 from inspection.inspection_types.update_inspection_type import update_inspection_type
@@ -77,9 +78,16 @@ inspection_router = APIRouter()
 def get_init_inspection_execution(
     session: BackendSession = Depends(get_current_session),
 ):
+    check_permission(
+        current_user=session,
+        allowed_roles=["admin"],
+    )
+    
     return fetch_init_inspection_execution(
         client=session.client,
         hospital_id=session.hospital_id,
+        display_name=session.display_name,
+        role=session.role
     )
 
 # inspection editor init
@@ -87,6 +95,11 @@ def get_init_inspection_execution(
 def get_init_inspection_editor(
     session: BackendSession = Depends(get_current_session),
 ):
+    check_permission(
+        current_user=session,
+        allowed_roles=["admin"],
+    )
+    
     return fetch_init_inspection_editor(
         client=session.client,
         hospital_id=session.hospital_id,
