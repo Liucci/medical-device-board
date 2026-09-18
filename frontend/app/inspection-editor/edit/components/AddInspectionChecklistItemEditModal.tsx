@@ -33,7 +33,7 @@ export default function AddInspectionChecklistItemEditModal({
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
     const [options, setOptions] = useState<InspectionChecklistItemOption[]>([])
     const [categoryId, setCategoryId] = useState<number | null>(null)
-    const [required, setRequired] = useState(false)
+    const [required, setRequired] = useState(true)
 
     useEffect(() =>
     {
@@ -44,7 +44,7 @@ export default function AddInspectionChecklistItemEditModal({
             setOptions([])
             setCategoryId(null)
             setUnit("")
-            setRequired(false)
+            setRequired(true)
         }
     }, [open])
 
@@ -211,9 +211,9 @@ export default function AddInspectionChecklistItemEditModal({
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                             <input
                                 type="checkbox"
-                                checked={required}
+                                checked={!required}
                                 onChange={(event) =>
-                                    setRequired(event.target.checked)
+                                    setRequired(!event.target.checked)
                                 }
                                 className="
                                     h-4

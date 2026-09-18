@@ -36,7 +36,7 @@ export default function EditInspectionChecklistItemEditModal({
     const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)
     const [itemTypeId, setItemTypeId] = useState<number | null>(null)
-    const [required, setRequired] = useState(false)
+    const [required, setRequired] = useState(true)
     const [options, setOptions] =
         useState<InspectionChecklistItemOption[]>([])
 
@@ -68,7 +68,7 @@ export default function EditInspectionChecklistItemEditModal({
             setUnit("")
             setCategoryId(null)
             setItemTypeId(null)
-            setRequired(false)
+            setRequired(true)
             setOptions([])
         }
 
@@ -386,17 +386,17 @@ export default function EditInspectionChecklistItemEditModal({
                     </div>
 
 
-                    {/* 入力必須 */}
+                    {/* 入力任意 */}
                     <div className="flex items-center">
 
                         <label className="flex cursor-pointer items-center gap-2">
 
                             <input
                                 type="checkbox"
-                                checked={required}
+                                checked={!required}
                                 onChange={(event) =>
                                     setRequired(
-                                        event.target.checked
+                                        !event.target.checked
                                     )
                                 }
                                 className="
@@ -410,7 +410,7 @@ export default function EditInspectionChecklistItemEditModal({
                             />
 
                             <span className="text-sm font-medium text-gray-700">
-                                入力必須
+                                入力任意
                             </span>
 
                         </label>

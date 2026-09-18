@@ -208,9 +208,9 @@ export default function SortableInspectionChecklistItemEdit({
                             {item.itemName}
                         </span>
 
-                        {item.required && (
+                        {!item.required && (
                             <span className="shrink-0 text-xs font-medium text-red-600">
-                                入力必須
+                                入力任意
                             </span>
                         )}
                     </div>

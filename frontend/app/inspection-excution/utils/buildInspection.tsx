@@ -239,7 +239,7 @@ export function buildInspection({
                                             {item.itemName}
                                         </span>
 
-                                        {item.required && (
+                                        {!item.required && (
                                             <span className="
                                                 rounded
                                                 bg-red-50
@@ -249,7 +249,7 @@ export function buildInspection({
                                                 font-medium
                                                 text-red-500
                                             ">
-                                                必須
+                                                入力任意
                                             </span>
                                         )}
                                     </div>

@@ -422,12 +422,8 @@ export default function EditInspectionChecklistItemModal({
 
                             <input
                                 type="checkbox"
-                                checked={required}
-                                onChange={(event) =>
-                                    setRequired(
-                                        event.target.checked
-                                    )
-                                }
+                                checked={!required}
+                                onChange={(event) =>setRequired(!event.target.checked)}
                                 className="
                                     h-4
                                     w-4
