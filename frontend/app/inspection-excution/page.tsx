@@ -140,6 +140,8 @@ function InspectionExecutionPage() {
         setLoading(true)
         try {
             const data = await fetchInitInspectionExecution()
+            const currentUserData = await fetchCurrentUser()
+            const currentUser = normalizeCurrentUser(currentUserData)            
             const devices: Device[] = data.devices.map(normalizeDevice)
             const deviceTypes: DeviceTypeType[] = data.device_types.map(normalizeDeviceType)
             const deviceModels: DeviceModelType[] = data.device_models.map(normalizeDeviceModel)
@@ -158,6 +160,7 @@ function InspectionExecutionPage() {
             const room = rooms.find(r => r.id === device.roomId)
             const targetRoomInfections = roomInfections.filter(roomInfection => roomInfection.roomId === device.roomId)
             const ward = wards.find(w => w.id === room?.wardId)
+            setCurrentUser(currentUser)
             setDevice(device)
             setDeviceType(deviceType ?? null)
             setDeviceModel(deviceModel ?? null)
@@ -166,7 +169,10 @@ function InspectionExecutionPage() {
             setInfectionTypes(infectionTypes)
             setWard(ward ?? null)
             setInspectionTypes(inspectionTypes)
-            setInspectionChecklists(inspectionChecklists.filter(checklist => checklist.deviceTypeId === device.type && checklist.deviceModelId === device.model))
+            setInspectionChecklists(inspectionChecklists.filter(
+                checklist => checklist.deviceTypeId === device.type && 
+                    (checklist.deviceModelId === device.model ||checklist.deviceModelId === null)
+            ))
             setInspectionItemTypes(inspectionItemTypes)
             setInspectionItemCategories(inspectionItemCategories)
             setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
