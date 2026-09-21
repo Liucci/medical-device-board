@@ -13,7 +13,7 @@ import { updateInspectionTypeTransaction } from "../../../api/transactions/inspe
 
 import { executeWithErrorAndLoading } from "../../common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../../common/LoadingOverlay"
-
+import { deleteInspectionTypeTransaction } from "../../../api/transactions/inspection/inspectionTypes/deleteInspectionTypeTransaction"
 
 type Props = {
     inspectionTypes: InspectionType[]
@@ -96,6 +96,7 @@ export default function EditChecklistTypeModal({
     // 有効 / 無効
     // =========================
 
+/* 
     const handleToggleActive = async (
         inspectionType: InspectionType
     ) => {
@@ -120,7 +121,40 @@ export default function EditChecklistTypeModal({
             },
         })
     }
+ */
 
+// =========================
+// 削除
+// =========================
+
+const handleDelete = async (
+    inspectionType: InspectionType
+) => {
+
+    const confirmed = window.confirm(
+        `「${inspectionType.name}」を削除しますか？\n\n` +
+        "この点検表種類に紐づく点検表・点検項目も削除されます。\n" +
+        "過去の点検記録は削除されません。"
+    )
+
+    if (!confirmed) {
+        return
+    }
+
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+
+            await deleteInspectionTypeTransaction({
+                inspectionType: {
+                    id: inspectionType.id
+                },
+                setInspectionTypes,
+            })
+
+        },
+    })
+}
 
     // =========================
     // 追加
@@ -308,6 +342,7 @@ return (
 
 
                         {/* 有効・無効 */}
+{/*
                         <button
                           onClick={() =>
                             handleToggleActive(inspectionType)
@@ -339,6 +374,30 @@ return (
                             ? "無効"
                             : "有効"}
                         </button>
+ */}
+
+
+                        {/* 削除 */}
+                        <button
+                          onClick={() =>
+                            handleDelete(inspectionType)
+                          }
+                          className="
+                            rounded-lg
+                            bg-red-50
+                            px-3
+                            py-1.5
+                            text-sm
+                            font-medium
+                            text-red-600
+                            transition
+                            hover:bg-red-100
+                            hover:text-red-700
+                          "
+                        >
+                          削除
+                        </button>
+
 
                       </div>
                     )}

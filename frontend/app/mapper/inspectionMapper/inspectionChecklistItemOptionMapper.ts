@@ -1,6 +1,8 @@
 import type {InspectionChecklistItemOption,
     InspectionChecklistItemOptionFrontType,
     InspectionChecklistItemOptionBackType,
+    DeleteItemOptionsBackType,
+    DeleteItemOptionsFrontType
 } from "../../types/inspectionTypes/inspectionChecklistItemOptionTypes"
 
 
@@ -25,3 +27,11 @@ export const normalizeInspectionChecklistItemOptionForItem = (
     value: option.value,
     displayOrder: option.display_order
 })
+
+export const toDeleteItemOptionsRequest = (
+    options: DeleteItemOptionsFrontType
+): DeleteItemOptionsBackType => {
+    return {
+        ids: options.ids,
+    }
+}

@@ -15,6 +15,8 @@ import { getDeviceModelsFromApi } from "../api/deviceModels/fetchDeviceModels"
 import { getInspectionTypes } from "../api/inspection/inspectionTypes/fetchInspectionTypes"
 import { getInspectionChecklistsFromApi } from "../api/inspection/inspectionChecklists/fetchInspectionChecklists"
 import { getInspectionChecklistItemsFromApi } from "../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
+import { getInspectionChecklistItemsWithOptionsFromApi } from "../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItemsWithOptions"
+
 import { getInspectionChecklistItemOptionsFromApi } from "../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
 import { getInspectionItemCategoriesFromApi } from "../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
 import { getInspectionItemTypesFromApi } from "../api/inspection/inspectionItemTypes/fetchInspectionItemTypes"
@@ -22,6 +24,7 @@ import { createInspectionTransaction } from "../api/transactions/inspection/insp
 import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchTodayInspections"
 import { fetchHospitalSettingsTransaction } from "../api/transactions/hospitalSettings/fetchHospitalSettingsTransaction"
 import { fetchInitInspectionExecution } from "../api/inits/fetchInitInspectionExecution"
+
 // types
 import type { CurrentUser } from "../types/userTypes"
 import type { Device } from "../types/deviceTypes"
@@ -61,7 +64,10 @@ import { buildInspection } from "./utils/buildInspection"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 
-
+//modal
+import InspectionOverallResultModal from "./components/InspectionOverallResultModal"
+import InspectionCommentModal from "./components/InspectionCommentModal"
+import InspectionHistoryModal from "./components/InspectionHistoryModal"
 //Next.js 16では、useSearchParams()をSuspense境界の内側で実行する必要があります。
 function InspectionExecutionPage() {
     const router = useRouter()
@@ -92,6 +98,13 @@ function InspectionExecutionPage() {
     const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])
     //点検結果を受け取るstate
     const [inspectionResults, setInspectionResults] = useState<Record<number, string | null>>({})
+    const [overallResult, setOverallResult] =useState<"OK" | "NG" | null>(null)
+    const [comment, setComment] = useState("")
+    //Modal
+    const [isOverallResultModalOpen, setIsOverallResultModalOpen] = useState(false)
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
+    const [isInspectionHistoryModalOpen, setIsInspectionHistoryModalOpen] =useState(false)
+
     //inspectionResults用関数
     const handleInspectionResultChange = (itemId: number, value: string | null) => {
         setInspectionResults(prev => ({
@@ -101,14 +114,23 @@ function InspectionExecutionPage() {
     } 
     const [loading, setLoading] = useState(false)
 
-    
-    const handleSave = async () => {
-        if (!selectedChecklist) return
-        // 必須項目チェック
+    //未入力チェック
+    const validateRequiredItems = () => {
+        if (!selectedChecklist) return false
+
         const missingRequiredItems = inspectionChecklistItems.filter(item => {
             if (!item.required) return false
+
             const value = inspectionResults[item.id]
-            return value === null || value === undefined || value.trim() === ""
+
+            // 対象外は未入力として扱わない
+            if (value === "-") return false
+
+            return (
+                value === null ||
+                value === undefined ||
+                value.trim() === ""
+            )
         })
 
         if (missingRequiredItems.length > 0) {
@@ -117,8 +139,18 @@ function InspectionExecutionPage() {
                     .map(item => `・${item.itemName}`)
                     .join("\n")}`
             )
-            return
+
+            return false
         }
+
+        return true
+    }
+
+    const handleSave = async (result: "OK" | "NG") => {
+        if (!selectedChecklist) return
+
+        // 総合点検結果をstateに保存
+        setOverallResult(result)
 
         const inspection = {
             inspection: {
@@ -126,32 +158,30 @@ function InspectionExecutionPage() {
                 roomId: room?.id ?? null,
                 inspectionTypeId: selectedChecklist.inspectionTypeId,
                 checklistId: selectedChecklist.id,
-                overallResult: null,
-                comment: null
+                overallResult: result,
+                comment: comment || null,
             },
+
             results: Object.entries(inspectionResults).map(
                 ([checklistItemId, value]) => ({
                     checklistItemId: Number(checklistItemId),
-                    value
+                    value,
                 })
-            )
+            ),
         }
-/* console.log(
-    "保存する点検結果:",
-    JSON.stringify(inspection, null, 2)
-)
- */
+
         await executeWithErrorAndLoading({
-                setLoading,
-                action: async () => {
-                        await createInspectionTransaction({
-                            inspection,                           
-                        })
-                }
-            })      
+            setLoading,
+            action: async () => {
+                await createInspectionTransaction({
+                    inspection,
+                })
+            },
+        })
         alert("点検結果を保存しました")
         router.push("/dashboard")
     }
+
 
     //初期化
     const fetchInitialData = async () => {
@@ -243,50 +273,30 @@ function InspectionExecutionPage() {
                 await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
+                            const inspectionChecklistItemsData =
+                                await getInspectionChecklistItemsWithOptionsFromApi(
+                                    Number(selectedChecklistId)
+                                )
 
-                        const inspectionChecklistItemsData =
-                            await getInspectionChecklistItemsFromApi(
-                                Number(selectedChecklistId)
-                            )
+                            const inspectionChecklistItems =
+                                inspectionChecklistItemsData.map(
+                                    normalizeInspectionChecklistItem
+                                )
+                            // itemごとのoptionsを作成
+                            const optionsByChecklistItemId: Record<number,
+                                InspectionChecklistItemOptionFrontType[]
+                            > = {}
 
-                        const inspectionChecklistItems =
-                            inspectionChecklistItemsData.map(
-                                normalizeInspectionChecklistItem
-                            )
+                            inspectionChecklistItemsData.forEach((item: any) => {
+                                optionsByChecklistItemId[item.id] =
+                                    (item.options ?? []).map(
+                                        normalizeInspectionChecklistItemOption
+                                    )
+                            })
 
-                        // 各inspection itemの選択肢を取得
-                        const optionsEntries = await Promise.all(
-                            inspectionChecklistItems.map(
-                                async (item: InspectionChecklistItem) => {
 
-                                    const inspectionChecklistItemOptionsData =
-                                        await getInspectionChecklistItemOptionsFromApi(
-                                            item.id
-                                        )
-
-                                    const inspectionChecklistItemOptions =
-                                        inspectionChecklistItemOptionsData.map(
-                                            normalizeInspectionChecklistItemOption
-                                        )
-
-                                    return [
-                                        item.id,
-                                        inspectionChecklistItemOptions,
-                                    ] as const
-                                }
-                            )
-                        )
-
-                        const optionsByChecklistItemId =
-                            Object.fromEntries(optionsEntries)
-
-                        setInspectionChecklistItems(
-                            inspectionChecklistItems
-                        )
-
-                        setInspectionChecklistItemOptions(
-                            optionsByChecklistItemId
-                        )
+                            setInspectionChecklistItems(inspectionChecklistItems)
+                            setInspectionChecklistItemOptions(optionsByChecklistItemId)        
                     },
                 })
             } catch (error) {
@@ -548,6 +558,7 @@ return (
                                             )
 
                                         return (
+                                            <div>
                                             <select
                                                 value={selectedChecklistId}
                                                 onChange={event => {
@@ -602,6 +613,36 @@ return (
                                                     }
                                                 )}
                                             </select>
+                                            {/* 過去の点検結果 */}
+                                            <div className="mt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setIsInspectionHistoryModalOpen(true)
+                                                }
+                                                disabled={!selectedChecklistId}
+                                                className="
+                                                    w-full
+                                                    rounded-lg
+                                                    border
+                                                    border-gray-300
+                                                    bg-white
+                                                    px-4
+                                                    py-2.5
+                                                    text-sm
+                                                    font-medium
+                                                    text-gray-700
+                                                    shadow-sm
+                                                    transition
+                                                    hover:bg-gray-50
+                                                    disabled:cursor-not-allowed
+                                                    disabled:opacity-50
+                                                "
+                                            >
+                                                過去の点検結果を参照
+                                            </button>
+                                            </div>
+                                            </div>
                                         )
                                     })()}
                                 </div>
@@ -641,6 +682,9 @@ return (
                                 text-gray-500
                             ">
                                 点検表の各項目を確認して入力してください
+                            </p>
+                            <p className="mt-1 text-xs text-gray-500">
+                                長押しで対象外にできます
                             </p>
                         </div>
 
@@ -714,33 +758,94 @@ return (
                         ダッシュボードに戻る
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={!selectedChecklistId || loading}
-                        className="
-                            rounded-lg
-                            bg-blue-600
-                            px-6
-                            py-2.5
-                            text-sm
-                            font-medium
-                            text-white
-                            shadow-sm
-                            transition
-                            hover:bg-blue-700
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
-                    >
+                    <div className="flex gap-3">
+
+                        {comment && (
+                            <span className="
+                                max-w-md
+                                whitespace-normal
+                                text-sm
+                                text-gray-600
+                            ">
+                                備考：{comment}
+                            </span>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setIsCommentModalOpen(true)}
+                            className="
+                                rounded-lg
+                                border
+                                border-gray-500
+                                bg-white
+                                px-5
+                                py-2.5
+                                text-sm
+                                font-medium
+                                text-gray-700
+                                shadow-sm
+                                transition
+                                hover:bg-gray-50
+                            "
+                        >
+                            備考欄入力
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                            if (!validateRequiredItems()) return
+                                            setIsOverallResultModalOpen(true)
+                                            }}
+                            disabled={!selectedChecklistId || loading}
+                            className="
+                                rounded-lg
+                                bg-blue-600
+                                px-6
+                                py-2.5
+                                text-sm
+                                font-medium
+                                text-white
+                                shadow-sm
+                                transition
+                                hover:bg-blue-700
+                                disabled:cursor-not-allowed
+                                disabled:opacity-50
+                            "
+                        >
                             点検を完了する
-                    </button>
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
     {/* 処理中表示 */}
     <LoadingOverlay loading={loading} />
-        
+
+    <InspectionOverallResultModal
+        isOpen={isOverallResultModalOpen}
+        onClose={() => setIsOverallResultModalOpen(false)}
+        onSelect={async (result) => {
+            setIsOverallResultModalOpen(false)
+            await handleSave(result)
+        }}
+    />
+
+    <InspectionCommentModal
+        isOpen={isCommentModalOpen}
+        initialComment={comment}
+        onClose={() => setIsCommentModalOpen(false)}
+        onSave={(value) => {
+            setComment(value)
+            setIsCommentModalOpen(false)
+        }}
+    />    
+    <InspectionHistoryModal
+        isOpen={isInspectionHistoryModalOpen}
+        onClose={() => setIsInspectionHistoryModalOpen(false)}
+        deviceId={deviceId}
+        checklistId={Number(selectedChecklistId)}
+    />
+
     </>
 )
 }

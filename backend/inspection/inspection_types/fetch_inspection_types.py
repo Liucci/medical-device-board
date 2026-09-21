@@ -17,6 +17,7 @@ def fetch_inspection_types(
     )
     return response.data
 
+#単独のinspection type idを条件に情報を取得
 def fetch_inspection_type(
     client: Client,
     inspection_type_id: int
@@ -31,3 +32,4 @@ def fetch_inspection_type(
         .execute()
     )
     return response.data
+

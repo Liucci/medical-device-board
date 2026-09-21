@@ -81,3 +81,25 @@ class AddInspectionResultSnapshotRequest(BaseModel):
 class CreateInspectionPdfRequest(BaseModel):
     inspection_ids: list[int]
     show_patient_name: bool
+
+
+#取得件数を指定して点検結果を取得するAPI専用のschemas
+#複数のinspectionを取得しresultと紐づけするためにはresult側情報にinspection idが必須
+class InspectionResultByLimitResponse(BaseModel):
+    inspection_id: int
+    category_name: str
+    category_display_order: int
+    item_name: str
+    item_display_order: int
+    unit: str | None
+    value: str | None
+
+
+class InspectionsByLimitResponse(BaseModel):
+    inspections: list[InspectionListResponse]
+    results: list[InspectionResultByLimitResponse]
+
+#frontからはdevice id,checklist idを送り指定の件数分のinspectionsとresultを取得する
+class InspectionsByLimitRequest(BaseModel):
+    device_id: int
+    checklist_id: int

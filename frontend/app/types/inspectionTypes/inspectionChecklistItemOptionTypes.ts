@@ -23,3 +23,11 @@ export type InspectionChecklistItemOptionBackType = {
     value: string
     display_order: number
 }
+
+export type DeleteItemOptionsFrontType = {
+    ids: number[]
+}
+
+export type DeleteItemOptionsBackType = {
+    ids: number[]
+}

@@ -3,7 +3,8 @@ import type {
     CreateInspectionChecklistNewVerTransactionFrontType,
     CreateInspectionChecklistNewVerTransactionBackType,
     CreateInspectionChecklistTransactionBackType,
-    CreateInspectionChecklistTransactionFrontType
+    CreateInspectionChecklistTransactionFrontType,
+    
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionChecklistTransactionTypes"
 
 

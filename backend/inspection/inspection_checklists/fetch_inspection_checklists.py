@@ -74,3 +74,49 @@ def fetch_inspection_checklists_by_device_model_ids(
     )
 
     return response.data
+
+#inspection type idを条件にchecklistを取得する
+def fetch_inspection_checklists_by_inspection_type_id(
+    client: Client,
+    inspection_type_id: int,
+    hospital_id: str
+):
+    print("fetch_inspection_checklists_by_inspection_type_id")
+
+    response = (
+        client
+        .table("inspection_checklists")
+        .select("id")
+        .eq("inspection_type_id", inspection_type_id)
+        .eq("hospital_id", hospital_id)
+        .execute()
+    )
+
+    return response.data
+
+
+
+#同じ点検表のversion違いの情報を取得する
+def fetch_same_inspection_checklists(
+    client: Client,
+    hospital_id: str,
+    inspection_type_id: int,
+    device_type_id: int,
+    device_model_id: int | None,
+    name: str,
+):
+    print("fetch_same_inspection_checklists")
+
+    response = (
+        client
+        .table("inspection_checklists")
+        .select("*")
+        .eq("hospital_id", hospital_id)
+        .eq("inspection_type_id", inspection_type_id)
+        .eq("device_type_id", device_type_id)
+        .eq("device_model_id", device_model_id)
+        .eq("name", name)
+        .execute()
+    )
+
+    return response.data

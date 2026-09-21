@@ -19,4 +19,4 @@ class UpdateInspectionTypeRequest(BaseModel):
 
 
 class DeleteInspectionTypesRequest(BaseModel):
-    ids: list[int]
+    id: int

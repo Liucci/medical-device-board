@@ -41,3 +41,9 @@ export type UpdateInspectionTypeBackTYpe = {
     is_active: boolean
 }
 
+export type DeleteInspectionTypeFrontType = {
+    id: number
+}
+export type DeleteInspectionTypeBackType = {
+    id: number
+}

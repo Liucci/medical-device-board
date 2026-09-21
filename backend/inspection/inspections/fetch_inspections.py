@@ -59,6 +59,31 @@ def fetch_inspections_by_ids(
     return response.data
 
 
+#件数指定でinspection情報を取得する
+def fetch_inspections_by_limit(
+    client: Client,
+    device_id: int,
+    checklist_id: int,
+    hospital_id: str,
+    limit: int,
+):
+    print("fetch_inspections_by_limit")
+
+    response = (
+        client
+        .table("inspections")
+        .select("*")
+        .eq("hospital_id", hospital_id)
+        .eq("device_id", device_id)
+        .eq("checklist_id", checklist_id)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+
+    return response.data
+
+
 #当日実施したinspection情報を取得する
 def fetch_today_inspections(client: Client, hospital_id: str):
     print("fetch_today_inspections")

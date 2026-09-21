@@ -2,7 +2,11 @@ import {
     InspectionType,
     InspectionTypeDB,
     CreateInspectionTypeFrontType,
+    CreateInspectionTypeBackType,
     UpdateInspectionTypeFrontType,
+    UpdateInspectionTypeBackTYpe,
+    DeleteInspectionTypeBackType,
+    DeleteInspectionTypeFrontType
 } from "../../types/inspectionTypes/inspectionTypeTypes"
 
 
@@ -19,7 +23,7 @@ export const normalizeInspectionType = (
 // Create
 export const toCreateInspectionTypeRequest = (
     inspectionType: CreateInspectionTypeFrontType
-) => ({
+):CreateInspectionTypeFrontType => ({
     name: inspectionType.name
 })
 
@@ -27,10 +31,16 @@ export const toCreateInspectionTypeRequest = (
 // Update
 export const toUpdateInspectionTypeRequest = (
     inspectionType: UpdateInspectionTypeFrontType
-) => ({
+):UpdateInspectionTypeBackTYpe => ({
     id: inspectionType.id,
     name: inspectionType.name,
     is_active: inspectionType.isActive
 })
 
+// delete
+export const toDeleteInspectionTypeRequest = (
+    inspectionType: DeleteInspectionTypeFrontType
+):DeleteInspectionTypeBackType => ({
+    id: inspectionType.id
+})
 

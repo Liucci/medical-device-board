@@ -61,3 +61,24 @@ export type UpdateInspectionResultBackType = {
 export type DeleteInspectionResults = {
     ids: number[]
 }
+
+//取得件数指定してinspectionを取得するbackAPIから受け取るときに必要
+export type InspectionResultByLimit = {
+    inspectionId: number
+    categoryName: string
+    categoryDisplayOrder: number
+    itemName: string
+    itemDisplayOrder: number
+    unit: string | null
+    value: string | null
+}
+
+export type InspectionResultByLimitDB = {
+    inspection_id: number
+    category_name: string
+    category_display_order: number
+    item_name: string
+    item_display_order: number
+    unit: string | null
+    value: string | null
+}

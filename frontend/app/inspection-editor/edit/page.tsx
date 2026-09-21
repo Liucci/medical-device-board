@@ -17,6 +17,7 @@ import { getDeviceTypesFromApi } from "../../api/deviceTypes/fetchDeviceTypes"
 import { getDeviceModelsFromApi } from "../../api/deviceModels/fetchDeviceModels"
 import { getInspectionChecklistItemsFromApi } from "../../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItems"
 import { getInspectionChecklistItemOptionsFromApi } from "../../api/inspection/inspectionChecklistItemOptions/fetchInspectionChecklistItemOptions"
+import { getInspectionChecklistItemsWithOptionsFromApi }from "../../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItemsWithOptions"
 import { getInspectionItemCategoriesFromApi } from "../../api/inspection/inspectionItemCategoies/fetchInspectionItemCategories"
 import { fetchInitInspectionEditor } from "../../api/inits/fetchInitInspectionEditor"
 
@@ -269,12 +270,9 @@ export default function InspectionChecklistEditPage()
     // 点検表選択時
     // =========================================
 
-    const handleChecklistChange = async (
-        checklistId: number | null
-    ) =>
+    const handleChecklistChange = async (checklistId: number | null) =>
     {
         setSelectedChecklistId(checklistId)
-
         if (checklistId === null)
         {
             setInspectionName("")
@@ -284,8 +282,7 @@ export default function InspectionChecklistEditPage()
             return
         }
 
-        const checklist =
-            inspectionChecklists.find(
+        const checklist =inspectionChecklists.find(
                 (item) => item.id === checklistId
             )
 
@@ -301,56 +298,18 @@ export default function InspectionChecklistEditPage()
         setInspectionName(checklist.name)
         setDeviceTypeId(checklist.deviceTypeId)
         setDeviceModelId(checklist.deviceModelId)
-
-
         // =========================================
         // 点検項目取得
         // =========================================
 
-        const items =
-            await getInspectionChecklistItemsFromApi(
-                checklistId
-            )
-
-        const normalizedItems: InspectionChecklistItem[] =
-            items.map(normalizeInspectionChecklistItem)
-
-
-        // =========================================
-        // 各項目の選択肢取得
-        // =========================================
-
-        const itemsWithOptions =
-            await Promise.all(
-                normalizedItems.map(
-                    async (item) =>
-                    {
-                        const options =
-                            await getInspectionChecklistItemOptionsFromApi(
-                                item.id
-                            )
-
-                        //console.log("options:", options)
-
-                        return {
-                            ...item,
-                            options:
-                                options.map(
-                                    normalizeInspectionChecklistItemOption
-                                ),
-                        }
-                    }
-                )
-            )
+        const items =await getInspectionChecklistItemsWithOptionsFromApi(checklistId)
+        const itemsWithOptions: InspectionChecklistItem[] =items.map(normalizeInspectionChecklistItem)
 
         setInspectionChecklistItems(
             sortChecklistItemsByCategory(itemsWithOptions)
         )
-
         setOriginalItemIds(
-            itemsWithOptions.map(
-                (item) => item.id
-            )
+            itemsWithOptions.map((item) => item.id)
         )
     }
 
@@ -460,9 +419,11 @@ export default function InspectionChecklistEditPage()
         }
 
         const confirmed = window.confirm(
-            `「${checklist.name}」Ver.${checklist.version} を削除しますか？\n\nこの操作は取り消せません。`
+            `「${checklist.name}」Ver.${checklist.version} を削除しますか？\n\n` +
+            `この点検表の過去のバージョンを含む、すべてのバージョンが削除されます。\n` +
+            `また、各バージョンに紐づく点検項目・選択肢もすべて削除されます。\n\n` +
+            `この操作は取り消せません。`
         )
-
         if (!confirmed) {
             return
         }
@@ -471,16 +432,10 @@ export default function InspectionChecklistEditPage()
             setLoading,
             action: async () => {
 
-                await deleteInspectionChecklistTransaction({
+                const updatedChecklists=await deleteInspectionChecklistTransaction({
                     checklistId: checklist.id
                 })
-
-                // UIから削除した点検表を除外
-                setInspectionChecklists((prev) =>
-                    prev.filter(
-                        (item) => item.id !== checklist.id
-                    )
-                )
+                setInspectionChecklists(updatedChecklists)
 
                 // 選択状態を解除
                 setSelectedChecklistId(null)

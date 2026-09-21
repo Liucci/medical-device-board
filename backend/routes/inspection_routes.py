@@ -11,7 +11,7 @@ from inspection.inspection_types.add_inspection_type import add_inspection_type
 from inspection.inspection_types.update_inspection_type import update_inspection_type
 from inspection.inspection_types.fetch_inspection_types import fetch_inspection_types
 from inspection.inspection_item_types.fetch_inspection_item_types import fetch_inspection_item_types
-from inspection.inspection_checklists.fetch_inspection_checklists import fetch_inspection_checklists
+from inspection.inspection_checklists.fetch_inspection_checklists import (fetch_inspection_checklists,fetch_inspection_checklist)
 from inspection.inspection_checklist_items.fetch_inspection_checklist_items import fetch_inspection_checklist_items
 from inspection.inspections.fetch_inspections import fetch_inspections
 from inspection.inspection_results.fetch_inspection_results import fetch_inspection_results
@@ -37,26 +37,19 @@ from schemas.inspection_schemas.inspection_checklist_schemas import (
     UpdateInspectionChecklistRequest,
     DeleteInspectionChecklistsRequest,
 )
-from schemas.inspection_schemas.inspection_checklist_item_schemas import (
-    AddInspectionChecklistItemRequest,
-)
-from schemas.inspection_schemas.inspection_item_category_schema import (
-SaveInspectionItemCategoriesRequest
-)
-from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (
-    CreateInspectionChecklistTransactionRequest,
-)
-from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import (
-    CreateInspectionTransactionRequest,
-)
+from schemas.inspection_schemas.inspection_checklist_item_schemas import (AddInspectionChecklistItemRequest,)
+from schemas.inspection_schemas.inspection_item_category_schema import (SaveInspectionItemCategoriesRequest)
+from schemas.inspection_schemas.transaction_schemas.inspection_checklist_transaction_schemas import (CreateInspectionChecklistTransactionRequest,)
+from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import (CreateInspectionTransactionRequest,)
 from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import CreateInspectionPdfRequest
-
+from schemas.inspection_schemas.transaction_schemas.inspection_transaction_schemas import (CreateInspectionTransactionRequest,InspectionsByLimitRequest,)
 #transactions
 from transactions.inspection.inspections.create_inspection_transaction import create_inspection_transaction
 from transactions.inspection.inspection_item_types.add_inspection_item_type_transaction import add_inspection_item_type_transaction
 from transactions.inspection.inspection_item_types.update_inspection_item_type_transaction import update_inspection_item_type_transaction
 from transactions.inspection.inspection_item_types.delete_inspection_item_type_transaction import delete_inspection_item_type_transaction
 from transactions.inspection.inspection_checklists.add_inspection_checklist_transaction import add_inspection_checklist_transaction
+from transactions.inspection.inspection_checklists.fetch_inspection_checklist_items_with_options import (fetch_inspection_checklist_items_with_options)
 from transactions.inspection.inspection_checklist_items.add_inspection_checklist_items_transaction import add_inspection_checklist_items_transaction
 from transactions.inspection.inspection_item_categories.add_inspection_item_category_transaction import add_inspection_item_category_transaction
 from transactions.inspection.inspection_item_categories.update_inspection_item_category_transaction import update_inspection_item_category_transaction
@@ -67,6 +60,8 @@ from transactions.exports.create_inspection_csv_transaction import (create_inspe
 from exports.csv.generate_inspection_csv import generate_inspection_csv
 from transactions.inspection.inspection_checklists.delete_inspection_checklist_transaction import (delete_inspection_checklist_transaction)
 from transactions.inspection.inspection_item_categories.save_inspection_item_categories_transaction import (save_inspection_item_categories_transaction)
+from transactions.inspection.inspection_types.delete_inspection_type_transaction import (delete_inspection_type_transaction,)
+from transactions.inspection.inspections.fetch_inspections_by_limit_transaction import (fetch_inspections_by_limit_transaction)
 #init
 from inits.fetch_init_inspection_excution import (fetch_init_inspection_execution)
 from inits.fetch_init_inspection_editor import fetch_init_inspection_editor
@@ -116,6 +111,17 @@ def get_inspection_types(
         hospital_id=session.hospital_id
     )
 
+@inspection_router.delete("/delete-inspection-type")
+def delete_inspection_type(
+    request: DeleteInspectionTypesRequest,
+    session: BackendSession = Depends(get_current_session),
+):
+    delete_inspection_type_transaction(
+        client=session.client,
+        inspection_type_id=request.id,
+        hospital_id=session.hospital_id,
+    )
+
 
 # inspection_item_types
 @inspection_router.get("/inspection-item-types")
@@ -137,6 +143,27 @@ def get_inspection_checklists(
         hospital_id=session.hospital_id
     )
 
+@inspection_router.delete("/delete-inspection-checklist")
+def delete_inspection_checklist(
+    checklist_id: int,
+    session: BackendSession = Depends(get_current_session),
+):
+    # 対象checklistを取得
+    checklist = fetch_inspection_checklist(
+        client=session.client,
+        inspection_checklist_id=checklist_id,
+        hospital_id=session.hospital_id,
+    )
+
+    return delete_inspection_checklist_transaction(
+        client=session.client,
+        hospital_id=session.hospital_id,
+        inspection_type_id=checklist["inspection_type_id"],
+        device_type_id=checklist["device_type_id"],
+        device_model_id=checklist["device_model_id"],
+        name=checklist["name"],
+    )
+
 
 # inspection_checklist_items
 @inspection_router.get("/inspection-checklist-items/{checklist_id}")
@@ -149,6 +176,16 @@ def get_inspection_checklist_items(
         checklist_id=checklist_id
     )
 
+# inspection_checklist_items_with_options
+@inspection_router.get("/inspection-checklist-items-with-options/{checklist_id}")
+def get_inspection_checklist_items_with_options(
+    checklist_id: int,
+    session: BackendSession = Depends(get_current_session),
+):
+    return fetch_inspection_checklist_items_with_options(
+        client=session.client,
+        checklist_id=checklist_id
+    )
 
 # inspections
 #inspection table取得
@@ -160,6 +197,22 @@ def get_inspections(
         client=session.client,
         hospital_id=session.hospital_id
     )
+
+#inspectionの取得数を指定する
+@inspection_router.get("/inspections/by-limit")
+def get_inspections_by_limit(
+    request: InspectionsByLimitRequest = Depends(),
+    session: BackendSession = Depends(get_current_session),
+):
+    limit=10
+    return fetch_inspections_by_limit_transaction(
+        client=session.client,
+        device_id=request.device_id,
+        checklist_id=request.checklist_id,
+        hospital_id=session.hospital_id,
+        limit=limit
+    )
+
 
 
 @inspection_router.get("/inspections/today")
@@ -349,16 +402,6 @@ def create_inspection_checklist(
                                         hospital_id=session.hospital_id,
     )
 
-@inspection_router.delete("/delete-inspection-checklist")
-def delete_inspection_checklist(
-    checklist_id: int,
-    session: BackendSession = Depends(get_current_session),
-):
-    return delete_inspection_checklist_transaction(
-        client=session.client,
-        checklist_id=checklist_id,
-        hospital_id=session.hospital_id,
-    )
 
 
 @inspection_router.post("/create-inspection-checklist-items")

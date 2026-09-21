@@ -2,12 +2,14 @@
 
 import {
     AddInspectionFrontType,
-    AddInspectionBackType
+    AddInspectionBackType,
 } from "../inspectionTypes"
 
 import {
     AddInspectionResultFrontType,
-    AddInspectionResultBackType
+    AddInspectionResultBackType,
+    InspectionResultByLimit,
+    InspectionResultByLimitDB
 } from "../inspectionResultTypes"
 
 
@@ -94,4 +96,34 @@ export type CreateInspectionPdfFrontType = {
 export type CreateInspectionPdfBackType = {
     inspection_ids: number[]
     show_patient_name: boolean
+}
+
+
+// =========================
+// Inspections By Limit
+// =========================
+//件数を指定してinspectionを取得するＡＰＩ用
+//Front型
+export type InspectionsByLimitFrontType = {
+    inspections: InspectionListType[]
+    results: InspectionResultByLimit[]
+}
+
+export type InspectionsByLimitBackType = {
+    inspections: InspectionListDBType[]
+    results: InspectionResultByLimitDB[]
+}
+
+// =========================
+// Get Inspections By Limit
+// =========================
+//件数指定してinspectionを取得するためにfrontから送る用
+export type InspectionsByLimitRequestFrontType = {
+    deviceId: number
+    checklistId: number
+}
+
+export type InspectionsByLimitRequestBackType = {
+    device_id: number
+    checklist_id: number
 }

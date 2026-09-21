@@ -4,16 +4,21 @@ import {
     CreateInspectionTransactionFrontType,
     CreateInspectionTransactionBackType,
     CreateInspectionPdfFrontType,
-    CreateInspectionPdfBackType
+    CreateInspectionPdfBackType,
+    InspectionsByLimitRequestFrontType,
+    InspectionsByLimitRequestBackType,
+    InspectionsByLimitFrontType,
+    InspectionsByLimitBackType,
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 
 import {
     InspectionListType,
     InspectionListDBType
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
+import {InspectionResultByLimit,InspectionResultByLimitDB} from "../../../types/inspectionTypes/inspectionResultTypes"
 
 import {toCreateInspectionRequest} from "../inspectionMapper"
-import {toCreateInspectionResultRequest} from "../inspectionResultMapper"
+import {toCreateInspectionResultRequest,normalizeInspectionResult} from "../inspectionResultMapper"
 import {
     InspectionResultDetailDBType,InspectionResultDetailType
 } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
@@ -80,4 +85,39 @@ export const toCreateInspectionPdfRequest = (
 ): CreateInspectionPdfBackType => ({
     inspection_ids: data.inspectionIds,
     show_patient_name: data.showPatientName
+})
+
+// 過去の点検結果取得用
+// Frontから受け取った値をAPI用のDB形式に変換
+export const toInspectionsByLimitRequest = (
+    data: InspectionsByLimitRequestFrontType
+): InspectionsByLimitRequestBackType => ({
+    device_id: data.deviceId,
+    checklist_id: data.checklistId,
+})
+
+export const normalizeInspectionResultByLimit = (
+    data: InspectionResultByLimitDB
+): InspectionResultByLimit => ({
+    inspectionId: data.inspection_id,
+    categoryName: data.category_name,
+    categoryDisplayOrder: data.category_display_order,
+    itemName: data.item_name,
+    itemDisplayOrder: data.item_display_order,
+    unit: data.unit,
+    value: data.value,
+})
+
+
+// 指定件数のinspectionとinspection resultを
+// APIから受け取ったデータをUI用に変換
+export const normalizeInspectionsByLimit = (
+    data: InspectionsByLimitBackType
+): InspectionsByLimitFrontType => ({
+    inspections: data.inspections.map(
+        normalizeInspectionList
+    ),
+    results: data.results.map(
+        normalizeInspectionResultByLimit
+    ),
 })

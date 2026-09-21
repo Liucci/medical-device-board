@@ -3,13 +3,15 @@ type Props = {
     rightLabel: string
     value: string | null
     onChange: (value: string | null) => void
+    disabled?: boolean
 }
 
 export function InspectionTwoChoiceInput({
     leftLabel,
     rightLabel,
     value,
-    onChange
+    onChange,
+    disabled
 }: Props) {
     //console.log("InspectionTwoChoiceInput")
 
@@ -17,6 +19,7 @@ export function InspectionTwoChoiceInput({
         <div className="flex gap-2">
             <button
                 type="button"
+                disabled={disabled}
                 onClick={() => onChange(leftLabel)}
                 className={`
                     min-w-28
@@ -29,7 +32,9 @@ export function InspectionTwoChoiceInput({
                     shadow-sm
                     transition
                     ${
-                        value === leftLabel
+                        disabled
+                        ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                        :value === leftLabel
                             ? "border-blue-600 bg-blue-600 text-white"
                             : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
                     }
@@ -40,6 +45,7 @@ export function InspectionTwoChoiceInput({
 
             <button
                 type="button"
+                disabled={disabled}
                 onClick={() => onChange(rightLabel)}
                 className={`
                     min-w-28
@@ -51,8 +57,10 @@ export function InspectionTwoChoiceInput({
                     font-medium
                     shadow-sm
                     transition
-                    ${
-                        value === rightLabel
+                    ${    
+                    disabled
+                        ? "cursor-not-allowed bg-gray-200 text-gray-400"
+                        :value === rightLabel
                             ? "border-blue-600 bg-blue-600 text-white"
                             : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
                     }

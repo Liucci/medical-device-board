@@ -1,11 +1,10 @@
 import { API_BASE_URL } from "../../../client/apiClient"
-
-
+import type { InspectionChecklist } from "../../../../types/inspectionTypes/inspectionChecklistTypes"
+import { normalizeInspectionChecklist } from "../../../../mapper/inspectionMapper/inspectionChecklistMapper"
 export async function deleteInspectionChecklistTransaction(
-    params: {
-        checklistId: number
-    }
-) {
+    params: {checklistId: number}
+        ): Promise<InspectionChecklist[]>
+{
     console.log("deleteInspectionChecklistTransaction")
 
     const response = await fetch(
@@ -33,5 +32,6 @@ export async function deleteInspectionChecklistTransaction(
             "Failed to delete inspection checklist"
         )
     }
-
+    const data = await response.json()
+    return data.map(normalizeInspectionChecklist)
 }

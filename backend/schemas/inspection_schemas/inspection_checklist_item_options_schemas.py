@@ -6,3 +6,9 @@ class InspectionChecklistItemOptionResponse(BaseModel):
     checklist_item_id: int
     value: str
     display_order: int
+
+
+class DeleteItemOptionsRequest(BaseModel):
+    ids: list[int]
+
+    

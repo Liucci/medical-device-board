@@ -126,6 +126,13 @@ def generate_inspection_pdf(
         leading=font_size + 1,
         alignment=TA_LEFT
     )
+    #備考欄の文字スタイル設定
+    comment_style = ParagraphStyle(
+        "CommentStyle",
+        parent=table_body_style,
+        fontSize=table_body_style.fontSize - 2,
+        leading=table_body_style.leading - 1,
+    )
 
     category_style = ParagraphStyle(
         "category",
@@ -632,6 +639,48 @@ def generate_inspection_pdf(
                                 ]
                             ]
                         )
+
+                # 総合判定
+                table_data.append(
+                    [
+                        Paragraph(
+                            "総合判定",
+                            table_body_style
+                        ),
+                        *[
+                            Paragraph(
+                                str(
+                                    inspection.get(
+                                        "overall_result"
+                                    ) or ""
+                                ),
+                                table_center_style
+                            )
+                            for inspection in page_inspections
+                        ]
+                    ]
+                )
+
+                # 備考
+                table_data.append(
+                    [
+                        Paragraph(
+                            "備考",
+                            table_body_style
+                        ),
+                        *[
+                            Paragraph(
+                                str(
+                                    inspection.get(
+                                        "comment"
+                                    ) or ""
+                                ),
+                                comment_style
+                            )
+                            for inspection in page_inspections
+                        ]
+                    ]
+                )
 
                 return table_data, category_row_indexes
 
