@@ -46,7 +46,9 @@ import {
   UserPlus,
   ClipboardCheck,
   TestTube,
-   Shield,
+  Shield,
+  ChevronLeft,
+  ChevronRight,
 
 } from "lucide-react"
 //テストボタン用
@@ -151,6 +153,8 @@ export default function ButtonPanel({
   const [openInspectionResultModal, setOpenInspectionResultModal]= useState(false)
   const [inspectionResultsLoading, setInspectionResultsLoading] =useState(false)
   const [inspections, setInspections] =useState<Inspection[]>([])
+  //button panel
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
 
   const checkAdminPermission = () => {
                       if (currentUser.role !== "admin") {
@@ -205,11 +209,97 @@ export default function ButtonPanel({
 
   return (
     <>
-  <div className="flex flex-col h-full">
-    <div>
+<div
+  className="relative h-full"
+  onMouseEnter={() => setIsPanelOpen(true)}
+  onMouseLeave={() => setIsPanelOpen(false)}
+>
+  {/* 右端の開閉ボタン */}
+  <button
+    type="button"
+    onClick={() => setIsPanelOpen(prev => !prev)}
+    className="
+      absolute
+      right-0
+      top-1/2
+      -translate-y-1/2
+
+      w-7
+      h-20
+
+      flex
+      items-center
+      justify-center
+
+      rounded-l-xl
+
+      bg-white
+      border
+      border-r-0
+      border-gray-300
+
+      shadow-md
+
+      text-gray-500
+
+      hover:bg-gray-50
+      hover:text-gray-700
+
+      transition-all
+      duration-200
+
+      z-30
+    "
+    aria-label="メニューを開閉"
+  >
+    {isPanelOpen ? (
+      <ChevronRight size={20} />
+    ) : (
+      <ChevronLeft size={20} />
+    )}
+  </button>
+
+
+  {/* メニューパネル */}
+  <div
+    className={`
+      absolute
+      top-0
+      right-0
+
+      h-full
+      w-[110px]
+
+      bg-gray-50
+      border-l
+      border-gray-300
+      shadow-2xl
+
+      px-2
+      py-4
+
+      overflow-y-auto
+
+      transition-transform
+      duration-300
+      ease-out
+
+      ${
+        isPanelOpen
+          ? "translate-x-0"
+          : "translate-x-full"
+      }
+    `}
+  >
+
+    <div className="flex flex-col">
+
       <ButtonGrid
-        onAdd={OpenModal}
-        title={"新規"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          OpenModal()
+        }}
+        title="新規"
         titleSize="text-xs"
         icon={<Plus size={38} />}
       />
@@ -217,8 +307,11 @@ export default function ButtonPanel({
       <div className="h-4" />
 
       <ButtonGrid
-        onAdd={openHistory}
-        title={"履歴"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          openHistory()
+        }}
+        title="履歴"
         titleSize="text-xs"
         icon={<History size={38} />}
       />
@@ -226,8 +319,11 @@ export default function ButtonPanel({
       <div className="h-4" />
 
       <ButtonGrid
-        onAdd={openSettings}
-        title={"設定"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          openSettings()
+        }}
+        title="設定"
         titleSize="text-xs"
         icon={<Settings size={38} />}
       />
@@ -235,55 +331,77 @@ export default function ButtonPanel({
       <div className="h-4" />
 
       <ButtonGrid
-        onAdd={openDeviceList}
-        title={"一覧"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          openDeviceList()
+        }}
+        title="一覧"
         titleSize="text-xs"
         icon={<FileText size={38} />}
       />
-       <div className="h-4" />
+
+      <div className="h-4" />
 
       <ButtonGrid
-        onAdd={openInspectionResult}
-        title={"点検結果"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          openInspectionResult()
+        }}
+        title="点検結果"
         titleSize="text-xs"
         icon={<ClipboardCheck size={38} />}
       />
-    <div className="h-4" />
+
+      <div className="h-4" />
+
       <ButtonGrid
-        onAdd={openInvite}
-        title={"招待"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          openInvite()
+        }}
+        title="招待"
         titleSize="text-xs"
         icon={<UserPlus size={38} />}
       />
-      
-    <div className="h-4" />
+
+      <div className="h-4" />
+
       <ButtonGrid
-        onAdd={handleLogout}
-        title={"終了"}
+        onAdd={() => {
+          setIsPanelOpen(false)
+          handleLogout()
+        }}
+        title="終了"
         titleSize="text-xs"
         icon={<LogOut size={38} />}
       />
-      <div className="h-4" />
 
-{/*
-      <ButtonGrid
-        onAdd={testInspectionChecklistItemOptions}
-        title={"TEST"}
-        titleSize="text-xs"
-        icon={<TestTube size={38} />}
-      />
-*/}
- 
-  </div>
+    </div>
 
-    {/* 下部固定エリア */}
-    <div 
-        onClick={() => setOpenAccountInfoModal(true)}
-        className="mt-auto pt-4 text-xs text-gray-600 border-t"
+
+    {/* アカウント情報 */}
+    <div
+      onClick={() => {
+        setIsPanelOpen(false)
+        setOpenAccountInfoModal(true)
+      }}
+      className="
+        mt-4
+        pt-4
+        text-xs
+        text-gray-600
+        border-t
+        cursor-pointer
+      "
     >
       <div>{userName}</div>
       <div>{role}</div>
     </div>
+
+  </div>
+
+
+
 
       {openDeviceModal &&
         <DeviceModal
