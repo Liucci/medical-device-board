@@ -62,6 +62,7 @@ export default function SortableInspectionChecklistItemEdit({
     const category = inspectionItemCategories.find(
         (category) => category.id === item.categoryId
     )
+    const isCategoryInactive =category?.isActive === false
     const categoryName = category?.name
     const isCustomOption = itemType?.isCustomOption === true
     const [isOptionsOpen, setIsOptionsOpen] = useState(false)
@@ -181,30 +182,26 @@ export default function SortableInspectionChecklistItemEdit({
                 {/* 大項目 */}
 
                 <div
-                    className="
+                    className={`
                         w-24
                         shrink-0
                         truncate
                         text-center
                         text-sm
-                        text-gray-500
-                    "
+                        ${isCategoryInactive
+                            ? "text-red-300"
+                            : "text-gray-500"
+                        }
+                    `}
                     title={categoryName ?? "未選択"}
                 >
                     {categoryName ?? "未選択"}
                 </div>
 
                 {/* 項目名 */}
-                <div
-                    className="
-                        min-w-0
-                        flex-1
-                        text-sm
-                        text-gray-800
-                    "
-                >
+                <div className="min-w-0 flex-1 text-sm">
                     <div className="flex items-center gap-2">
-                        <span className="min-w-0 truncate">
+                        <span className="min-w-0 truncate text-gray-800">
                             {item.itemName}
                         </span>
 
@@ -214,8 +211,13 @@ export default function SortableInspectionChecklistItemEdit({
                             </span>
                         )}
                     </div>
-                </div>
 
+                    {isCategoryInactive && (
+                        <div className="mt-1 text-xs font-medium text-red-300">
+                            無効な大項目を使用しています
+                        </div>
+                    )}
+                </div>
                 {/* 入力方式 */}
                 {isCustomOption ? (
 

@@ -6,7 +6,7 @@ from schemas.device_type_schemas import DeleteDeviceTypeRequest
 #直接modelを消す場合
 def delete_device_models(
                              client:Client,
-                             device_model:DeleteDeviceModelsRequest,
+                             device_models:DeleteDeviceModelsRequest,
                             hospital_id:str
                         ):
 
@@ -16,7 +16,7 @@ def delete_device_models(
         client
         .table("device_models")
         .delete()
-        .in_("id",device_model.ids)
+        .in_("id",device_models.ids)
         .eq("hospital_id",hospital_id)
         .execute()
     )

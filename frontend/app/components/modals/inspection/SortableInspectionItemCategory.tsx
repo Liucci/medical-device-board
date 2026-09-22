@@ -6,7 +6,8 @@ import { CSS } from "@dnd-kit/utilities"
 
 import {
     GripVertical,
-    Pencil,
+    Pencil, 
+    Trash2,
 } from "lucide-react"
 
 import type {
@@ -18,15 +19,13 @@ type SortableInspectionItemCategoryProps = {
     category: InspectionItemCategoryEditType
     index: number
     onEdit: (category: InspectionItemCategoryEditType) => void
-    onToggleActive: (category: InspectionItemCategoryEditType) => void
+    onDelete: (category: InspectionItemCategoryEditType) => void
 }
-
-
 export default function SortableInspectionItemCategory({
     category,
     index,
     onEdit,
-    onToggleActive,
+    onDelete
 }: SortableInspectionItemCategoryProps) {
 
     // 新規追加カテゴリーは id が null のため、
@@ -120,50 +119,49 @@ const sortableId =
 
             {/* 大項目名 */}
             <div
-                className="
+                className={`
                     min-w-0
                     flex-1
                     truncate
                     text-sm
-                    text-gray-800
-                "
+                    ${
+                        category.isActive
+                            ? "text-gray-800"
+                            : "text-gray-400 line-through"
+                    }
+                `}
             >
                 {category.name}
             </div>
 
 
-            {/* 有効 / 無効 */}
+            {/* 削除 */}
             <button
                 type="button"
-                onClick={() => onToggleActive(category)}
-                className={`
+                onClick={() => onDelete(category)}
+                className="
+                    flex
+                    h-7
+                    w-7
                     shrink-0
-                    rounded-lg
-                    px-3
-                    py-1.5
-                    text-sm
-                    font-medium
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-red-200
+                    bg-white
+                    text-red-400
                     transition
-                    ${
-                        category.isActive
-                            ? `
-                                bg-gray-100
-                                text-gray-600
-                                hover:bg-gray-200
-                                hover:text-gray-800
-                              `
-                            : `
-                                bg-blue-50
-                                text-blue-600
-                                hover:bg-blue-100
-                              `
-                    }
-                `}
+                    hover:border-red-300
+                    hover:bg-red-50
+                    hover:text-red-500
+                "
+                title="削除"
+                aria-label={`${category.name}を削除`}
             >
-                {category.isActive ? "無効" : "有効"}
+                <Trash2 size={15} />
             </button>
-
-
+            
             {/* Drag handle */}
             <button
                 type="button"

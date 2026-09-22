@@ -19,3 +19,8 @@ class InspectionItemCategorySaveItem(BaseModel):
 
 class SaveInspectionItemCategoriesRequest(BaseModel):
     categories: list[InspectionItemCategorySaveItem]
+
+
+
+class DeleteInspectionItemCategoryRequest(BaseModel):
+    category_id: int

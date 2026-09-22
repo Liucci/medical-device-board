@@ -19,6 +19,7 @@ from inspection.inspection_item_categories.fetch_inspection_item_categories impo
 from inspection.inspection_checklist_item_options.add_inspection_checklist_item_options import add_inspection_checklist_item_options
 from inspection.inspection_checklist_item_options.fetch_inspection_checklist_item_options import fetch_inspection_checklist_item_options
 from devices.fetch_devices import fetch_device
+from inspection.inspection_item_categories.fetch_inspection_item_categories import (fetch_inspection_item_categories,)
 #schemas
 from schemas.inspection_schemas.inspection_schemas import AddInspectionRequest
 from schemas.inspection_schemas.inspection_result_schemas import AddInspectionResultRequest
@@ -62,6 +63,7 @@ from transactions.inspection.inspection_checklists.delete_inspection_checklist_t
 from transactions.inspection.inspection_item_categories.save_inspection_item_categories_transaction import (save_inspection_item_categories_transaction)
 from transactions.inspection.inspection_types.delete_inspection_type_transaction import (delete_inspection_type_transaction,)
 from transactions.inspection.inspections.fetch_inspections_by_limit_transaction import (fetch_inspections_by_limit_transaction)
+from transactions.inspection.inspection_item_categories.delete_inspection_item_category_transaction import (delete_inspection_item_category_transaction)
 #init
 from inits.fetch_init_inspection_excution import (fetch_init_inspection_execution)
 from inits.fetch_init_inspection_editor import fetch_init_inspection_editor
@@ -433,6 +435,22 @@ def save_inspection_item_categories_route(
     return save_inspection_item_categories_transaction(
         client=session.client,
         request=request,
+        hospital_id=session.hospital_id,
+    )
+#category削除したら、付随するitemとoptionも削除される。
+@inspection_router.delete("/delete-inspection-item-category")
+def delete_inspection_item_category_route(
+    category_id: int,
+    session: BackendSession = Depends(get_current_session),
+):
+    delete_inspection_item_category_transaction(
+        client=session.client,
+        hospital_id=session.hospital_id,
+        category_id=category_id,
+    )
+
+    return fetch_inspection_item_categories(
+        client=session.client,
         hospital_id=session.hospital_id,
     )
 

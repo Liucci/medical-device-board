@@ -44,3 +44,10 @@ export type InspectionItemCategorySaveBackType = {
     is_active: boolean
 }
 
+
+export type DeleteInspectionItemCategoryFrontType = {
+    categoryId: number
+}
+export type DeleteInspectionItemCategoryBackType = {
+    category_id: number
+}

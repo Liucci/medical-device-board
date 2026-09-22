@@ -480,8 +480,9 @@ export default function EditInspectionChecklistItemModal({
                                 選択してください
                             </option>
 
-                            {inspectionItemCategories.map(
-                                (category) => (
+                            {inspectionItemCategories
+                                .filter((category) => category.isActive)
+                                .map((category) => (
                                     <option
                                         key={category.id}
                                         value={category.id}

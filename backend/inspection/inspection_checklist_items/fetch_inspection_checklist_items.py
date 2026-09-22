@@ -53,7 +53,7 @@ def fetch_inspection_checklist_items_by_checklist_ids(
     response = (
         client
         .table("inspection_checklist_items")
-        .select("id, checklist_id")
+        .select("*")
         .in_("checklist_id", checklist_ids)
         .execute()
     )

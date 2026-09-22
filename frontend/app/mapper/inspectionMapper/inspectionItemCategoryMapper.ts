@@ -4,6 +4,8 @@ import type {
     InspectionItemCategoryEditType,
     SaveInspectionItemCategoriesFrontType,
     SaveInspectionItemCategoriesBackType,
+    DeleteInspectionItemCategoryFrontType,
+    DeleteInspectionItemCategoryBackType,
 } from "../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 
@@ -32,3 +34,12 @@ export const toSaveInspectionItemCategoriesRequest = (
         })
     ),
 })
+
+
+export function toDeleteInspectionItemCategoryRequest(
+    data: DeleteInspectionItemCategoryFrontType
+): DeleteInspectionItemCategoryBackType {
+    return {
+        category_id: data.categoryId,
+    }
+}

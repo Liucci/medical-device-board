@@ -268,13 +268,15 @@ export default function AddInspectionChecklistItemEditModal({
                                 選択してください
                             </option>
 
-                            {inspectionItemCategories.map((category) => (
-                                <option
-                                    key={category.id}
-                                    value={category.id}
-                                >
-                                    {category.name}
-                                </option>
+                            {inspectionItemCategories
+                                .filter((category) => category.isActive)
+                                .map((category) => (
+                                    <option
+                                        key={category.id}
+                                        value={category.id}
+                                    >
+                                        {category.name}
+                                    </option>
                             ))}
 
                         </select>

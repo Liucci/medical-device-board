@@ -24,7 +24,7 @@ import type {
 InspectionItemCategoryType,
 InspectionItemCategoryEditType,
 } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
-
+import { deleteInspectionItemCategoryTransaction } from "../../../api/transactions/inspection/inspectionItemCategories/deleteInspectionItemCategoryTransaction"
 import { toSaveInspectionItemCategoriesRequest,normalizeInspectionItemCategory } from "../../../mapper/inspectionMapper/inspectionItemCategoryMapper"
 
 import { saveInspectionItemCategories } from "../../../api/transactions/inspection/inspectionItemCategories/saveInspectionItemCategories"
@@ -217,25 +217,43 @@ const handleEdit = (
     )
 }
 
-
-// =========================================================
-// 有効 / 無効
-// =========================================================
-
-const handleToggleActive = (
+const handleDelete = async (
     category: InspectionItemCategoryEditType
 ) => {
 
-    setEditCategories((current) =>
-        current.map((item) =>
-            item.id === category.id
-                ? {
-                    ...item,
-                    isActive: !item.isActive,
-                }
-                : item
+    if (category.id === null) {
+        setEditCategories((current) =>
+            current.filter((item) => item !== category)
         )
+
+        return
+    }
+
+    const confirmed = window.confirm(
+        `「${category.name}」を削除しますか？\n\n` +
+        "この大項目を使用している点検項目もすべて削除されます。"
     )
+
+    if (!confirmed) {
+        return
+    }
+
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+
+            const deletedCategories =
+                await deleteInspectionItemCategoryTransaction({
+                    categoryId: category.id!,
+                })
+
+            setInspectionItemCategories(
+                deletedCategories.map(
+                    normalizeInspectionItemCategory
+                )
+            )
+        },
+    })
 }
 
 
@@ -372,8 +390,9 @@ return (
                                 text-sm
                                 text-gray-500
                             ">
-                                大項目の追加、名前の変更、有効・無効の切り替え、
+                               大項目の追加、名前の変更、削除、
                                 並び順の変更を行います
+                                
                             </p>
 
                         </div>
@@ -458,20 +477,13 @@ return (
                                     {editCategories.map(
                                         (category, index) => (
 
-                                            <SortableInspectionItemCategory
-                                                key={
-                                                    getSortableId(
-                                                        category,
-                                                        index
-                                                    )
-                                                }
-                                                category={category}
-                                                index={index}
-                                                onEdit={handleEdit}
-                                                onToggleActive={
-                                                    handleToggleActive
-                                                }
-                                            />
+                                        <SortableInspectionItemCategory
+                                            key={getSortableId(category, index)}
+                                            category={category}
+                                            index={index}
+                                            onEdit={handleEdit}
+                                            onDelete={handleDelete}
+                                        />
 
                                         )
                                     )}
