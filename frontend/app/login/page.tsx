@@ -73,7 +73,7 @@ const handleLogin = async () => {
 }  
 
 
-  return (
+ return (
     <>
     <div
       className="
@@ -81,7 +81,8 @@ const handleLogin = async () => {
         flex
         items-center
         justify-center
-        bg-gray-100
+        bg-slate-50
+        px-4
       "
     >
 
@@ -89,19 +90,40 @@ const handleLogin = async () => {
         className="
           bg-white
           p-8
-          rounded-xl
+          rounded-2xl
           shadow-xl
           w-full
           max-w-md
         "
       >
 
+        {/* アプリアイコン */}
+        <div className="flex justify-center mb-4">
+          <img
+            src="/logo.png"
+            alt="Medical Device Board"
+            className="w-24 h-24 object-contain"
+          />
+        </div>
+
+        {/* アプリ名 */}
+        <div className="text-center mb-7">
+          <div className="text-3xl font-bold text-gray-800">
+            Devix
+          </div>
+          <div className="text-sm text-gray-400 mt-1">
+            医療機器管理デジタルホワイトボード
+          </div>
+        </div>
+
+        {/* ログインタイトル */}
         <h1
           className="
-            text-2xl
+            text-xl
             font-bold
             mb-6
             text-center
+            text-gray-700
           "
         >
           ログイン
