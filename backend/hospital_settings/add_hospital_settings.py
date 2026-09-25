@@ -18,6 +18,7 @@ def add_hospital_settings(
                 "show_patient_name": hospital_settings.show_patient_name,
                 "auto_logout_enabled": hospital_settings.auto_logout_enabled,
                 "auto_logout_time": hospital_settings.auto_logout_time,
+                "clear_device_info_on_stock":hospital_settings.clear_device_info_on_stock,
             }
         )
         .execute()

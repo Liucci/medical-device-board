@@ -271,6 +271,67 @@ return (
 
             </div>
           </div>
+          {/* ===================================================== */}
+          {/* 機器管理 */}
+          {/* ===================================================== */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">
+              機器管理設定
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-500">
+              機器を在庫へ戻す際の動作を設定します。
+            </p>
+
+            <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-sm font-semibold text-gray-800">
+                    在庫戻し時の機器情報クリア
+                  </div>
+
+                  <div className="mt-1 text-xs text-gray-500">
+                    機器を病室から在庫へ戻した際に、機器情報をクリアします。
+                  </div>
+                </div>
+
+                <label className="relative inline-flex shrink-0 cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={settings.clearDeviceInfoOnStock}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        clearDeviceInfoOnStock: e.target.checked,
+                      })
+                    }
+                  />
+
+                  <div
+                    className="
+                      h-6
+                      w-11
+                      rounded-full
+                      bg-gray-300
+                      transition-colors
+                      peer-checked:bg-blue-600
+                      after:absolute
+                      after:left-0.5
+                      after:top-0.5
+                      after:h-5
+                      after:w-5
+                      after:rounded-full
+                      after:bg-white
+                      after:transition-transform
+                      peer-checked:after:translate-x-5
+                      after:content-['']
+                    "
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
 
           {/* ===================================================== */}
           {/* 保存 */}

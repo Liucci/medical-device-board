@@ -28,3 +28,35 @@ def move_device(
                 )
 
     return response.data[0]
+
+
+#room to stock専用
+def move_device_to_stock(
+                          client:Client,
+                          device: MoveDeviceRequest,
+                          hospital_id: str,
+                          status:str,
+                          user_id:str
+                                ):
+
+    print("move_device_to_stock")
+
+    response = (
+                  client
+                  .table("devices")
+                  .update({
+                              "room_id": device.room_id,
+                              "stock_area_id": device.stock_area_id,
+                              "status":status,
+                              "management_number": None,
+                              "serial_number": None,
+                              "note": None,
+                              "updated_by": user_id,
+                              "updated_at": datetime.now(timezone.utc).isoformat()
+                          })
+                  .eq("id", device.id)
+                  .eq("hospital_id", hospital_id)
+                  .execute()
+                )
+
+    return response.data[0]

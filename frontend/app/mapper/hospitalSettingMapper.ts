@@ -11,7 +11,8 @@ export function normalizeHospitalSettings(hospitalSettings: HospitalSettingsDBTy
         hospitalId: hospitalSettings.hospital_id,
         showPatientName: hospitalSettings.show_patient_name,
         autoLogoutEnabled: hospitalSettings.auto_logout_enabled,
-        autoLogoutTime: hospitalSettings.auto_logout_time
+        autoLogoutTime: hospitalSettings.auto_logout_time,
+        clearDeviceInfoOnStock: hospitalSettings.clear_device_info_on_stock
     }
 }
 
@@ -20,6 +21,7 @@ export function toUpdateHospitalSettingsRequest(hospitalSettings: UpdateHospital
     return {
         show_patient_name: hospitalSettings.showPatientName,
         auto_logout_enabled: hospitalSettings.autoLogoutEnabled,
-        auto_logout_time: hospitalSettings.autoLogoutTime
+        auto_logout_time: hospitalSettings.autoLogoutTime,
+        clear_device_info_on_stock: hospitalSettings.clearDeviceInfoOnStock
     }
 }

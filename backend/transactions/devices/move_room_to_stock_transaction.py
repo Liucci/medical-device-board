@@ -1,7 +1,7 @@
 from supabase import Client
-from devices.move_device import move_device
 from devices.fetch_devices import fetch_devices_by_room_id
 from devices.finish_standby import (finish_standby,clear_standby)
+from devices.move_device import move_device, move_device_to_stock
 
 from rooms.update_rooms import clear_room_patientname
 from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
@@ -9,6 +9,8 @@ from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ClearRoomPatientRequest
 from transactions.histories.create_device_history import (create_device_history)
 from room_infections.delete_room_infections import delete_room_infections_by_room_id
+from transactions.hospital_settings.fetch_hospital_settings_transaction import (fetch_hospital_settings_transaction)
+
 def move_room_to_stock_transaction(
                                     client:Client,
                                     device: MoveDeviceRequest,
@@ -22,16 +24,31 @@ def move_room_to_stock_transaction(
                                   ):
 
     print("move_room_to_stock_transaction")
+    # Hospital Settings取得
+    hospital_settings = fetch_hospital_settings_transaction(
+                                                        client=client,
+                                                        hospital_id=hospital_id
+    )
 
     # 機器移動
-    moved_device = move_device(
-                                client=client, 
-                                device=device,
-                                hospital_id=hospital_id,
-                                status=status,
-                                user_id=user_id
-                              )
-
+    if hospital_settings["clear_device_info_on_stock"]:
+    #room to stock時機器情報クリア
+        moved_device = move_device_to_stock(
+                                            client=client,
+                                            device=device,
+                                            hospital_id=hospital_id,
+                                            status=status,
+                                            user_id=user_id
+        )
+    else:
+    #room to stock時機器情報保持
+        moved_device = move_device(
+                                    client=client,
+                                    device=device,
+                                    hospital_id=hospital_id,
+                                    status=status,
+                                    user_id=user_id
+        )
     # standby解除
     finish_standby(
                       client=client,

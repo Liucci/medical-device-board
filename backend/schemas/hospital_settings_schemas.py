@@ -6,14 +6,17 @@ class HospitalSettingsResponse(BaseModel):
     show_patient_name: bool
     auto_logout_enabled: bool
     auto_logout_time: time | None
+    clear_device_info_on_stock: bool
 
 class UpdateHospitalSettingsRequest(BaseModel):
     show_patient_name: bool
     auto_logout_enabled: bool
     auto_logout_time: time | None
-
+    clear_device_info_on_stock: bool
+    
 class AddHospitalSettingsRequest(BaseModel):
     hospital_id: str
     show_patient_name: bool
     auto_logout_enabled: bool
     auto_logout_time: time | None
+    clear_device_info_on_stock: bool

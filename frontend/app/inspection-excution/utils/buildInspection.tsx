@@ -210,56 +210,42 @@ function InspectionChecklistItemRow({
 
                 return (
                     <div className="flex items-center gap-2">
-
                         <input
                             type="text"
-                            inputMode="numeric"
-                            value={
-                                isNotApplicable
-                                    ? "対象外"
-                                    : value ?? ""
-                            }
-                            disabled={isNotApplicable}
-                            className={`
+                            inputMode="decimal"
+                            value={inspectionResults[item.id] ?? ""}
+                            className="
                                 w-32
                                 rounded-lg
                                 border
                                 border-gray-500
+                                bg-white
                                 px-4
                                 py-2.5
                                 text-sm
                                 outline-none
                                 transition
-                                ${
-                                    isNotApplicable
-                                        ? "cursor-not-allowed bg-gray-100 text-gray-500"
-                                        : "bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                }
-                            `}
+                                focus:border-blue-500
+                                focus:ring-2
+                                focus:ring-blue-100
+                            "
                             onChange={event => {
-
-                                const newValue =
-                                    event.target.value.replace(
-                                        /[^0-9]/g,
-                                        ""
-                                    )
-
-                                onChange(
-                                    item.id,
-                                    newValue === ""
-                                        ? null
-                                        : newValue
-                                )
+                                const value = event.target.value.replace(/[^0-9.]/g, "")
+                                const decimalIndex = value.indexOf(".")
+                                const normalizedValue =
+                                    decimalIndex === -1
+                                        ? value
+                                        : value.slice(0, decimalIndex + 1) +
+                                        value.slice(decimalIndex + 1).replace(/\./g, "")
+                                onChange(item.id, normalizedValue)
                             }}
                         />
-
                         {item.unit && (
                             <span className="text-sm text-gray-600">
                                 {item.unit}
                             </span>
                         )}
-
-                    </div>
+                    </div>                    
                 )
 
 

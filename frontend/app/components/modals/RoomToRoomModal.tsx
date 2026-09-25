@@ -45,9 +45,11 @@ export default function RoomToRoomModal({
     setSelectedRoomId(null)
     setPatientName(currentRoom?.patientName ?? "")
   }, [isOpen, pendingDevice, currentRoom])
+  
   const filteredRooms = useMemo(() => {
     return rooms.filter(r => r.wardId === targetWardId).sort((a, b) => a.name.localeCompare(b.name, "ja", { numeric: true }))
   }, [rooms, targetWardId])
+
   useEffect(() => {
     if (!selectedRoomId) return
     const room = rooms.find(r => r.id === selectedRoomId)

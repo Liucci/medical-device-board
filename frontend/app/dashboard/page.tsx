@@ -365,7 +365,9 @@ export default function Page() {
                                                                                         ...prev,
                                                                                         [device.id]: 0,
                                                                                       }))
-                                                        setTodayInspections([])
+                                                        setTodayInspections(prev =>
+                                                                prev.filter(inspection => inspection.deviceId !== device.id)
+                                                        )
                                                         setDraggingDevice(null)
                                           }
       })
@@ -477,6 +479,15 @@ export default function Page() {
     samePatient: boolean
   ) => {
 
+  console.log(
+    "[RoomToRoomSubmit]",
+    {
+      samePatient,
+      patientName,
+      deviceId: pendingDevice?.id,
+    }
+  )    
+
     if (!pendingDevice?.id) {return}
     if (!pendingDevice?.roomId) {return}
     await executeWithErrorAndLoading({
@@ -488,6 +499,7 @@ export default function Page() {
           setPendingDevice(null)
 
           if (samePatient) {
+            //同じ患者
             await moveRoomToRoomTransaction({
                                               deviceId: pendingDevice.id,
                                               preRoomId: pendingDevice.roomId,
@@ -501,6 +513,7 @@ export default function Page() {
                                             })
             } 
             else {
+              //違う患者
               await moveRoomToRoomNewPatientTransaction({
                                                           deviceId: pendingDevice.id,
                                                           preRoomId: pendingDevice.roomId,
@@ -513,15 +526,19 @@ export default function Page() {
                                                           setRoomInfections,
                                                           devices:deviceList
                                                   })
+
               }
               //ward areaは更新しない  
               //setStockLastUpdated(await fetchStockLastUpdated())
               setWardLastUpdated(await fetchWardLastUpdated())
+              // 新しい患者なので、その機器の本日の点検回数をリセット
               setInspectionCounts(prev => ({
-              ...prev,
-              [pendingDevice.id]: 0,
+                    ...prev,
+                    [pendingDevice.id]: 0,
               }))    
-              setTodayInspections([])
+              setTodayInspections(prev =>
+                      prev.filter(inspection => inspection.deviceId !== pendingDevice.id)
+              )
               setTargetWardId(null)
               }
     })
@@ -1088,69 +1105,69 @@ useEffect(() => {
 }, [])
 
   
-//リロード時やlogin時にrealtime開始
-useEffect(() => {
-  console.log("[Realtime] initialize");
-  if (!currentUser) {return}
+  //リロード時やlogin時にrealtime開始
+  useEffect(() => {
+    console.log("[Realtime] initialize");
+    if (!currentUser) {return}
 
-  if (!accessToken) {
-    console.log("[Realtime] accessToken is not ready")
-    return
-  }
-  console.log( "[Realtime] setAuth")
-  supabase.realtime.setAuth(accessToken)
-  
-  const unsubscribeDevices = subscribeDevicesRealtime({
-                                                      setDeviceList,
-                                                      setStockLastUpdated,
-                                                      setWardLastUpdated
-  })
-  const unsubscribeWards = subscribeWardsRealtime({setWards})
-  const unsubscribeRooms = subscribeRoomsRealtime({setRooms})
-  const unsubscribeStockAreas = subscribeStockAreasRealtime({setStockAreas})
-  const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({setDeviceTypes})
-  const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({setDeviceModels})
-  const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({setMaintenanceTypes})
-  const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({setInfectionTypes})
-  const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({setRoomInfections})
-  const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({setTasks})
-  const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({
-                                                                    hospitalId: currentUser.hospitalId,
-                                                                      setAnnouncements: setActiveAnnouncements
-  })
-  const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({
-                                                                                    hospitalId: currentUser.hospitalId,
-                                                                                    setAnnouncements: setActiveAnnouncements
+    if (!accessToken) {
+      console.log("[Realtime] accessToken is not ready")
+      return
+    }
+    console.log( "[Realtime] setAuth")
+    supabase.realtime.setAuth(accessToken)
+    
+    const unsubscribeDevices = subscribeDevicesRealtime({
+                                                        setDeviceList,
+                                                        setStockLastUpdated,
+                                                        setWardLastUpdated
     })
-  const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
-  const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts, setTodayInspections,})
-  return () => {
-    console.log("[Realtime] unsubscribe")
-    unsubscribeDevices()
-    unsubscribeWards()
-    unsubscribeRooms()
-    unsubscribeStockAreas()
-    unsubscribeDeviceTypes()
-    unsubscribeDeviceModels()
-    unsubscribeMaintenanceTypes()
-    unsubscribeInfectionTypes()
-    unsubscribeRoomInfections()
-    unsubscribeMaintenanceTasks()
-    unsubscribeAnnouncements()
-    unsubscribeAnnouncementHospitals()
-    unsubscribeHospitalSettingRealtime()
-    unsubscribeInspections()
-  }
-}, [currentUser])
+    const unsubscribeWards = subscribeWardsRealtime({setWards})
+    const unsubscribeRooms = subscribeRoomsRealtime({setRooms})
+    const unsubscribeStockAreas = subscribeStockAreasRealtime({setStockAreas})
+    const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({setDeviceTypes})
+    const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({setDeviceModels})
+    const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({setMaintenanceTypes})
+    const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({setInfectionTypes})
+    const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({setRoomInfections})
+    const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({setTasks})
+    const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({
+                                                                      hospitalId: currentUser.hospitalId,
+                                                                        setAnnouncements: setActiveAnnouncements
+    })
+    const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({
+                                                                                      hospitalId: currentUser.hospitalId,
+                                                                                      setAnnouncements: setActiveAnnouncements
+      })
+    const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
+    const unsubscribeInspections=subscribeInspectionsRealtime({setInspectionCounts, setTodayInspections,})
+    return () => {
+      console.log("[Realtime] unsubscribe")
+      unsubscribeDevices()
+      unsubscribeWards()
+      unsubscribeRooms()
+      unsubscribeStockAreas()
+      unsubscribeDeviceTypes()
+      unsubscribeDeviceModels()
+      unsubscribeMaintenanceTypes()
+      unsubscribeInfectionTypes()
+      unsubscribeRoomInfections()
+      unsubscribeMaintenanceTasks()
+      unsubscribeAnnouncements()
+      unsubscribeAnnouncementHospitals()
+      unsubscribeHospitalSettingRealtime()
+      unsubscribeInspections()
+    }
+  }, [currentUser])
 
-//refresh tokenしaccess tokenが変更したときrealtimeに渡しているaccess tokenだけ更新
-useEffect(() => {
-  if (!accessToken) {
-    return
-  }
-  console.log("[Realtime] update auth:")
-  supabase.realtime.setAuth(accessToken)
-}, [accessToken])
+  //refresh tokenしaccess tokenが変更したときrealtimeに渡しているaccess tokenだけ更新
+  useEffect(() => {
+    if (!accessToken) {
+      return
+    }
+    console.log("[Realtime] update auth:")
+    supabase.realtime.setAuth(accessToken)
+  }, [accessToken])
 
  
   //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
@@ -1224,6 +1241,41 @@ useEffect(() => {
                       )
         return () => {stopAutoLogout()}
   }, [hospitalSettings])
+
+  //日付変更監視タイマー
+  //日付変更感知したら点検カウントをリセットする
+  useEffect(() => {
+    if (!currentUser) return
+
+    const getTodayKey = () =>
+      new Date().toLocaleDateString("ja-JP", {
+        timeZone: "Asia/Tokyo",
+      })
+
+    let currentDate = getTodayKey()
+
+    const timer = window.setInterval(() => {
+      const today = getTodayKey()
+
+      if (today === currentDate) return
+
+      currentDate = today
+
+      setInspectionCounts({})
+      setTodayInspections([])
+    }, 60 * 1000)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [currentUser])
+
+
+  //inspectionCounts追従関数
+  useEffect(() => {
+  console.log("🔎 inspectionCounts changed:", inspectionCounts)
+  }, [inspectionCounts])
+
 
 if (currentUser === undefined) {
     return null // 認証確認中

@@ -20,6 +20,7 @@ def update_hospital_settings(
                             hospital_settings.auto_logout_time.isoformat()
                             if hospital_settings.auto_logout_time
                             else None,
+                        "clear_device_info_on_stock":hospital_settings.clear_device_info_on_stock,
                         "updated_at": updated_at
                     })
                     .eq("hospital_id", hospital_id)
