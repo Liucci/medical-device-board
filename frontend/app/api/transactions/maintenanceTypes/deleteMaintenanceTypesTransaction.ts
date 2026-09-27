@@ -26,7 +26,7 @@ export async function deleteMaintenanceTypesTransaction({
                             },credentials: "include",
                   body: JSON.stringify(
                                           toDeleteMaintenanceTypesRequest(
-                                                                              ids
+                                                                              {ids}
                                                                             )
                                         )
                 }
