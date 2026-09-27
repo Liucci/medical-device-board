@@ -1,12 +1,12 @@
 from supabase import Client
 from devices.move_device import move_device
 from rooms.update_rooms import update_room_patientname
-from maintenance_types.fetch_maintenance_types import fetch_maintenance_types
 from transactions.tasks.create_device_tasks_transaction import create_device_tasks_transaction
 from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import UpdateRoomPatientRequest
-from schemas.maintenance_task_schemas import AddMaintenanceTaskRequest
 from transactions.histories.create_device_history import (create_device_history)
+from transactions.tasks.delete_device_tasks_transaction import delete_device_tasks_transaction
+from transactions.tasks.create_device_tasks_transaction import create_device_tasks_transaction
 
 def move_stock_to_room_transaction(
                                      client:Client,
@@ -35,13 +35,20 @@ def move_stock_to_room_transaction(
                                 status=status,
                                 user_id=user_id
                               )
-    # task生成
-    create_device_tasks_transaction(
-                                  client=client, 
-                                  device_id=device.id,
-                                  hospital_id=hospital_id
-                               )
+    # 対象のstock用tasks削除後、room用tasks生成
+    delete_device_tasks_transaction(
+                                             client=client,
+                                             device_id=device.id,
+                                             new_status="room",
+                                             hospital_id=hospital_id
+                                          )
 
+    create_device_tasks_transaction(
+                                       client=client,
+                                       device_id=device.id,
+                                       new_status="room",
+                                       hospital_id=hospital_id
+                                    )
 # 履歴作成
     create_device_history(
                         client=client, 

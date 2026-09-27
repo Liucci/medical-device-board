@@ -34,3 +34,8 @@ class UpdateMaintenanceTaskDueAtRequest(BaseModel):
 class CancelMaintenanceTaskRequest(BaseModel):
     id: int
     is_active: bool
+
+
+class CreateBothMaintenanceTaskRequest(BaseModel):
+    device_id: int
+    maintenance_type_id: int

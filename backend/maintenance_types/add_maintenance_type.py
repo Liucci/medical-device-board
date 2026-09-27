@@ -19,6 +19,7 @@ def add_maintenance_type(
             "device_model_id": maintenance_type.device_model_id,
             "name": maintenance_type.name,
             "interval_days": maintenance_type.interval_days,
+            "depend_device_status": maintenance_type.depend_device_status
         })
         .execute()
     )

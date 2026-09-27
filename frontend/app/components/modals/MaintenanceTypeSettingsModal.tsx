@@ -37,6 +37,7 @@ export default function MaintenanceTypeSettingsModal({
 
   const [name, setName] = useState("")
   const [intervalDays, setIntervalDays] = useState(30)
+  const [dependDeviceStatus, setDependDeviceStatus] = useState("both")
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   // 🔽 型式候補
@@ -67,7 +68,8 @@ export default function MaintenanceTypeSettingsModal({
                                                         selectedModelId === ""
                                                           ? null
                                                           : selectedModelId,
-                                                      intervalDays
+                                                      intervalDays,
+                                                      dependDeviceStatus
                                                     },
                                                     setMaintenanceTypes
                                                   })
@@ -283,7 +285,41 @@ return (
                   placeholder="使用前点検"
                 />
               </div>
+              {/* =================================================
+                  メンテ種類
+              ================================================= */}
 
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-gray-600">
+                  メンテナンス種類
+                </label>
+
+                <select
+                  value={dependDeviceStatus}
+                  onChange={e => setDependDeviceStatus(e.target.value)}
+                  className="
+                    w-full
+                    rounded-lg
+                    border
+                    border-gray-300
+                    bg-white
+                    px-3
+                    py-2.5
+                    text-sm
+                    text-gray-700
+                    outline-none
+                    transition
+                    focus:border-blue-500
+                    focus:ring-2
+                    focus:ring-blue-100
+                  "
+                >
+                  <option value="room">使用中メンテナンス</option>
+                  <option value="stock">保管中メンテナンス</option>
+                  <option value="both">定期メンテナンス</option>
+                </select>
+              </div>
 
               {/* =================================================
                   間隔日数
@@ -609,6 +645,17 @@ return (
                               {modelName}
                             </div>
 
+
+                            <div className="text-xs text-gray-500">
+                              メンテナンス種類：
+                              {mt.dependDeviceStatus === "room"
+                                ? "使用中メンテナンス"
+                                : mt.dependDeviceStatus === "stock"
+                                  ? "保管中メンテナンス"
+                                  : "定期メンテナンス"}
+                            </div>
+
+
                             <div
                               className="
                                 mt-2
@@ -687,7 +734,8 @@ return (
                                     ...mt,
                                     name:
                                       newName,
-                                    intervalDays
+                                    intervalDays,
+                                    dependDeviceStatus
                                   },
                                   setMaintenanceTypes
                                 })

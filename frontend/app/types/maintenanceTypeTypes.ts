@@ -6,8 +6,8 @@ export type MaintenanceType = {
                                 deviceTypeId: number
                                 deviceModelId?: number | null
                                 intervalDays: number
+                                dependDeviceStatus: string
                                 warningDays?: number | null
-                                autoCreateOnDrop?: boolean | null
                                 isActive?: boolean | null
                                 createdAt?: string | null
                               }
@@ -20,28 +20,49 @@ export type MaintenanceTypeDB = {
                                   device_type_id: number
                                   device_model_id?: number | null
                                   interval_days: number
+                                  depend_device_status: string
                                   warning_days?: number | null
-                                  auto_create_on_drop?: boolean | null
                                   is_active?: boolean | null
                                   created_at?: string | null
                                 }
 
 // Create専用
-export type CreateMaintenanceType = {
+export type CreateMaintenanceFrontType = {
                                       name: string
                                       deviceTypeId: number
                                       deviceModelId?: number | null
                                       intervalDays: number
+                                      dependDeviceStatus: string
+                                    }
+
+export type CreateMaintenanceBackType = {
+                                      name: string
+                                      device_type_id: number
+                                      device_model_id?: number | null
+                                      interval_days: number
+                                      depend_device_status: string
                                     }
 
 // Update専用
-export type UpdateMaintenanceType = {
+export type UpdateMaintenanceFrontType = {
                                       id: number
                                       name: string
                                       intervalDays: number
+                                      dependDeviceStatus: string
+                                    }
+
+export type UpdateMaintenanceBackType = {
+                                      id: number
+                                      name: string
+                                      interval_days: number
+                                      depend_device_status: string
                                     }
 
 // Delete専用
-export type DeleteMaintenanceTypes = {
-                                       ids: number[]
-                                     }
+export type DeleteMaintenanceFrontTypes = {
+                                      ids: number[]
+                                    }
+
+export type DeleteMaintenanceBackTypes = {
+                                      ids: number[]
+                                    }

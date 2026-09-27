@@ -4,12 +4,13 @@ from devices.finish_standby import (finish_standby,clear_standby)
 from devices.move_device import move_device, move_device_to_stock
 
 from rooms.update_rooms import clear_room_patientname
-from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 from schemas.device_schemas import MoveDeviceRequest
 from schemas.room_schemas import ClearRoomPatientRequest
 from transactions.histories.create_device_history import (create_device_history)
 from room_infections.delete_room_infections import delete_room_infections_by_room_id
 from transactions.hospital_settings.fetch_hospital_settings_transaction import (fetch_hospital_settings_transaction)
+from transactions.tasks.delete_device_tasks_transaction import delete_device_tasks_transaction
+from transactions.tasks.create_device_tasks_transaction import create_device_tasks_transaction
 
 def move_room_to_stock_transaction(
                                     client:Client,
@@ -60,12 +61,19 @@ def move_room_to_stock_transaction(
 
 
     # task削除
-    delete_tasks_by_device_id(
-                                client=client, 
-                                device_id=device.id,
-                                hospital_id=hospital_id
-                             )
+    delete_device_tasks_transaction(
+                                            client=client,
+                                            device_id=device.id,
+                                            new_status="stock",
+                                            hospital_id=hospital_id
+                                        )
 
+    create_device_tasks_transaction(
+                                    client=client,
+                                    device_id=device.id,
+                                    new_status="stock",
+                                    hospital_id=hospital_id
+                                )
     #roomの機器台数が0台で移動元の患者名削除
     room_devices = fetch_devices_by_room_id(
                                             client=client, 
@@ -91,7 +99,7 @@ def move_room_to_stock_transaction(
     
 
 
-# 履歴作成
+    # 履歴作成
     create_device_history(
                         client=client, 
                         device_id=device.id,

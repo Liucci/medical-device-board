@@ -5,7 +5,8 @@ import {
         UpdateMaintenanceTaskDueAt,
         CancelMaintenanceTask,
         CompleteMaintenanceTask,
-        DeleteMaintenanceTasks
+        DeleteMaintenanceTasks,
+         CreateBothMaintenanceTask,
       }from "../types/taskTypes"
 
 export const normalizeMaintenanceTask = (t: MaintenanceTaskDB): MaintenanceTask => ({
@@ -43,3 +44,8 @@ export const toCancelMaintenanceTaskRequest = (task: CancelMaintenanceTask) => (
                                                                                   id: task.id,
                                                                                   is_active: task.isActive
                                                                                 })
+                                                                                
+export const toCreateBothMaintenanceTaskRequest = (task: CreateBothMaintenanceTask) => ({
+                                                                                       device_id: task.deviceId,
+                                                                                       maintenance_type_id: task.maintenanceTypeId
+                                                                                     })

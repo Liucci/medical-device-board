@@ -47,3 +47,8 @@ export type CancelMaintenanceTask = {
   id: number
   isActive: boolean
 }
+
+export type CreateBothMaintenanceTask = {
+  deviceId: number
+  maintenanceTypeId: number
+}

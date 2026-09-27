@@ -1271,12 +1271,6 @@ useEffect(() => {
   }, [currentUser])
 
 
-  //inspectionCounts追従関数
-  useEffect(() => {
-  console.log("🔎 inspectionCounts changed:", inspectionCounts)
-  }, [inspectionCounts])
-
-
 if (currentUser === undefined) {
     return null // 認証確認中
 }
@@ -1492,10 +1486,10 @@ if (!currentUser) {
         pendingDevice={pendingDevice}
         initialWardId={targetWardId}
       />
-      {/*ストック機器詳細モーダル表示 */}
+      {/* ストック機器詳細モーダル表示 */}
       <StockInfoModal
         isOpen={stockInfoModalOpen}
-        device={selectedDevice}
+        selectedDevice={selectedDevice}
         deviceTypes={deviceTypes}
         deviceModels={deviceModels}
         stockAreas={stockAreas}
@@ -1504,9 +1498,15 @@ if (!currentUser) {
         renameSerialNumber={renameSerialNumber}
         renameNote={renameNote}
         renameRentalDates={renameRentalDates}
-        renameMaintenanceDates={renameMaintenanceDates} 
+        renameMaintenanceDates={renameMaintenanceDates}
         toggleDeviceMaintenance={toggleDeviceMaintenance}
+        tasks={getDeviceTasks(selectedDevice?.id)}
+        maintenanceTypes={maintenanceTypes}
+        onCompleteTask={handleCompleteTask}
+        renameMaintenanceTaskDueAt={renameMaintenanceTaskDueAt}
+        cancelTask={cancelTask}
         onDelete={deleteDevice}
+        todayInspections={todayInspections}
       />
        {/* 病室機器詳細モーダル表示 */}
       <RoomDeviceInfoModal

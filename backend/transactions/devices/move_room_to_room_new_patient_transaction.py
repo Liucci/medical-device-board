@@ -14,6 +14,8 @@ from tasks.delete_tasks_by_device_id import delete_tasks_by_device_id
 from room_infections.delete_room_infections import delete_room_infections_by_room_id
 from transactions.tasks.create_device_tasks_transaction import (create_device_tasks_transaction)
 from transactions.histories.create_device_history import (create_device_history)
+from transactions.tasks.delete_device_tasks_transaction import delete_device_tasks_transaction
+
 from schemas.device_schemas import (
                                       MoveDeviceRequest,
                                       UpdateManagementNumberRequest,
@@ -61,12 +63,6 @@ def move_room_to_room_new_patient_transaction(  client:Client,
                               hospital_id=hospital_id
                            )
 
-    # task削除
-    delete_tasks_by_device_id(
-                                client=client, 
-                                device_id=device.id,
-                                hospital_id=hospital_id
-                             )
 
     # 管理番号クリア
     update_management_number(
@@ -119,16 +115,22 @@ def move_room_to_room_new_patient_transaction(  client:Client,
          delete_room_infections_by_room_id(
                                           client=client,
                                           room_id=pre_room.id,
-                                          hospital_id=hospital_id
+                                          hospital_id=hospital_id,
                                        )
 
-
-
     # task再生成
+    delete_device_tasks_transaction(
+                                    client=client,
+                                    device_id=device.id,
+                                    new_status="room",
+                                    hospital_id=hospital_id
+                                    )
+
     create_device_tasks_transaction(
                                       client=client, 
                                       device_id=device.id,
-                                      hospital_id=hospital_id
+                                      hospital_id=hospital_id,
+                                      new_status="room"
                                    )
 
     # 履歴作成

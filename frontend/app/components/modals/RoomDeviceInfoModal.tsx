@@ -31,6 +31,9 @@ import { executeWithLoading } from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
 import InfectionSelectModal from "./InfectionSelectModal"
+import AddMaintenanceTaskModal from "../../components/modals/AddMaintenanceTaskModal"
+import { createBothMaintenanceTask } from "../../api/tasks/createBothMaintenanceTask"
+import { normalizeMaintenanceTask } from "../../mapper/taskMapper"
 
 //page.tsxから
 //stateレス化
@@ -44,7 +47,6 @@ type Props = {
   rooms: RoomType[]
   tasks: MaintenanceTask[]                 // ← 追加
   maintenanceTypes: MaintenanceType[]
-  onCompleteTask: (task: CompleteMaintenanceTask) => Promise<boolean>
   renameManagementNumber:(id: number, value: string)=> Promise<boolean>
   renameSerialNumber:(id: number, value: string)=> Promise<boolean>
   renameNote:(id: number, value: string)=> Promise<boolean>
@@ -58,20 +60,16 @@ type Props = {
                         rentalStartDate: string,
                         rentalEndDate: string
                       )=>Promise<boolean>
-  renameMaintenanceTaskDueAt: (
-                                task: UpdateMaintenanceTaskDueAt
-                              ) => Promise<boolean>
-
-cancelTask: (
-              task: CancelMaintenanceTask
-            ) => Promise<boolean>
-infectionTypes:InfectionTypeType[]
-roomInfections:RoomInfectionType[]
-setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
-onDelete: (deviceId: number) => Promise<void>
-hospitalSettings: HospitalSettingsType | null
-todayInspections?: TodayInspectionFrontType[]
-}
+  onCompleteTask: (task: CompleteMaintenanceTask) => Promise<boolean>
+  renameMaintenanceTaskDueAt: (task: UpdateMaintenanceTaskDueAt) => Promise<boolean>
+  cancelTask: (task: CancelMaintenanceTask) => Promise<boolean>
+  infectionTypes:InfectionTypeType[]
+  roomInfections:RoomInfectionType[]
+  setRoomInfections:React.Dispatch<React.SetStateAction<any[]>>
+  onDelete: (deviceId: number) => Promise<void>
+  hospitalSettings: HospitalSettingsType | null
+  todayInspections?: TodayInspectionFrontType[]
+  }
 
 export default function RoomDeviceInfoModal({
   isOpen,
@@ -102,6 +100,7 @@ export default function RoomDeviceInfoModal({
 const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
 const router = useRouter()
+const [isAddMaintenanceTaskModalOpen, setIsAddMaintenanceTaskModalOpen] = useState(false)
 
 if (!isOpen || !selectedRoomDevice) return null
 
@@ -286,6 +285,21 @@ const deviceTodayInspections =
     )
   }
   
+  const handleAddMaintenanceTask = async (maintenanceTypeId: number) => {
+    if (!selectedRoomDevice?.id) return
+
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const taskDB = await createBothMaintenanceTask({
+          deviceId: selectedRoomDevice.id,
+          maintenanceTypeId
+        })
+        const task = normalizeMaintenanceTask(taskDB)
+      }
+    })
+  }
+
   if (!isOpen || !selectedRoomDevice) return null
 
 
@@ -734,9 +748,19 @@ return (
               <div className="rounded-xl border border-gray-200 bg-white p-4">
 
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    メンテナンス
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      メンテナンス
+                    </h3>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsAddMaintenanceTaskModalOpen(true)}
+                      className="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+                    >
+                      ＋ タスク追加
+                    </button>
+                  </div>
 
                   <p className="mt-1 text-sm text-gray-500">
                     登録されているメンテナンスタスク
@@ -799,6 +823,15 @@ return (
 
                             <div className="truncate text-sm font-semibold text-gray-800">
                               {type?.name}
+                            </div>
+                            
+                            <div className="text-xs text-gray-500">
+                              メンテナンス種類：
+                              {type?.dependDeviceStatus === "room"
+                                ? "使用中メンテナンス"
+                                : type?.dependDeviceStatus === "stock"
+                                  ? "保管中メンテナンス"
+                                  : "定期メンテナンス"}
                             </div>
 
                             <div className="mt-1 text-xs text-gray-500">
@@ -959,9 +992,24 @@ return (
         roomId={room?.id ?? 0}
         setRoomInfections={setRoomInfections}
       />
+
+    
+    <AddMaintenanceTaskModal
+      isOpen={isAddMaintenanceTaskModalOpen}
+      deviceId={selectedRoomDevice.id}
+      deviceTypeId={selectedRoomDevice.type}
+      deviceModelId={selectedRoomDevice.model}
+      maintenanceTypes={maintenanceTypes}
+      onClose={() => setIsAddMaintenanceTaskModalOpen(false)}
+      onAdd={handleAddMaintenanceTask}
+    />
+    
+
+
     </CommonModal>
 
     <LoadingOverlay loading={loading} />
   </>
 )
+
 }

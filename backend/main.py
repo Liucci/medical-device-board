@@ -28,7 +28,7 @@ from transactions.auth.fetch_current_user_transaction import fetch_current_user_
 from transactions.tasks.complete_maintenance_task_transaction import complete_maintenance_task_transaction
 from transactions.tasks.update_maintenance_task_due_at_transaction import update_maintenance_task_due_at_transaction
 from transactions.tasks.cancel_maintenance_task_transaction import cancel_maintenance_task_transaction
-
+from transactions.tasks.create_both_maintenance_task_transaction import create_both_maintenance_task_transaction
 
 from transactions.invites.create_invite_code_transaction import (create_invite_code_transaction)
 from transactions.invites.get_invite_info_transaction import (get_invite_info_transaction)
@@ -74,6 +74,7 @@ from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResp
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
 from schemas.maintenance_task_schemas import (UpdateMaintenanceTaskDueAtRequest,CancelMaintenanceTaskRequest)
+from schemas.maintenance_task_schemas import CreateBothMaintenanceTaskRequest
 from schemas.ward_infection_schemas import (
                                             WardInfectionResponse,
                                             AddWardInfectionRequest,
@@ -862,6 +863,24 @@ def get_tasks(
                                     )
 
     return tasks
+
+@app.post("/create-both-maintenance-task")
+def create_both_maintenance_task_route(
+                                        task: CreateBothMaintenanceTaskRequest,
+                                        session: BackendSession = Depends(get_current_session),
+                                    ):
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin", "normal"]
+                    )
+
+    return create_both_maintenance_task_transaction(
+                                                        client=session.client,
+                                                        device_id=task.device_id,
+                                                        maintenance_type_id=task.maintenance_type_id,
+                                                        hospital_id=session.hospital_id
+                                                    )
+
 
 @app.post("/update-maintenance-task-due-at")
 def update_maintenance_task_due_at_route(

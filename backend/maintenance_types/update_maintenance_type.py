@@ -14,7 +14,8 @@ def update_maintenance_type(
         .table("maintenance_types")
         .update({
             "name": maintenance_type.name,
-            "interval_days": maintenance_type.interval_days
+            "interval_days": maintenance_type.interval_days,
+            "depend_device_status": maintenance_type.depend_device_status
         })
         .eq("id", maintenance_type.id)
         .eq("hospital_id", hospital_id)
