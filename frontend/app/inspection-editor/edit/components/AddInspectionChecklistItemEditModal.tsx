@@ -206,7 +206,7 @@ export default function AddInspectionChecklistItemEditModal({
 
                     </div>
 
-                    {/* 入力必須 */}
+                    {/* 任意入力 */}
                     <div>
                         <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                             <input
@@ -226,7 +226,7 @@ export default function AddInspectionChecklistItemEditModal({
                             />
 
                             <span>
-                                入力必須
+                                任意入力
                             </span>
                         </label>
                     </div>

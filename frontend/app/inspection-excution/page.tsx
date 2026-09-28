@@ -79,7 +79,16 @@ function InspectionExecutionPage() {
                                                         displayName: string
                                                         role: string
                                                     } | null>(null)
-//機器情報
+
+    //今日の日付を取得する関数
+    const getTodayDate = () => {
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = String(now.getMonth() + 1).padStart(2, "0")
+        const day = String(now.getDate()).padStart(2, "0")
+        return `${year}-${month}-${day}`
+    }
+    //機器情報
     const [device, setDevice] = useState<Device | null>(null)
     const [deviceType, setDeviceType] = useState<DeviceTypeType | null>(null)
     const [deviceModel, setDeviceModel] = useState<DeviceModelType | null>(null)
@@ -723,6 +732,7 @@ return (
                                     itemTypes: inspectionItemTypes,
                                     optionsByChecklistItemId: inspectionChecklistItemOptions,
                                     inspectionResults,
+                                    inspectionDate: getTodayDate(),
                                     onChange: handleInspectionResultChange
                                 })}
                             </div>
