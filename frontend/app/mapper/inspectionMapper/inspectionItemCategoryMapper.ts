@@ -18,6 +18,7 @@ export const normalizeInspectionItemCategory = (
     name: data.name,
     displayOrder: data.display_order,
     isActive: data.is_active,
+    excludeWhenStandby: data.exclude_when_standby,
 })
 
 
@@ -31,6 +32,7 @@ export const toSaveInspectionItemCategoriesRequest = (
             name: category.name,
             display_order: category.displayOrder,
             is_active: category.isActive,
+            exclude_when_standby: category.excludeWhenStandby,
         })
     ),
 })

@@ -1,674 +1,494 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-import {
-DndContext,
-closestCenter,
-type DragEndEvent,
-} from "@dnd-kit/core"
-
-import {
-SortableContext,
-verticalListSortingStrategy,
-arrayMove,
-} from "@dnd-kit/sortable"
-
-import {
-Plus,
-Save,
-X,
-} from "lucide-react"
-
-import type {
-InspectionItemCategoryType,
-InspectionItemCategoryEditType,
-} from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
+import { Plus, Save, X } from "lucide-react"
+//type
+import type { InspectionItemCategoryType, InspectionItemCategoryEditType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
+//mapper
+import { toSaveInspectionItemCategoriesRequest, normalizeInspectionItemCategory } from "../../../mapper/inspectionMapper/inspectionItemCategoryMapper"
+//transaction
 import { deleteInspectionItemCategoryTransaction } from "../../../api/transactions/inspection/inspectionItemCategories/deleteInspectionItemCategoryTransaction"
-import { toSaveInspectionItemCategoriesRequest,normalizeInspectionItemCategory } from "../../../mapper/inspectionMapper/inspectionItemCategoryMapper"
-
 import { saveInspectionItemCategories } from "../../../api/transactions/inspection/inspectionItemCategories/saveInspectionItemCategories"
-
+//処理中表示
 import { executeWithErrorAndLoading } from "../../common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../../common/LoadingOverlay"
-
+//modal,その他objects
 import SortableInspectionItemCategory from "./SortableInspectionItemCategory"
 
 type Props = {
-inspectionItemCategories: InspectionItemCategoryType[]
-setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
-onclose: () => void
+    inspectionItemCategories: InspectionItemCategoryType[]
+    setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
+    onclose: () => void
 }
 
 export default function EditChecklistItemCategoryModal({
-inspectionItemCategories,
-setInspectionItemCategories,
-onclose
+    inspectionItemCategories,
+    setInspectionItemCategories,
+    onclose
 }: Props) {
 
-// =========================================================
-// 編集用local state
-// =========================================================
+    const [editCategories, setEditCategories] = useState<InspectionItemCategoryEditType[]>([])
+    const [newName, setNewName] = useState("")
+    const [loading, setLoading] = useState(false)
 
-const [editCategories, setEditCategories] = useState<
-    InspectionItemCategoryEditType[]
->([])
+    useEffect(() => {
+        setEditCategories(
+            inspectionItemCategories
+                .slice()
+                .sort((a, b) => a.displayOrder - b.displayOrder)
+                .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                    displayOrder: category.displayOrder,
+                    isActive: category.isActive,
+                    excludeWhenStandby: category.excludeWhenStandby,
+                }))
+        )
+    }, [inspectionItemCategories])
 
-const [newName, setNewName] = useState("")
-const [loading, setLoading] = useState(false)
-
-
-// =========================================================
-// Modal表示時に編集用stateを作成
-// =========================================================
-
-useEffect(() => {
-
-    setEditCategories(
-        inspectionItemCategories
-            .slice()
-            .sort(
-                (a, b) =>
-                    a.displayOrder - b.displayOrder
-            )
-            .map((category) => ({
-                id: category.id,
-                name: category.name,
-                displayOrder: category.displayOrder,
-                isActive: category.isActive,
-            }))
-    )
-
-}, [inspectionItemCategories])
-
-
-// =========================================================
-// Sortable ID
-// =========================================================
-
-const getSortableId = (
-    category: InspectionItemCategoryEditType,
-    index: number
-) => {
-    return category.id !== null
-        ? `category-${category.id}`
-        : `new-category-${index}`
-}
-
-
-const sortableIds = editCategories.map(
-    (category, index) =>
-        getSortableId(category, index)
-)
-
-
-// =========================================================
-// 並び替え
-// =========================================================
-
-const handleDragEnd = (event: DragEndEvent) => {
-
-    const {
-        active,
-        over,
-    } = event
-
-    if (!over || active.id === over.id) {
-        return
+    const getSortableId = (
+        category: InspectionItemCategoryEditType,
+        index: number
+    ) => {
+        return category.id !== null ? `category-${category.id}` : `new-category-${index}`
     }
 
+    const sortableIds = editCategories.map(
+        (category, index) => getSortableId(category, index)
+    )
 
-    setEditCategories((current) => {
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
 
-        const oldIndex = current.findIndex(
-            (category, index) =>
-                getSortableId(category, index) === active.id
-        )
-
-        const newIndex = current.findIndex(
-            (category, index) =>
-                getSortableId(category, index) === over.id
-        )
-
-
-        if (
-            oldIndex === -1 ||
-            newIndex === -1
-        ) {
-            return current
+        if (!over || active.id === over.id) {
+            return
         }
 
-
-        const moved = arrayMove(
-            current,
-            oldIndex,
-            newIndex
-        )
-
-
-        return moved.map(
-            (category, index) => ({
-                ...category,
-                displayOrder: index,
-            })
-        )
-    })
-}
-
-
-// =========================================================
-// 名前編集
-// =========================================================
-
-const handleEdit = (
-    category: InspectionItemCategoryEditType
-) => {
-
-    const newName = window.prompt(
-        "新しい大項目名を入力",
-        category.name
-    )
-
-
-    if (newName === null) {
-        return
-    }
-
-
-    const trimmed = newName.trim()
-
-
-    if (!trimmed) {
-        return
-    }
-
-
-    if (trimmed === category.name) {
-        return
-    }
-
-
-    // 同名チェック
-    const exists = editCategories.some(
-        (item) =>
-            item.id !== category.id &&
-            item.name.trim().toLowerCase() ===
-                trimmed.toLowerCase()
-    )
-
-
-    if (exists) {
-        window.alert(
-            "同名の大項目がすでに存在します"
-        )
-        return
-    }
-
-
-    setEditCategories((current) =>
-        current.map((item) =>
-            item.id === category.id
-                ? {
-                    ...item,
-                    name: trimmed,
-                }
-                : item
-        )
-    )
-}
-
-const handleDelete = async (
-    category: InspectionItemCategoryEditType
-) => {
-
-    if (category.id === null) {
-        setEditCategories((current) =>
-            current.filter((item) => item !== category)
-        )
-
-        return
-    }
-
-    const confirmed = window.confirm(
-        `「${category.name}」を削除しますか？\n\n` +
-        "この大項目を使用している点検項目もすべて削除されます。"
-    )
-
-    if (!confirmed) {
-        return
-    }
-
-    await executeWithErrorAndLoading({
-        setLoading,
-        action: async () => {
-
-            const deletedCategories =
-                await deleteInspectionItemCategoryTransaction({
-                    categoryId: category.id!,
-                })
-
-            setInspectionItemCategories(
-                deletedCategories.map(
-                    normalizeInspectionItemCategory
-                )
+        setEditCategories((current) => {
+            const oldIndex = current.findIndex(
+                (category, index) => getSortableId(category, index) === active.id
             )
-        },
-    })
-}
+            const newIndex = current.findIndex(
+                (category, index) => getSortableId(category, index) === over.id
+            )
 
+            if (oldIndex === -1 || newIndex === -1) {
+                return current
+            }
 
-// =========================================================
-// 大項目追加
-// =========================================================
+            const moved = arrayMove(current, oldIndex, newIndex)
 
-const handleAdd = () => {
-
-    const trimmed = newName.trim()
-
-
-    if (!trimmed) {
-        return
+            return moved.map((category, index) => ({
+                ...category,
+                displayOrder: index,
+            }))
+        })
     }
 
+    const handleEdit = (category: InspectionItemCategoryEditType) => {
+        const newName = window.prompt("新しい大項目名を入力", category.name)
 
-    // 同名チェック
-    const exists = editCategories.some(
-        (category) =>
-            category.name.trim().toLowerCase() ===
-                trimmed.toLowerCase()
-    )
+        if (newName === null) {
+            return
+        }
 
+        const trimmed = newName.trim()
 
-    if (exists) {
-        window.alert(
-            "同名の大項目がすでに存在します"
+        if (!trimmed) {
+            return
+        }
+
+        if (trimmed === category.name) {
+            return
+        }
+
+        const exists = editCategories.some(
+            (item) =>
+                item.id !== category.id &&
+                item.name.trim().toLowerCase() === trimmed.toLowerCase()
         )
-        return
+
+        if (exists) {
+            window.alert("同名の大項目がすでに存在します")
+            return
+        }
+
+        setEditCategories((current) =>
+            current.map((item) =>
+                item.id === category.id
+                    ? {
+                        ...item,
+                        name: trimmed,
+                    }
+                    : item
+            )
+        )
     }
 
-
-    const nextDisplayOrder =
-        editCategories.length
-
-
-    const newCategory: InspectionItemCategoryEditType = {
-        id: null,
-        name: trimmed,
-        displayOrder: nextDisplayOrder,
-        isActive: true,
+    const handleToggleExcludeWhenStandby = (
+        category: InspectionItemCategoryEditType
+    ) => {
+        setEditCategories((current) =>
+            current.map((item) =>
+                item.id === category.id
+                    ? {
+                        ...item,
+                        excludeWhenStandby: !item.excludeWhenStandby,
+                    }
+                    : item
+            )
+        )
     }
 
+    const handleDelete = async (
+        category: InspectionItemCategoryEditType
+    ) => {
+        if (category.id === null) {
+            setEditCategories((current) =>
+                current.filter((item) => item !== category)
+            )
+            return
+        }
 
-    setEditCategories((current) => [
-        ...current,
-        newCategory,
-    ])
+        const confirmed = window.confirm(
+            `「${category.name}」を削除しますか？\n\n` +
+            "この大項目を使用している点検項目もすべて削除されます。"
+        )
 
+        if (!confirmed) {
+            return
+        }
 
-    setNewName("")
-}
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+                const deletedCategories =
+                    await deleteInspectionItemCategoryTransaction({
+                        categoryId: category.id!,
+                    })
 
+                setInspectionItemCategories(
+                    deletedCategories.map(normalizeInspectionItemCategory)
+                )
+            },
+        })
+    }
 
-// =========================================================
-// 保存
-// =========================================================
+    const handleAdd = () => {
+        const trimmed = newName.trim()
 
-const handleSave = async () => {
+        if (!trimmed) {
+            return
+        }
 
-    // 保存前にdisplayOrderを現在の並び順から再構成
-    const categoriesToSave =editCategories.map(
+        const exists = editCategories.some(
+            (category) =>
+                category.name.trim().toLowerCase() === trimmed.toLowerCase()
+        )
+
+        if (exists) {
+            window.alert("同名の大項目がすでに存在します")
+            return
+        }
+
+        const nextDisplayOrder = editCategories.length
+
+        const newCategory: InspectionItemCategoryEditType = {
+            id: null,
+            name: trimmed,
+            displayOrder: nextDisplayOrder,
+            isActive: true,
+            excludeWhenStandby: false,
+        }
+
+        setEditCategories((current) => [
+            ...current,
+            newCategory,
+        ])
+
+        setNewName("")
+    }
+
+    const handleSave = async () => {
+        const categoriesToSave = editCategories.map(
             (category, index) => ({
                 ...category,
                 displayOrder: index,
             })
         )
 
-
-    const request =
-        toSaveInspectionItemCategoriesRequest({
+        const request = toSaveInspectionItemCategoriesRequest({
             categories: categoriesToSave,
         })
-    console.log("request:",request)    
 
-    await executeWithErrorAndLoading({
-        setLoading,
-        action: async () => {
+        console.log("request:", request)
 
-            const savedCategories =await saveInspectionItemCategories(request)
-            setInspectionItemCategories(
-                savedCategories.map(normalizeInspectionItemCategory)            )
-        },
-    })
-}
+        await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+                const savedCategories = await saveInspectionItemCategories(request)
 
+                setInspectionItemCategories(
+                    savedCategories.map(normalizeInspectionItemCategory)
+                )
+            },
+        })
+    }
 
-// =========================================================
-// Render
-// =========================================================
+    return (
+        <>
+            <div className="w-full rounded-2xl bg-gray-200 p-5">
+                <div className="
+                    flex
+                    h-[600px]
+                    min-h-0
+                    w-full
+                    flex-col
+                    rounded-xl
+                    bg-white
+                    p-6
+                    shadow-sm
+                ">
 
-return (
-    <>
-        <div className="w-full rounded-2xl bg-gray-200 p-5">
+                    <div className="mb-6 shrink-0">
+                        <div className="
+                            flex
+                            items-start
+                            justify-between
+                            gap-4
+                        ">
+                            <div>
+                                <h3 className="
+                                    text-lg
+                                    font-semibold
+                                    text-gray-800
+                                ">
+                                    点検項目の大項目
+                                </h3>
 
-            <div className="
-                flex
-                h-[600px]
-                min-h-0
-                w-full
-                flex-col
-                rounded-xl
-                bg-white
-                p-6
-                shadow-sm
-            ">
-
-                {/* ================================================= */}
-                {/* Header */}
-                {/* ================================================= */}
-
-                <div className="mb-6 shrink-0">
+                                <p className="
+                                    mt-1
+                                    text-sm
+                                    text-gray-500
+                                ">
+                                    大項目の追加、名前の変更、削除、並び順の変更を行います
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="
+                        mb-3
                         flex
-                        items-start
+                        shrink-0
+                        items-center
                         justify-between
-                        gap-4
                     ">
-
                         <div>
-
-                            <h3 className="
-                                text-lg
+                            <div className="
+                                text-sm
                                 font-semibold
                                 text-gray-800
                             ">
-                                点検項目の大項目
-                            </h3>
+                                登録されている大項目
+                            </div>
+
+                            <div className="
+                                mt-1
+                                text-xs
+                                text-gray-500
+                            ">
+                                {editCategories.length} 件
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="
+                        min-h-0
+                        flex-1
+                        overflow-y-auto
+                    ">
+                        {editCategories.length === 0 ? (
+                            <div className="
+                                py-12
+                                text-center
+                                text-sm
+                                text-gray-400
+                            ">
+                                登録されている大項目はありません
+                            </div>
+                        ) : (
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={sortableIds}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <div className="space-y-2">
+                                        {editCategories.map((category, index) => (
+                                            <SortableInspectionItemCategory
+                                                key={getSortableId(category, index)}
+                                                category={category}
+                                                index={index}
+                                                onEdit={handleEdit}
+                                                onDelete={handleDelete}
+                                                onToggleExcludeWhenStandby={handleToggleExcludeWhenStandby}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        )}
+                    </div>
+
+                    <div className="
+                        mt-6
+                        shrink-0
+                        border-t
+                        border-gray-100
+                        pt-5
+                    ">
+                        <div className="mb-3">
+                            <h4 className="
+                                text-sm
+                                font-semibold
+                                text-gray-800
+                            ">
+                                新しい大項目を追加
+                            </h4>
 
                             <p className="
                                 mt-1
-                                text-sm
+                                text-xs
                                 text-gray-500
                             ">
-                               大項目の追加、名前の変更、削除、
-                                並び順の変更を行います
-                                
+                                追加した項目は保存するまでデータベースには登録されません
                             </p>
-
                         </div>
 
-                    </div>
+                        <div className="flex gap-3">
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleAdd()
+                                    }
+                                }}
+                                placeholder="例：外観・動作確認"
+                                className="
+                                    min-w-0
+                                    flex-1
+                                    rounded-lg
+                                    border
+                                    border-gray-300
+                                    bg-white
+                                    px-3
+                                    py-2.5
+                                    text-sm
+                                    text-gray-700
+                                    outline-none
+                                    transition
+                                    placeholder:text-gray-400
+                                    focus:border-blue-500
+                                    focus:ring-2
+                                    focus:ring-blue-100
+                                "
+                            />
 
-                </div>
-
-
-                {/* ================================================= */}
-                {/* List Header */}
-                {/* ================================================= */}
-
-                <div className="
-                    mb-3
-                    flex
-                    shrink-0
-                    items-center
-                    justify-between
-                ">
-
-                    <div>
-
-                        <div className="
-                            text-sm
-                            font-semibold
-                            text-gray-800
-                        ">
-                            登録されている大項目
-                        </div>
-
-                        <div className="
-                            mt-1
-                            text-xs
-                            text-gray-500
-                        ">
-                            {editCategories.length} 件
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {/* ================================================= */}
-                {/* Category List */}
-                {/* ================================================= */}
-
-                <div className="
-                    min-h-0
-                    flex-1
-                    overflow-y-auto
-                ">
-
-                    {editCategories.length === 0 ? (
-
-                        <div className="
-                            py-12
-                            text-center
-                            text-sm
-                            text-gray-400
-                        ">
-                            登録されている大項目はありません
-                        </div>
-
-                    ) : (
-
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-
-                            <SortableContext
-                                items={sortableIds}
-                                strategy={
-                                    verticalListSortingStrategy
-                                }
+                            <button
+                                type="button"
+                                onClick={handleAdd}
+                                className="
+                                    flex
+                                    shrink-0
+                                    items-center
+                                    gap-1.5
+                                    rounded-lg
+                                    bg-blue-500
+                                    px-4
+                                    py-2.5
+                                    text-sm
+                                    font-medium
+                                    text-white
+                                    transition
+                                    hover:bg-blue-600
+                                "
                             >
-
-                                <div className="space-y-2">
-
-                                    {editCategories.map(
-                                        (category, index) => (
-
-                                        <SortableInspectionItemCategory
-                                            key={getSortableId(category, index)}
-                                            category={category}
-                                            index={index}
-                                            onEdit={handleEdit}
-                                            onDelete={handleDelete}
-                                        />
-
-                                        )
-                                    )}
-
-                                </div>
-
-                            </SortableContext>
-
-                        </DndContext>
-
-                    )}
-
-                </div>
-
-
-                {/* ================================================= */}
-                {/* Add Category */}
-                {/* ================================================= */}
-
-                <div className="
-                    mt-6
-                    shrink-0
-                    border-t
-                    border-gray-100
-                    pt-5
-                ">
-
-                    <div className="mb-3">
-
-                        <h4 className="
-                            text-sm
-                            font-semibold
-                            text-gray-800
-                        ">
-                            新しい大項目を追加
-                        </h4>
-
-                        <p className="
-                            mt-1
-                            text-xs
-                            text-gray-500
-                        ">
-                            追加した項目は保存するまでデータベースには登録されません
-                        </p>
-
+                                <Plus size={16} />
+                                追加
+                            </button>
+                        </div>
                     </div>
 
-
-                    <div className="flex gap-3">
-
-                        <input
-                            type="text"
-                            value={newName}
-                            onChange={(e) =>
-                                setNewName(e.target.value)
-                            }
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    handleAdd()
-                                }
-                            }}
-                            placeholder="例：外観・動作確認"
+                    <div className="
+                        mt-5
+                        flex
+                        shrink-0
+                        justify-end
+                        gap-3
+                        border-t
+                        border-gray-100
+                        pt-5
+                    ">
+                        <button
+                            type="button"
+                            onClick={onclose}
                             className="
-                                min-w-0
-                                flex-1
+                                flex
+                                items-center
+                                gap-1.5
                                 rounded-lg
-                                border
-                                border-gray-300
-                                bg-white
-                                px-3
+                                bg-gray-100
+                                px-4
                                 py-2.5
                                 text-sm
-                                text-gray-700
-                                outline-none
+                                font-medium
+                                text-gray-600
                                 transition
-                                placeholder:text-gray-400
-                                focus:border-blue-500
-                                focus:ring-2
-                                focus:ring-blue-100
+                                hover:bg-gray-200
+                                hover:text-gray-800
                             "
-                        />
-
+                        >
+                            <X size={16} />
+                            キャンセル
+                        </button>
 
                         <button
                             type="button"
-                            onClick={handleAdd}
+                            onClick={handleSave}
+                            disabled={loading}
                             className="
                                 flex
-                                shrink-0
                                 items-center
                                 gap-1.5
                                 rounded-lg
                                 bg-blue-500
-                                px-4
+                                px-5
                                 py-2.5
                                 text-sm
                                 font-medium
                                 text-white
                                 transition
                                 hover:bg-blue-600
+                                disabled:cursor-not-allowed
+                                disabled:opacity-50
                             "
                         >
-                            <Plus size={16} />
-                            追加
+                            <Save size={16} />
+                            保存
                         </button>
-
                     </div>
 
                 </div>
-
-
-                {/* ================================================= */}
-                {/* Footer */}
-                {/* ================================================= */}
-
-                <div className="
-                    mt-5
-                    flex
-                    shrink-0
-                    justify-end
-                    gap-3
-                    border-t
-                    border-gray-100
-                    pt-5
-                ">
-
-                    <button
-                        type="button"
-                        onClick={onclose}
-                        className="
-                            flex
-                            items-center
-                            gap-1.5
-                            rounded-lg
-                            bg-gray-100
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-medium
-                            text-gray-600
-                            transition
-                            hover:bg-gray-200
-                            hover:text-gray-800
-                        "
-                    >
-                        <X size={16} />
-                        キャンセル
-                    </button>
-
-
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={loading}
-                        className="
-                            flex
-                            items-center
-                            gap-1.5
-                            rounded-lg
-                            bg-blue-500
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-medium
-                            text-white
-                            transition
-                            hover:bg-blue-600
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
-                    >
-                        <Save size={16} />
-                        保存
-                    </button>
-
-                </div>
-
             </div>
 
-        </div>
-
-
-        <LoadingOverlay loading={loading} />
-    </>
-)
-
-
+            <LoadingOverlay loading={loading} />
+        </>
+    )
 }
