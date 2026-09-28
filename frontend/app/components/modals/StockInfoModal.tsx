@@ -10,6 +10,7 @@ import { TodayInspectionFrontType } from "../../types/inspectionTypes/inspection
 import { Device } from "../../types/deviceTypes"
 import { MaintenanceTask, UpdateMaintenanceTaskDueAt, CancelMaintenanceTask, CompleteMaintenanceTask } from "../../types/taskTypes"
 import CommonModal from "../common/CommonModal"
+import InputModal from "../common/InputModal"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../common/LoadingOverlay"
 import AddMaintenanceTaskModal from "../../components/modals/AddMaintenanceTaskModal"
@@ -63,7 +64,9 @@ export default function StockInfoModal({
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const [isAddMaintenanceTaskModalOpen, setIsAddMaintenanceTaskModalOpen] = useState(false)
-
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false)
+  const [inputModalTaskId, setInputModalTaskId] = useState<number | null>(null)
+  const [inputModalValue, setInputModalValue] = useState("")
 
   if (!isOpen || !selectedDevice) return null
 
@@ -147,6 +150,36 @@ export default function StockInfoModal({
     })
   }
 
+
+  const handleMaintenanceTaskDueAt = (taskId: number, currentDueAt: string) => {
+  setInputModalTaskId(taskId)
+  setInputModalValue(currentDueAt.slice(0, 10))
+  setIsInputModalOpen(true)
+  }
+
+  const handleInputModalConfirm = async (value: string) => {
+    if (inputModalTaskId === null) return
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      alert("YYYY-MM-DD形式で入力してください")
+      return
+    }
+
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameMaintenanceTaskDueAt({
+          id: inputModalTaskId,
+          dueAt: `${value}T00:00:00`,
+        })
+
+        if (!success) return
+
+        setIsInputModalOpen(false)
+        setInputModalTaskId(null)
+      },
+    })
+  }
   const handleManagementNumber = async () => {
     const deviceId = selectedDevice.id
     if (!deviceId) return
@@ -483,24 +516,12 @@ export default function StockInfoModal({
                                   <button
                                     type="button"
                                     className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-200"
-                                    onClick={async () => {
-                                      const value = prompt("メンテ期限を入力 (YYYY-MM-DD)", task.dueAt.slice(0, 10))
-                                      if (value === null) return
-                                      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-                                        alert("YYYY-MM-DD形式で入力してください")
-                                        return
-                                      }
-                                      await executeWithErrorAndLoading({
-                                        setLoading,
-                                        action: async () => {
-                                          const success = await renameMaintenanceTaskDueAt({
-                                            id: task.id,
-                                            dueAt: `${value}T00:00:00`,
-                                          })
-                                          if (!success) return
-                                        },
-                                      })
-                                    }}
+                                    onClick={() => {
+                                      handleMaintenanceTaskDueAt(
+                                        task.id,
+                                        task.dueAt,
+                                      )
+                                    }}                                    
                                   >
                                     修正
                                   </button>
@@ -566,6 +587,19 @@ export default function StockInfoModal({
           onAdd={handleAddMaintenanceTask}
         />
         
+      <InputModal
+        open={isInputModalOpen}
+        onClose={() => {
+          setIsInputModalOpen(false)
+          setInputModalTaskId(null)
+        }}
+        onConfirm={handleInputModalConfirm}
+        title="メンテ期限の修正"
+        label="メンテ期限"
+        type="text"
+        defaultValue={inputModalValue}
+        placeholder="YYYY-MM-DD"
+      />
 
       </CommonModal>
 
