@@ -255,90 +255,86 @@ export default function InputModal({
                 : "")
 
     return (
-        <CommonModal
-            open={open}
-            onClose={onClose}
-            title={title}
-            maxWidth="max-w-sm"
-        >
-            <div className="space-y-5">
-
-                {label && (
-                    <label className="block text-sm font-medium text-gray-700">
-                        {label}
-                    </label>
+    <CommonModal
+        open={open}
+        onClose={onClose}
+        title={title}
+        maxWidth="max-w-md"
+    >
+        <div className="bg-slate-50 p-4 sm:p-5">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="space-y-4">
+            {label && (
+                <label className="block text-xs font-bold tracking-wide text-slate-700">
+                {label}
+                {required && (
+                    <span className="ml-1 text-rose-600">*</span>
                 )}
+                </label>
+            )}
 
-                <input
-                    ref={inputRef}
-                    type="text"
-                    inputMode={
-                        type === "number"
-                            ? "decimal"
-                            : type === "date" || type === "time"
-                                ? "numeric"
-                                : "text"
-                    }
-                    value={value}
-                    onChange={(e) => handleChange(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={resolvedPlaceholder}
-                    className="
-                        w-full
-                        rounded-lg
-                        border
-                        border-gray-300
-                        px-3
-                        py-2.5
-                        text-sm
-                        outline-none
-                        transition
-                        focus:border-blue-500
-                        focus:ring-2
-                        focus:ring-blue-500/20
-                    "
-                />
+            <input
+                ref={inputRef}
+                type="text"
+                inputMode={
+                type === "number"
+                    ? "decimal"
+                    : type === "date" || type === "time"
+                    ? "numeric"
+                    : "text"
+                }
+                value={value}
+                onChange={(e) => handleChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={resolvedPlaceholder}
+                className="
+                h-11 w-full rounded-lg
+                border border-slate-300
+                bg-white px-3
+                text-sm font-medium text-slate-900
+                outline-none
+                transition-colors
+                placeholder:text-slate-400
+                focus:border-teal-600
+                focus:ring-2
+                focus:ring-teal-600/15
+                "
+            />
 
-                <div className="flex justify-end gap-2 pt-1">
+            <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+                <button
+                type="button"
+                onClick={onClose}
+                className="
+                    h-10 rounded-lg
+                    border border-slate-200
+                    bg-slate-50 px-4
+                    text-xs font-bold text-slate-700
+                    transition-colors
+                    hover:bg-slate-100
+                "
+                >
+                {cancelText}
+                </button>
 
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="
-                            rounded-lg
-                            border
-                            border-gray-300
-                            bg-white
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-700
-                            hover:bg-gray-50
-                        "
-                    >
-                        {cancelText}
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={handleConfirm}
-                        className="
-                            rounded-lg
-                            bg-blue-600
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-white
-                            hover:bg-blue-700
-                        "
-                    >
-                        {confirmText}
-                    </button>
-
-                </div>
+                <button
+                type="button"
+                onClick={handleConfirm}
+                className="
+                    h-10 rounded-lg
+                    bg-teal-700 px-4
+                    text-xs font-bold text-white
+                    transition-colors
+                    hover:bg-teal-800
+                    active:scale-[0.99]
+                "
+                >
+                {confirmText}
+                </button>
             </div>
-        </CommonModal>
-    )
+            </div>
+        </div>
+        </div>
+    </CommonModal>
+    )    
 }

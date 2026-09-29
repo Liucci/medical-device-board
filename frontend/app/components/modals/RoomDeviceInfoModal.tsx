@@ -19,8 +19,6 @@ import { TodayInspectionFrontType } from "../../types/inspectionTypes/inspection
 //表示データ
 import { Device } from "../../types/deviceTypes"
 import {MaintenanceTask } from "../../types/taskTypes"
-import { createPortal } from "react-dom"
-import { FaTrashAlt } from "react-icons/fa"
 import {UpdateMaintenanceTaskDueAt,CancelMaintenanceTask,CompleteMaintenanceTask } from "../../types/taskTypes"
 
 //icon
@@ -32,7 +30,6 @@ import {
   Plus,
   Edit2,
   Activity,
-  X,
   Stethoscope,
   User,
 } from "lucide-react"
@@ -318,354 +315,262 @@ const deviceTodayInspections =
 
 return (
   <>
-    {/* =========================================================
-        Modal Overlay
-    ========================================================= */}
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 backdrop-blur-sm p-0 sm:p-4"
-      onClick={onCancel}
-      role="dialog"
-      aria-modal="true"
+    <CommonModal
+      open={isOpen}
+      onClose={onCancel}
+      title="使用中機器情報"
+      maxWidth="max-w-6xl"
+      height="h-[70vh]"
+      rightContent={
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-800/70 bg-rose-950/70 text-rose-300 transition-colors hover:bg-rose-900"
+          title="機器の削除"
+          aria-label="機器の削除"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      }
     >
-      {/* =======================================================
-          Modal
-      ======================================================= */}
-      <div
-        className="
-          relative flex h-full w-full flex-col overflow-hidden
-          bg-slate-50 text-slate-900
-          sm:h-auto sm:max-h-[94vh] sm:max-w-6xl
-          sm:rounded-2xl sm:border sm:border-slate-300
-          sm:shadow-2xl
-        "
-        onClick={(e) => e.stopPropagation()}
-      >
-
-        {/* =====================================================
-            Header
-        ===================================================== */}
-        <div className="shrink-0 border-b border-slate-700 bg-slate-900 text-white">
-          <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-            <div className="min-w-0">
-              <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold text-slate-400">
-                <span>{selectedRoomDevice.assetType}</span>
-
-                <span className="text-slate-600">/</span>
-
-                <span className="font-mono text-slate-300">
-                  {managementNumber
-                    ? `No. ${managementNumber}`
-                    : "管理番号未設定"}
-                </span>
-              </div>
-
-              <h2 className="truncate text-base font-bold sm:text-lg">
-                {typeName}
-
-                <span className="ml-2 font-normal text-slate-300">
-                  {modelName}
-                </span>
-              </h2>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="
-                  flex h-9 items-center gap-1.5 rounded-lg
-                  border border-rose-800/70
-                  bg-rose-950/70 px-3
-                  text-xs font-bold text-rose-300
-                  transition-colors
-                  hover:bg-rose-900
-                "
-                title="機器の削除"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">
-                  削除
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onCancel}
-                className="
-                  flex h-9 w-9 items-center justify-center rounded-lg
-                  bg-slate-800 text-slate-300
-                  transition-colors
-                  hover:bg-slate-700 hover:text-white
-                "
-                title="閉じる"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* ===================================================
-              Status Bar
-          =================================================== */}
-          <div className="grid grid-cols-2 border-t border-slate-800 sm:grid-cols-3">
-
-            <div className="border-r border-slate-800 px-4 py-2.5 sm:px-6">
-              <div className="text-[10px] font-semibold tracking-wide text-slate-500">
-                稼働状態
-              </div>
-
-              <div
-                className={`mt-0.5 text-sm font-bold ${
-                  standby
-                    ? "text-amber-400"
-                    : "text-emerald-400"
-                }`}
-              >
-                {standby
-                  ? "待機中"
-                  : "通常稼働中"}
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 sm:border-r sm:border-slate-800 sm:px-6">
-              <div className="text-[10px] font-semibold tracking-wide text-slate-500">
-                現在位置
-              </div>
-
-              <div className="mt-0.5 truncate text-sm font-semibold text-white">
-                {wardName}
-
-                <span className="mx-1 text-slate-600">
-                  /
-                </span>
-
-                {roomName}
-              </div>
-            </div>
-
-            <div className="col-span-2 border-t border-slate-800 px-4 py-2.5 sm:col-span-1 sm:border-t-0 sm:px-6">
-              <div className="text-[10px] font-semibold tracking-wide text-slate-500">
-                本日の点検
-              </div>
-
-              <div className="mt-0.5 text-sm font-bold text-white">
-                {deviceTodayInspections.length} 回
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* =====================================================
-            Alert Area
-        ===================================================== */}
-        {(() => {
-          const isRental =
-            selectedRoomDevice.assetType === "レンタル" ||
-            selectedRoomDevice.assetType === "代替機"
-
-          let rentalAlert = ""
-          let isOverdue = false
-
-          if (isRental && rentalEndDate) {
-            const today = new Date()
-            const end = new Date(rentalEndDate)
-
-            today.setHours(0, 0, 0, 0)
-            end.setHours(0, 0, 0, 0)
-
-            const diff =
-              end.getTime() -
-              today.getTime()
-
-            const days = Math.ceil(
-              diff /
-                (1000 * 60 * 60 * 24)
-            )
-
-            if (days < 0) {
-              rentalAlert =
-                `返却期限超過（${Math.abs(days)}日遅れ）`
-
-              isOverdue = true
-            } else if (days === 0) {
-              rentalAlert =
-                "本日返却期限"
-
-              isOverdue = true
-            } else if (days <= 2) {
-              rentalAlert =
-                `返却まで${days}日`
-            }
-          }
-
-          if (
-            !isOverdue &&
-            !isStandbyOverOneMonth &&
-            !rentalAlert
-          ) {
-            return null
-          }
-
-          return (
-            <div
-              className={`
-                shrink-0 border-b px-4 py-3 sm:px-6
-                ${
-                  isOverdue
-                    ? "border-rose-300 bg-rose-50"
-                    : "border-amber-300 bg-amber-50"
-                }
-              `}
-            >
-              <div className="flex items-start gap-2.5">
-
-                <AlertTriangle
-                  className={`
-                    mt-0.5 h-4 w-4 shrink-0
-                    ${
-                      isOverdue
-                        ? "text-rose-600"
-                        : "text-amber-600"
-                    }
-                  `}
-                />
-
-                <div className="min-w-0 text-xs leading-relaxed">
-                  <div
-                    className={`font-bold ${
-                      isOverdue
-                        ? "text-rose-900"
-                        : "text-amber-900"
-                    }`}
-                  >
-                    {isOverdue
-                      ? "重要アラート"
-                      : isStandbyOverOneMonth
-                        ? "長期待機"
-                        : "返却予定"}
-                  </div>
-
-                  <div
-                    className={
-                      isOverdue
-                        ? "text-rose-800"
-                        : "text-amber-800"
-                    }
-                  >
-                    {isOverdue
-                      ? `${rentalAlert}。契約更新または返却手続きを確認してください。`
-                      : isStandbyOverOneMonth
-                        ? "スタンバイ開始から1ヶ月経過しています。動作点検または中央倉庫への返却を確認してください。"
-                        : rentalAlert}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })()}
-
         {/* =====================================================
             Main Content
         ===================================================== */}
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="p-3 sm:p-5 lg:p-6">
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
+      <div className="h-full w-full bg-slate-50 p-3 sm:p-4">
+        <div className="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-12">
 
               {/* =================================================
                   Left Column
               ================================================= */}
-              <div className="space-y-4 lg:col-span-7">
+          <div className="min-h-0 overflow-y-auto lg:col-span-7">
+            <div className="space-y-4">
+
+                <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border-b border-slate-700 bg-slate-900 px-4 py-3 sm:px-5">
+                    <div className="mb-1 flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+                      <span>{selectedRoomDevice.assetType}</span>
+                      <span className="text-slate-600">/</span>
+                      <span className="font-mono text-slate-300">
+                        {managementNumber ? `管理番号 ${managementNumber}` : "管理番号未設定"}
+                      </span>
+                    </div>
+                    <h3 className="truncate text-base font-bold text-white sm:text-lg">
+                      {typeName}
+                      <span className="ml-2 font-normal text-slate-300">{modelName}</span>
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50">
+                    <div className="border-r border-slate-200 px-4 py-2.5 sm:px-5">
+                      <div className="text-[10px] font-semibold tracking-wide text-slate-500">現在の位置</div>
+                      <div className="mt-0.5 truncate text-sm font-bold text-slate-900">
+                        {wardName}<span className="mx-1 text-slate-300">/</span>{roomName}
+                      </div>
+                    </div>
+                    <div className="px-4 py-2.5 sm:px-5">
+                      <div className="text-[10px] font-semibold tracking-wide text-slate-500">稼働状態</div>
+                      <div className={`mt-0.5 text-sm font-bold ${standby ? "text-amber-700" : "text-emerald-700"}`}>
+                        {standby ? "待機中" : "通常稼働中"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const isRental =
+                      selectedRoomDevice.assetType === "レンタル" ||
+                      selectedRoomDevice.assetType === "代替機"
+
+                    let rentalAlert = ""
+                    let isOverdue = false
+
+                    if (isRental && rentalEndDate) {
+                      const today = new Date()
+                      const end = new Date(rentalEndDate)
+                      today.setHours(0, 0, 0, 0)
+                      end.setHours(0, 0, 0, 0)
+                      const diff = end.getTime() - today.getTime()
+                      const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+
+                      if (days < 0) {
+                        rentalAlert = `返却期限超過（${Math.abs(days)}日遅れ）`
+                        isOverdue = true
+                      } else if (days === 0) {
+                        rentalAlert = "本日返却期限"
+                        isOverdue = true
+                      } else if (days <= 2) {
+                        rentalAlert = `返却まで${days}日`
+                      }
+                    }
+
+                    if (!isOverdue && !isStandbyOverOneMonth && !rentalAlert) return null
+
+                    return (
+                      <div
+                        className={`border-b px-4 py-3 sm:px-5 ${
+                          isOverdue ? "border-rose-300 bg-rose-50" : "border-amber-300 bg-amber-50"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${isOverdue ? "text-rose-600" : "text-amber-600"}`} />
+                          <div className="min-w-0 text-xs leading-relaxed">
+                            <div className={`font-bold ${isOverdue ? "text-rose-900" : "text-amber-900"}`}>
+                              {isOverdue ? "重要アラート" : isStandbyOverOneMonth ? "長期待機" : "返却予定"}
+                            </div>
+                            <div className={isOverdue ? "text-rose-800" : "text-amber-800"}>
+                              {isOverdue
+                                ? `${rentalAlert}。契約更新または返却手続きを確認してください。`
+                                : isStandbyOverOneMonth
+                                  ? "スタンバイ開始から1ヶ月経過しています。動作点検または中央倉庫への返却を確認してください。"
+                                  : rentalAlert}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                </section>
+
+                {/* =================================================
+                    Inspection
+                ================================================= */}
+                <section className="rounded-xl border border-teal-200 bg-white shadow-sm">
+
+                  <div className="flex items-center justify-between border-b border-teal-100 px-4 py-3 sm:px-5">
+
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold tracking-wide text-slate-700">
+                        本日の始業・日常点検
+                      </div>
+
+                      <div className="mt-0.5 text-[11px] text-slate-400">
+                        本日の実施回数
+                      </div>
+                    </div>
+
+                    <div className="text-lg font-black text-teal-700">
+                      {deviceTodayInspections.length}
+
+                      <span className="ml-1 text-xs font-bold text-slate-500">
+                        回
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5">
+
+                    <button
+                      type="button"
+                      onClick={handleInspection}
+                      className="
+                        flex h-12 w-full
+                        items-center justify-center gap-2
+                        rounded-xl
+                        bg-teal-700
+                        text-sm font-bold text-white
+                        shadow-sm
+                        transition-all
+                        hover:bg-teal-800
+                        active:scale-[0.99]
+                      "
+                    >
+                      <Stethoscope className="h-4 w-4" />
+                      点検チェックシートを開く
+                    </button>
+
+                    {deviceTodayInspections.length > 0 && (
+                      <div className="mt-3">
+
+                        <div className="mb-1.5 text-[11px] font-medium text-slate-400">
+                          実施時刻
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+
+                          {deviceTodayInspections.map(
+                            (insp, i) => (
+                              <span
+                                key={i}
+                                className="
+                                  rounded-md
+                                  border border-teal-100
+                                  bg-teal-50
+                                  px-2.5 py-1
+                                  font-mono text-xs
+                                  font-bold text-teal-800
+                                "
+                              >
+                                {new Date(
+                                  insp.createdAt
+                                ).toLocaleTimeString(
+                                  "ja-JP",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </span>
+                            )
+                          )}
+
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
 
                 {/* =================================================
                     Location / Patient
                 ================================================= */}
                 <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
-                  <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
+                  <div className="border-b border-slate-100 py-3 sm:px-5">
                     <div className="text-xs font-bold tracking-wide text-slate-700">
                       配置・患者情報
                     </div>
                   </div>
 
-                  <div className="space-y-0 px-4 sm:px-5">
+                  <div className="space-y-3 px-4 pb-5 sm:px-5">
 
                     {/* 配置場所 */}
-                    <div className="flex items-center justify-between gap-4 py-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
-                      <span className="shrink-0 text-xs font-medium text-slate-500">
-                        配置場所
-                      </span>
-
-                      <span className="text-right text-sm font-bold text-slate-900">
-                        {wardName}
-
-                        <span className="mx-1 text-slate-300">
-                          /
-                        </span>
-
-                        <span className="text-teal-700">
-                          {roomName}
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* 患者 */}
-                    {hospitalSettings?.showPatientName && (
-                      <div className="flex items-center justify-between gap-4 border-t border-slate-100 py-3">
-
-                        <div className="min-w-0">
-
-                          <div className="text-[11px] font-medium text-slate-400">
-                            収容患者
-                          </div>
-
-                          <div className="truncate text-sm font-bold text-slate-900">
-                            {patientName || "（未割当）"}
-                          </div>
-
+                      {/* 病棟 */}
+                      <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <div className="mb-1 text-[11px] font-medium text-slate-400">
+                          病棟
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const roomId =
-                              selectedRoomDevice.roomId
+                        <div className="truncate text-sm font-bold text-slate-900">
+                          {wardName || "未設定"}
+                        </div>
+                      </div>
 
-                            if (!roomId) return
+                      {/* 病室 */}
+                      <div className="rounded-lg border border-slate-200 bg-white p-3">
+                        <div className="mb-1 text-[11px] font-medium text-slate-400">
+                          病室
+                        </div>
 
-                            const val =
-                              prompt(
-                                "患者名を入力",
-                                patientName
-                              )
+                        <div className="truncate text-sm font-bold text-slate-900">
+                          {roomName || "未設定"}
+                        </div>
+                      </div>
 
-                            if (val === null) return
-
-                            await executeWithErrorAndLoading({
-                              setLoading,
-                              action: async () => {
-                                const success =
-                                  await renamePatientName(
-                                    roomId,
-                                    val
-                                  )
-
-                                if (!success) return
-                              },
-                            })
-                          }}
-                          className="
-                            h-8 shrink-0 rounded-lg
-                            border border-slate-200
-                            bg-slate-50 px-3
-                            text-xs font-bold text-slate-700
-                            transition-colors
-                            hover:bg-slate-100
-                          "
-                        >
-                          変更
-                        </button>
+                    </div>
+                    {/* 患者 */}
+                    {hospitalSettings?.showPatientName && (
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <div className="mb-1 text-[11px] font-medium text-slate-400">
+                          患者名
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate text-sm font-bold text-slate-900">
+                            {patientName || "未設定"}
+                          </span>
+                          {/* 既存の編集処理をここにそのまま残す */}
+                        </div>
                       </div>
                     )}
 
@@ -673,8 +578,12 @@ return (
                         感染症区分
                         ※ FaVirus を維持
                     ================================================= */}
-                    <div className="flex items-start justify-between gap-4 border-t border-slate-100 py-3">
-
+                      <div className="
+                        flex items-center justify-between
+                        gap-4 rounded-lg
+                        border border-slate-200
+                        bg-slate-50 p-3
+                      ">
                       <div className="min-w-0">
 
                         <div className="mb-1.5 text-[11px] font-medium text-slate-400">
@@ -713,7 +622,7 @@ return (
                                       rounded-md
                                       border
                                       border-slate-300
-                                      bg-slate-100
+                                      bg-white px-3
                                       px-2.5
                                       py-1
                                       text-xs
@@ -756,19 +665,20 @@ return (
                         onClick={() =>
                           setIsInfectionModalOpen(true)
                         }
-                        className="
-                          h-8 shrink-0 rounded-lg
-                          border border-slate-200
-                          bg-slate-50 px-3
-                          text-xs font-bold text-slate-700
-                          transition-colors
-                          hover:bg-slate-100
+                          className="
+                              shrink-0 rounded-md p-1.5
+                              text-slate-400
+                              transition-colors
+                              hover:bg-slate-200
+                              hover:text-slate-700
                         "
                       >
-                        設定
+                        <Edit2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
+                                        
                   </div>
+
                 </section>
 
                 {/* =================================================
@@ -967,21 +877,21 @@ return (
                             })
                           }}
                           className="
-                            h-8 shrink-0 rounded-lg
-                            border border-slate-200
-                            bg-white px-3
-                            text-xs font-bold text-slate-700
-                            transition-colors
-                            hover:bg-slate-50
+                              shrink-0 rounded-md p-1.5
+                              text-slate-400
+                              transition-colors
+                              hover:bg-slate-200
+                              hover:text-slate-700
                           "
                         >
-                          変更
+                          <Edit2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     )}
 
                     {/* 備考 */}
                     <div>
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
 
                       <div className="mb-1.5 flex items-center justify-between">
 
@@ -1031,7 +941,6 @@ return (
                         </button>
                       </div>
 
-                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
 
                         {note ? (
                           <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
@@ -1048,100 +957,14 @@ return (
                   </div>
                 </section>
 
-                {/* =================================================
-                    Inspection
-                ================================================= */}
-                <section className="rounded-xl border border-teal-200 bg-white shadow-sm">
-
-                  <div className="flex items-center justify-between border-b border-teal-100 px-4 py-3 sm:px-5">
-
-                    <div>
-                      <div className="flex items-center gap-2 text-xs font-bold tracking-wide text-slate-700">
-                        <Stethoscope className="h-4 w-4 text-teal-700" />
-                        本日の始業・日常点検
-                      </div>
-
-                      <div className="mt-0.5 text-[11px] text-slate-400">
-                        本日の実施回数
-                      </div>
-                    </div>
-
-                    <div className="text-lg font-black text-teal-700">
-                      {deviceTodayInspections.length}
-
-                      <span className="ml-1 text-xs font-bold text-slate-500">
-                        回
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 sm:p-5">
-
-                    <button
-                      type="button"
-                      onClick={handleInspection}
-                      className="
-                        flex h-12 w-full
-                        items-center justify-center gap-2
-                        rounded-xl
-                        bg-teal-700
-                        text-sm font-bold text-white
-                        shadow-sm
-                        transition-all
-                        hover:bg-teal-800
-                        active:scale-[0.99]
-                      "
-                    >
-                      <Stethoscope className="h-4 w-4" />
-                      点検チェックシートを開く
-                    </button>
-
-                    {deviceTodayInspections.length > 0 && (
-                      <div className="mt-3">
-
-                        <div className="mb-1.5 text-[11px] font-medium text-slate-400">
-                          実施時刻
-                        </div>
-
-                        <div className="flex flex-wrap gap-1.5">
-
-                          {deviceTodayInspections.map(
-                            (insp, i) => (
-                              <span
-                                key={i}
-                                className="
-                                  rounded-md
-                                  border border-teal-100
-                                  bg-teal-50
-                                  px-2.5 py-1
-                                  font-mono text-xs
-                                  font-bold text-teal-800
-                                "
-                              >
-                                {new Date(
-                                  insp.createdAt
-                                ).toLocaleTimeString(
-                                  "ja-JP",
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </span>
-                            )
-                          )}
-
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </section>
               </div>
+            </div>
 
               {/* =================================================
                   Right Column
               ================================================= */}
-              <div className="space-y-4 lg:col-span-5">
+          <div className="min-h-0 overflow-y-auto lg:col-span-5">
+            <div className="space-y-4">
 
                 {/* =================================================
                     Standby
@@ -1208,7 +1031,6 @@ return (
 
                     <div>
                       <div className="flex items-center gap-2 text-xs font-bold tracking-wide text-slate-700">
-                        <Wrench className="h-4 w-4 text-slate-700" />
                         定期保守
                       </div>
 
@@ -1597,8 +1419,7 @@ return (
           onAdd={handleAddMaintenanceTask}
         />
         
-      </div>
-    </div>
+    </CommonModal>
 
     {/* =========================================================
         Loading

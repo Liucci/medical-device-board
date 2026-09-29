@@ -17,7 +17,6 @@ export async function updateMaintenanceTaskDueAtTransaction({
   await updateMaintenanceTaskDueAt(task)
 
   const tasks = await getTasksFromApi()
-
   setTasks(
     tasks.map(normalizeMaintenanceTask)
   )

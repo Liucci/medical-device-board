@@ -40,69 +40,47 @@ export default function CommonModal({
     }, [open, onClose])
     if (!open) return null
 
-  return createPortal(
-
+return createPortal(
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 p-0 backdrop-blur-sm sm:p-4"
+    onClick={onClose}
+  >
     <div
-      className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-center
-        justify-center
-        bg-black/30
-        p-4
-      "
-      onClick={onClose}
+      className={`
+        relative flex h-full w-full flex-col overflow-hidden
+        bg-slate-50 text-slate-900
+        sm:h-auto sm:max-h-[94vh]
+        sm:rounded-2xl sm:border sm:border-slate-300
+        sm:shadow-2xl
+        ${maxWidth}
+        ${height ?? ""}
+      `}
+      onClick={(e) => e.stopPropagation()}
     >
-
-      <div
-  className={`
-    relative
-    w-full
-    ${maxWidth}
-    ${height ?? ""}
-    max-h-[90vh]
-    min-h-0
-    overflow-y-auto
-    rounded-xl
-    bg-white
-    p-6
-    shadow-xl
-    flex
-    flex-col
-  `}
-        onClick={(e) => e.stopPropagation()}
+    <div className="relative flex h-14 shrink-0 items-center border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute left-4 flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800 text-slate-300 transition-colors hover:bg-slate-700 hover:text-white sm:left-5"
+        title="閉じる"
+        aria-label="閉じる"
       >
+        ✕
+      </button>
 
-        <div className="mb-4 flex shrink-0 items-center justify-between">
+      <h2 className="absolute left-1/2 -translate-x-1/2 truncate text-base font-bold sm:text-lg">
+        {title}
+      </h2>
 
-          <button
-            onClick={onClose}
-            className="text-xl text-gray-500 hover:text-black"
-          >
-            ✕
-          </button>
-
-          <h2 className="text-xl font-bold">
-            {title}
-          </h2>
-
-          <div>
-            {rightContent}
-          </div>
-
-        </div>
-
-        <div className="min-h-0 flex-1">
-          {children}
-        </div>
-
+      <div className="ml-auto flex shrink-0 items-center gap-2">
+        {rightContent}
       </div>
-
-    </div>,
-
-    document.body
-
-  )    
+    </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {children}
+      </div>
+    </div>
+  </div>,
+  document.body
+)  
 }
