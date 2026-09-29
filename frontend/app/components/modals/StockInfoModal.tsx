@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { FaTrashAlt } from "react-icons/fa"
@@ -9,10 +10,14 @@ import { MaintenanceType } from "../../types/maintenanceTypeTypes"
 import { TodayInspectionFrontType } from "../../types/inspectionTypes/inspectionTypes"
 import { Device } from "../../types/deviceTypes"
 import { MaintenanceTask, UpdateMaintenanceTaskDueAt, CancelMaintenanceTask, CompleteMaintenanceTask } from "../../types/taskTypes"
+
 import CommonModal from "../common/CommonModal"
 import InputModal from "../common/InputModal"
+import useInputModal from "../common/useInputModal"
+
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import { LoadingOverlay } from "../common/LoadingOverlay"
+
 import AddMaintenanceTaskModal from "../../components/modals/AddMaintenanceTaskModal"
 import { createBothMaintenanceTask } from "../../api/tasks/createBothMaintenanceTask"
 import { normalizeMaintenanceTask } from "../../mapper/taskMapper"
@@ -67,7 +72,7 @@ export default function StockInfoModal({
   const [isInputModalOpen, setIsInputModalOpen] = useState(false)
   const [inputModalTaskId, setInputModalTaskId] = useState<number | null>(null)
   const [inputModalValue, setInputModalValue] = useState("")
-
+  const inputModal = useInputModal()
   if (!isOpen || !selectedDevice) return null
 
   const managementNumber = selectedDevice.managementNumber ?? ""
@@ -151,10 +156,35 @@ export default function StockInfoModal({
   }
 
 
-  const handleMaintenanceTaskDueAt = (taskId: number, currentDueAt: string) => {
-  setInputModalTaskId(taskId)
-  setInputModalValue(currentDueAt.slice(0, 10))
-  setIsInputModalOpen(true)
+  const handleMaintenanceTaskDueAt = (
+      taskId: number,
+      currentDueAt: string
+  ) => {
+      inputModal.openInputModal({
+          title: "メンテ期限の修正",
+          label: "メンテ期限",
+          type: "date",
+          value: currentDueAt.slice(0, 10),
+          onConfirm: async (value) => {
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                  alert("YYYY-MM-DD形式で入力してください")
+                  return
+              }
+
+              await executeWithErrorAndLoading({
+                  setLoading,
+                  action: async () => {
+                      const success = await renameMaintenanceTaskDueAt({
+                          id: taskId,
+                          dueAt: `${value}T00:00:00`,
+                      })
+
+                      if (!success) return
+                      inputModal.closeInputModal()
+                  },
+              })
+          },
+      })
   }
 
   const handleInputModalConfirm = async (value: string) => {
@@ -180,74 +210,123 @@ export default function StockInfoModal({
       },
     })
   }
-  const handleManagementNumber = async () => {
+  const handleManagementNumber = async () =>
+  {
     const deviceId = selectedDevice.id
     if (!deviceId) return
-    const value = prompt("管理番号を入力", managementNumber)
-    if (value === null) return
-    await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-        const success = await renameManagementNumber(deviceId, value)
-        if (!success) return
-      },
-    })
+    inputModal.openInputModal({
+        title: "管理番号の変更",
+        label: "管理番号",
+        type: "text",
+        value: managementNumber,
+        onConfirm: async (value) => 
+        {
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                    await renameManagementNumber(
+                        selectedDevice.id,
+                        value
+                    )
+                },
+            })
+             inputModal.closeInputModal()
+        },
+    })    
   }
 
   const handleSerialNumber = async () => {
     const deviceId = selectedDevice.id
     if (!deviceId) return
-    const value = prompt("シリアル番号を入力", serialNumber)
-    if (value === null) return
-    await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-        const success = await renameSerialNumber(deviceId, value)
-        if (!success) return
-      },
-    })
+    inputModal.openInputModal({
+        title: "シリアルの変更",
+        label: "シリアル番号",
+        type: "text",
+        value: serialNumber,
+        onConfirm: async (value) => {
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                    await renameSerialNumber(
+                        selectedDevice.id,
+                        value
+                    )
+                },
+            })
+            inputModal.closeInputModal()
+        },
+    }) 
   }
 
   const handleNote = async () => {
     const deviceId = selectedDevice.id
     if (!deviceId) return
-    const value = prompt("備考を入力", note)
-    if (value === null) return
-    await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-        const success = await renameNote(deviceId, value)
-        if (!success) return
-      },
-    })
+    inputModal.openInputModal({
+        title: "備考欄の変更",
+        label: "備考欄",
+        type: "text",
+        value: note,
+        onConfirm: async (value) => {
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                    await renameNote(
+                        selectedDevice.id,
+                        value
+                    )
+                },
+            })
+        },
+    }) 
   }
 
   const handleRentalStartDate = async () => {
     const deviceId = selectedDevice.id
     if (!deviceId) return
-    const value = prompt("貸与開始日を入力 (YYYY-MM-DD)", rentalStartDate)
-    if (value === null) return
-    await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-        const success = await renameRentalDates(deviceId, value, rentalEndDate)
-        if (!success) return
-      },
-    })
+    inputModal.openInputModal({
+        title: "貸与開始日の変更",
+        label: "貸与開始日",
+        type: "date",
+        value: rentalStartDate,
+        onConfirm: async (value) => {
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                    await renameRentalDates(
+                        deviceId,
+                        value,
+                        rentalEndDate
+                    )
+                },
+            })
+            inputModal.closeInputModal()
+        },
+    }) 
   }
 
   const handleRentalEndDate = async () => {
     const deviceId = selectedDevice.id
     if (!deviceId) return
-    const value = prompt("返却日を入力 (YYYY-MM-DD)", rentalEndDate)
-    if (value === null) return
-    await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-        const success = await renameRentalDates(deviceId, rentalStartDate, value)
-        if (!success) return
-      },
-    })
+        inputModal.openInputModal({
+        title: "返却日の変更",
+        label: "返却日",
+        type: "text",
+        value: rentalEndDate,
+        onConfirm: async (value) => {
+            await executeWithErrorAndLoading({
+                setLoading,
+                action: async () => {
+                    await renameRentalDates(
+                        deviceId,
+                        rentalStartDate,
+                        value,
+                    )
+                },
+            })
+            inputModal.closeInputModal()
+        },
+    }) 
+
   }
 
     const handleAddMaintenanceTask = async (maintenanceTypeId: number) => {
@@ -587,19 +666,20 @@ export default function StockInfoModal({
           onAdd={handleAddMaintenanceTask}
         />
         
-      <InputModal
-        open={isInputModalOpen}
-        onClose={() => {
-          setIsInputModalOpen(false)
-          setInputModalTaskId(null)
-        }}
-        onConfirm={handleInputModalConfirm}
-        title="メンテ期限の修正"
-        label="メンテ期限"
-        type="text"
-        defaultValue={inputModalValue}
-        placeholder="YYYY-MM-DD"
-      />
+        <InputModal
+            open={inputModal.isOpen}
+            onClose={inputModal.closeInputModal}
+            onConfirm={inputModal.onConfirm}
+            title={inputModal.title}
+            label={inputModal.label}
+            type={inputModal.type}
+            defaultValue={inputModal.value}
+            placeholder={inputModal.placeholder}
+            required={inputModal.required}
+            min={inputModal.min}
+            max={inputModal.max}
+            step={inputModal.step}
+        />
 
       </CommonModal>
 
