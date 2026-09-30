@@ -18,6 +18,8 @@ import { executeWithErrorAndLoading } from "../../components/common/executeWithE
 
 import {LoadingOverlay} from "../common/LoadingOverlay"
 import CommonModal from "../common/CommonModal"
+import { Edit2, Plus, Trash2 } from "lucide-react"
+
 
 type Props = {
   maintenanceTypes: MaintenanceType[]
@@ -116,700 +118,567 @@ export default function MaintenanceTypeSettingsModal({
 
 
   
-return (
-  <>
-    <div className="w-full">
+  return (
+    <>
+      <div className="w-full rounded-2xl bg-slate-50 p-4 sm:p-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-      {/* =========================================================
-          Maintenance Settings Container
-      ========================================================= */}
-      <div className="rounded-2xl bg-gray-200 p-5">
+          {/* ===================================================== */}
+          {/* 左：メンテナンス追加 */}
+          {/* ===================================================== */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
-        {/* =======================================================
-            左右コンテナ
-        ======================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-          {/* =====================================================
-              左：メンテナンス追加
-          ===================================================== */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-
-            {/* タイトル */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">
+            <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
+              <h3 className="text-xs font-bold tracking-wide text-slate-700">
                 メンテナンス追加
               </h3>
-
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-[11px] text-slate-500">
                 新しいメンテナンス種別を登録します
               </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="p-4 sm:p-5">
+              <div className="space-y-4">
 
-              {/* =================================================
-                  機種
-              ================================================= */}
-              <div>
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  機種
-                </label>
+                {/* 機種 */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-slate-500">
+                    機種
+                  </label>
 
-                <select
-                  value={selectedTypeId}
-                  onChange={e => {
-                    const value = e.target.value
+                  <select
+                    value={selectedTypeId}
+                    onChange={e => {
+                      const value = e.target.value
 
-                    setSelectedTypeId(
-                      value === ""
-                        ? ""
-                        : Number(value)
-                    )
-
-                    setSelectedModelId("")
-                  }}
-                  className="
-                    w-full
-                    rounded-lg
-                    border
-                    border-gray-300
-                    bg-white
-                    px-3
-                    py-2.5
-                    text-sm
-                    text-gray-700
-                    outline-none
-                    transition
-                    focus:border-blue-500
-                    focus:ring-2
-                    focus:ring-blue-100
-                  "
-                >
-                  <option value="">
-                    選択してください
-                  </option>
-
-                  {deviceTypes.map(type => (
-                    <option
-                      key={type.id}
-                      value={type.id}
-                    >
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-
-              {/* =================================================
-                  型式
-              ================================================= */}
-              <div>
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  型式
-                </label>
-
-                <select
-                  value={selectedModelId}
-                  onChange={e => {
-                    const value = e.target.value
-
-                    setSelectedModelId(
-                      value === ""
-                        ? ""
-                        : Number(value)
-                    )
-                  }}
-                  className="
-                    w-full
-                    rounded-lg
-                    border
-                    border-gray-300
-                    bg-white
-                    px-3
-                    py-2.5
-                    text-sm
-                    text-gray-700
-                    outline-none
-                    transition
-                    focus:border-blue-500
-                    focus:ring-2
-                    focus:ring-blue-100
-                  "
-                >
-                  <option value="">
-                    共通
-                  </option>
-
-                  {filteredModels.map(model => (
-                    <option
-                      key={model.id}
-                      value={model.id}
-                    >
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-
-              {/* =================================================
-                  メンテ名
-              ================================================= */}
-              <div>
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  メンテナンス名
-                </label>
-
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="
-                    w-full
-                    rounded-lg
-                    border
-                    border-gray-300
-                    bg-white
-                    px-3
-                    py-2.5
-                    text-sm
-                    text-gray-700
-                    outline-none
-                    transition
-                    placeholder:text-gray-400
-                    focus:border-blue-500
-                    focus:ring-2
-                    focus:ring-blue-100
-                  "
-                  placeholder="使用前点検"
-                />
-              </div>
-              {/* =================================================
-                  メンテ種類
-              ================================================= */}
-
-
-              <div>
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  メンテナンス種類
-                </label>
-
-                <select
-                  value={dependDeviceStatus}
-                  onChange={e => setDependDeviceStatus(e.target.value)}
-                  className="
-                    w-full
-                    rounded-lg
-                    border
-                    border-gray-300
-                    bg-white
-                    px-3
-                    py-2.5
-                    text-sm
-                    text-gray-700
-                    outline-none
-                    transition
-                    focus:border-blue-500
-                    focus:ring-2
-                    focus:ring-blue-100
-                  "
-                >
-                  <option value="room">使用中メンテナンス</option>
-                  <option value="stock">保管中メンテナンス</option>
-                  <option value="both">定期メンテナンス</option>
-                </select>
-              </div>
-
-              {/* =================================================
-                  間隔日数
-              ================================================= */}
-              <div>
-                <label className="mb-2 block text-xs font-medium text-gray-600">
-                  間隔日数
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={intervalDays}
-                    onChange={e =>
-                      setIntervalDays(
-                        Number(e.target.value)
+                      setSelectedTypeId(
+                        value === ""
+                          ? ""
+                          : Number(value)
                       )
-                    }
+
+                      setSelectedModelId("")
+                    }}
                     className="
                       w-full
                       rounded-lg
                       border
-                      border-gray-300
-                      bg-white
+                      border-slate-200
+                      bg-slate-50
                       px-3
                       py-2.5
-                      pr-12
                       text-sm
-                      text-gray-700
+                      font-medium
+                      text-slate-700
                       outline-none
-                      transition
-                      focus:border-blue-500
+                      transition-colors
+                      focus:border-teal-500
                       focus:ring-2
-                      focus:ring-blue-100
-                    "
-                  />
-
-                  <span
-                    className="
-                      pointer-events-none
-                      absolute
-                      right-3
-                      top-1/2
-                      -translate-y-1/2
-                      text-sm
-                      text-gray-400
+                      focus:ring-teal-100
                     "
                   >
-                    日
-                  </span>
+                    <option value="">
+                      選択してください
+                    </option>
+
+                    {deviceTypes.map(type => (
+                      <option
+                        key={type.id}
+                        value={type.id}
+                      >
+                        {type.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
 
+                {/* 型式 */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-slate-500">
+                    型式
+                  </label>
 
-              {/* =================================================
-                  追加ボタン
-              ================================================= */}
-              <div className="pt-2">
+                  <select
+                    value={selectedModelId}
+                    onChange={e => {
+                      const value = e.target.value
 
-                <button
-                  onClick={handleAdd}
-                  className="
-                    w-full
-                    rounded-lg
-                    bg-blue-500
-                    px-4
-                    py-2.5
-                    text-sm
-                    font-medium
-                    text-white
-                    shadow-sm
-                    transition
-                    hover:bg-blue-600
-                    hover:shadow
-                    active:scale-[0.99]
-                  "
-                >
-                  メンテナンスを追加
-                </button>
+                      setSelectedModelId(
+                        value === ""
+                          ? ""
+                          : Number(value)
+                      )
+                    }}
+                    className="
+                      w-full
+                      rounded-lg
+                      border
+                      border-slate-200
+                      bg-slate-50
+                      px-3
+                      py-2.5
+                      text-sm
+                      font-medium
+                      text-slate-700
+                      outline-none
+                      transition-colors
+                      focus:border-teal-500
+                      focus:ring-2
+                      focus:ring-teal-100
+                    "
+                  >
+                    <option value="">
+                      共通
+                    </option>
 
-              </div>
+                    {filteredModels.map(model => (
+                      <option
+                        key={model.id}
+                        value={model.id}
+                      >
+                        {model.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            </div>
-          </div>
+                {/* メンテナンス名 */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-slate-500">
+                    メンテナンス名
+                  </label>
 
+                  <input
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="使用前点検"
+                    className="
+                      w-full
+                      rounded-lg
+                      border
+                      border-slate-200
+                      bg-slate-50
+                      px-3
+                      py-2.5
+                      text-sm
+                      text-slate-700
+                      outline-none
+                      transition-colors
+                      placeholder:text-slate-400
+                      focus:border-teal-500
+                      focus:ring-2
+                      focus:ring-teal-100
+                    "
+                  />
+                </div>
 
-          {/* =====================================================
-              右：メンテナンス一覧
-          ===================================================== */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+                {/* メンテナンス種類 */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-slate-500">
+                    メンテナンス種類
+                  </label>
 
-            {/* =================================================
-                ヘッダー
-            ================================================= */}
-            <div className="mb-5 flex items-center justify-between">
+                  <select
+                    value={dependDeviceStatus}
+                    onChange={e => setDependDeviceStatus(e.target.value)}
+                    className="
+                      w-full
+                      rounded-lg
+                      border
+                      border-slate-200
+                      bg-slate-50
+                      px-3
+                      py-2.5
+                      text-sm
+                      font-medium
+                      text-slate-700
+                      outline-none
+                      transition-colors
+                      focus:border-teal-500
+                      focus:ring-2
+                      focus:ring-teal-100
+                    "
+                  >
+                    <option value="room">
+                      使用中メンテナンス
+                    </option>
+                    <option value="stock">
+                      保管中メンテナンス
+                    </option>
+                    <option value="both">
+                      定期メンテナンス
+                    </option>
+                  </select>
+                </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">
-                  メンテナンス一覧
-                </h3>
+                {/* 間隔日数 */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-slate-500">
+                    間隔日数
+                  </label>
 
-                <p className="mt-1 text-sm text-gray-500">
-                  登録されているメンテナンス種別
-                </p>
-              </div>
-
-              <button
-                onClick={handleDelete}
-                disabled={selectedIds.length === 0}
-                className={`
-                  rounded-lg
-                  px-4
-                  py-2
-                  text-sm
-                  font-medium
-                  transition
-                  ${
-                    selectedIds.length === 0
-                      ? `
-                        cursor-not-allowed
-                        bg-gray-100
-                        text-gray-400
-                      `
-                      : `
-                        bg-red-50
-                        text-red-600
-                        hover:bg-red-100
-                      `
-                  }
-                `}
-              >
-                削除
-              </button>
-
-            </div>
-
-
-            {/* =================================================
-                件数
-            ================================================= */}
-            <div className="mb-4">
-
-              <div
-                className="
-                  inline-flex
-                  items-center
-                  rounded-full
-                  bg-gray-100
-                  px-3
-                  py-1
-                  text-xs
-                  font-medium
-                  text-gray-600
-                "
-              >
-                {maintenanceTypes.length} 件
-              </div>
-
-            </div>
-
-
-            {/* =================================================
-                一覧
-            ================================================= */}
-            <div
-              className="
-                max-h-[420px]
-                space-y-2
-                overflow-y-auto
-                pr-1
-              "
-            >
-
-              {[...maintenanceTypes]
-                .sort((a, b) => {
-
-                  const aType =
-                    deviceTypes.find(
-                      t => t.id === a.deviceTypeId
-                    )?.name ?? ""
-
-                  const bType =
-                    deviceTypes.find(
-                      t => t.id === b.deviceTypeId
-                    )?.name ?? ""
-
-                  // ① 機種名
-                  const typeCompare =
-                    aType.localeCompare(
-                      bType,
-                      "ja"
-                    )
-
-                  if (typeCompare !== 0) {
-                    return typeCompare
-                  }
-
-                  const aModel =
-                    a.deviceModelId
-                      ? deviceModels.find(
-                          m =>
-                            m.id ===
-                            a.deviceModelId
-                        )?.name ?? ""
-                      : "共通"
-
-                  const bModel =
-                    b.deviceModelId
-                      ? deviceModels.find(
-                          m =>
-                            m.id ===
-                            b.deviceModelId
-                        )?.name ?? ""
-                      : "共通"
-
-                  // ② 型式名
-                  const modelCompare =
-                    aModel.localeCompare(
-                      bModel,
-                      "ja"
-                    )
-
-                  if (modelCompare !== 0) {
-                    return modelCompare
-                  }
-
-                  // ③ メンテ名
-                  return a.name.localeCompare(
-                    b.name,
-                    "ja"
-                  )
-                })
-                .map(mt => {
-
-                  const typeName =
-                    deviceTypes.find(
-                      t =>
-                        t.id ===
-                        mt.deviceTypeId
-                    )?.name ?? "不明"
-
-                  const modelName =
-                    mt.deviceModelId
-                      ? deviceModels.find(
-                          m =>
-                            m.id ===
-                            mt.deviceModelId
-                        )?.name ?? "不明"
-                      : "共通"
-
-                  return (
-                    <div
-                      key={mt.id}
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={intervalDays}
+                      onChange={e =>
+                        setIntervalDays(
+                          Number(e.target.value)
+                        )
+                      }
                       className="
-                        group
-                        rounded-xl
+                        w-full
+                        rounded-lg
                         border
-                        border-gray-200
-                        bg-white
-                        p-4
-                        transition
-                        hover:border-gray-300
-                        hover:bg-gray-50
-                        hover:shadow-sm
+                        border-slate-200
+                        bg-slate-50
+                        px-3
+                        py-2.5
+                        pr-12
+                        text-sm
+                        text-slate-700
+                        outline-none
+                        transition-colors
+                        focus:border-teal-500
+                        focus:ring-2
+                        focus:ring-teal-100
                       "
-                    >
+                    />
 
-                      <div className="flex items-center justify-between gap-4">
-
-                        {/* =====================================
-                            左：情報
-                        ===================================== */}
-                        <div className="flex min-w-0 items-start gap-3">
-
-                          {/* チェックボックス */}
-                          <div className="pt-1">
-
-                            <input
-                              type="checkbox"
-                              checked={selectedIds.includes(
-                                mt.id
-                              )}
-                              onChange={() =>
-                                toggleCheck(mt.id)
-                              }
-                              className="
-                                h-4
-                                w-4
-                                rounded
-                                border-gray-300
-                                text-blue-500
-                                focus:ring-blue-400
-                              "
-                            />
-
-                          </div>
-
-
-                          {/* 情報 */}
-                          <div className="min-w-0">
-
-                            <div
-                              className="
-                                truncate
-                                text-sm
-                                font-semibold
-                                text-gray-800
-                              "
-                            >
-                              {mt.name}
-                            </div>
-
-                            <div
-                              className="
-                                mt-1
-                                truncate
-                                text-xs
-                                text-gray-500
-                              "
-                            >
-                              {typeName}
-                              {" / "}
-                              {modelName}
-                            </div>
-
-
-                            <div className="text-xs text-gray-500">
-                              メンテナンス種類：
-                              {mt.dependDeviceStatus === "room"
-                                ? "使用中メンテナンス"
-                                : mt.dependDeviceStatus === "stock"
-                                  ? "保管中メンテナンス"
-                                  : "定期メンテナンス"}
-                            </div>
-
-
-                            <div
-                              className="
-                                mt-2
-                                inline-flex
-                                items-center
-                                rounded-full
-                                bg-gray-100
-                                px-2.5
-                                py-1
-                                text-xs
-                                font-medium
-                                text-gray-600
-                              "
-                            >
-                              間隔 {mt.intervalDays}日
-                            </div>
-
-                          </div>
-
-                        </div>
-
-
-                        {/* =====================================
-                            右：編集
-                        ===================================== */}
-                        <button
-                          onClick={async () => {
-
-                            const newName =
-                              prompt(
-                                "メンテ名",
-                                mt.name
-                              )
-
-                            if (
-                              newName === null
-                            ) {
-                              return
-                            }
-
-                            const newInterval =
-                              prompt(
-                                "間隔日数",
-                                `${mt.intervalDays}`
-                              )
-
-                            if (
-                              newInterval === null
-                            ) {
-                              return
-                            }
-
-                            // promptはstring定義のためnumberに変換
-                            const intervalDays =
-                              Number(
-                                newInterval
-                              )
-
-                            if (
-                              Number.isNaN(
-                                intervalDays
-                              )
-                            ) {
-                              alert(
-                                "数値を入力してください"
-                              )
-                              return
-                            }
-
-                            await executeWithErrorAndLoading({
-                              setLoading,
-                              action: async () => {
-
-                                await updateMaintenanceTypeTransaction({
-                                  maintenanceType: {
-                                    ...mt,
-                                    name:
-                                      newName,
-                                    intervalDays,
-                                    dependDeviceStatus
-                                  },
-                                  setMaintenanceTypes
-                                })
-
-                              }
-                            })
-
-                          }}
-                          className="
-                            shrink-0
-                            rounded-lg
-                            bg-gray-100
-                            px-3
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-600
-                            transition
-                            hover:bg-gray-200
-                            hover:text-gray-800
-                          "
-                        >
-                          ✏
-                        </button>
-
-                      </div>
-
-                    </div>
-                  )
-                })}
-
-
-              {/* =================================================
-                  データなし
-              ================================================= */}
-              {maintenanceTypes.length === 0 && (
-
-                <div
-                  className="
-                    flex
-                    min-h-[180px]
-                    items-center
-                    justify-center
-                    rounded-xl
-                    border
-                    border-dashed
-                    border-gray-300
-                    bg-gray-50
-                  "
-                >
-                  <div className="text-center">
-
-                    <div className="text-sm font-medium text-gray-500">
-                      メンテナンス種別なし
-                    </div>
-
-                    <div className="mt-1 text-xs text-gray-400">
-                      左側からメンテナンスを追加してください
-                    </div>
-
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                      日
+                    </span>
                   </div>
                 </div>
 
-              )}
+                {/* 追加 */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleAdd}
+                    className="
+                      inline-flex
+                      h-10
+                      w-full
+                      items-center
+                      justify-center
+                      gap-1.5
+                      rounded-lg
+                      bg-teal-700
+                      px-4
+                      text-xs
+                      font-bold
+                      text-white
+                      transition-colors
+                      hover:bg-teal-800
+                    "
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    メンテナンスを追加
+                  </button>
+                </div>
 
+              </div>
+            </div>
+          </div>
+
+          {/* ===================================================== */}
+          {/* 右：メンテナンス一覧 */}
+          {/* ===================================================== */}
+          <div className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-xs font-bold tracking-wide text-slate-700">
+                    メンテナンス一覧
+                  </h3>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    登録されているメンテナンス種別
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={selectedIds.length === 0}
+                  className="
+                    inline-flex
+                    h-8
+                    shrink-0
+                    items-center
+                    gap-1.5
+                    rounded-lg
+                    border
+                    px-3
+                    text-[11px]
+                    font-bold
+                    transition-colors
+                    disabled:cursor-not-allowed
+                    disabled:border-slate-200
+                    disabled:bg-slate-100
+                    disabled:text-slate-400
+                    enabled:border-rose-200
+                    enabled:bg-rose-50
+                    enabled:text-rose-600
+                    enabled:hover:bg-rose-100
+                  "
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  削除
+                </button>
+              </div>
             </div>
 
+            <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-5">
+
+              {/* 件数 */}
+              <div className="mb-3 shrink-0">
+                <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">
+                  {maintenanceTypes.length} 件
+                </span>
+              </div>
+
+              {/* 一覧 */}
+              <div className="min-h-0 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+                {[...maintenanceTypes]
+                  .sort((a, b) => {
+                    const aType =
+                      deviceTypes.find(
+                        t => t.id === a.deviceTypeId
+                      )?.name ?? ""
+
+                    const bType =
+                      deviceTypes.find(
+                        t => t.id === b.deviceTypeId
+                      )?.name ?? ""
+
+                    const typeCompare =
+                      aType.localeCompare(
+                        bType,
+                        "ja"
+                      )
+
+                    if (typeCompare !== 0) {
+                      return typeCompare
+                    }
+
+                    const aModel =
+                      a.deviceModelId
+                        ? deviceModels.find(
+                            m =>
+                              m.id ===
+                              a.deviceModelId
+                          )?.name ?? ""
+                        : "共通"
+
+                    const bModel =
+                      b.deviceModelId
+                        ? deviceModels.find(
+                            m =>
+                              m.id ===
+                              b.deviceModelId
+                          )?.name ?? ""
+                        : "共通"
+
+                    const modelCompare =
+                      aModel.localeCompare(
+                        bModel,
+                        "ja"
+                      )
+
+                    if (modelCompare !== 0) {
+                      return modelCompare
+                    }
+
+                    return a.name.localeCompare(
+                      b.name,
+                      "ja"
+                    )
+                  })
+                  .map(mt => {
+                    const typeName =
+                      deviceTypes.find(
+                        t =>
+                          t.id ===
+                          mt.deviceTypeId
+                      )?.name ?? "不明"
+
+                    const modelName =
+                      mt.deviceModelId
+                        ? deviceModels.find(
+                            m =>
+                              m.id ===
+                              mt.deviceModelId
+                          )?.name ?? "不明"
+                        : "共通"
+
+                    return (
+                      <div
+                        key={mt.id}
+                        className="
+                          rounded-xl
+                          border
+                          border-slate-200
+                          bg-white
+                          p-3
+                          transition-colors
+                          hover:border-slate-300
+                          hover:bg-slate-50
+                        "
+                      >
+                        <div className="flex items-start justify-between gap-3">
+
+                          <div className="flex min-w-0 items-start gap-3">
+
+                            <div className="pt-1">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(mt.id)}
+                                onChange={() =>
+                                  toggleCheck(mt.id)
+                                }
+                                className="
+                                  h-4
+                                  w-4
+                                  cursor-pointer
+                                  rounded
+                                  border-slate-300
+                                  text-teal-700
+                                  focus:ring-teal-500
+                                "
+                              />
+                            </div>
+
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-bold text-slate-900">
+                                {mt.name}
+                              </div>
+
+                              <div className="mt-1 truncate text-[11px] font-medium text-slate-500">
+                                {typeName}
+                                {" / "}
+                                {modelName}
+                              </div>
+
+                              <div className="mt-1 text-[11px] text-slate-500">
+                                メンテナンス種類：
+                                {mt.dependDeviceStatus === "room"
+                                  ? "使用中メンテナンス"
+                                  : mt.dependDeviceStatus === "stock"
+                                    ? "保管中メンテナンス"
+                                    : "定期メンテナンス"}
+                              </div>
+
+                              <div className="mt-2 inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-600">
+                                間隔 {mt.intervalDays}日
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 編集 */}
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const newName =
+                                prompt(
+                                  "メンテ名",
+                                  mt.name
+                                )
+
+                              if (
+                                newName === null
+                              ) {
+                                return
+                              }
+
+                              const newInterval =
+                                prompt(
+                                  "間隔日数",
+                                  `${mt.intervalDays}`
+                                )
+
+                              if (
+                                newInterval === null
+                              ) {
+                                return
+                              }
+
+                              const intervalDays =
+                                Number(
+                                  newInterval
+                                )
+
+                              if (
+                                Number.isNaN(
+                                  intervalDays
+                                )
+                              ) {
+                                alert(
+                                  "数値を入力してください"
+                                )
+                                return
+                              }
+
+                              await executeWithErrorAndLoading({
+                                setLoading,
+                                action: async () => {
+                                  await updateMaintenanceTypeTransaction({
+                                    maintenanceType: {
+                                      ...mt,
+                                      name: newName,
+                                      intervalDays,
+                                      dependDeviceStatus
+                                    },
+                                    setMaintenanceTypes
+                                  })
+                                }
+                              })
+                            }}
+                            aria-label="メンテナンスを編集"
+                            className="
+                              flex
+                              h-8
+                              w-8
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-lg
+                              text-slate-400
+                              transition-colors
+                              hover:bg-slate-100
+                              hover:text-slate-700
+                            "
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                {maintenanceTypes.length === 0 && (
+                  <div className="flex min-h-[180px] items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                    <div className="text-center">
+                      <div className="text-xs font-bold text-slate-500">
+                        メンテナンス種別なし
+                      </div>
+                      <div className="mt-1 text-[11px] text-slate-400">
+                        左側からメンテナンスを追加してください
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
           </div>
 
         </div>
       </div>
-    </div>
 
-    <LoadingOverlay loading={loading} />
-  </>
-)  
+      <LoadingOverlay loading={loading} />
+    </>
+  )
 }

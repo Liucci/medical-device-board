@@ -10,9 +10,13 @@ import {
   Settings2,
   Wrench,
   GripVertical,
+  LayoutGrid,
+  Warehouse,
   Biohazard,
   Shield,
   ClipboardCheck,
+  ClipboardPlus,
+  ClipboardPenLine,
   ListChecks,
   Tags
 } from "lucide-react"
@@ -182,7 +186,7 @@ export default function SettingsModal({
     {
       label: "病棟レイアウト",
       mode: "wardOrder" as const,
-      icon: GripVertical,      
+      icon: LayoutGrid,      
       onClick: () => {
       if (!checkAdminPermission()) return
       setMode("wardOrder")  
@@ -192,7 +196,7 @@ export default function SettingsModal({
         {
       label: "ストックエリアレイアウト",
       mode: "stockAreaOrder" as const,
-      icon: GripVertical,      
+      icon: Warehouse,      
       onClick: () => {
       if (!checkAdminPermission()) return
       setMode("stockAreaOrder")  
@@ -201,7 +205,7 @@ export default function SettingsModal({
     },
     {
         label: "点検表作成",
-        icon: ClipboardCheck,
+        icon: ClipboardPlus,
         onClick: () => {
           if (!checkAdminPermission()) return
           router.push("/inspection-editor")
@@ -209,7 +213,7 @@ export default function SettingsModal({
     },
     {
       label: "点検表編集",
-      icon: ClipboardCheck,
+      icon: ClipboardPenLine,
       onClick: () => {
         if (!checkAdminPermission()) return
         router.push("/inspection-editor/edit")
@@ -236,66 +240,73 @@ export default function SettingsModal({
 
   ]
 
-  return (
-    <>
-<CommonModal
-  open={true}
-  onClose={onClose}
-  title="設定"
-  maxWidth={
-    mode === "maintenance"
-    || mode === "deviceType"
-    || mode === "ward"
-      ? "max-w-[1000px]"
-      : mode === "stock"
-      ||mode === "checklistCategory"
-      ? "max-w-[600px]"
-      : "max-w-[500px]"
-  }
->
-      
+return (
+  <>
+    <CommonModal
+      open={true}
+      onClose={onClose}
+      title="設定"
+      maxWidth={
+        mode === "maintenance"
+        || mode === "deviceType"
+        || mode === "ward"
+          ? "max-w-[1000px]"
+          : mode === "stock"
+          || mode === "checklistCategory"
+          ? "max-w-[600px]"
+          : "max-w-[500px]"
+      }
+    >
+      <div className="bg-slate-50 p-4 sm:p-5">
         {mode === "menu" && (
-          <>
-
-            <div className="grid grid-cols-2 gap-3">
-              
-              {menuButtons.map(({ label, mode, icon: Icon, onClick }) => (
-                  <button
-                      key={label}
-                      className={`
-                          flex h-24 flex-col items-center justify-center gap-2
-                          rounded-2xl bg-white text-black
-                          border border-gray-300 shadow-sm
-                          transition hover:bg-gray-100 hover:shadow-md
-                      `}
-                      onClick={() => {
-                          if (onClick) {
-                              onClick()
-                          } else if (mode) {
-                              setMode(mode)
-                          }
-                      }}
-                      aria-label={label}
-                  >
-                      <span className="text-xs">
-                          {label}
-                      </span>
-
-                      <Icon size={38} strokeWidth={2} />
-                  </button>
-              ))}
-
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs font-bold tracking-wide text-slate-700">
+                設定項目
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">
+                管理する項目を選択してください。
+              </p>
             </div>
-          </>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {menuButtons.map(({ label, mode, icon: Icon, onClick }) => (
+                <button
+                  key={label}
+                  className="flex min-h-20 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50"
+                  onClick={() => {
+                    if (onClick) {
+                      onClick()
+                    } else if (mode) {
+                      setMode(mode)
+                    }
+                  }}
+                  aria-label={label}
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-500">
+                    <Icon className="h-4 w-4" strokeWidth={2} />
+                  </div>
+
+                  <span className="text-sm font-bold text-slate-700">
+                    {label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {mode === "stock" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
+
             <StockAreaSettingsModal
               stockAreas={stockAreas}
               setStockAreas={setStockAreas}
@@ -305,11 +316,14 @@ export default function SettingsModal({
 
         {mode === "ward" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
             <WardAreaSettingsModal
               wards={wards}
@@ -322,13 +336,16 @@ export default function SettingsModal({
 
         {mode === "deviceType" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
+
             <DeviceTypeSettingsModal
-            
               deviceTypes={deviceTypes}
               setDeviceTypes={setDeviceTypes}
               deviceModels={deviceModels}
@@ -339,11 +356,15 @@ export default function SettingsModal({
 
         {mode === "maintenance" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
+
             <MaintenanceSettingsModal
               maintenanceTypes={maintenanceTypes}
               setMaintenanceTypes={setMaintenanceTypes}
@@ -355,11 +376,14 @@ export default function SettingsModal({
 
         {mode === "infection" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
             <InfectionSettingModal
               infectionTypes={infectionTypes}
@@ -367,10 +391,14 @@ export default function SettingsModal({
             />
           </>
         )}
+
         {mode === "hospitalSetting" && (
           <>
-            <div className="flex justify-start mb-4">
-              <button onClick={() => setMode("menu")}>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
                 ← 戻る
               </button>
             </div>
@@ -382,13 +410,17 @@ export default function SettingsModal({
             />
           </>
         )}
+
         {mode === "wardOrder" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
             <WardOrderModal
               isOpen={true}
@@ -401,11 +433,14 @@ export default function SettingsModal({
 
         {mode === "stockAreaOrder" && (
           <>
-          <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-              ← 戻る
-            </button>
-          </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
             <StockAreaOrderModal
               isOpen={true}
@@ -415,40 +450,45 @@ export default function SettingsModal({
             />
           </>
         )}
+
         {mode === "checklistType" && (
-    <>
-        <div className="flex justify-start mb-4">
-            <button onClick={() => setMode("menu")}>
-                ← 戻る
-            </button>
-        </div>
-
-        <EditChecklistTypeModal 
-            inspectionTypes={inspectionTypes}
-            setInspectionTypes={setInspectionTypes}
-
-        />
-      </>
-      )}
-      {mode === "checklistCategory" && (
           <>
-              <div className="flex justify-start mb-4">
-                  <button onClick={() => setMode("menu")}>
-                      ← 戻る
-                  </button>
-              </div>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
-              <EditChecklistItemCategoryModal
-                  inspectionItemCategories={inspectionItemCategories}
-                  setInspectionItemCategories={setInspectionItemCategories} 
-                  onclose={() => setMode("menu")}
-              />
-
+            <EditChecklistTypeModal
+              inspectionTypes={inspectionTypes}
+              setInspectionTypes={setInspectionTypes}
+            />
           </>
-      )}
+        )}
 
-  </CommonModal>
+        {mode === "checklistCategory" && (
+          <>
+            <div className="mb-4">
+              <button
+                onClick={() => setMode("menu")}
+                className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+              >
+                ← 戻る
+              </button>
+            </div>
 
+            <EditChecklistItemCategoryModal
+              inspectionItemCategories={inspectionItemCategories}
+              setInspectionItemCategories={setInspectionItemCategories}
+              onclose={() => setMode("menu")}
+            />
+          </>
+        )}
+      </div>
+    </CommonModal>
   </>
-  )
+)  
 }

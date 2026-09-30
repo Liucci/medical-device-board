@@ -1401,3 +1401,202 @@ Strong information hierarchy
 The goal is not to make Devix visually flashy.
 
 The goal is to make Devix feel like a reliable digital medical-device control surface that clinical staff can understand immediately and operate confidently.
+
+---
+
+# 38. Information Card Display Rules
+
+機器情報・病棟情報・患者情報など、個別の情報をカードとして表示する場合は、以下のルールを適用する。
+
+## 38.1 編集可能な情報
+
+ユーザーが現在の画面から編集できる情報は、薄い灰色の背景を使用する。
+
+Recommended:
+
+```tsx
+bg-slate-50
+border-slate-200
+rounded-lg
+```
+
+編集可能であることを視覚的に伝え、操作対象を明確にする。
+
+例:
+
+- ME管理番号
+- シリアル番号
+- 患者名
+- 備考
+- 病棟・病室など、画面上で変更可能な情報
+
+## 38.2 編集できない情報
+
+ユーザーが現在の画面から編集できない情報は、白背景のカードを使用する。
+
+Recommended:
+
+```tsx
+bg-white
+border-slate-200
+rounded-lg
+```
+
+編集可能なカードとの違いを背景色で明確にする。
+
+色そのものを装飾目的で使用するのではなく、「編集可能 / 編集不可」という情報構造を伝えるために使用する。
+
+## 38.3 カード内の基本構成
+
+情報カードは原則として以下の構成とする。
+
+```text
+┌─────────────────────────┐
+│ Title                   │
+│ Value              [✎]  │
+└─────────────────────────┘
+```
+
+### Title
+
+情報の項目名を小さく表示する。
+
+Recommended:
+
+```tsx
+text-[11px]
+font-medium
+text-slate-400
+```
+
+### Value
+
+実際の情報を強調して表示する。
+
+Recommended:
+
+```tsx
+text-sm
+font-bold
+text-slate-900
+```
+
+識別番号などは必要に応じて monospace を使用する。
+
+```tsx
+font-mono
+```
+
+### Edit Button
+
+編集可能なカードには、Value の右側にペンシルアイコンによる編集ボタンを配置する。
+
+編集ボタンは控えめにする。
+
+Recommended:
+
+```tsx
+text-slate-400
+hover:text-slate-700
+hover:bg-slate-100
+```
+
+大きな「編集」ボタンを配置するのではなく、ペンシルアイコンによって編集可能であることを示す。
+
+既存の編集処理・ハンドラー・データ更新処理は変更せず、表示レイヤーとしてこのパターンを適用する。
+
+## 38.4 対になる情報の横並び
+
+情報量が少なく、2つの情報を対にして表示した方が理解しやすい場合は、カードを横並びにする。
+
+代表例:
+
+- 機種名 / 型式名
+- 病棟名 / 病室名
+- ME管理番号 / シリアル番号
+
+Recommended:
+
+```tsx
+<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+  ...
+</div>
+```
+
+モバイルでは1列、十分な画面幅では2列とする。
+
+## 38.5 横並びにする判断基準
+
+横並びにするかどうかは、単にカード数を減らすことではなく、「2つの情報を一組として理解できるか」で判断する。
+
+横並びに適する例:
+
+```text
+機種名        型式名
+Servo-i       12345
+```
+
+```text
+病棟          病室
+ICU           12号室
+```
+
+横並びにしない例:
+
+```text
+患者名
+山田 太郎
+```
+
+```text
+感染区分
+MRSA
+```
+
+患者名や感染区分のように、それぞれ単独で意味を持ち、情報の重要度や表示条件が異なるものは縦方向に配置する。
+
+## 38.6 Canonical Reference
+
+機種名・型式名などの対になる情報を横並びで表示する場合は、現在の `RoomDeviceInfoModal` に採用されている機種名・型式名のUIを基準とする。
+
+新しい画面で独自のカード表現を作らず、既存のDevix UIパターンを再利用する。
+
+## 38.7 Information Card Decision Rule
+
+AIがDevix UIを変更する際は、情報カードを実装する前に以下を判断する。
+
+1. この情報は現在の画面から編集可能か？
+2. 編集可能なら `bg-slate-50` を使用する。
+3. 編集不可なら `bg-white` を使用する。
+4. 編集可能な情報にはペンシルアイコンの編集操作を配置する。
+5. 情報量が少なく、意味的に対になる2項目は横並びを検討する。
+6. 対にならない情報は無理に横並びにしない。
+7. モバイルでは横並びを解除し、1列にする。
+8. 既存の `RoomDeviceInfoModal` の機種名・型式名UIを基準パターンとして再利用する。
+9. UI変更時も既存の編集ロジック、ハンドラー、状態、API処理は変更しない。
+
+このルールにより、機器情報・配置情報・患者情報などの表示方法を画面ごとに変えず、Devix全体で統一された情報カード表現を維持する。
+
+## Editable Information — Edit Icon
+
+編集可能な情報には編集アイコンを配置する。
+
+原則として Lucide の Edit2 / Edit 系アイコンを使用する。
+
+推奨サイズ:
+
+```tsx
+h-3.5 w-3.5
+```
+
+推奨スタイル:
+
+```tsx
+text-slate-400
+hover:bg-slate-100
+hover:text-slate-700
+```
+
+編集アイコンは情報カード内に控えめに配置し、編集可能であることを明確に示す。
+
+---

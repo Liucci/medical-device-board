@@ -54,37 +54,73 @@ export default function RoomModal({
       title="病室登録"
       maxWidth="max-w-[600px]"
     >
-      <div className="w-full rounded-xl bg-gray-200 p-5">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <div className="space-y-5">
+      <div className="w-full rounded-xl bg-slate-50 p-4 sm:p-5">
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="space-y-5 p-4 sm:p-5">
+
+            {/* ===================================================== */}
+            {/* 病室情報 */}
+            {/* ===================================================== */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className="text-xs font-bold tracking-wide text-slate-700">
                 病室情報
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+
+              <p className="mt-1 text-[11px] text-slate-500">
                 機器を配置する病室と患者名を入力してください。
               </p>
             </div>
+
+            {/* ===================================================== */}
+            {/* 病棟 */}
+            {/* ===================================================== */}
             <div>
-              <label className="text-xs font-medium text-gray-600">
+              <label className="mb-2 block text-xs font-medium text-slate-500">
                 病棟
               </label>
-              <div className="mt-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700">
+
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-700">
                 {ward?.name ?? ""}
               </div>
             </div>
+
+            {/* ===================================================== */}
+            {/* 病室 */}
+            {/* ===================================================== */}
             <div>
-              <label className="text-xs font-medium text-gray-600">
+              <label className="mb-2 block text-xs font-medium text-slate-500">
                 病室
               </label>
+
               <select
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="
+                  w-full
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  px-3
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-slate-700
+                  outline-none
+                  transition-colors
+                  focus:border-teal-500
+                  focus:ring-2
+                  focus:ring-teal-100
+                "
                 value={selectedRoomId ?? ""}
-                onChange={(e) => setSelectedRoomId(Number(e.target.value))}
+                onChange={(e) =>
+                  setSelectedRoomId(
+                    Number(e.target.value)
+                  )
+                }
               >
                 <option value="">
                   病室を選択
                 </option>
+
                 {filteredRooms.map(r => (
                   <option key={r.id} value={r.id}>
                     {r.name}
@@ -92,39 +128,98 @@ export default function RoomModal({
                 ))}
               </select>
             </div>
+
+            {/* ===================================================== */}
+            {/* 患者名 */}
+            {/* ===================================================== */}
             <div>
-              <label className="text-xs font-medium text-gray-600">
+              <label className="mb-2 block text-xs font-medium text-slate-500">
                 患者名
               </label>
+
               <input
                 type="text"
                 value={patientName}
-                onChange={(e) => setPatientName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                onChange={(e) =>
+                  setPatientName(e.target.value)
+                }
+                className="
+                  w-full
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  px-3
+                  py-2.5
+                  text-sm
+                  text-slate-700
+                  outline-none
+                  transition-colors
+                  placeholder:text-slate-400
+                  focus:border-teal-500
+                  focus:ring-2
+                  focus:ring-teal-100
+                "
                 placeholder="患者名を入力"
               />
             </div>
-            <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+
+            {/* ===================================================== */}
+            {/* ボタン */}
+            {/* ===================================================== */}
+            <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
               <button
+                type="button"
                 onClick={onClose}
-                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+                className="
+                  h-10
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  px-4
+                  text-xs
+                  font-bold
+                  text-slate-700
+                  transition-colors
+                  hover:bg-slate-100
+                "
               >
                 キャンセル
               </button>
+
               <button
+                type="button"
                 onClick={() => {
                   if (!selectedRoomId) return
-                  onSubmit(selectedRoomId, patientName)
+                  onSubmit(
+                    selectedRoomId,
+                    patientName
+                  )
                 }}
                 disabled={!selectedRoomId}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                className="
+                  h-10
+                  rounded-lg
+                  bg-teal-700
+                  px-5
+                  text-xs
+                  font-bold
+                  text-white
+                  transition-colors
+                  hover:bg-teal-800
+                  disabled:cursor-not-allowed
+                  disabled:bg-slate-300
+                "
               >
                 決定
               </button>
             </div>
+
           </div>
         </div>
       </div>
     </CommonModal>
   )
+  
 }

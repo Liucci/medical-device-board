@@ -18,48 +18,56 @@ export default function ButtonGrid({
 }: Props) {
   return (
     <button
+      type="button"
       onClick={onAdd}
-        className="
-          w-full
-          h-20
-          rounded-2xl
+      className="
+        w-full
+        h-10
+        rounded-lg
 
-          bg-white
-          text-black
+        bg-white
+        text-slate-700
 
-          border
-          border-gray-300
+        border
+        border-slate-200
 
-          shadow-sm
+        flex
+        items-center
+        gap-2
 
-          flex
-          flex-col
-          items-center
-          justify-center
-          gap-1
+        px-3
 
-          hover:bg-gray-100
-          hover:shadow-md
+        hover:bg-slate-50
+        hover:border-slate-300
+        hover:text-slate-900
 
-          transition
-        "    
-        >
-      <span className={titleSize}>
-        {title}
-      </span>
-
+        transition-colors
+      "
+    >
       {icon && (
         <span
           className={`
+            shrink-0
             flex
             items-center
             justify-center
+            text-slate-500
             ${iconSize}
           `}
         >
           {icon}
         </span>
       )}
+
+      <span
+        className={`
+          whitespace-nowrap
+          font-bold
+          ${titleSize}
+        `}
+      >
+        {title}
+      </span>
     </button>
   )
 }

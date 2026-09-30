@@ -18,8 +18,6 @@ import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionIte
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
-//test用
-import { testAddInspectionChecklistItemOptions } from "../api/inspection/inspectionChecklistItemOptions/testAddInspectionChecklistItemOptions"
 //modal
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
@@ -44,14 +42,12 @@ import {
   FileText,
   LogOut,
   UserPlus,
+  UserCircle,
   ClipboardCheck,
-  TestTube,
-  Shield,
   ChevronLeft,
   ChevronRight,
 
 } from "lucide-react"
-//テストボタン用
 
 
 //supabase
@@ -207,201 +203,176 @@ export default function ButtonPanel({
   }
 
 
-  return (
-    <>
-<div
-  className="relative h-full"
-  onMouseEnter={() => setIsPanelOpen(true)}
-  onMouseLeave={() => setIsPanelOpen(false)}
->
-  {/* 右端の開閉ボタン */}
-  <button
-    type="button"
-    onClick={() => setIsPanelOpen(prev => !prev)}
-    className="
-      absolute
-      right-0
-      top-1/2
-      -translate-y-1/2
-
-      w-7
-      h-20
-
-      flex
-      items-center
-      justify-center
-
-      rounded-l-xl
-
-      bg-white
-      border
-      border-r-0
-      border-gray-300
-
-      shadow-md
-
-      text-gray-500
-
-      hover:bg-gray-50
-      hover:text-gray-700
-
-      transition-all
-      duration-200
-
-      z-30
-    "
-    aria-label="メニューを開閉"
-  >
-    {isPanelOpen ? (
-      <ChevronRight size={20} />
-    ) : (
-      <ChevronLeft size={20} />
-    )}
-  </button>
-
-
-  {/* メニューパネル */}
-  <div
-    className={`
-      absolute
-      top-0
-      right-0
-
-      h-full
-      w-[110px]
-
-      bg-gray-50
-      border-l
-      border-gray-300
-      shadow-2xl
-
-      px-2
-      py-4
-
-      overflow-y-auto
-
-      transition-transform
-      duration-300
-      ease-out
-
-      ${
-        isPanelOpen
-          ? "translate-x-0"
-          : "translate-x-full"
-      }
-    `}
-  >
-
-    <div className="flex flex-col">
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          OpenModal()
-        }}
-        title="新規"
-        titleSize="text-xs"
-        icon={<Plus size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          openHistory()
-        }}
-        title="履歴"
-        titleSize="text-xs"
-        icon={<History size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          openSettings()
-        }}
-        title="設定"
-        titleSize="text-xs"
-        icon={<Settings size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          openDeviceList()
-        }}
-        title="一覧"
-        titleSize="text-xs"
-        icon={<FileText size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          openInspectionResult()
-        }}
-        title="点検結果"
-        titleSize="text-xs"
-        icon={<ClipboardCheck size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          openInvite()
-        }}
-        title="招待"
-        titleSize="text-xs"
-        icon={<UserPlus size={38} />}
-      />
-
-      <div className="h-4" />
-
-      <ButtonGrid
-        onAdd={() => {
-          setIsPanelOpen(false)
-          handleLogout()
-        }}
-        title="終了"
-        titleSize="text-xs"
-        icon={<LogOut size={38} />}
-      />
-
-    </div>
-
-
-    {/* アカウント情報 */}
+return (
+  <>
     <div
-      onClick={() => {
-        setIsPanelOpen(false)
-        setOpenAccountInfoModal(true)
-      }}
-      className="
-        mt-4
-        pt-4
-        text-xs
-        text-gray-600
-        border-t
-        cursor-pointer
-      "
+      className="relative h-full"
+      onMouseEnter={() => setIsPanelOpen(true)}
+      onMouseLeave={() => setIsPanelOpen(false)}
     >
-      <div>{userName}</div>
-      <div>{role}</div>
-    </div>
+      {/* 右端の開閉ボタン */}
+      <button
+        type="button"
+        onClick={() => setIsPanelOpen(prev => !prev)}
+        className="
+          absolute
+          right-0
+          top-1/2
+          -translate-y-1/2
 
-  </div>
+          w-7
+          h-16
 
+          flex
+          items-center
+          justify-center
 
+          rounded-l-lg
 
+          bg-white
+          border
+          border-r-0
+          border-slate-200
+
+          shadow-sm
+
+          text-slate-400
+
+          hover:bg-slate-50
+          hover:text-slate-700
+
+          transition-colors
+          duration-200
+
+          z-30
+        "
+        aria-label="メニューを開閉"
+      >
+        {isPanelOpen ? (
+          <ChevronRight size={18} />
+        ) : (
+          <ChevronLeft size={18} />
+        )}
+      </button>
+
+      {/* メニューパネル */}
+      <div
+        className={`
+          absolute
+          top-0
+          right-0
+
+          h-full
+          w-[120px]
+
+          bg-slate-50
+          border-l
+          border-slate-200
+          shadow-xl
+
+          px-2
+          py-3
+
+          overflow-y-auto
+
+          transition-transform
+          duration-300
+          ease-out
+
+          ${
+            isPanelOpen
+              ? "translate-x-0"
+              : "translate-x-full"
+          }
+        `}
+      >
+        <div className="flex flex-col gap-1.5">
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              OpenModal()
+            }}
+            title="新規"
+            titleSize="text-xs"
+            icon={<Plus size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              openHistory()
+            }}
+            title="履歴"
+            titleSize="text-xs"
+            icon={<History size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              openSettings()
+            }}
+            title="設定"
+            titleSize="text-xs"
+            icon={<Settings size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              openDeviceList()
+            }}
+            title="一覧"
+            titleSize="text-xs"
+            icon={<FileText size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              openInspectionResult()
+            }}
+            title="点検結果"
+            titleSize="text-xs"
+            icon={<ClipboardCheck size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              openInvite()
+            }}
+            title="招待"
+            titleSize="text-xs"
+            icon={<UserPlus size={16} />}
+          />
+
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              handleLogout()
+            }}
+            title="終了"
+            titleSize="text-xs"
+            icon={<LogOut size={16} />}
+          />
+
+        </div>
+
+        {/* アカウント */}
+        <div className="mt-3 pt-3 border-t border-slate-200">
+          <ButtonGrid
+            onAdd={() => {
+              setIsPanelOpen(false)
+              setOpenAccountInfoModal(true)
+            }}
+            title="アカウント"
+            titleSize="text-xs"
+            icon={<UserCircle size={16} />}
+          />
+        </div>        
+      </div>
 
       {openDeviceModal &&
         <DeviceModal
@@ -414,7 +385,6 @@ export default function ButtonPanel({
           hospitalId={hospitalId}
           setStockLastUpdated={setStockLastUpdated}
           setWardLastUpdated={setWardLastUpdated}
-
         />
       }
 
@@ -441,10 +411,10 @@ export default function ButtonPanel({
           inspectionTypes={inspectionTypes}
           setInspectionTypes={setInspectionTypes}
           inspectionItemCategories={inspectionItemCategories}
-          setInspectionItemCategories={setInspectionItemCategories}    
-
+          setInspectionItemCategories={setInspectionItemCategories}
         />
       }
+
       {openHistoryModal &&
         <HistoryModal
           isOpen={openHistoryModal}
@@ -453,6 +423,7 @@ export default function ButtonPanel({
           hospitalSettings={hospitalSettings}
         />
       }
+
       {openDeviceListModal &&
         <DeviceListModal
           isOpen={openDeviceListModal}
@@ -465,40 +436,35 @@ export default function ButtonPanel({
           deviceList={deviceList}
           getLatestMaintenanceTask={getLatestMaintenanceTask}
           hospitalSettings={hospitalSettings}
-
         />
       }
 
       {openInspectionResultModal && (
-          <InspectionResultModal
-              isOpen={openInspectionResultModal}
-              onClose={() =>setOpenInspectionResultModal(false)}
-              hospitalSettings={hospitalSettings}
-          />
+        <InspectionResultModal
+          isOpen={openInspectionResultModal}
+          onClose={() => setOpenInspectionResultModal(false)}
+          hospitalSettings={hospitalSettings}
+        />
       )}
 
       {openInviteModal &&
         <InviteCreateModal
-
           onClose={() => setOpenInviteModal(false)}
         />
       }
 
-<AccountInfoModal
-    isOpen={openAccountInfoModal}
-    onClose={() => setOpenAccountInfoModal(false)}
-    userName={userName}
-    role={role}
-    hospitalName={hospitalName}
-    email={email}
-    userId={userId}
-/>
-  </div>
-{/* 処理中表示 */}
-<LoadingOverlay loading={loading} />
+      <AccountInfoModal
+        isOpen={openAccountInfoModal}
+        onClose={() => setOpenAccountInfoModal(false)}
+        userName={userName}
+        role={role}
+        hospitalName={hospitalName}
+        email={email}
+      />
+    </div>
 
-</>
-
-
-  )
+    {/* 処理中表示 */}
+    <LoadingOverlay loading={loading} />
+  </>
+)  
 }
