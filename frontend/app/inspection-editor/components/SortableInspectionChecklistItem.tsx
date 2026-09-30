@@ -8,7 +8,7 @@ import { CSS } from "@dnd-kit/utilities"
 import {
     GripVertical,
     Trash2,
-    Pencil,
+    Edit2,
     ChevronDown,
     ChevronUp,
 } from "lucide-react"
@@ -119,28 +119,17 @@ export default function SortableInspectionChecklistItem({
     }
 
 
-    return (
+return (
         <div
             ref={setNodeRef}
             style={style}
-            className="
-                rounded-lg
-                border
-                border-gray-500
-                bg-gray-50
-                px-3
-                py-3
-            "
+            className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
         >
 
             {/* 項目本体 */}
 
             <div
-                className="
-                    flex
-                    items-center
-                    gap-3
-                "
+                className="flex min-w-[760px] items-center gap-3"
             >
 
                 {/* 編集 */}
@@ -148,25 +137,10 @@ export default function SortableInspectionChecklistItem({
                 <button
                     type="button"
                     onClick={() => onEdit(item)}
-                    className="
-                        flex
-                        h-7
-                        w-7
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-gray-300
-                        bg-white
-                        text-gray-500
-                        hover:border-blue-300
-                        hover:bg-blue-50
-                        hover:text-blue-500
-                    "
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                     title="編集"
                 >
-                    <Pencil size={15} />
+                    <Edit2 className="h-3.5 w-3.5" />
                 </button>
 
 
@@ -175,22 +149,7 @@ export default function SortableInspectionChecklistItem({
                 <button
                     type="button"
                     onClick={handleDelete}
-                    className="
-                        flex
-                        h-7
-                        w-7
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-gray-300
-                        bg-white
-                        text-gray-500
-                        hover:border-red-300
-                        hover:bg-red-50
-                        hover:text-red-500
-                    "
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-700"
                     title="削除"
                 >
                     <Trash2 size={15} />
@@ -201,11 +160,7 @@ export default function SortableInspectionChecklistItem({
 
                 <div
                     className="
-                        w-8
-                        shrink-0
-                        text-center
-                        text-sm
-                        text-gray-400
+                        w-8 shrink-0 text-center text-xs font-mono font-bold text-slate-400
                     "
                 >
                     {index + 1}
@@ -214,17 +169,18 @@ export default function SortableInspectionChecklistItem({
                 {/* 大項目 */}
 
                 <div
-                    className="
-                        w-24
-                        shrink-0
-                        truncate
-                        text-center
-                        text-sm
-                        text-gray-500
-                    "
+                    className="w-24 shrink-0 text-center"
                     title={categoryName ?? "未選択"}
                 >
-                    {categoryName ?? "未選択"}
+                    <div className="truncate text-xs font-medium text-slate-500">
+                        {categoryName ?? "未選択"}
+                    </div>
+
+                    {!item.required && (
+                        <span className="mt-1 inline-flex rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                            入力任意
+                        </span>
+                    )}
                 </div>
 
 
@@ -232,16 +188,10 @@ export default function SortableInspectionChecklistItem({
 
                 {/* 項目名 */}
 
-                <div className="min-w-0 flex-1 flex items-center gap-2 text-sm">
-                    <span className="min-w-0 truncate text-gray-800">
+                <div className="min-w-0 flex-1 text-sm">
+                    <span className="block min-w-0 truncate font-bold text-slate-900">
                         {item.name}
                     </span>
-
-                    {!item.required && (
-                        <span className="shrink-0 text-xs font-medium text-red-600">
-                            入力任意
-                        </span>
-                    )}
                 </div>
 
                 {/* 入力方式 */}
@@ -253,20 +203,7 @@ export default function SortableInspectionChecklistItem({
                         onClick={() =>
                             setIsOptionsOpen((prev) => !prev)
                         }
-                        className="
-                            flex
-                            w-36
-                            shrink-0
-                            items-center
-                            justify-center
-                            gap-1
-                            rounded-md
-                            px-2
-                            py-1.5
-                            text-sm
-                            text-gray-600
-                            hover:bg-gray-200
-                        "
+                        className="flex w-36 shrink-0 items-center justify-center gap-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
                         title="選択肢を表示"
                     >
                         <span>
@@ -282,20 +219,14 @@ export default function SortableInspectionChecklistItem({
                 ) : (
 
                     <div
-                        className="
-                            w-32
-                            shrink-0
-                            text-center
-                            text-sm
-                            text-gray-500
-                        "
+                        className="w-32 shrink-0 text-center text-xs font-medium text-slate-500"
                     >
                         {itemTypeName}
                     </div>
 
                 )}
                 {/* 単位表示 */}
-                <div className="w-20 shrink-0 text-center text-sm text-gray-500">
+                <div className="w-20 shrink-0 text-center text-xs font-medium text-slate-500">
                     {item.unit ?? "-"}
                 </div>
 
@@ -305,19 +236,7 @@ export default function SortableInspectionChecklistItem({
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className="
-                        flex
-                        h-8
-                        w-8
-                        shrink-0
-                        cursor-grab
-                        items-center
-                        justify-center
-                        rounded
-                        text-gray-400
-                        hover:bg-gray-200
-                        active:cursor-grabbing
-                    "
+                    className="flex h-8 w-8 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 active:cursor-grabbing"
                     title="ドラッグして並び替え"
                     aria-label={`${item.name}をドラッグして並び替え`}
                 >
@@ -332,22 +251,12 @@ export default function SortableInspectionChecklistItem({
             {isCustomOption && isOptionsOpen && (
 
                 <div
-                    className="
-                        mt-2
-                        ml-auto
-                        w-36
-                        rounded-md
-                        border
-                        border-gray-300
-                        bg-white
-                        px-3
-                        py-2
-                    "
+                    className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 sm:ml-auto sm:w-36"
                 >
 
                     {options.length === 0 ? (
 
-                        <p className="text-xs text-gray-400">
+                        <p className="text-[11px] text-slate-400">
                             選択肢がありません
                         </p>
 
@@ -359,13 +268,7 @@ export default function SortableInspectionChecklistItem({
 
                                 <div
                                     key={`${option.value}-${optionIndex}`}
-                                    className="
-                                        rounded
-                                        px-2
-                                        py-1
-                                        text-sm
-                                        text-gray-700
-                                    "
+                                    className="rounded-md px-2 py-1 text-xs text-slate-700"
                                 >
                                     {option.value}
                                 </div>

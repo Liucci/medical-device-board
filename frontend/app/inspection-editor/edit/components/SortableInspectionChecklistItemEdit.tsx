@@ -96,23 +96,17 @@ export default function SortableInspectionChecklistItemEdit({
             ref={setNodeRef}
             style={style}
             className="
-                rounded-lg
+                overflow-x-auto
+                rounded-xl
                 border
-                border-gray-500
-                bg-gray-50
-                px-3
-                py-3
+                border-slate-200
+                bg-white
+                p-3
+                shadow-sm
             "
         >
 
-            {/* 項目本体 */}
-            <div
-                className="
-                    flex
-                    items-center
-                    gap-3
-                "
-            >
+            <div className="flex min-w-[760px] items-center gap-3">
 
                 {/* 編集 */}
                 <button
@@ -120,19 +114,16 @@ export default function SortableInspectionChecklistItemEdit({
                     onClick={() => onEdit(item)}
                     className="
                         flex
-                        h-7
-                        w-7
+                        h-8
+                        w-8
                         shrink-0
                         items-center
                         justify-center
-                        rounded-full
-                        border
-                        border-gray-300
-                        bg-white
-                        text-gray-500
-                        hover:border-blue-300
-                        hover:bg-blue-50
-                        hover:text-blue-500
+                        rounded-lg
+                        text-slate-400
+                        transition-colors
+                        hover:bg-slate-100
+                        hover:text-slate-700
                     "
                     title="編集"
                 >
@@ -146,19 +137,16 @@ export default function SortableInspectionChecklistItemEdit({
                     onClick={handleDelete}
                     className="
                         flex
-                        h-7
-                        w-7
+                        h-8
+                        w-8
                         shrink-0
                         items-center
                         justify-center
-                        rounded-full
-                        border
-                        border-gray-300
-                        bg-white
-                        text-gray-500
-                        hover:border-red-300
-                        hover:bg-red-50
-                        hover:text-red-500
+                        rounded-lg
+                        text-slate-400
+                        transition-colors
+                        hover:bg-rose-50
+                        hover:text-rose-700
                     "
                     title="削除"
                 >
@@ -167,57 +155,78 @@ export default function SortableInspectionChecklistItemEdit({
 
 
                 {/* 項目番号 */}
-                <div
-                    className="
-                        w-8
-                        shrink-0
-                        text-center
-                        text-sm
-                        text-gray-400
-                    "
-                >
+                <div className="
+                    w-8
+                    shrink-0
+                    text-center
+                    text-xs
+                    font-mono
+                    font-bold
+                    text-slate-400
+                ">
                     {index + 1}
                 </div>
 
-                {/* 大項目 */}
 
+                {/* 大項目 */}
                 <div
                     className={`
                         w-24
                         shrink-0
-                        truncate
                         text-center
-                        text-sm
+                        text-xs
+                        font-medium
                         ${isCategoryInactive
-                            ? "text-red-300"
-                            : "text-gray-500"
+                            ? "text-rose-300"
+                            : "text-slate-500"
                         }
                     `}
                     title={categoryName ?? "未選択"}
                 >
-                    {categoryName ?? "未選択"}
+                    <div className="truncate">
+                        {categoryName ?? "未選択"}
+                    </div>
+
+                    {!item.required && (
+                        <span className="
+                            mt-1
+                            inline-flex
+                            rounded-md
+                            bg-slate-100
+                            px-1.5
+                            py-0.5
+                            text-[10px]
+                            font-medium
+                            text-slate-500
+                        ">
+                            入力任意
+                        </span>
+                    )}
                 </div>
+
 
                 {/* 項目名 */}
                 <div className="min-w-0 flex-1 text-sm">
-                    <div className="flex items-center gap-2">
-                        <span className="min-w-0 truncate text-gray-800">
-                            {item.itemName}
-                        </span>
 
-                        {!item.required && (
-                            <span className="shrink-0 text-xs font-medium text-red-600">
-                                入力任意
-                            </span>
-                        )}
-                    </div>
+                    <span className="
+                        block
+                        min-w-0
+                        truncate
+                        font-bold
+                        text-slate-900
+                    ">
+                        {item.itemName}
+                    </span>
 
                     {isCategoryInactive && (
-                        <div className="mt-1 text-xs font-medium text-red-300">
+                        <div className="mt-1 text-[10px] font-medium text-rose-300">
                             無効な大項目を使用しています
                         </div>
                     )}
+
                 </div>
+
+
                 {/* 入力方式 */}
                 {isCustomOption ? (
 
@@ -233,12 +242,15 @@ export default function SortableInspectionChecklistItemEdit({
                             items-center
                             justify-center
                             gap-1
-                            rounded-md
-                            px-2
+                            rounded-lg
+                            bg-slate-50
+                            px-2.5
                             py-1.5
-                            text-sm
-                            text-gray-600
-                            hover:bg-gray-200
+                            text-xs
+                            font-medium
+                            text-slate-600
+                            transition-colors
+                            hover:bg-slate-100
                         "
                         title="選択肢を表示"
                     >
@@ -254,24 +266,32 @@ export default function SortableInspectionChecklistItemEdit({
 
                 ) : (
 
-                    <div
-                        className="
-                            w-32
-                            shrink-0
-                            text-center
-                            text-sm
-                            text-gray-500
-                        "
-                    >
+                    <div className="
+                        w-32
+                        shrink-0
+                        text-center
+                        text-xs
+                        font-medium
+                        text-slate-500
+                    ">
                         {itemTypeName}
                     </div>
 
                 )}
-                
-                {/* 単位表示 */}
-                <div className="w-20 shrink-0 text-center text-sm text-gray-500">
+
+
+                {/* 単位 */}
+                <div className="
+                    w-20
+                    shrink-0
+                    text-center
+                    text-xs
+                    font-medium
+                    text-slate-500
+                ">
                     {item.unit ?? "-"}
                 </div>
+
 
                 {/* Drag handle */}
                 <button
@@ -283,12 +303,15 @@ export default function SortableInspectionChecklistItemEdit({
                         h-8
                         w-8
                         shrink-0
+                        touch-none
                         cursor-grab
                         items-center
                         justify-center
-                        rounded
-                        text-gray-400
-                        hover:bg-gray-200
+                        rounded-lg
+                        text-slate-400
+                        transition-colors
+                        hover:bg-slate-100
+                        hover:text-slate-700
                         active:cursor-grabbing
                     "
                     title="ドラッグして並び替え"
@@ -303,23 +326,21 @@ export default function SortableInspectionChecklistItemEdit({
             {/* 任意の選択肢 */}
             {isCustomOption && isOptionsOpen && (
 
-                <div
-                    className="
-                        mt-2
-                        ml-auto
-                        w-36
-                        rounded-md
-                        border
-                        border-gray-300
-                        bg-white
-                        px-3
-                        py-2
-                    "
-                >
+                <div className="
+                    mt-2
+                    ml-auto
+                    w-36
+                    rounded-lg
+                    border
+                    border-slate-200
+                    bg-slate-50
+                    px-3
+                    py-2
+                ">
 
                     {options.length === 0 ? (
 
-                        <p className="text-xs text-gray-400">
+                        <p className="text-[11px] text-slate-400">
                             選択肢がありません
                         </p>
 
@@ -332,11 +353,11 @@ export default function SortableInspectionChecklistItemEdit({
                                 <div
                                     key={`${option.value}-${optionIndex}`}
                                     className="
-                                        rounded
+                                        rounded-md
                                         px-2
                                         py-1
-                                        text-sm
-                                        text-gray-700
+                                        text-xs
+                                        text-slate-700
                                     "
                                 >
                                     {option.value}
@@ -354,4 +375,5 @@ export default function SortableInspectionChecklistItemEdit({
 
         </div>
     )
+
 }

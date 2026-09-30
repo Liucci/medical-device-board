@@ -30,33 +30,33 @@ export default function SortableStockAreaItem({
     zIndex: isDragging ? 1000 : undefined
   }
 
-return (
-  <div
-    ref={setNodeRef}
-    style={style}
-    className={`
-      flex w-full items-center justify-between
-      rounded-lg border border-gray-200
-      bg-white px-4 py-3
-      text-sm text-gray-800
-      shadow-sm transition
-      ${isDragging
-        ? "opacity-50 shadow-md"
-        : "hover:border-gray-300 hover:bg-gray-50"}
-    `}
-  >
-    <span className="min-w-0 flex-1 truncate font-medium">
-      {stockArea.name}
-    </span>
-
+  return (
     <div
-      {...attributes}
-      {...listeners}
-      className="ml-3 flex shrink-0 cursor-grab items-center justify-center rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing"
-      title="ドラッグして並び替え"
+      ref={setNodeRef}
+      style={style}
+      className={`
+        flex w-full items-center justify-between
+        rounded-lg border border-slate-200
+        bg-white px-3 py-2.5
+        text-sm text-slate-900
+        shadow-sm transition-colors
+        ${isDragging
+          ? "opacity-50 shadow-md"
+          : "hover:border-slate-300 hover:bg-slate-50"}
+      `}
     >
-      <GripVertical size={18} />
+      <span className="min-w-0 flex-1 truncate font-bold">
+        {stockArea.name}
+      </span>
+
+      <div
+        {...attributes}
+        {...listeners}
+        className="ml-3 flex shrink-0 cursor-grab items-center justify-center rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 active:cursor-grabbing"
+        title="ドラッグして並び替え"
+      >
+        <GripVertical size={18} />
+      </div>
     </div>
-  </div>
-)  
+  )
 }

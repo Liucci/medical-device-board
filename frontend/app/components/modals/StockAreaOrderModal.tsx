@@ -98,18 +98,18 @@ export default function StockAreaOrderModal({
 
 return (
   <>
-    <div className="w-full rounded-xl bg-gray-200 p-5">
-      <div className="rounded-xl bg-white p-6 shadow-sm">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800">
+    <div className="w-full rounded-xl bg-slate-50 p-4 sm:p-5">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold tracking-wide text-slate-700">
             ストックエリア並び替え
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-xs text-slate-500">
             ドラッグ＆ドロップでストックエリアの表示順を変更します
           </p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
           <DndContext
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
@@ -131,17 +131,19 @@ return (
           </DndContext>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-5">
+        <div className="mt-4 flex items-center justify-end gap-2 border-t border-slate-200 pt-4">
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-800"
+            className="h-10 rounded-lg border border-slate-200 bg-slate-50 px-4 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
           >
             キャンセル
           </button>
 
           <button
+            type="button"
             onClick={handleSave}
-            className="rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-600"
+            className="h-10 rounded-lg bg-teal-700 px-5 text-xs font-bold text-white transition-colors hover:bg-teal-800"
           >
             保存
           </button>
@@ -151,5 +153,5 @@ return (
 
     <LoadingOverlay loading={loading} />
   </>
-)  
+)
 }
