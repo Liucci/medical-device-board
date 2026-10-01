@@ -138,49 +138,97 @@ export default function AddInspectionChecklistItemEditModal({
                 flex
                 items-center
                 justify-center
-                bg-black/40
-                p-4
+                bg-slate-950/65
+                p-0
+                backdrop-blur-sm
+                sm:p-4
             "
-            onMouseDown={(event) =>
-            {
-                if (event.target === event.currentTarget)
-                {
+            onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
                     onClose()
                 }
             }}
         >
 
-            <div
-                className="
-                    w-full
-                    max-w-md
-                    rounded-xl
-                    bg-white
-                    shadow-xl
-                "
-            >
+            <div className="
+                flex
+                h-full
+                w-full
+                flex-col
+                overflow-hidden
+                bg-slate-50
+                sm:h-auto
+                sm:max-h-[94vh]
+                sm:max-w-xl
+                sm:rounded-2xl
+                sm:border
+                sm:border-slate-300
+                sm:shadow-2xl
+            ">
 
                 {/* Header */}
-                <div className="px-6 py-4">
+                <div className="
+                    flex
+                    items-start
+                    justify-between
+                    bg-slate-900
+                    px-4
+                    py-3
+                    text-white
+                    sm:px-5
+                ">
 
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        点検項目を追加
-                    </h2>
+                    <div>
+                        <h2 className="text-sm font-bold sm:text-base">
+                            点検項目を追加
+                        </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
-                        点検項目の内容と入力方式を設定してください
-                    </p>
+                        <p className="mt-1 text-[11px] text-slate-300">
+                            点検項目の内容・大項目・入力方式を設定してください
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="
+                            flex
+                            h-8
+                            w-8
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-lg
+                            text-slate-300
+                            transition-colors
+                            hover:bg-white/10
+                            hover:text-white
+                        "
+                        title="閉じる"
+                        aria-label="閉じる"
+                    >
+                        ×
+                    </button>
 
                 </div>
 
 
                 {/* Body */}
-                <div className="space-y-5 px-6 py-6">
+                <div className="
+                    min-h-0
+                    flex-1
+                    space-y-4
+                    overflow-y-auto
+                    px-4
+                    py-4
+                    sm:px-5
+                    sm:py-5
+                ">
 
                     {/* 項目名 */}
                     <div>
 
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-xs font-medium text-slate-500">
                             項目名
                         </label>
 
@@ -194,21 +242,24 @@ export default function AddInspectionChecklistItemEditModal({
                             className="
                                 w-full
                                 rounded-lg
-                                border border-gray-500
+                                border border-slate-200
                                 px-4 py-2.5
                                 text-sm
                                 outline-none
-                                focus:border-blue-500
+                                focus:border-teal-600
                                 focus:ring-2
-                                focus:ring-blue-100
+                                focus:ring-teal-100
                             "
                         />
 
                     </div>
 
-                    {/* 任意入力 */}
-                    <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+
+                    {/* 入力任意 */}
+                    <div className="flex items-center">
+
+                        <label className="flex cursor-pointer items-center gap-2">
+
                             <input
                                 type="checkbox"
                                 checked={!required}
@@ -219,31 +270,31 @@ export default function AddInspectionChecklistItemEditModal({
                                     h-4
                                     w-4
                                     rounded
-                                    border-gray-400
-                                    text-blue-600
-                                    focus:ring-blue-500
+                                    border-slate-300
+                                    text-teal-700
+                                    focus:ring-teal-600
                                 "
                             />
 
-                            <span>
-                                任意入力
+                            <span className="text-xs font-medium text-slate-500">
+                                入力任意
                             </span>
-                        </label>
-                    </div>
 
+                        </label>
+
+                    </div>
 
 
                     {/* 大項目 */}
                     <div>
 
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-xs font-medium text-slate-500">
                             大項目
                         </label>
 
                         <select
                             value={categoryId ?? ""}
-                            onChange={(event) =>
-                            {
+                            onChange={(event) => {
                                 setCategoryId(
                                     event.target.value === ""
                                         ? null
@@ -253,14 +304,14 @@ export default function AddInspectionChecklistItemEditModal({
                             className="
                                 w-full
                                 rounded-lg
-                                border border-gray-500
+                                border border-slate-200
                                 bg-white
                                 px-4 py-2.5
                                 text-sm
                                 outline-none
-                                focus:border-blue-500
+                                focus:border-teal-600
                                 focus:ring-2
-                                focus:ring-blue-100
+                                focus:ring-teal-100
                             "
                         >
 
@@ -277,7 +328,7 @@ export default function AddInspectionChecklistItemEditModal({
                                     >
                                         {category.name}
                                     </option>
-                            ))}
+                                ))}
 
                         </select>
 
@@ -287,22 +338,20 @@ export default function AddInspectionChecklistItemEditModal({
                     {/* 入力方式 */}
                     <div>
 
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-xs font-medium text-slate-500">
                             入力方式
                         </label>
 
                         <select
                             value={itemTypeId ?? ""}
-                            onChange={(event) =>
-                            {
+                            onChange={(event) => {
+
                                 const newItemTypeId =
                                     event.target.value === ""
                                         ? null
                                         : Number(event.target.value)
 
-
                                 setItemTypeId(newItemTypeId)
-
 
                                 const selectedItemType =
                                     inspectionItemTypes.find(
@@ -310,15 +359,9 @@ export default function AddInspectionChecklistItemEditModal({
                                             itemType.id === newItemTypeId
                                     )
 
-
-                                if (
-                                    !selectedItemType?.isCustomOption
-                                )
-                                {
+                                if (!selectedItemType?.isCustomOption) {
                                     setOptions([])
-                                }
-                                else if (options.length === 0)
-                                {
+                                } else if (options.length === 0) {
                                     setOptions([
                                         {
                                             value: "",
@@ -327,23 +370,22 @@ export default function AddInspectionChecklistItemEditModal({
                                     ])
                                 }
 
-
-                                if (selectedItemType?.name !== "数値")
-                                {
+                                if (selectedItemType?.name !== "数値") {
                                     setUnit("")
                                 }
+
                             }}
                             className="
                                 w-full
                                 rounded-lg
-                                border border-gray-500
+                                border border-slate-200
                                 bg-white
                                 px-4 py-2.5
                                 text-sm
                                 outline-none
-                                focus:border-blue-500
+                                focus:border-teal-600
                                 focus:ring-2
-                                focus:ring-blue-100
+                                focus:ring-teal-100
                             "
                         >
 
@@ -369,14 +411,14 @@ export default function AddInspectionChecklistItemEditModal({
                     {isCustomOption && (
                         <div>
 
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                            <label className="mb-2 block text-xs font-medium text-slate-500">
                                 選択肢
                             </label>
-
 
                             <div className="space-y-2">
 
                                 {options.map((option, index) => (
+
                                     <div
                                         key={index}
                                         className="flex items-center gap-2"
@@ -385,8 +427,7 @@ export default function AddInspectionChecklistItemEditModal({
                                         <input
                                             type="text"
                                             value={option.value}
-                                            onChange={(event) =>
-                                            {
+                                            onChange={(event) => {
                                                 setOptions((current) =>
                                                     current.map(
                                                         (
@@ -407,21 +448,19 @@ export default function AddInspectionChecklistItemEditModal({
                                                 min-w-0
                                                 flex-1
                                                 rounded-lg
-                                                border border-gray-500
+                                                border border-slate-200
                                                 px-4 py-2.5
                                                 text-sm
                                                 outline-none
-                                                focus:border-blue-500
+                                                focus:border-teal-600
                                                 focus:ring-2
-                                                focus:ring-blue-100
+                                                focus:ring-teal-100
                                             "
                                         />
-
 
                                         <button
                                             type="button"
                                             onClick={() =>
-                                            {
                                                 setOptions((current) =>
                                                     current
                                                         .filter(
@@ -439,7 +478,7 @@ export default function AddInspectionChecklistItemEditModal({
                                                             })
                                                         )
                                                 )
-                                            }}
+                                            }
                                             className="
                                                 flex
                                                 h-9
@@ -448,53 +487,56 @@ export default function AddInspectionChecklistItemEditModal({
                                                 items-center
                                                 justify-center
                                                 rounded-lg
-                                                border
-                                                border-gray-300
-                                                text-gray-500
-                                                hover:bg-gray-100
+                                                border border-slate-200
+                                                text-slate-500
+                                                hover:border-rose-300
+                                                hover:bg-rose-50
+                                                hover:text-rose-700
                                             "
+                                            title="削除"
+                                            aria-label="選択肢を削除"
                                         >
                                             ×
                                         </button>
 
                                     </div>
+
                                 ))}
 
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                    {
-                                        setOptions((current) => [
-                                            ...current,
-                                            {
-                                                value: "",
-                                                displayOrder:
-                                                    current.length + 1,
-                                            },
-                                        ])
-                                    }}
-                                    className="
-                                        mt-2
-                                        text-sm
-                                        font-medium
-                                        text-blue-600
-                                        hover:text-blue-800
-                                    "
-                                >
-                                    ＋ 選択肢を追加
-                                </button>
-
                             </div>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setOptions((current) => [
+                                        ...current,
+                                        {
+                                            value: "",
+                                            displayOrder:
+                                                current.length + 1,
+                                        },
+                                    ])
+                                }
+                                className="
+                                    mt-3
+                                    text-sm
+                                    font-medium
+                                    text-teal-700
+                                    hover:text-teal-800
+                                "
+                            >
+                                ＋ 選択肢を追加
+                            </button>
 
                         </div>
                     )}
 
 
+                    {/* 単位 */}
                     {isNumberInput && (
                         <div>
 
-                            <label className="mb-2 block text-sm font-medium text-gray-700">
+                            <label className="mb-2 block text-xs font-medium text-slate-500">
                                 単位
                             </label>
 
@@ -508,14 +550,14 @@ export default function AddInspectionChecklistItemEditModal({
                                 className="
                                     w-full
                                     rounded-lg
-                                    border border-gray-500
+                                    border border-slate-200
                                     bg-white
                                     px-4 py-2.5
                                     text-sm
                                     outline-none
-                                    focus:border-blue-500
+                                    focus:border-teal-600
                                     focus:ring-2
-                                    focus:ring-blue-100
+                                    focus:ring-teal-100
                                 "
                             />
 
@@ -526,46 +568,60 @@ export default function AddInspectionChecklistItemEditModal({
 
 
                 {/* Footer */}
-                <div className="flex justify-end gap-3 px-6 py-4">
+                <div className="
+                    flex
+                    justify-end
+                    gap-3
+                    border-t
+                    border-slate-200
+                    bg-white
+                    px-4
+                    py-3
+                    sm:px-5
+                ">
 
                     <button
                         type="button"
                         onClick={onClose}
                         className="
+                            h-9
+                            w-24
                             rounded-lg
-                            border border-gray-300
+                            border border-slate-200
                             bg-white
-                            px-5 py-2.5
-                            text-sm font-medium
-                            text-gray-700
-                            hover:bg-gray-50
+                            text-sm
+                            font-medium
+                            text-slate-700
+                            hover:bg-slate-50
                         "
                     >
                         キャンセル
                     </button>
-
 
                     <button
                         type="button"
                         onClick={handleAdd}
                         disabled={
                             !name.trim() ||
+                            categoryId === null ||
                             itemTypeId === null ||
                             (
                                 isCustomOption &&
-                                !options.some(
+                                options.every(
                                     (option) =>
-                                        option.value.trim()
+                                        !option.value.trim()
                                 )
                             )
                         }
                         className="
+                            h-9
+                            w-24
                             rounded-lg
-                            bg-blue-600
-                            px-5 py-2.5
-                            text-sm font-medium
+                            bg-teal-700
+                            text-sm
+                            font-bold
                             text-white
-                            hover:bg-blue-700
+                            hover:bg-teal-800
                             disabled:cursor-not-allowed
                             disabled:opacity-40
                         "

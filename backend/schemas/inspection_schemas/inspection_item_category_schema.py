@@ -7,6 +7,7 @@ class InspectionItemCategoryResponse(BaseModel):
     name: str
     display_order: int
     is_active: bool
+    exclude_when_standby: bool
 
 
 
@@ -15,7 +16,7 @@ class InspectionItemCategorySaveItem(BaseModel):
     name: str
     display_order: int
     is_active: bool
-
+    exclude_when_standby: bool
 
 class SaveInspectionItemCategoriesRequest(BaseModel):
     categories: list[InspectionItemCategorySaveItem]

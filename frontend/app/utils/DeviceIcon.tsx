@@ -194,104 +194,381 @@ export default function DeviceIcon({
     createAt
       ? Date.now() - new Date(createAt+"Z").getTime() < 30 * 1000
       : false
- 
-  return (
+return (
+  <div
+    className={`
+      relative
+      device-icon
+      cursor-pointer
+      transition-all
+      duration-200
+      ease-out
+      hover:-translate-y-1
+      hover:scale-[1.04]
+      hover:z-20
+      ${isNew ? "blink" : ""}
+    `}
+    style={{ fontFamily: "BIZ UDGothic" }}
+  >
+        {/* ===== ★ アイコンの角丸にピッタリ添う 控えめな赤色発光フレーム ===== */}
+    {isGlow && (
+      <div
+        className="
+          absolute
+          -inset-[1.5px]
+          rounded-[13.5px]
+          border-[1.5px]
+          border-red-500/60
+          pointer-events-none
+          animate-pulse
+          z-20
+        "
+        style={{
+          /* 眩しすぎない、控えめで品のある赤色アンビエント光 */
+          boxShadow: "0 0 12px 2px rgba(239, 68, 68, 0.75), 0 0 20px 4px rgba(239, 68, 68, 0.35)",        }}
+      />
+    )}
+
+    
+    {/* ===== セラミック・マットリュクス 本体 ===== */}
     <div
-      className={`
+      className="
         relative
-        device-icon
-        ${isGlow ? "new-glow" : ""}
-        ${isNew ?  "blink": ""}
-      `}
+        overflow-hidden
+        select-none
+        rounded-xl
+        flex
+        flex-col
+        text-center
+        transition-all
+        duration-200
+      "
+      style={{
+        width: cellSize,
+        height: Math.round(cellSize * 0.85),
+        backgroundColor: iconColor,
+        /* マットセラミック風のソフトディープシャドウ */
+        boxShadow: `
+          inset 0 1px 1px rgba(255,255,255,0.4),
+          inset 0 -2px 3px rgba(0,0,0,0.4),
+          0 6px 14px -2px rgba(0,0,0,0.38),
+          0 2px 4px -1px rgba(0,0,0,0.25)
+        `,
+        border: "1px solid rgba(255,255,255,0.22)",
+      }}
     >
+      {/* ===== サテンセラミック 微光グラデーション ===== */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded-2xl"
+        style={{
+          background:
+            "linear-gradient(145deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.06) 40%, rgba(0,0,0,0.18) 100%)",
+        }}
+      />
 
-      {showIndicator && standby && (
-        <div
-          className={`
-            absolute
-            z-40
-            inline-flex
-            items-center
-            justify-center
-            rounded
-            px-1
-            font-bold
-            text-center
-            whitespace-nowrap
-            shadow-sm
+      {/* ===== コンテンツ ===== */}
+      <div className="relative z-10 flex flex-col justify-between h-full p-1.5 overflow-hidden">
 
-            ${
-              isStandbyOverOneMonth
-                ? "bg-red-600 text-white animate-pulse"
-                : "bg-yellow-300 text-black"
-            }
-          `}
-          style={{
-            left: "50%",
-            bottom: 4,
-            transform: "translateX(-50%)",
-            minWidth: cellSize >= 88 ? 36 : 30,
-            height: cellSize >= 88 ? 16 : 14,
-            fontSize: cellSize >= 88 ? 10 : 8,
-            lineHeight: 1
-          }}
-        >
-          待機中
-        </div>
-      )}
+        {/* ===== 上段：機種名・ステータス ===== */}
+        <div className="flex items-center justify-between gap-1 w-full shrink-0">
+          <div className="min-w-0 flex-1">
+            {(displayLevel === "max" ||
+              displayLevel === "large" ||
+              displayLevel === "normal") && (
+              <div
+                className={`
+                  font-bold
+                  tracking-tight
+                  truncate
+                  leading-tight
+                  ${displayLevel === "max" ? "text-[11px]" : ""}
+                  ${displayLevel === "large" ? "text-[10px]" : ""}
+                  ${displayLevel === "normal" ? "text-[9px]" : ""}
+                `}
+                title={`機種名: ${typeName}`}
+                style={{
+                  color: "#FDFBF7",
+                  textShadow: "0 1px 1.5px rgba(0,0,0,0.7), 0 -0.5px 0.5px rgba(255,255,255,0.15)",
+                }}
+              >
+                {typeName}
+              </div>
+            )}
+          </div>
 
-      {/* ===== メンテインジケータ ===== */}
-      {showIndicator && mAlert && (
-        <div
-          className={`
-            absolute
-            top-1
-            left-1
-            rounded-full
-            z-20
+          <div className="flex items-center gap-1 shrink-0">
+            {/* レンタルバッジ（マットインセット） */}
+            {showIndicator && assetType === "レンタル" && (
+              <div
+                className={`
+                  font-extrabold
+                  rounded-md
+                  flex
+                  items-center
+                  justify-center
+                  ${
+                    rentalAlert === "red"
+                      ? "bg-red-600 text-white border border-red-300/80 animate-pulse"
+                      : rentalAlert === "yellow"
+                      ? "bg-amber-300 text-stone-900 border border-amber-200"
+                      : "bg-emerald-600 text-white border border-emerald-300/80"
+                  }
+                `}
+                style={{
+                  width: assetMarkSize,
+                  height: assetMarkSize,
+                  fontSize: assetFontSize,
+                  lineHeight: 1,
+                  boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.3)",
+                }}
+                title={`資産区分: ${assetType}`}
+              >
+                レ
+              </div>
+            )}
 
-            ${mAlert === "red" ? "bg-red-500" : ""}
-            ${mAlert === "yellow" ? "bg-yellow-400" : ""}
-            ${mAlert === "green" ? "bg-green-500" : ""}
-          `}
-          style={{
-            width: cellSize >= 88 ? 12 : 9,
-            height: cellSize >= 88 ? 12 : 9
-          }}
-        />
-      )}
+            {/* 代替機バッジ */}
+            {showIndicator && assetType === "代替機" && (
+              <div
+                className={`
+                  font-extrabold
+                  rounded-md
+                  flex
+                  items-center
+                  justify-center
+                  ${
+                    rentalAlert === "red"
+                      ? "bg-red-600 text-white border border-red-300/80 animate-pulse"
+                      : rentalAlert === "yellow"
+                      ? "bg-amber-300 text-stone-900 border border-amber-200"
+                      : "bg-emerald-600 text-white border border-emerald-300/80"
+                  }
+                `}
+                style={{
+                  width: assetMarkSize,
+                  height: assetMarkSize,
+                  fontSize: assetFontSize,
+                  lineHeight: 1,
+                  boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4), 0 1px 2px rgba(0,0,0,0.3)",
+                }}
+                title={`資産区分: ${assetType}`}
+              >
+                代
+              </div>
+            )}
 
-      {/* ===== 点検実施インジケータ ===== */}
-      {showIndicator && inspectionCount > 0 && (
-        <div
-          className="absolute top-0.5 right-1 z-30"
-          onMouseEnter={showInspectionTooltip}
-          onMouseLeave={hideInspectionTooltip}
-        >
-          {/* インジケータ */}
-          <div
-            className="
-              rounded-full
-              bg-white
-              text-black
-              font-bold
-              flex
-              items-center
-              justify-center
-              shadow-sm
-              border
-            "
-            style={{
-              width: cellSize >= 88 ? 18 : 14,
-              height: cellSize >= 88 ? 18 : 14,
-              fontSize: cellSize >= 88 ? 10 : 10,
-              lineHeight: 2,
-            }}
-          >
-            {inspectionCount}
+{/* メンテインジケータ */}
+            {showIndicator && mAlert && (
+              <div
+                className="relative flex items-center justify-center shrink-0"
+                style={{
+                  width: cellSize >= 88 ? 10 : 8,
+                  height: cellSize >= 88 ? 10 : 8,
+                }}
+              >
+                {mAlert === "red" ? (
+                  /* ★ 完全同期ソナー：1.2秒の同一周期で波紋とLEDが完全に一致して拍動 */
+                  <>
+                    {/* ソナー波紋（面とエッジが同時に外側へ美しく拡散） */}
+                    <span
+                      className="absolute -inset-1 rounded-full bg-red-500 border border-rose-200 opacity-80 pointer-events-none"
+                      style={{
+                        animation: "ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite",
+                      }}
+                    />
+
+                    {/* 中心LED本体（波紋の放出と1.2秒で完全にシンクロして強烈に点滅） */}
+                    <div
+                      className="relative rounded-full bg-gradient-to-br from-red-500 to-rose-700 shrink-0"
+                      style={{
+                        width: cellSize >= 88 ? 10 : 8,
+                        height: cellSize >= 88 ? 10 : 8,
+                        border: "1.5px solid #ffffff",
+                        boxShadow: "0 0 12px 2px #ef4444, inset 0 1px 1px #ffffff",
+                        animation: "pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                      }}
+                    />
+                  </>
+                ) : (
+                  /* 黄・緑の時：通常インジケータ */
+                  <div
+                    className={`
+                      rounded-full
+                      shrink-0
+                      ${
+                        mAlert === "yellow"
+                          ? "bg-amber-300 shadow-[0_0_6px_#fcd34d]"
+                          : "bg-emerald-400 shadow-[0_0_6px_#34d399]"
+                      }
+                    `}
+                    style={{
+                      width: cellSize >= 88 ? 10 : 8,
+                      height: cellSize >= 88 ? 10 : 8,
+                      border: "1.2px solid rgba(255,255,255,0.75)",
+                      boxShadow: "inset 0 1px 1px rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.4)",
+                    }}
+                  />
+                )}
+              </div>
+            )}            
+            {/* 点検回数バッジ */}
+            {showIndicator && inspectionCount > 0 && (
+              <div
+                className="relative"
+                onMouseEnter={showInspectionTooltip}
+                onMouseLeave={hideInspectionTooltip}
+              >
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-stone-50
+                    text-stone-900
+                    font-extrabold
+                    border border-stone-200
+                  "
+                  style={{
+                    width: cellSize >= 88 ? 20 : 16,
+                    height: cellSize >= 88 ? 20 : 16,
+                    fontSize: cellSize >= 88 ? 9 : 8,
+                    lineHeight: 1,
+                    boxShadow: "0 1.5px 3px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  {inspectionCount}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* ===== 中央：型式（デボス調アイボリー） ===== */}
+        <div
+          className={`
+            font-bold
+            tracking-tight
+            truncate
+            leading-none
+            ${
+              displayLevel === "max"
+                ? "text-[15px]"
+                : displayLevel === "large"
+                ? "text-[13px]"
+                : "text-[11px]"
+            }
+          `}
+          title={`型式: ${modelName}`}
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            color: "#FDFBF7",
+            textShadow: "0 1.5px 2px rgba(0,0,0,0.8), 0 -0.5px 0.5px rgba(255,255,255,0.2)",
+          }}
+        >
+          {modelName}
+        </div>
+        {/* 管理番号 */}
+          {(displayLevel === "max" || displayLevel === "large") && managementNumber && (
+            <div
+              className={`
+                font-mono
+                font-bold
+                tracking-tight
+                truncate
+                mt-1
+                px-1.5
+                py-px
+                rounded-md
+                bg-slate-900/10
+                border border-black/10
+                shadow-[inset_0_1px_1px_rgba(0,0,0,0.08)]
+                ${displayLevel === "max" ? "text-[10px]" : "text-[8.5px]"}
+              `}
+              title={`管理番号: ${managementNumber}`}
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                color: "#FDFBF7",
+                textShadow: "0 1.5px 2px rgba(0,0,0,0.8), 0 -0.5px 0.5px rgba(255,255,255,0.2)",
+                lineHeight: 1.1,
+                maxWidth: "96%",
+              }}
+            >
+              <span className="text-[7.5px] font-sans font-bold text-white mr-0.5">No.</span>
+              <span>{managementNumber}</span>
+            </div>
+          )}
+
+        {/* ===== 下段：状態 ===== */}
+        <div className="shrink-0 pt-0.5 w-full">
+          {isUnderMaintenance ? (
+            <div
+              className="
+                flex
+                items-center
+                justify-center
+                gap-1
+                w-full
+                bg-red-600
+                text-stone-50
+                text-[8px]
+                font-bold
+                rounded-md
+                py-0.5
+                leading-none
+                border border-red-400/80
+              "
+              style={{
+                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.35), 0 1.5px 3px rgba(0,0,0,0.3)",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span>保守中</span>
+            </div>
+          ) : standby ? (
+            <div
+              className={`
+                flex
+                items-center
+                justify-center
+                gap-0.5
+                w-full
+                text-[8px]
+                font-bold
+                rounded-md
+                py-0.5
+                leading-none
+                border
+                ${
+                  isStandbyOverOneMonth
+                    ? "bg-red-600 text-white border-red-300 animate-pulse"
+                    : "bg-amber-300 text-stone-900 border-amber-200"
+                }
+              `}
+              style={{
+                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4), 0 1.5px 3px rgba(0,0,0,0.3)",
+              }}
+            >
+              <span>待機中</span>
+            </div>
+          ) : displayLevel === "max" && serialNumber ? (
+            <div
+              className="
+                flex
+                items-center
+                justify-between
+                text-[7px]
+                font-mono
+                text-stone-200/90
+                px-0.5
+              "
+            >
+              <span className="text-stone-300/70">SN</span>
+              <span className="truncate ml-1 font-medium">{serialNumber}</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
 
       {/* ===== 点検日時ツールチップ ===== */}
       {inspectionTooltip &&
@@ -301,14 +578,16 @@ export default function DeviceIcon({
               fixed
               z-[999999]
               -translate-x-full
-              bg-black
-              text-white
+              bg-stone-900/95
+              backdrop-blur-md
+              text-stone-100
               text-xs
-              rounded-md
-              px-3
-              py-2
+              rounded-xl
+              px-3.5
+              py-2.5
               whitespace-nowrap
-              shadow-lg
+              shadow-2xl
+              border border-stone-700
               pointer-events-none
             "
             style={{
@@ -316,302 +595,24 @@ export default function DeviceIcon({
               left: inspectionTooltip.left,
             }}
           >
-            <div className="font-semibold mb-1">
-              本日の点検
+            <div className="font-semibold text-stone-200 border-b border-stone-700 pb-1 mb-1 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>本日の点検記録</span>
             </div>
-
             {todayInspections
-              ?.filter(
-                inspection => inspection.deviceId === deviceId
-              )
+              ?.filter(inspection => inspection.deviceId === deviceId)
               .map((inspection, index) => (
-                <div key={index}>
-                  {new Date(inspection.createdAt).toLocaleTimeString(
-                    "ja-JP",
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )}
+                <div key={index} className="text-stone-300 py-0.5 font-mono text-[11px]">
+                  {new Date(inspection.createdAt).toLocaleTimeString("ja-JP", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               ))}
           </div>,
           document.body
         )}
-
-      {/* ===== レンタル ===== */}
-      {showIndicator && assetType === "レンタル" && (
-        <div
-          className={`
-            absolute
-            z-30
-            font-bold
-            rounded-full
-            border
-            flex
-            items-center
-            justify-center
-            shadow-sm
-
-            ${
-              rentalAlert === "red"
-                ? "bg-red-500 text-white border-red-700 animate-pulse"
-                : rentalAlert === "yellow"
-                ? "bg-yellow-300 text-black border-yellow-500"
-                : "bg-green-500 text-white border-green-700"            }
-          `}
-          style={{
-            top: 2,
-            left: assetLeft,
-
-            width: assetMarkSize,
-            height: assetMarkSize,
-
-            fontSize: assetFontSize,
-            lineHeight: 1
-          }}
-        >
-          レ
-        </div>
-      )}
-
-
-      {/* ===== 代替機 ===== */}
-      {showIndicator && assetType === "代替機" && (
-        <div
-          className={`
-            absolute
-            z-30
-            font-bold
-            rounded-full
-            border
-            flex
-            items-center
-            justify-center
-            shadow-sm
-
-            ${
-              rentalAlert === "red"
-                ? "bg-red-500 text-white border-red-700 animate-pulse"
-                : rentalAlert === "yellow"
-                ? "bg-yellow-300 text-black border-yellow-500"
-                : "bg-green-500 text-white border-green-700"            }
-          `}
-          
-          style={{
-            top: 2,
-            left: assetLeft,
-            width: assetMarkSize,
-            height: assetMarkSize,
-            fontSize: assetFontSize,
-            lineHeight: 1
-          }}
-        >
-          代
-        </div>
-      )}
-
-      {/* ===== 本体 ===== */}
-      <div
-        className="
-          border
-          rounded
-          shadow
-          flex
-          flex-col
-          items-center
-          justify-center
-          overflow-hidden
-          select-none
-          px-1
-          pt-1
-          text-center
-        "
-
-          style={{
-          width: cellSize,
-          height: cellSize * 0.8,
-
-          fontSize: `${fontSize}px`,
-          lineHeight,
-
-          userSelect: "none",
-          backgroundColor: iconColor
-        }}
-      >
-
-        {/* ===== MAX ===== */}
-        {displayLevel === "max" && (
-          <>
-            <div className="font-bold truncate w-full">
-              {typeName}
-            </div>
-
-            <div 
-              className="w-full break-words text-center"
-              style={{
-                wordBreak: "break-word",
-                overflowWrap: "anywhere",
-                lineHeight: 1.0
-              }}
-            >
-              {modelName}
-            </div>
-
-            {managementNumber && (
-              <div 
-                className="w-full break-words text-center"
-                style={{
-                  wordBreak: "break-word",
-                  overflowWrap: "anywhere",
-                  lineHeight: 1.0
-                }}
-              >
-                {managementNumber}
-              </div>
-            )}
-
-            {serialNumber && (
-              <div 
-                className="w-full break-words text-center"
-                style={{
-                  wordBreak: "break-word",
-                  overflowWrap: "anywhere",
-                  lineHeight: 1.0
-                }}
-              >
-                {serialNumber}
-              </div>
-            )}
-            {isUnderMaintenance && (
-              <div
-                className="
-                  mt-1
-                  px-1
-                  rounded
-                  bg-red-600
-                  animate-pulse
-                  text-white
-                  text-[10px]
-                  font-bold
-                "
-              >
-                保守中
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ===== LARGE ===== */}
-        {displayLevel === "large" && (
-          <>
-            <div className="font-bold truncate w-full">
-              {typeName}
-            </div>
-
-            <div 
-              className="w-full break-words text-center"
-              style={{
-                wordBreak: "break-word",
-                overflowWrap: "anywhere",
-                lineHeight: 1.0
-              }}
-            >
-              {modelName}
-            </div>
-
-            {managementNumber && (
-              <div 
-                className="w-full break-words text-center"
-                style={{
-                  wordBreak: "break-word",
-                  overflowWrap: "anywhere",
-                  lineHeight: 1.0
-                }}
-              >
-                {managementNumber}
-              </div>
-            )}
-            {isUnderMaintenance && (
-              <div
-                className="
-                  mt-1
-                  px-1
-                  rounded
-                  bg-red-600
-                  animate-pulse
-                  text-white
-                  text-[10px]
-                  font-bold
-                "
-              >
-                保守中
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ===== NORMAL ===== */}
-        {displayLevel === "normal" && (
-          <>
-            <div className="font-bold truncate w-full">
-              {typeName}
-            </div>
-
-            <div
-              className="w-full break-words text-center"
-              style={{
-                wordBreak: "break-word",
-                overflowWrap: "anywhere",
-                lineHeight: 1.0
-              }}
-            >
-              {modelName}
-            </div>
-            {isUnderMaintenance && (
-              <div
-                className="
-                  mt-1
-                  px-1
-                  rounded
-                  bg-red-600
-                  animate-pulse
-                  text-white
-                  text-[10px]
-                  font-bold
-                "
-              >
-                保守中
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ===== MID ===== */}
-        {displayLevel === "mid" && (
-          <div className="font-bold truncate w-full">
-            {modelName}
-          </div>
-        )}
-
-        {/* ===== SMALL ===== */}
-        {displayLevel === "small" && (
-          <div 
-            className="w-full break-words text-center"
-            style={{
-              wordBreak: "break-word",
-              overflowWrap: "anywhere",
-              lineHeight: 1.0
-            }}
-          >
-            {modelName}
-          </div>
-        )}
-
-        {/* ===== MINI ===== */}
-        {displayLevel === "mini" && null}
-
-      </div>
     </div>
-  )
+  </div>
+);
 }

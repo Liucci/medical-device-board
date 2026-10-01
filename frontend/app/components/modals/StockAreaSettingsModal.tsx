@@ -6,7 +6,7 @@ import { executeWithLoading } from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 import {LoadingOverlay} from "../common/LoadingOverlay"
-
+import { Edit2, Plus, Trash2 } from "lucide-react"
 
 type Props = {
   stockAreas: { id: number; name: string }[]
@@ -87,225 +87,206 @@ export default function StockAreaSettingsModal({
 
   return (
     <>
-      <div className="w-full rounded-2xl bg-gray-200 p-5">
+      <div className="flex h-full min-h-0 w-full flex-col bg-slate-50">
 
-        <div className="flex h-[600px] min-h-0 w-full flex-col rounded-xl bg-white p-6 shadow-sm">
-
-          {/* ================================================= */}
-          {/* タイトル */}
-          {/* ================================================= */}
-          <div className="mb-6 shrink-0">
-
-            <h3 className="text-lg font-semibold text-gray-800">
-              ストックエリア
-            </h3>
-
-            <p className="mt-1 text-sm text-gray-500">
-              ストックエリアの追加、名前の変更、削除を行います
-            </p>
-
+        {/* Header */}
+        <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-5">
+          <div className="text-xs font-bold tracking-wide text-slate-700">
+            ストックエリア
           </div>
+          <p className="mt-1 text-[11px] text-slate-500">
+            ストックエリアの追加、名前の変更、削除を行います
+          </p>
+        </div>
 
-          {/* ================================================= */}
-          {/* 一覧ヘッダー */}
-          {/* ================================================= */}
-          <div className="mb-3 flex shrink-0 items-center justify-between">
+        {/* Content */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
 
-            <div>
+          {/* 一覧 */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
-              <div className="text-sm font-semibold text-gray-800">
-                登録されているストックエリア
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <div>
+                <div className="text-xs font-bold tracking-wide text-slate-700">
+                  登録されているストックエリア
+                </div>
+                <div className="mt-1 text-[11px] text-slate-500">
+                  {stockAreas.length} 件
+                </div>
               </div>
 
-              <div className="mt-1 text-xs text-gray-500">
-                {stockAreas.length} 件
-              </div>
-
+              {checkedIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="
+                    flex
+                    h-8
+                    items-center
+                    gap-1.5
+                    rounded-lg
+                    border
+                    border-rose-200
+                    bg-rose-50
+                    px-3
+                    text-xs
+                    font-bold
+                    text-rose-700
+                    transition-colors
+                    hover:bg-rose-100
+                  "
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  選択削除
+                </button>
+              )}
             </div>
 
-            {/* 選択削除 */}
-            {checkedIds.length > 0 && (
-              <button
-                onClick={handleDelete}
-                className="
-                  rounded-lg
-                  bg-red-50
-                  px-3
-                  py-2
-                  text-sm
-                  font-medium
-                  text-red-600
-                  transition
-                  hover:bg-red-100
-                "
-              >
-                選択削除
-              </button>
-            )}
-
-          </div>
-
-          {/* ================================================= */}
-          {/* 一覧 */}
-          {/* ================================================= */}
-          <div className="min-h-0 flex-1 overflow-y-auto">
-
-            {stockAreas.length === 0 ? (
-
-              <div className="py-12 text-center text-sm text-gray-400">
-                登録されているストックエリアはありません
-              </div>
-
-            ) : (
-
-              <div>
-
-                {stockAreas.map((area) => (
-
-                  <div
-                    key={area.id}
-                    className="
-                      flex
-                      items-center
-                      gap-3
-                      border-b
-                      border-gray-100
-                      py-3
-                      last:border-b-0
-                      hover:bg-gray-50
-                    "
-                  >
-
-                    {/* チェックボックス */}
-                    <input
-                      type="checkbox"
-                      checked={checkedIds.includes(area.id)}
-                      onChange={() => toggleCheck(area.id)}
+            <div className="px-3 py-1">
+              {stockAreas.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-400">
+                  登録されているストックエリアはありません
+                </div>
+              ) : (
+                <div>
+                  {stockAreas.map((area) => (
+                    <div
+                      key={area.id}
                       className="
-                        h-4
-                        w-4
-                        cursor-pointer
-                        rounded
-                        border-gray-300
-                        text-blue-500
-                        focus:ring-blue-400
-                      "
-                    />
-
-                    {/* ストックエリア名 */}
-                    <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
-                      {area.name}
-                    </span>
-
-                    {/* 編集 */}
-                    <button
-                      onClick={() =>
-                        handleRename(area.id, area.name)
-                      }
-                      className="
-                        shrink-0
-                        rounded-lg
-                        bg-gray-100
-                        px-3
-                        py-1.5
-                        text-sm
-                        font-medium
-                        text-gray-600
-                        transition
-                        hover:bg-gray-200
-                        hover:text-gray-800
+                        flex
+                        min-h-12
+                        items-center
+                        gap-3
+                        border-b
+                        border-slate-100
+                        px-2
+                        py-2
+                        last:border-b-0
                       "
                     >
-                      ✏
-                    </button>
+                      {/* Checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.includes(area.id)}
+                        onChange={() => toggleCheck(area.id)}
+                        className="
+                          h-4
+                          w-4
+                          shrink-0
+                          cursor-pointer
+                          rounded
+                          border-slate-300
+                          text-teal-700
+                          focus:ring-teal-200
+                        "
+                      />
 
-                  </div>
+                      {/* Name */}
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-900">
+                        {area.name}
+                      </span>
 
-                ))}
-
-              </div>
-
-            )}
-
+                      {/* Edit */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRename(area.id, area.name)
+                        }
+                        className="
+                          flex
+                          h-8
+                          w-8
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-lg
+                          text-slate-400
+                          transition-colors
+                          hover:bg-slate-100
+                          hover:text-slate-700
+                        "
+                        aria-label={`${area.name}を編集`}
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* ================================================= */}
-          {/* ストックエリア追加 */}
-          {/* ================================================= */}
-          <div className="mt-8 shrink-0">
+          {/* 追加 */}
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white shadow-sm">
 
-            <div className="mb-4">
-
-              <h4 className="text-sm font-semibold text-gray-800">
+            <div className="border-b border-slate-100 px-4 py-3">
+              <div className="text-xs font-bold tracking-wide text-slate-700">
                 新しいストックエリアを追加
-              </h4>
-
-              <p className="mt-1 text-xs text-gray-500">
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">
                 新しいストックエリア名を入力してください
               </p>
-
             </div>
 
-            <div className="flex gap-3">
-
+            <div className="flex flex-col gap-2 p-4 sm:flex-row">
               <input
                 type="text"
                 value={newName}
-                onChange={(e) =>
-                  setNewName(e.target.value)
-                }
+                onChange={(e) => setNewName(e.target.value)}
                 placeholder="例：中央材料室"
                 className="
                   min-w-0
                   flex-1
                   rounded-lg
                   border
-                  border-gray-300
-                  bg-white
+                  border-slate-200
+                  bg-slate-50
                   px-3
                   py-2.5
                   text-sm
-                  text-gray-700
+                  text-slate-900
                   outline-none
-                  transition
-                  placeholder:text-gray-400
-                  focus:border-blue-500
+                  transition-colors
+                  placeholder:text-slate-400
+                  focus:border-teal-600
+                  focus:bg-white
                   focus:ring-2
-                  focus:ring-blue-100
+                  focus:ring-teal-100
                 "
               />
 
               <button
+                type="button"
                 onClick={handleAdd}
                 className="
+                  flex
+                  h-10
                   shrink-0
+                  items-center
+                  justify-center
+                  gap-1.5
                   rounded-lg
-                  bg-blue-500
+                  bg-teal-700
                   px-4
-                  py-2.5
-                  text-sm
-                  font-medium
+                  text-xs
+                  font-bold
                   text-white
-                  transition
-                  hover:bg-blue-600
+                  transition-colors
+                  hover:bg-teal-800
                 "
               >
+                <Plus className="h-3.5 w-3.5" />
                 追加
               </button>
-
             </div>
-
           </div>
 
         </div>
 
       </div>
 
-      {/* ================================================= */}
       {/* Loading */}
-      {/* ================================================= */}
       <LoadingOverlay loading={loading} />
-
     </>
   )  
 }

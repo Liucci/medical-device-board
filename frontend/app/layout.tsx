@@ -21,10 +21,9 @@ return (
       PCごとの差異を減らす目的。
     */}
     <link
-      href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic&display=swap"
+      href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=Outfit:wght@700;800;900&display=swap"
       rel="stylesheet"
     />
-
   </head>
 
   <body>

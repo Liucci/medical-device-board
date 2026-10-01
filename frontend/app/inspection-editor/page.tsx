@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 //処理中表示
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
@@ -333,52 +334,45 @@ export default function InspectionEditorPage()
         fetchInitialData()
     }, [])
     
-
 return (
     <>
-        <div className="min-h-screen bg-gray-200 p-12">
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
 
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-7xl">
 
                 {/* Header */}
                 <div className="mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-800">
+                    <h1 className="text-base font-bold text-slate-900 sm:text-lg">
                         点検表作成
                     </h1>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                         点検表の情報と点検項目を設定してください
                     </p>
                 </div>
 
 
                 {/* Main */}
-                <div className="flex flex-col gap-6 lg:flex-row">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
 
                     {/* ===================================== */}
                     {/* 点検表情報：左 1/3 */}
                     {/* ===================================== */}
-                    <section className="
-                        w-full
-                        rounded-xl
-                        bg-white
-                        p-6
-                        shadow-sm
-                        lg:w-1/3
-                    ">
+                    <section className="rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-4">
 
-                        <div className="mb-3  pb-4">
+                        <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
 
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="text-xs font-bold tracking-wide text-slate-700">
                                 点検表情報
                             </h2>
 
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-[11px] text-slate-500">
                                 点検表の名前と種類を設定します
                             </p>
 
                         </div>
 
+                        <div className="space-y-4 p-4 sm:p-5">
 
                         {/* 点検表種類 */}
                         <div className="mb-5">
@@ -386,9 +380,9 @@ return (
                             <label className="
                                 mb-2
                                 block
-                                text-sm
+                                text-xs
                                 font-medium
-                                text-gray-700
+                                text-slate-500
                             ">
                                 点検表種類
                             </label>
@@ -405,15 +399,15 @@ return (
                                 className="
                                     w-full
                                     rounded-lg
-                                    border border-gray-500
+                                    border border-slate-200
                                     bg-white
-                                    px-4 py-2.5
+                                    px-3 py-2.5
                                     text-sm
                                     outline-none
                                     transition
-                                    focus:border-blue-500
+                                    focus:border-teal-600
                                     focus:ring-2
-                                    focus:ring-blue-100
+                                    focus:ring-teal-100
                                 "
                             >
 
@@ -441,9 +435,9 @@ return (
                             <label className="
                                 mb-2
                                 block
-                                text-sm
+                                text-xs
                                 font-medium
-                                text-gray-700
+                                text-slate-500
                             ">
                                 機種
                             </label>
@@ -465,15 +459,15 @@ return (
                                 className="
                                     w-full
                                     rounded-lg
-                                    border border-gray-500
+                                    border border-slate-200
                                     bg-white
-                                    px-4 py-2.5
+                                    px-3 py-2.5
                                     text-sm
                                     outline-none
                                     transition
-                                    focus:border-blue-500
+                                    focus:border-teal-600
                                     focus:ring-2
-                                    focus:ring-blue-100
+                                    focus:ring-teal-100
                                 "
                             >
 
@@ -501,9 +495,9 @@ return (
                             <label className="
                                 mb-2
                                 block
-                                text-sm
+                                text-xs
                                 font-medium
-                                text-gray-700
+                                text-slate-500
                             ">
                                 型式
                             </label>
@@ -522,17 +516,17 @@ return (
                                 className="
                                     w-full
                                     rounded-lg
-                                    border border-gray-500
+                                    border border-slate-200
                                     bg-white
-                                    px-4 py-2.5
+                                    px-3 py-2.5
                                     text-sm
                                     outline-none
                                     transition
-                                    focus:border-blue-500
+                                    focus:border-teal-600
                                     focus:ring-2
-                                    focus:ring-blue-100
-                                    disabled:bg-gray-100
-                                    disabled:text-gray-400
+                                    focus:ring-teal-100
+                                    disabled:bg-slate-50
+                                    disabled:text-slate-400
                                 "
                             >
 
@@ -562,9 +556,9 @@ return (
                             <label className="
                                 mb-2
                                 block
-                                text-sm
+                                text-xs
                                 font-medium
-                                text-gray-700
+                                text-slate-500
                             ">
                                 点検表名
                             </label>
@@ -579,16 +573,18 @@ return (
                                 className="
                                     w-full
                                     rounded-lg
-                                    border border-gray-500
-                                    px-4 py-2.5
+                                    border border-slate-200
+                                    px-3 py-2.5
                                     text-sm
                                     outline-none
                                     transition
-                                    focus:border-blue-500
+                                    focus:border-teal-600
                                     focus:ring-2
-                                    focus:ring-blue-100
+                                    focus:ring-teal-100
                                 "
                             />
+
+                        </div>
 
                         </div>
 
@@ -598,39 +594,17 @@ return (
                     {/* ===================================== */}
                     {/* 点検項目：右 2/3 */}
                     {/* ===================================== */}
-                    <section className="
-                        w-full
-                        rounded-xl
-                        bg-white
-                        p-6
-                        shadow-sm
-                        lg:w-2/3
-                    ">
+                    <section className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-8">
 
-                        <div className="
-                            mb-3
-                            flex
-                            items-center
-                            justify-between
-                            
-                            pb-4
-                        ">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-5">
 
                             <div>
 
-                                <h2 className="
-                                    text-lg
-                                    font-semibold
-                                    text-gray-800
-                                ">
+                                <h2 className="text-xs font-bold tracking-wide text-slate-700">
                                     点検項目
                                 </h2>
 
-                                <p className="
-                                    mt-1
-                                    text-sm
-                                    text-gray-500
-                                ">
+                                <p className="mt-1 text-[11px] text-slate-500">
                                     点検項目を追加・編集・並び替えします
                                 </p>
 
@@ -639,53 +613,37 @@ return (
 
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setIsAddItemModalOpen(true)
-                                }
-                                className="
-                                    flex
-                                    items-center
-                                    gap-1.5
-                                    rounded-lg
-                                    bg-blue-600
-                                    px-4
-                                    py-2
-                                    text-sm
-                                    font-medium
-                                    text-white
-                                    shadow-sm
-                                    hover:bg-blue-700
-                                "
+                                onClick={() => setIsAddItemModalOpen(true)}
+                                className="flex h-8 items-center gap-1.5 rounded-lg bg-teal-700 px-3 text-xs font-bold text-white transition-colors hover:bg-teal-800"
                             >
-                                <span className="text-lg leading-none">
-                                    ＋
-                                </span>
-
+                                <Plus className="h-3.5 w-3.5" />
                                 項目を追加
                             </button>
 
                         </div>
 
 
+                        <div className="p-4 sm:p-5">
+
                         {/* 点検項目リスト */}
                         {inspectionChecklistItems.length === 0 ? (
 
                             <div className="
                                 flex
-                                h-[600px]
+                                h-[calc(100vh-350px)] min-h-[300px] max-h-[600px]
                                 items-center
                                 justify-center
                                 rounded-lg
                                 border
                                 border-dashed
-                                border-gray-300
+                                border-slate-200
                             ">
 
                                 <div className="text-center">
 
                                     <p className="
                                         text-sm
-                                        text-gray-400
+                                        text-slate-400
                                     ">
                                         まだ点検項目がありません
                                     </p>
@@ -693,7 +651,7 @@ return (
                                     <p className="
                                         mt-1
                                         text-xs
-                                        text-gray-400
+                                        text-slate-400
                                     ">
                                         「項目を追加」から
                                         点検項目を追加してください
@@ -706,7 +664,7 @@ return (
                         ) : (
 
                             <div className="
-                                h-[600px]
+                                h-[calc(100vh-350px)] min-h-[300px] max-h-[600px]
                                 overflow-y-auto
                                 pr-2
                             ">
@@ -764,25 +722,22 @@ return (
 
                         )}
 
+                        </div>
+
                     </section>
 
                 </div>
 
 
                 {/* Footer */}
-                <div className="
-                    mt-6
-                    flex
-                    justify-between
-                    gap-3
-                ">
+                <div className="mt-4 flex flex-col-reverse gap-3 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
 
                     <button
                         type="button"
                         onClick={() => router.push("/dashboard")}
                         className="
                             rounded-lg
-                            border border-gray-500
+                            border border-slate-200
                             bg-white
                             px-5 py-2.5
                             text-sm
@@ -799,18 +754,7 @@ return (
                         type="button"
                         onClick={handleSave}
                         disabled={loading}
-                        className="
-                            rounded-lg
-                            bg-blue-600
-                            px-6 py-2.5
-                            text-sm
-                            font-medium
-                            text-white
-                            shadow-sm
-                            hover:bg-blue-700
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                        "
+                        className="h-11 w-full rounded-xl bg-teal-700 px-6 text-sm font-bold text-white transition-all hover:bg-teal-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                         保存
                     </button>

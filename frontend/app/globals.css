@@ -100,3 +100,8 @@ body {
   user-select: none;
  */  
 }
+
+/* app/globals.css の一番下に追記 */
+.font-model {
+  font-family: 'Outfit', 'BIZ UDGothic', sans-serif;
+}

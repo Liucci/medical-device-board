@@ -88,216 +88,223 @@ const roomInfectionsForRoom =
     ri => ri.roomId === roomId
   )
 
-    // 病室に配置されている機器がない場合は病棟に何も表示しない
+// 病室に配置されている機器がない場合は病棟に何も表示しない
   if (roomDevices.length === 0) {
-  return 
+    return null;
   }
 
+  const hasInfection = roomInfectionsForRoom.length > 0;
 
-   
-return (
+  return (
     <div
-        data-room-container
-        className={
-                    roomInfectionsForRoom.length > 0
-                      ? "infection-glow"
-                      : ""
-                  }
-        style={{
-        border: "1px solid #888",
-        borderRadius: "8px",
-        padding: "8px",
-        //感染症時背景色変える
-        background:
-          roomInfectionsForRoom.length > 0
-            ? "#fff5f5"
-            : "#f9fafb",        
+      data-room-container
+      className={`
+        rounded-xl
+        p-3
+        flex
+        flex-col
+        transition-all
+        duration-150
+        select-none
+        border
+        /* ─── 病室立体成型トレイ（病棟より一段明るいトレイ ＋ 上端光彩 ＋ 下端シェード） ─── */
+        ${
+          hasInfection
+            ? "border-rose-500/80 bg-gradient-to-b from-[#381a24] via-[#2a141c] to-[#1e0e14] shadow-[0_4px_14px_-2px_rgba(244,63,94,0.3),inset_0_1.5px_0_0_rgba(255,255,255,0.15),inset_0_-1px_0_0_rgba(0,0,0,0.4)] hover:border-rose-400"
+            : "border-slate-600/70 bg-gradient-to-b from-[#243247] via-[#1e293b] to-[#17212f] shadow-[0_4px_14px_-2px_rgba(0,0,0,0.4),inset_0_1.5px_0_0_rgba(255,255,255,0.12),inset_0_-1px_0_0_rgba(0,0,0,0.3)] hover:border-sky-400/50 hover:shadow-[0_8px_18px_-3px_rgba(0,0,0,0.55)]"
+        }
+        ${hasInfection ? "infection-glow" : ""}
+      `}
+      style={{
         minWidth: `${Math.max(cellSize + 24, 64)}px`,
-        width: "fit-content"
-        }}
-    >   
-     {/* 病室名と感染マーク */}
-    <div
-      className="flex items-center justify-between mb-1"
-      style={{
-        fontSize:
-          cellSize >= 88
-            ? "14px"
-            : cellSize >= 64
-            ? "12px"
-            : cellSize >= 40
-            ? "10px"
-            : "8px",
-        lineHeight: 1.1
+        width: "fit-content",
       }}
     >
-
-      <div className="font-bold">
-        {roomName}
-      </div>
-
-      <div className="flex gap-1">
-
-        {roomInfectionsForRoom.map(ri => {
-
-          const infection =
-            infectionTypes.find(
-              i => i.id === ri.infectionTypeId
-            )
-
-          if (!infection) {return null}
-
-          return (
-            <FaVirus
-              key={ri.id}
-              size={12}
-              color={infection.color}
-              title={infection.name}
-            />
-          )
-
-        })}
-
-      </div>
-
-    </div>
-
-        {/* 🔥 患者名 */}
-    <div
-      className="text-gray-600 mb-1"
-      style={{
-        fontSize:
-          cellSize >= 88
-            ? "12px"
-            : cellSize >= 64
-            ? "11px"
-            : cellSize >= 40
-            ? "9px"
-            : "7px",
-
-        lineHeight: 1.1
-      }}
-    >
-        {
-            hospitalSettings?.showPatientName
-                ? (patientName ? `患者: ${patientName}` : "患者なし")
-                : ""
-      }
-    </div>
-          {/* 👇 flex配置 */}
+      {/* ─── 病室ヘッダー：病室名（文字枠なし・クリーン太字） ＆ 感染症マーク ─── */}
       <div
+        className="flex items-center justify-between gap-2 mb-1"
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "8px"
+          fontSize:
+            cellSize >= 88
+              ? "14px"
+              : cellSize >= 64
+              ? "12px"
+              : cellSize >= 40
+              ? "10px"
+              : "8px",
+          lineHeight: 1.1,
         }}
       >
+        {/* 文字枠なし、視認性の高い白文字タイトル */}
+        <div className="font-bold text-slate-100 tracking-tight">
+          {roomName}
+        </div>
 
-      {roomDevices.slice(0, 6).map(d => {
-        const isCurrentDragging = draggingDevice?.id === d.id
-        const typeName =
-          deviceTypes.find(t => t.id === d.type)?.name ?? "不明"
+      {/* 感染症アイコン（この病室に感染症がある時だけ、アイコンのみ表示） */}
+        {(() => {
+          // ★ この病室（roomId）に該当する感染症だけに絞り込む
+          const currentRoomInfections = roomInfections.filter(
+            (ri) => ri.roomId === roomId
+          );
 
-        const iconColor =
-          deviceTypes.find((t) => t.id === d.type)?.iconColor
-          ?? "#BFDBFE"
+          if (currentRoomInfections.length === 0) return null;
 
+          return (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-700/80 shadow-2xs">
+              {currentRoomInfections.map((ri) => {
+                const infection = infectionTypes.find(
+                  (i) => i.id === ri.infectionTypeId
+                );
+                if (!infection) return null;
 
+                return (
+                  <div
+                    key={ri.id}
+                    className="relative group cursor-pointer flex items-center justify-center"
+                  >
+                    {/* 感染症アイコン（本体） */}
+                    <FaVirus
+                      size={12}
+                      color={infection.color || "#f43f5e"}
+                      className="filter drop-shadow-xs transition-transform duration-150 group-hover:scale-125"
+                    />
 
-        const modelName =
-          deviceModels.find(m => m.id === d.model)?.name ?? "不明"
-        const assetType=d.assetType
+                    {/* マウスホバー時にフワッと浮き出る感染症名ツールチップ */}
+                    <div
+                      className="
+                        absolute
+                        bottom-full
+                        left-1/2
+                        -translate-x-1/2
+                        mb-1.5
+                        hidden
+                        group-hover:flex
+                        items-center
+                        whitespace-nowrap
+                        rounded-md
+                        bg-slate-900/95
+                        text-white
+                        text-[10px]
+                        font-bold
+                        px-2
+                        py-0.5
+                        shadow-xl
+                        border
+                        border-rose-500/50
+                        pointer-events-none
+                        z-50
+                      "
+                    >
+                      {infection.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}  
+      </div>
 
-        return (
-          <div
-            key={d.id}
+      {/* ─── 患者名表示部 ─── */}
+      {hospitalSettings?.showPatientName && (
+        <div
+          className="text-slate-400 font-medium mb-2 truncate"
+          style={{
+            fontSize:
+              cellSize >= 88
+                ? "12px"
+                : cellSize >= 64
+                ? "11px"
+                : cellSize >= 40
+                ? "9px"
+                : "7px",
+            lineHeight: 1.2,
+          }}
+        >
+          {patientName ? (
+            <span>
+              <span className="text-slate-400 font-normal">患者:</span>{" "}
+              <span className="text-slate-200 font-bold">{patientName}</span>
+            </span>
+          ) : (
+            <span className="text-slate-500 font-normal">患者なし</span>
+          )}
+        </div>
+      )}
+
+      {/* ─── 機器配置領域（内枠なし・直接クリーンに配置） ─── */}
+      <div className="flex flex-wrap gap-2.5 items-center">
+        {roomDevices.slice(0, 6).map((d) => {
+          const isCurrentDragging = draggingDevice?.id === d.id;
+          const typeName =
+            deviceTypes.find((t) => t.id === d.type)?.name ?? "不明";
+
+          const iconColor =
+            deviceTypes.find((t) => t.id === d.type)?.iconColor ?? "#BFDBFE";
+
+          const modelName =
+            deviceModels.find((m) => m.id === d.model)?.name ?? "不明";
+          const assetType = d.assetType;
+
+          return (
+            <div
+              key={d.id}
               onPointerDown={(e) => {
-                //左クリック以外は排除
-                if (e.button !== 0) return
-                 //e.preventDefault()
+                if (e.button !== 0) return;
+                const target = e.currentTarget as HTMLElement;
+                const clientX = e.clientX;
+                const clientY = e.clientY;
 
-                    const target = e.currentTarget as HTMLElement
-                    const clientX = e.clientX
-                    const clientY = e.clientY
-
-                    startLongPress(
-                      longPress.current,
-                      () => {
-                        if (currentUser?.role === "viewer") {
-                          alert("閲覧者は機器移動できません")
-                          return
-                        }
-
-                        startDrag(
-                          target,
-                          clientX,
-                          clientY,
-                          d
-                        )
-                      }
-                    )
+                startLongPress(longPress.current, () => {
+                  if (currentUser?.role === "viewer") {
+                    alert("閲覧者は機器移動できません");
+                    return;
+                  }
+                  startDrag(target, clientX, clientY, d);
+                });
               }}
-
               onPointerUp={(e) => {
-                // 左クリック以外排除
-                if (e.button !== 0) return
-                    finishLongPress(
-                      longPress.current,
-                      () => {
-                    console.log("シングルクリック")
-                    openRoomDeviceInfoModal(d)
-                      },
-                      isDragging
-                    )
+                if (e.button !== 0) return;
+                finishLongPress(
+                  longPress.current,
+                  () => {
+                    console.log("シングルクリック");
+                    openRoomDeviceInfoModal(d);
+                  },
+                  isDragging
+                );
               }}
-
               onPointerLeave={() => {
-                cancelLongPress(longPress.current)
+                cancelLongPress(longPress.current);
               }}
-
-
-
-/*  右クリック機能
-             onContextMenu={(e) => {
-                console.log("右クリック検知")
-                e.preventDefault()
-                if (confirm(`${typeName} ${modelName} を削除しますか？`)) {
-                  deleteDevice(d.id)
-              }
-            }}
- */            
-
-
-
-            //機器アイコンdrag中は元位置のアイコンは見えなくする
-            style={{
-              touchAction: "none",
-              visibility: isCurrentDragging ? "hidden" : "visible"
-            }}
-          >
-            <DeviceIcon 
-              deviceId={d.id}
-              typeName={typeName}
-              modelName={modelName}
-              assetType={assetType}
-              iconColor={iconColor}
-
-              managementNumber={d.managementNumber}
-              serialNumber={d.serialNumber}
-              rentalEndDate={d.rentalEndDate}
-              mAlert={getMAlert(d.id)}
-              cellSize={cellSize}
-              inspectionCount={inspectionCounts[d.id] ?? 0}
-              todayInspections={todayInspections}
-              isUnderMaintenance={d.isUnderMaintenance}
-              standby={d.standby}
-              standbyStartedAt={d.standbyStartedAt}
-              
-             />
-          </div>
-        )
-      })}
+              style={{
+                touchAction: "none",
+                visibility: isCurrentDragging ? "hidden" : "visible",
+                cursor: "grab",
+              }}
+              className="active:cursor-grabbing transition-transform"
+            >
+              <DeviceIcon
+                deviceId={d.id}
+                typeName={typeName}
+                modelName={modelName}
+                assetType={assetType}
+                iconColor={iconColor}
+                managementNumber={d.managementNumber}
+                serialNumber={d.serialNumber}
+                rentalEndDate={d.rentalEndDate}
+                mAlert={getMAlert(d.id)}
+                cellSize={cellSize}
+                inspectionCount={inspectionCounts[d.id] ?? 0}
+                todayInspections={todayInspections}
+                isUnderMaintenance={d.isUnderMaintenance}
+                standby={d.standby}
+                standbyStartedAt={d.standbyStartedAt}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
-  )
+  );  
 }

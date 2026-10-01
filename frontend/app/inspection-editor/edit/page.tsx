@@ -463,397 +463,271 @@ export default function InspectionChecklistEditPage()
         fetchInitialData()
     }, [])
 
-
     return (
         <>
-            <div className="min-h-screen bg-gray-200 p-12">
+            <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
 
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
 
-                    {/* ================================= */}
                     {/* Header */}
-                    {/* ================================= */}
-
                     <div className="mb-6">
-
-                        <h1 className="
-                            text-3xl
-                            font-semibold
-                            text-gray-800
-                        ">
+                        <h1 className="text-base font-bold text-slate-900 sm:text-lg">
                             点検表編集
                         </h1>
 
-                        <p className="
-                            mt-1
-                            text-sm
-                            text-gray-500
-                        ">
+                        <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
                             点検表の情報と点検項目を編集します
                         </p>
-
                     </div>
 
 
-                    {/* ================================= */}
                     {/* Main */}
-                    {/* ================================= */}
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
 
-                    <div className="
-                        flex
-                        flex-col
-                        gap-6
-                        lg:flex-row
-                    ">
-
-                        {/* ============================= */}
                         {/* 点検表情報 */}
-                        {/* ============================= */}
+                        <section className="rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-4">
 
-                        <section className="
-                            w-full
-                            rounded-xl
-                            bg-white
-                            p-6
-                            shadow-sm
-                            lg:w-1/3
-                        ">
+                            <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
 
-                            <div className="
-                                mb-5
-                                border-b
-                                pb-4
-                            ">
-
-                                <h2 className="
-                                    text-lg
-                                    font-semibold
-                                    text-gray-800
-                                ">
+                                <h2 className="text-xs font-bold tracking-wide text-slate-700">
                                     点検表情報
                                 </h2>
 
-                                <p className="
-                                    mt-1
-                                    text-sm
-                                    text-gray-500
-                                ">
-                                    点検表の情報を編集します
+                                <p className="mt-1 text-[11px] text-slate-500">
+                                    編集する点検表を選択します
                                 </p>
 
                             </div>
 
+                            <div className="space-y-4 p-4 sm:p-5">
 
-                            {/* 点検表種類 */}
+                                {/* 点検表種類 */}
+                                <div>
 
-                            <div className="mb-5">
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        点検表種類
+                                    </label>
 
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    点検表種類
-                                </label>
-
-                                <select
-                                    value={
-                                        inspectionTypeId ?? ""
-                                    }
-                                    onChange={(event) => {
-
-                                        const id =
-                                            event.target.value === ""
-                                                ? null
-                                                : Number(
-                                                    event.target.value
-                                                )
-
-                                        setInspectionTypeId(id)
-
-                                        setSelectedChecklistId(
-                                            null
-                                        )
-
-                                        setInspectionName("")
-
-                                        setDeviceTypeId(null)
-
-                                        setDeviceModelId(null)
-
-                                    }}
-                                    className="
-                                        w-full
-                                        rounded-lg
-                                        border
-                                        border-gray-500
-                                        bg-white
-                                        px-4
-                                        py-2.5
-                                        text-sm
-                                    "
-                                >
-
-                                    <option value="">
-                                        選択してください
-                                    </option>
-
-                                    {inspectionTypes.map(
-                                        (inspectionType) => (
-
-                                            <option
-                                                key={
-                                                    inspectionType.id
-                                                }
-                                                value={
-                                                    inspectionType.id
-                                                }
-                                            >
-                                                {
-                                                    inspectionType.name
-                                                }
-                                            </option>
-
-                                        )
-                                    )}
-
-                                </select>
-
-                            </div>
-
-
-                            {/* 点検表名 */}
-
-                            <div>
-
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    点検表名
-                                </label>
-
-                                <select
-                                    value={
-                                        selectedChecklistId ?? ""
-                                    }
-                                    disabled={
-                                        inspectionTypeId === null
-                                    }
-                                    onChange={
-                                        async (event) => {
+                                    <select
+                                        value={inspectionTypeId ?? ""}
+                                        onChange={(event) => {
 
                                             const id =
                                                 event.target.value === ""
                                                     ? null
-                                                    : Number(
-                                                        event.target.value
-                                                    )
+                                                    : Number(event.target.value)
 
-                                            await handleChecklistChange(
-                                                id
+                                            setInspectionTypeId(id)
+                                            setSelectedChecklistId(null)
+                                            setInspectionName("")
+                                            setDeviceTypeId(null)
+                                            setDeviceModelId(null)
+                                            setInspectionChecklistItems([])
+
+                                        }}
+                                        className="
+                                            w-full
+                                            rounded-lg
+                                            border border-slate-200
+                                            bg-white
+                                            px-3 py-2.5
+                                            text-sm
+                                            outline-none
+                                            transition
+                                            focus:border-teal-600
+                                            focus:ring-2
+                                            focus:ring-teal-100
+                                        "
+                                    >
+
+                                        <option value="">
+                                            選択してください
+                                        </option>
+
+                                        {inspectionTypes.map((inspectionType) => (
+                                            <option
+                                                key={inspectionType.id}
+                                                value={inspectionType.id}
+                                            >
+                                                {inspectionType.name}
+                                            </option>
+                                        ))}
+
+                                    </select>
+
+                                </div>
+
+
+                                {/* 点検表名 */}
+                                <div>
+
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        点検表名
+                                    </label>
+
+                                    <select
+                                        value={selectedChecklistId ?? ""}
+                                        disabled={inspectionTypeId === null}
+                                        onChange={async (event) => {
+
+                                            const id =
+                                                event.target.value === ""
+                                                    ? null
+                                                    : Number(event.target.value)
+
+                                            await handleChecklistChange(id)
+
+                                        }}
+                                        className="
+                                            w-full
+                                            rounded-lg
+                                            border border-slate-200
+                                            bg-white
+                                            px-3 py-2.5
+                                            text-sm
+                                            outline-none
+                                            transition
+                                            focus:border-teal-600
+                                            focus:ring-2
+                                            focus:ring-teal-100
+                                            disabled:bg-slate-50
+                                            disabled:text-slate-400
+                                        "
+                                    >
+
+                                        <option value="">
+                                            {inspectionTypeId === null
+                                                ? "先に点検表種類を選択してください"
+                                                : "選択してください"}
+                                        </option>
+
+                                        {filteredInspectionChecklists.map(
+                                            (checklist) => (
+                                                <option
+                                                    key={checklist.id}
+                                                    value={checklist.id}
+                                                >
+                                                    {checklist.name}
+                                                </option>
                                             )
-                                        }
-                                    }
-                                    className="
+                                        )}
+
+                                    </select>
+
+                                </div>
+
+
+                                {/* 機種 */}
+                                <div>
+
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        機種
+                                    </label>
+
+                                    <div className="
                                         w-full
                                         rounded-lg
-                                        border
-                                        border-gray-500
-                                        bg-white
-                                        px-4
-                                        py-2.5
+                                        border border-slate-200
+                                        bg-slate-50
+                                        px-3 py-2.5
                                         text-sm
-                                    "
-                                >
-
-                                    <option value="">
+                                        text-slate-700
+                                    ">
                                         {
-                                            inspectionTypeId === null
-                                                ? "先に点検表種類を選択してください"
-                                                : "選択してください"
+                                            deviceTypes.find(
+                                                (deviceType) =>
+                                                    deviceType.id === deviceTypeId
+                                            )?.name ?? "-"
                                         }
-                                    </option>
+                                    </div>
 
-                                    {filteredInspectionChecklists.map(
-                                        (checklist) => (
-
-                                            <option
-                                                key={
-                                                    checklist.id
-                                                }
-                                                value={
-                                                    checklist.id
-                                                }
-                                            >
-                                                {
-                                                    checklist.name
-                                                }
-                                            </option>
-
-                                        )
-                                    )}
-
-                                </select>
-
-                            </div>
-
-
-                            {/* 機種 */}
-
-                            <div className="mb-5">
-
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    機種
-                                </label>
-
-                                <div className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-500
-                                    bg-gray-50
-                                    px-4
-                                    py-2.5
-                                    text-sm
-                                    text-gray-700
-                                ">
-                                    {
-                                        deviceTypes.find(
-                                            (deviceType) =>
-                                                deviceType.id ===
-                                                deviceTypeId
-                                        )?.name ?? "-"
-                                    }
                                 </div>
 
-                            </div>
 
+                                {/* 型式 */}
+                                <div>
 
-                            {/* 型式 */}
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        型式
+                                    </label>
 
-                            <div className="mb-5">
+                                    <div className="
+                                        w-full
+                                        rounded-lg
+                                        border border-slate-200
+                                        bg-slate-50
+                                        px-3 py-2.5
+                                        text-sm
+                                        text-slate-700
+                                    ">
+                                        {
+                                            deviceModels.find(
+                                                (deviceModel) =>
+                                                    deviceModel.id === deviceModelId
+                                            )?.name ?? "-"
+                                        }
+                                    </div>
 
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    型式
-                                </label>
-
-                                <div className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-500
-                                    bg-gray-50
-                                    px-4
-                                    py-2.5
-                                    text-sm
-                                    text-gray-700
-                                ">
-                                    {
-                                        deviceModels.find(
-                                            (deviceModel) =>
-                                                deviceModel.id ===
-                                                deviceModelId
-                                        )?.name ?? "-"
-                                    }
                                 </div>
 
-                            </div>
 
+                                {/* Version */}
+                                <div>
 
-                            {/* Version */}
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        Version
+                                    </label>
 
-                            <div className="mb-5">
+                                    <div className="
+                                        w-full
+                                        rounded-lg
+                                        border border-slate-200
+                                        bg-slate-50
+                                        px-3 py-2.5
+                                        text-sm
+                                        text-slate-700
+                                    ">
+                                        {selectedChecklist?.version ?? "-"}
+                                    </div>
 
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    Version
-                                </label>
-
-                                <div className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-500
-                                    bg-gray-50
-                                    px-4
-                                    py-2.5
-                                    text-sm
-                                    text-gray-700
-                                ">
-                                    {
-                                        selectedChecklist?.version ??
-                                        "-"
-                                    }
                                 </div>
 
-                            </div>
 
+                                {/* 作成日 / 更新日 */}
+                                <div>
 
-                            {/* 作成日 / 更新日 */}
+                                    <label className="mb-2 block text-xs font-medium text-slate-500">
+                                        {
+                                            selectedChecklist?.version === 1
+                                                ? "作成日"
+                                                : "更新日"
+                                        }
+                                    </label>
 
-                            <div className="mb-5">
+                                    <div className="
+                                        w-full
+                                        rounded-lg
+                                        border border-slate-200
+                                        bg-slate-50
+                                        px-3 py-2.5
+                                        text-sm
+                                        text-slate-700
+                                    ">
+                                        {
+                                            selectedChecklist
+                                                ? (
+                                                    selectedChecklist.version === 1
+                                                        ? formatDateTime(
+                                                            selectedChecklist.createdAt
+                                                        )
+                                                        : formatDateTime(
+                                                            selectedChecklist.updatedAt
+                                                        )
+                                                )
+                                                : "-"
+                                        }
+                                    </div>
 
-                                <label className="
-                                    mb-2
-                                    block
-                                    text-sm
-                                    font-medium
-                                    text-gray-700
-                                ">
-                                    {
-                                        selectedChecklist?.version === 1
-                                            ? "作成日"
-                                            : "更新日"
-                                    }
-                                </label>
-
-                                <div className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-500
-                                    bg-gray-50
-                                    px-4
-                                    py-2.5
-                                    text-sm
-                                    text-gray-700
-                                ">
-                                    {
-                                        selectedChecklist
-                                            ? (
-                                                selectedChecklist.version === 1
-                                                    ? formatDateTime(
-                                                        selectedChecklist.createdAt
-                                                    )
-                                                    : formatDateTime(
-                                                        selectedChecklist.updatedAt
-                                                    )
-                                            )
-                                            : "-"
-                                    }
                                 </div>
 
                             </div>
@@ -861,130 +735,115 @@ export default function InspectionChecklistEditPage()
                         </section>
 
 
-                        {/* ============================= */}
                         {/* 点検項目 */}
-                        {/* ============================= */}
+                        <section className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm lg:col-span-8">
 
-                        <section className="
-                            w-full
-                            rounded-xl
-                            bg-white
-                            p-6
-                            shadow-sm
-                            lg:w-2/3
-                        ">
-
-                            <div className="
-                                mb-5
-                                flex
-                                items-center
-                                justify-between
-                                border-b
-                                pb-4
-                            ">
+                            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-5">
 
                                 <div>
-
-                                    <h2 className="
-                                        text-lg
-                                        font-semibold
-                                        text-gray-800
-                                    ">
+                                    <h2 className="text-xs font-bold tracking-wide text-slate-700">
                                         点検項目
                                     </h2>
 
-                                    <p className="
-                                        mt-1
-                                        text-sm
-                                        text-gray-500
-                                    ">
+                                    <p className="mt-1 text-[11px] text-slate-500">
                                         点検項目を追加・編集・並び替えします
                                     </p>
-
                                 </div>
 
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setIsAddItemModalOpen(true)
-                                    }
+                                    onClick={() => setIsAddItemModalOpen(true)}
+                                    disabled={!selectedChecklistId}
                                     className="
+                                        flex
+                                        h-8
+                                        items-center
+                                        gap-1.5
                                         rounded-lg
-                                        bg-blue-600
-                                        px-4
-                                        py-2
-                                        text-sm
-                                        font-medium
+                                        bg-teal-700
+                                        px-3
+                                        text-xs
+                                        font-bold
                                         text-white
-                                        hover:bg-blue-700
+                                        transition-colors
+                                        hover:bg-teal-800
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-40
                                     "
                                 >
-                                    ＋ 項目を追加
+                                    <span className="text-sm">＋</span>
+                                    項目を追加
                                 </button>
 
                             </div>
 
 
-                            {/* 項目一覧 */}
+                            <div className="p-4 sm:p-5">
 
-                            {inspectionChecklistItems.length === 0 ? (
+                                {inspectionChecklistItems.length === 0 ? (
 
-                                <div className="
-                                    flex
-                                    h-[600px]
-                                    items-center
-                                    justify-center
-                                    rounded-lg
-                                    border
-                                    border-dashed
-                                    border-gray-300
-                                ">
+                                    <div className="
+                                        flex
+                                        h-[calc(100vh-350px)]
+                                        min-h-[300px]
+                                        max-h-[600px]
+                                        items-center
+                                        justify-center
+                                        rounded-lg
+                                        border
+                                        border-dashed
+                                        border-slate-200
+                                    ">
 
-                                    <div className="text-center">
+                                        <div className="text-center">
 
-                                        <p className="
-                                            text-sm
-                                            text-gray-400
-                                        ">
-                                            まだ点検項目がありません
-                                        </p>
+                                            <p className="text-sm text-slate-400">
+                                                {
+                                                    selectedChecklistId
+                                                        ? "まだ点検項目がありません"
+                                                        : "点検表を選択してください"
+                                                }
+                                            </p>
 
-                                        <p className="
-                                            mt-1
-                                            text-xs
-                                            text-gray-400
-                                        ">
-                                            「項目を追加」から追加してください
-                                        </p>
+                                            {selectedChecklistId && (
+                                                <p className="mt-1 text-xs text-slate-400">
+                                                    「項目を追加」から点検項目を追加してください
+                                                </p>
+                                            )}
+
+                                        </div>
 
                                     </div>
 
-                                </div>
+                                ) : (
 
-                            ) : (
+                                    <div className="
+                                        h-[calc(100vh-350px)]
+                                        min-h-[300px]
+                                        max-h-[600px]
+                                        overflow-y-auto
+                                        pr-2
+                                    ">
 
-                                <div className="
-                                    h-[600px]
-                                    overflow-y-auto
-                                ">
+                                        <DndContext
+                                            collisionDetection={closestCenter}
+                                            onDragEnd={handleChecklistItemDragEnd}
+                                            modifiers={[restrictToVerticalAxis]}
+                                        >
 
-                                    <DndContext
-                                        collisionDetection={closestCenter}
-                                        onDragEnd={handleChecklistItemDragEnd}
-                                        modifiers={[restrictToVerticalAxis,]}
-                                    >
-                                        <SortableContext
-                                            items={inspectionChecklistItems.map(
+                                            <SortableContext
+                                                items={inspectionChecklistItems.map(
                                                     (item) => item.id
                                                 )}
-                                            strategy={verticalListSortingStrategy}
-                                        >
-                                            <div className="space-y-2">
-                                                {
-                                                    inspectionChecklistItems.map(
-                                                        (item,index) =>
-                                                        (
+                                                strategy={verticalListSortingStrategy}
+                                            >
+
+                                                <div className="space-y-2">
+
+                                                    {inspectionChecklistItems.map(
+                                                        (item, index) => (
+
                                                             <SortableInspectionChecklistItemEdit
                                                                 key={item.id}
                                                                 item={item}
@@ -992,117 +851,132 @@ export default function InspectionChecklistEditPage()
                                                                 inspectionItemTypes={inspectionItemTypes}
                                                                 inspectionItemCategories={inspectionItemCategories}
                                                                 onEdit={(item) => {
-                                                                        setEditingChecklistItem(item)
-                                                                        setIsEditItemModalOpen(true)
-                                                                    }
-                                                                }
+                                                                    setEditingChecklistItem(item)
+                                                                    setIsEditItemModalOpen(true)
+                                                                }}
                                                                 onDelete={(itemId) => {
-                                                                        if (originalItemIds.includes(itemId))
-                                                                        {
-                                                                            setDeleteItemIds(
-                                                                                (prev) => [
-                                                                                    ...prev,
-                                                                                    itemId,
-                                                                                ]
-                                                                            )
-                                                                        }
-                                                                        setInspectionChecklistItems((prev) =>
-                                                                                prev.filter(
-                                                                                    (item) =>
-                                                                                        item.id !==
-                                                                                        itemId
-                                                                                )
+
+                                                                    if (
+                                                                        originalItemIds.includes(
+                                                                            itemId
+                                                                        )
+                                                                    ) {
+                                                                        setDeleteItemIds(
+                                                                            (prev) => [
+                                                                                ...prev,
+                                                                                itemId,
+                                                                            ]
                                                                         )
                                                                     }
-                                                                }
+
+                                                                    setInspectionChecklistItems(
+                                                                        (prev) =>
+                                                                            prev.filter(
+                                                                                (item) =>
+                                                                                    item.id !==
+                                                                                    itemId
+                                                                            )
+                                                                    )
+                                                                }}
                                                             />
 
                                                         )
-                                                    )
-                                                }
+                                                    )}
 
-                                            </div>
+                                                </div>
 
-                                        </SortableContext>
+                                            </SortableContext>
 
-                                    </DndContext>
+                                        </DndContext>
 
-                                </div>
+                                    </div>
 
-                            )}
+                                )}
+
+                            </div>
 
                         </section>
 
                     </div>
 
 
-                    {/* ================================= */}
                     {/* Footer */}
-                    {/* ================================= */}
-
                     <div className="
-                        mt-6
+                        mt-4
                         flex
-                        justify-between
+                        flex-col-reverse
                         gap-3
+                        sm:mt-6
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
                     ">
 
                         <button
                             type="button"
-                            onClick={() =>
-                                router.back()
-                            }
+                            onClick={() => router.back()}
                             className="
                                 rounded-lg
-                                border
-                                border-gray-500
+                                border border-slate-200
                                 bg-white
-                                px-5
-                                py-2.5
+                                px-5 py-2.5
                                 text-sm
                                 font-medium
-                                text-gray-700
+                                text-slate-700
+                                hover:bg-slate-50
                             "
                         >
-                            ダッシュボードに戻る
+                            戻る
                         </button>
 
-                        <div className="flex gap-3">
+
+                        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
 
                             <button
                                 type="button"
                                 onClick={handleDelete}
                                 disabled={loading || !selectedChecklistId}
                                 className="
-                                    rounded-lg
+                                    h-11
+                                    w-full
+                                    rounded-xl
                                     border
-                                    border-red-500
+                                    border-rose-200
                                     bg-white
                                     px-6
-                                    py-2.5
                                     text-sm
-                                    font-medium
-                                    text-red-600
-                                    hover:bg-red-50
-                                    disabled:opacity-50
+                                    font-bold
+                                    text-rose-600
+                                    transition-colors
+                                    hover:bg-rose-50
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-40
+                                    sm:w-auto
                                 "
                             >
                                 削除
                             </button>
 
+
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                disabled={loading}
+                                disabled={loading || !selectedChecklistId}
                                 className="
-                                    rounded-lg
-                                    bg-blue-600
+                                    h-11
+                                    w-full
+                                    rounded-xl
+                                    bg-teal-700
                                     px-6
-                                    py-2.5
                                     text-sm
-                                    font-medium
+                                    font-bold
                                     text-white
+                                    transition-all
+                                    hover:bg-teal-800
+                                    active:scale-[0.99]
+                                    disabled:cursor-not-allowed
                                     disabled:opacity-50
+                                    sm:w-auto
                                 "
                             >
                                 保存
@@ -1111,50 +985,39 @@ export default function InspectionChecklistEditPage()
                         </div>
 
                     </div>
+
                 </div>
 
 
-                {/* ================================= */}
                 {/* 項目追加Modal */}
-                {/* ================================= */}
-
                 <AddInspectionChecklistItemEditModal
                     open={isAddItemModalOpen}
                     inspectionItemTypes={inspectionItemTypes}
                     inspectionItemCategories={inspectionItemCategories}
-                    onClose={() =>setIsAddItemModalOpen(false)}
-
-                    // ★ 新規登録用と同じくoptionsを受け取る
+                    onClose={() => setIsAddItemModalOpen(false)}
                     onAdd={addChecklistItem}
                 />
 
 
-                {/* ================================= */}
                 {/* 項目編集Modal */}
-                {/* ================================= */}
-
                 <EditInspectionChecklistItemEditModal
                     open={isEditItemModalOpen}
                     item={editingChecklistItem}
-                    inspectionItemTypes={
-                        inspectionItemTypes
-                    }
+                    inspectionItemTypes={inspectionItemTypes}
                     inspectionItemCategories={inspectionItemCategories}
                     onClose={() => {
                         setIsEditItemModalOpen(false)
                         setEditingChecklistItem(null)
                     }}
                     onSave={updateChecklistItem}
-
                 />
 
             </div>
 
 
-            <LoadingOverlay
-                loading={loading}
-            />
+            <LoadingOverlay loading={loading} />
 
         </>
     )
+
 }

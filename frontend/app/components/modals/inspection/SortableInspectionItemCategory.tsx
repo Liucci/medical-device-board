@@ -3,37 +3,30 @@
 import type { CSSProperties } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-
-import {
-    GripVertical,
-    Pencil, 
-    Trash2,
-} from "lucide-react"
-
-import type {
-    InspectionItemCategoryEditType,
-} from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
-
+import { GripVertical, Pencil, Trash2 } from "lucide-react"
+import type { InspectionItemCategoryEditType } from "../../../types/inspectionTypes/inspectionItemCategoryTypes"
 
 type SortableInspectionItemCategoryProps = {
     category: InspectionItemCategoryEditType
     index: number
     onEdit: (category: InspectionItemCategoryEditType) => void
     onDelete: (category: InspectionItemCategoryEditType) => void
+    onToggleExcludeWhenStandby: (category: InspectionItemCategoryEditType) => void
 }
+
 export default function SortableInspectionItemCategory({
     category,
     index,
     onEdit,
-    onDelete
+    onDelete,
+    onToggleExcludeWhenStandby
 }: SortableInspectionItemCategoryProps) {
 
-    // 新規追加カテゴリーは id が null のため、
-    // UI上で一意になるSortable IDを作る
-const sortableId =
-    category.id !== null
-        ? `category-${category.id}`
-        : `new-category-${index}`
+    const sortableId =
+        category.id !== null
+            ? `category-${category.id}`
+            : `new-category-${index}`
+
     const {
         attributes,
         listeners,
@@ -45,20 +38,19 @@ const sortableId =
         id: sortableId,
     })
 
-
     const style: CSSProperties = {
         transform: CSS.Transform.toString(
-                                            transform? {
-                                                        ...transform,
-                                                        x: 0,
-                                            }
-                                            : null     
+            transform
+                ? {
+                    ...transform,
+                    x: 0,
+                }
+                : null
         ),
         transition,
         opacity: isDragging ? 0.5 : 1,
         zIndex: isDragging ? 1 : undefined,
     }
-
 
     return (
         <div
@@ -102,7 +94,6 @@ const sortableId =
                 <Pencil size={15} />
             </button>
 
-
             {/* 番号 */}
             <div
                 className="
@@ -115,7 +106,6 @@ const sortableId =
             >
                 {index + 1}
             </div>
-
 
             {/* 大項目名 */}
             <div
@@ -134,6 +124,37 @@ const sortableId =
                 {category.name}
             </div>
 
+            {/* スタンバイ時対象外 */}
+            <label
+                className="
+                    flex
+                    shrink-0
+                    cursor-pointer
+                    items-center
+                    gap-1.5
+                    whitespace-nowrap
+                    text-xs
+                    text-gray-600
+                "
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+            >
+                <input
+                    type="checkbox"
+                    checked={category.excludeWhenStandby}
+                    onChange={() => onToggleExcludeWhenStandby(category)}
+                    className="
+                        h-4
+                        w-4
+                        cursor-pointer
+                        rounded
+                        border-gray-300
+                        text-blue-500
+                        focus:ring-blue-200
+                    "
+                />
+                <span>スタンバイ時<br />対象外にする</span>
+            </label>
 
             {/* 削除 */}
             <button
@@ -161,7 +182,7 @@ const sortableId =
             >
                 <Trash2 size={15} />
             </button>
-            
+
             {/* Drag handle */}
             <button
                 type="button"

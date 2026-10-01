@@ -49,47 +49,78 @@ export default function AddMaintenanceTaskModal({
     onClose()
   }
 
-  return (
-    <CommonModal
-      open={isOpen}
-      onClose={handleClose}
-      title="メンテナンスタスク追加"
-    >
+return (
+  <CommonModal
+    open={isOpen}
+    onClose={handleClose}
+    title="メンテナンスタスク追加"
+  >
+    <div className="bg-slate-50 p-4 sm:p-5">
       <div className="space-y-5">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            メンテナンスタイプ
-          </label>
+        <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
+            <div className="text-xs font-bold tracking-wide text-slate-700">
+              メンテナンスタイプ
+            </div>
+            <div className="mt-0.5 text-[11px] text-slate-400">
+              追加するメンテナンスを選択してください
+            </div>
+          </div>
 
-          {availableMaintenanceTypes.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              この機種・型式に追加できるメンテナンスタイプがありません。
-            </p>
-          ) : (
-            <select
-              value={maintenanceTypeId ?? ""}
-              onChange={e => setMaintenanceTypeId(e.target.value ? Number(e.target.value) : null)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">選択してください</option>
+          <div className="p-4 sm:p-5">
+            {availableMaintenanceTypes.length === 0 ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-sm font-medium text-slate-500">
+                  この機種・型式に追加できるメンテナンスタイプがありません。
+                </p>
+              </div>
+            ) : (
+              <select
+                value={maintenanceTypeId ?? ""}
+                onChange={e =>
+                  setMaintenanceTypeId(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
+                className="
+                  h-11 w-full rounded-lg
+                  border border-slate-300
+                  bg-white px-3
+                  text-sm font-medium text-slate-900
+                  outline-none
+                  transition-colors
+                  focus:border-teal-600
+                  focus:ring-2
+                  focus:ring-teal-600/15
+                "
+              >
+                <option value="">選択してください</option>
 
-              {availableMaintenanceTypes.map(maintenanceType => (
-                <option
-                  key={maintenanceType.id}
-                  value={maintenanceType.id}
-                >
-                  {maintenanceType.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+                {availableMaintenanceTypes.map(maintenanceType => (
+                  <option
+                    key={maintenanceType.id}
+                    value={maintenanceType.id}
+                  >
+                    {maintenanceType.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </section>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            className="
+              h-10 rounded-lg
+              border border-slate-200
+              bg-slate-50 px-4
+              text-xs font-bold text-slate-700
+              transition-colors
+              hover:bg-slate-100
+            "
           >
             キャンセル
           </button>
@@ -98,12 +129,22 @@ export default function AddMaintenanceTaskModal({
             type="button"
             onClick={handleAdd}
             disabled={maintenanceTypeId === null}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="
+              h-10 rounded-lg
+              bg-teal-700 px-4
+              text-xs font-bold text-white
+              transition-colors
+              hover:bg-teal-800
+              disabled:cursor-not-allowed
+              disabled:bg-slate-300
+              disabled:text-slate-500
+            "
           >
             決定
           </button>
         </div>
       </div>
-    </CommonModal>
-  )
+    </div>
+  </CommonModal>
+)  
 }

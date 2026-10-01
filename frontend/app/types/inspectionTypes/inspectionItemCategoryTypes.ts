@@ -4,6 +4,7 @@ export type InspectionItemCategoryDBType = {
     name: string
     display_order: number
     is_active: boolean
+    exclude_when_standby: boolean
 }
 
 
@@ -13,6 +14,7 @@ export type InspectionItemCategoryType = {
     name: string
     displayOrder: number
     isActive: boolean
+    excludeWhenStandby: boolean
 }
 
 
@@ -23,6 +25,7 @@ export type InspectionItemCategoryEditType = {
     name: string
     displayOrder: number
     isActive: boolean
+    excludeWhenStandby: boolean
 }
 
 
@@ -42,6 +45,7 @@ export type InspectionItemCategorySaveBackType = {
     name: string
     display_order: number
     is_active: boolean
+    exclude_when_standby: boolean
 }
 
 

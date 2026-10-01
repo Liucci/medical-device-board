@@ -11,6 +11,7 @@ import { executeWithErrorAndLoading } from "../../components/common/executeWithE
 import { LoadingOverlay } from "../common/LoadingOverlay"
 import { updateRoomInfectionsTransaction } from "../../api/transactions/roomInfections/updateRoomInfectionsTransaction"
 import { FaVirus } from "react-icons/fa"
+import { Edit2, Plus, Trash2 } from "lucide-react"
 
 type Props = {
   isOpen: boolean
@@ -56,82 +57,156 @@ export default function InfectionSelectModal({
 
   return createPortal(
     <>
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
 
-      <div className="w-[420px] rounded-xl bg-white p-6 shadow-xl">
+        <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-slate-300 bg-slate-50 text-slate-900 shadow-2xl">
 
-        <h2 className="mb-4 text-lg font-bold">
-          感染症設定
-        </h2>
+          {/* ================================================= */}
+          {/* ヘッダー */}
+          {/* ================================================= */}
+          <div className="shrink-0 border-b border-slate-200 bg-slate-900 px-5 py-4">
+            <h2 className="text-sm font-bold text-white">
+              感染症設定
+            </h2>
 
-        <div className="max-h-80 overflow-y-auto border rounded p-3">
+            <p className="mt-1 text-[11px] text-slate-300">
+              この部屋に該当する感染症を選択してください
+            </p>
+          </div>
 
-          {infectionTypes.map(type => (
-            <label
-              key={type.id}
-              className="flex items-center gap-2 py-1 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={selectedIds.includes(type.id)}
-                onChange={() => toggle(type.id)}
-              />
+          {/* ================================================= */}
+          {/* 感染症一覧 */}
+          {/* ================================================= */}
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
 
-                <div className="flex items-center gap-2">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              {infectionTypes.length === 0 ? (
 
-                <FaVirus
-                    size={16}
-                    color={type.color}
-                />
+                <div className="px-4 py-10 text-center text-xs text-slate-400">
+                  登録されている感染症はありません
+                </div>
 
-                <span>{type.name}</span>
+              ) : (
 
-                </div>              
-            </label>
-          ))}
+                <div>
+                  {infectionTypes.map(type => (
+                    <label
+                      key={type.id}
+                      className="
+                        flex
+                        cursor-pointer
+                        items-center
+                        gap-3
+                        border-b
+                        border-slate-100
+                        px-4
+                        py-3
+                        last:border-b-0
+                        hover:bg-slate-50
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(type.id)}
+                        onChange={() => toggle(type.id)}
+                        className="
+                          h-4
+                          w-4
+                          cursor-pointer
+                          rounded
+                          border-slate-300
+                          text-teal-700
+                          focus:ring-teal-500
+                        "
+                      />
 
-        </div>
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <FaVirus
+                          size={16}
+                          color={type.color}
+                        />
 
-        <div className="mt-5 flex justify-end gap-2">
+                        <span className="truncate text-sm font-bold text-slate-800">
+                          {type.name}
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
 
-          <button
-            onClick={onClose}
-            className="rounded bg-gray-200 px-4 py-2 hover:bg-gray-300"
-          >
-            キャンセル
-          </button>
+              )}
+            </div>
 
-          <button
-            onClick={async() => {
-                await executeWithErrorAndLoading({
+          </div>
+
+          {/* ================================================= */}
+          {/* フッター */}
+          {/* ================================================= */}
+          <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-3">
+            <div className="flex justify-end gap-2">
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="
+                  h-9
+                  rounded-lg
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  px-4
+                  text-xs
+                  font-bold
+                  text-slate-700
+                  transition-colors
+                  hover:bg-slate-100
+                "
+              >
+                キャンセル
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
 
-                        await updateRoomInfectionsTransaction({
-                                                                roomInfection: {
-                                                                                roomId,
-                                                                                infectionTypeIds: selectedIds
-                                                                            },
-                                                                setRoomInfections
-                                                            })
+                      await updateRoomInfectionsTransaction({
+                        roomInfection: {
+                          roomId,
+                          infectionTypeIds: selectedIds
+                        },
+                        setRoomInfections
+                      })
 
-                    onClose()         
+                      onClose()
                     }
-                    })
-            }}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            保存
-          </button>
+                  })
+                }}
+                className="
+                  h-9
+                  rounded-lg
+                  bg-teal-700
+                  px-5
+                  text-xs
+                  font-bold
+                  text-white
+                  transition-colors
+                  hover:bg-teal-800
+                "
+              >
+                保存
+              </button>
+
+            </div>
+          </div>
 
         </div>
-
       </div>
 
-    </div>
-<LoadingOverlay loading={loading} />
-  </>    
-    ,
+      <LoadingOverlay loading={loading} />
+    </>,
     document.body
-  )
+  )  
 }

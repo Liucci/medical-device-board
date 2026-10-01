@@ -282,30 +282,61 @@ function InspectionExecutionPage() {
                 await executeWithErrorAndLoading({
                     setLoading,
                     action: async () => {
-                            const inspectionChecklistItemsData =
-                                await getInspectionChecklistItemsWithOptionsFromApi(
-                                    Number(selectedChecklistId)
-                                )
+                        const inspectionChecklistItemsData =
+                            await getInspectionChecklistItemsWithOptionsFromApi(
+                                Number(selectedChecklistId)
+                            )
 
-                            const inspectionChecklistItems =
-                                inspectionChecklistItemsData.map(
-                                    normalizeInspectionChecklistItem
-                                )
-                            // itemごとのoptionsを作成
-                            const optionsByChecklistItemId: Record<number,
-                                InspectionChecklistItemOptionFrontType[]
-                            > = {}
+                        const normalizedItems: InspectionChecklistItem[] =
+                            inspectionChecklistItemsData.map(
+                                normalizeInspectionChecklistItem
+                            )
+                        const inspectionChecklistItems: InspectionChecklistItem[] =
+                            inspectionChecklistItemsData.map(
+                                normalizeInspectionChecklistItem
+                            )
 
-                            inspectionChecklistItemsData.forEach((item: any) => {
-                                optionsByChecklistItemId[item.id] =
-                                    (item.options ?? []).map(
-                                        normalizeInspectionChecklistItemOption
-                                    )
+                        // standby時に対象外となる項目を「対象外」にする
+                        if (device?.standby) {
+                            const standbyExcludedItemIds = new Set(
+                                inspectionChecklistItems
+                                    .filter(item => {
+                                        const category = inspectionItemCategories.find(
+                                            category => category.id === item.categoryId
+                                        )
+
+                                        return category?.excludeWhenStandby === true
+                                    })
+                                    .map(item => item.id)
+                            )
+
+                            setInspectionResults(prev => {
+                                const next = { ...prev }
+
+                                standbyExcludedItemIds.forEach(itemId => {
+                                    next[itemId] = "-"
+                                })
+
+                                return next
                             })
+                        }
 
+                        // itemごとのoptions
+                        const optionsByChecklistItemId: Record<
+                            number,
+                            InspectionChecklistItemOptionFrontType[]
+                        > = {}
 
-                            setInspectionChecklistItems(inspectionChecklistItems)
-                            setInspectionChecklistItemOptions(optionsByChecklistItemId)        
+                        inspectionChecklistItemsData.forEach((item: any) => {
+                            optionsByChecklistItemId[item.id] =
+                                (item.options ?? []).map(
+                                    normalizeInspectionChecklistItemOption
+                                )
+                        })
+
+                        setInspectionChecklistItems(inspectionChecklistItems)
+                        setInspectionChecklistItemOptions(optionsByChecklistItemId)                            
+                            
                     },
                 })
             } catch (error) {

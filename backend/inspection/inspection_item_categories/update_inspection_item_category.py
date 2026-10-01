@@ -15,7 +15,8 @@ def update_inspection_item_category(
         .update({
             "name": inspection_item_category.name,
             "display_order": inspection_item_category.display_order,
-            "is_active": inspection_item_category.is_active
+            "is_active": inspection_item_category.is_active,
+            "exclude_when_standby": inspection_item_category.exclude_when_standby
         })
         .eq("id", inspection_item_category.id)
         .eq("hospital_id", hospital_id)
