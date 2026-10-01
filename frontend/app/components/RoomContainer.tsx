@@ -88,14 +88,12 @@ const roomInfectionsForRoom =
     ri => ri.roomId === roomId
   )
 
-    // 病室に配置されている機器がない場合は病棟に何も表示しない
+// 病室に配置されている機器がない場合は病棟に何も表示しない
   if (roomDevices.length === 0) {
-  return 
+    return null;
   }
 
-
-   
-const hasInfection = roomInfectionsForRoom.length > 0;
+  const hasInfection = roomInfectionsForRoom.length > 0;
 
   return (
     <div
@@ -109,11 +107,11 @@ const hasInfection = roomInfectionsForRoom.length > 0;
         duration-150
         select-none
         border
-        /* ─── 病室自体の強い立体感（多層ドロップシャドウ ＋ 上端光彩 ＋ 下端シェード ＋ 微細曲面グラデーション） ─── */
+        /* ─── 病室立体成型トレイ（病棟より一段明るいトレイ ＋ 上端光彩 ＋ 下端シェード） ─── */
         ${
           hasInfection
-            ? "border-rose-300/90 bg-gradient-to-b from-rose-50/95 via-white to-rose-100/60 shadow-[0_6px_18px_-3px_rgba(244,63,94,0.18),0_2px_5px_-1px_rgba(244,63,94,0.10),inset_0_1.5px_0_0_rgba(255,255,255,1),inset_0_-1.5px_0_0_rgba(244,63,94,0.12)] hover:border-rose-400"
-            : "border-slate-300/80 bg-gradient-to-b from-white via-slate-50 to-slate-100/90 shadow-[0_6px_16px_-3px_rgba(15,23,42,0.10),0_2px_4px_-1px_rgba(15,23,42,0.06),inset_0_1.5px_0_0_rgba(255,255,255,1),inset_0_-1.5px_0_0_rgba(15,23,42,0.05)] hover:border-slate-400/80 hover:shadow-[0_10px_22px_-4px_rgba(15,23,42,0.14),0_3px_6px_-2px_rgba(15,23,42,0.08)]"
+            ? "border-rose-500/80 bg-gradient-to-b from-[#381a24] via-[#2a141c] to-[#1e0e14] shadow-[0_4px_14px_-2px_rgba(244,63,94,0.3),inset_0_1.5px_0_0_rgba(255,255,255,0.15),inset_0_-1px_0_0_rgba(0,0,0,0.4)] hover:border-rose-400"
+            : "border-slate-600/70 bg-gradient-to-b from-[#243247] via-[#1e293b] to-[#17212f] shadow-[0_4px_14px_-2px_rgba(0,0,0,0.4),inset_0_1.5px_0_0_rgba(255,255,255,0.12),inset_0_-1px_0_0_rgba(0,0,0,0.3)] hover:border-sky-400/50 hover:shadow-[0_8px_18px_-3px_rgba(0,0,0,0.55)]"
         }
         ${hasInfection ? "infection-glow" : ""}
       `}
@@ -122,7 +120,7 @@ const hasInfection = roomInfectionsForRoom.length > 0;
         width: "fit-content",
       }}
     >
-      {/* ─── 病室ヘッダー：病室名（文字枠なし・クリーン表示） ＆ 感染症マーク ─── */}
+      {/* ─── 病室ヘッダー：病室名（文字枠なし・クリーン太字） ＆ 感染症マーク ─── */}
       <div
         className="flex items-center justify-between gap-2 mb-1"
         style={{
@@ -137,38 +135,80 @@ const hasInfection = roomInfectionsForRoom.length > 0;
           lineHeight: 1.1,
         }}
       >
-        {/* 文字枠なし、視認性の高いクリーンな太字タイトル */}
-        <div className="font-bold text-slate-900 tracking-tight">
+        {/* 文字枠なし、視認性の高い白文字タイトル */}
+        <div className="font-bold text-slate-100 tracking-tight">
           {roomName}
         </div>
 
-        {/* 感染症アイコン */}
-        {hasInfection && (
-          <div className="flex items-center gap-1">
-            {roomInfectionsForRoom.map((ri) => {
-              const infection = infectionTypes.find(
-                (i) => i.id === ri.infectionTypeId
-              );
-              if (!infection) return null;
+      {/* 感染症アイコン（この病室に感染症がある時だけ、アイコンのみ表示） */}
+        {(() => {
+          // ★ この病室（roomId）に該当する感染症だけに絞り込む
+          const currentRoomInfections = roomInfections.filter(
+            (ri) => ri.roomId === roomId
+          );
 
-              return (
-                <FaVirus
-                  key={ri.id}
-                  size={12}
-                  color={infection.color}
-                  title={infection.name}
-                  className="filter drop-shadow-xs"
-                />
-              );
-            })}
-          </div>
-        )}
+          if (currentRoomInfections.length === 0) return null;
+
+          return (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-700/80 shadow-2xs">
+              {currentRoomInfections.map((ri) => {
+                const infection = infectionTypes.find(
+                  (i) => i.id === ri.infectionTypeId
+                );
+                if (!infection) return null;
+
+                return (
+                  <div
+                    key={ri.id}
+                    className="relative group cursor-pointer flex items-center justify-center"
+                  >
+                    {/* 感染症アイコン（本体） */}
+                    <FaVirus
+                      size={12}
+                      color={infection.color || "#f43f5e"}
+                      className="filter drop-shadow-xs transition-transform duration-150 group-hover:scale-125"
+                    />
+
+                    {/* マウスホバー時にフワッと浮き出る感染症名ツールチップ */}
+                    <div
+                      className="
+                        absolute
+                        bottom-full
+                        left-1/2
+                        -translate-x-1/2
+                        mb-1.5
+                        hidden
+                        group-hover:flex
+                        items-center
+                        whitespace-nowrap
+                        rounded-md
+                        bg-slate-900/95
+                        text-white
+                        text-[10px]
+                        font-bold
+                        px-2
+                        py-0.5
+                        shadow-xl
+                        border
+                        border-rose-500/50
+                        pointer-events-none
+                        z-50
+                      "
+                    >
+                      {infection.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}  
       </div>
 
       {/* ─── 患者名表示部 ─── */}
       {hospitalSettings?.showPatientName && (
         <div
-          className="text-slate-500 font-medium mb-2 truncate"
+          className="text-slate-400 font-medium mb-2 truncate"
           style={{
             fontSize:
               cellSize >= 88
@@ -184,15 +224,15 @@ const hasInfection = roomInfectionsForRoom.length > 0;
           {patientName ? (
             <span>
               <span className="text-slate-400 font-normal">患者:</span>{" "}
-              <span className="text-slate-700 font-bold">{patientName}</span>
+              <span className="text-slate-200 font-bold">{patientName}</span>
             </span>
           ) : (
-            <span className="text-slate-400 font-normal">患者なし</span>
+            <span className="text-slate-500 font-normal">患者なし</span>
           )}
         </div>
       )}
 
-      {/* ─── 機器配置領域（内側の枠は削除し、直接すっきり並べる） ─── */}
+      {/* ─── 機器配置領域（内枠なし・直接クリーンに配置） ─── */}
       <div className="flex flex-wrap gap-2.5 items-center">
         {roomDevices.slice(0, 6).map((d) => {
           const isCurrentDragging = draggingDevice?.id === d.id;
@@ -266,6 +306,5 @@ const hasInfection = roomInfectionsForRoom.length > 0;
         })}
       </div>
     </div>
-  );
-  
+  );  
 }

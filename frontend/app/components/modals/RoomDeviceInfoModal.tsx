@@ -36,6 +36,7 @@ import {
 import { FaVirus } from "react-icons/fa"
 //modal
 import CommonModal from "../common/CommonModal"
+import InputModal from "../common/InputModal"
 import { executeWithLoading } from "../common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import {LoadingOverlay} from "../common/LoadingOverlay"
@@ -110,6 +111,147 @@ const [loading, setLoading] = useState(false)
 const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
 const router = useRouter()
 const [isAddMaintenanceTaskModalOpen, setIsAddMaintenanceTaskModalOpen] = useState(false)
+
+const [isInputModalOpen, setIsInputModalOpen] = useState(false)
+const [inputModalTarget, setInputModalTarget] = useState<
+  | "managementNumber"
+  | "serialNumber"
+  | "rentalStartDate"
+  | "rentalEndDate"
+  | "note"
+  | "maintenanceTaskDueAt"
+  | null
+>(null)
+const [inputModalTitle, setInputModalTitle] = useState("")
+const [inputModalLabel, setInputModalLabel] = useState("")
+const [inputModalType, setInputModalType] = useState<
+  "text" | "number" | "date" | "time"
+>("text")
+const [inputModalDefaultValue, setInputModalDefaultValue] = useState("")
+const [inputModalTaskId, setInputModalTaskId] = useState<number | null>(null)
+const [inputModalRentalStartDate, setInputModalRentalStartDate] = useState("")
+
+const openInputModal = ({
+  target,
+  title,
+  label,
+  type = "text",
+  defaultValue = "",
+}: {
+  target:
+    | "managementNumber"
+    | "serialNumber"
+    | "rentalStartDate"
+    | "rentalEndDate"
+    | "note"
+    | "maintenanceTaskDueAt"
+  title: string
+  label?: string
+  type?: "text" | "number" | "date" | "time"
+  defaultValue?: string
+}) => {
+  setInputModalTarget(target)
+  setInputModalTitle(title)
+  setInputModalLabel(label ?? "")
+  setInputModalType(type)
+  setInputModalDefaultValue(defaultValue)
+  setIsInputModalOpen(true)
+}
+
+const handleInputModalConfirm = async (value: string) => {
+  const target = inputModalTarget
+  if (!target || !selectedRoomDevice?.id) return
+
+  setIsInputModalOpen(false)
+
+  if (target === "managementNumber") {
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameManagementNumber(
+          selectedRoomDevice.id,
+          value
+        )
+        if (!success) return
+      },
+    })
+    return
+  }
+
+  if (target === "serialNumber") {
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameSerialNumber(
+          selectedRoomDevice.id,
+          value
+        )
+        if (!success) return
+      },
+    })
+    return
+  }
+
+  if (target === "note") {
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameNote(
+          selectedRoomDevice.id,
+          value
+        )
+        if (!success) return
+      },
+    })
+    return
+  }
+
+  if (target === "rentalStartDate") {
+    setInputModalRentalStartDate(value)
+
+    setInputModalTarget("rentalEndDate")
+    setInputModalTitle("返却日を入力")
+    setInputModalLabel("返却日")
+    setInputModalType("date")
+    setInputModalDefaultValue(
+      rentalEndDate ? rentalEndDate.replace(/-/g, "/") : ""
+    )
+    setIsInputModalOpen(true)
+    return
+  }
+
+  if (target === "rentalEndDate") {
+    const normalizedEndDate = value.replace(/\//g, "-")
+
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameRentalDates(
+          selectedRoomDevice.id,
+          inputModalRentalStartDate.replace(/\//g, "-"),
+          normalizedEndDate
+        )
+        if (!success) return
+      },
+    })
+    return
+  }
+
+  if (target === "maintenanceTaskDueAt") {
+    if (inputModalTaskId === null) return
+
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const success = await renameMaintenanceTaskDueAt({
+          id: inputModalTaskId,
+          dueAt: `${value.replace(/\//g, "-")}T00:00:00`,
+        })
+        if (!success) return
+      },
+    })
+  }
+}
 
 if (!isOpen || !selectedRoomDevice) return null
 
@@ -718,25 +860,11 @@ return (
 
                               if (!deviceId) return
 
-                              const val =
-                                prompt(
-                                  "管理番号を入力",
-                                  managementNumber
-                                )
-
-                              if (val === null) return
-
-                              await executeWithErrorAndLoading({
-                                setLoading,
-                                action: async () => {
-                                  const success =
-                                    await renameManagementNumber(
-                                      deviceId,
-                                      val
-                                    )
-
-                                  if (!success) return
-                                },
+                              openInputModal({
+                                target: "managementNumber",
+                                title: "管理番号を入力",
+                                label: "ME管理番号",
+                                defaultValue: managementNumber,
                               })
                             }}
                             className="
@@ -774,25 +902,11 @@ return (
 
                               if (!deviceId) return
 
-                              const val =
-                                prompt(
-                                  "シリアル番号を入力",
-                                  serialNumber
-                                )
-
-                              if (val === null) return
-
-                              await executeWithErrorAndLoading({
-                                setLoading,
-                                action: async () => {
-                                  const success =
-                                    await renameSerialNumber(
-                                      deviceId,
-                                      val
-                                    )
-
-                                  if (!success) return
-                                },
+                              openInputModal({
+                                target: "serialNumber",
+                                title: "シリアル番号を入力",
+                                label: "シリアル番号（S/N）",
+                                defaultValue: serialNumber,
                               })
                             }}
                             className="
@@ -846,34 +960,14 @@ return (
 
                             if (!deviceId) return
 
-                            const start =
-                              prompt(
-                                "貸与開始日を入力 (YYYY-MM-DD)",
-                                rentalStartDate
-                              )
-
-                            if (start === null) return
-
-                            const end =
-                              prompt(
-                                "返却日を入力 (YYYY-MM-DD)",
-                                rentalEndDate
-                              )
-
-                            if (end === null) return
-
-                            await executeWithErrorAndLoading({
-                              setLoading,
-                              action: async () => {
-                                const success =
-                                  await renameRentalDates(
-                                    deviceId,
-                                    start,
-                                    end
-                                  )
-
-                                if (!success) return
-                              },
+                            openInputModal({
+                              target: "rentalStartDate",
+                              title: "貸与開始日を入力",
+                              label: "貸与開始日",
+                              type: "date",
+                              defaultValue: rentalStartDate
+                                ? rentalStartDate.replace(/-/g, "/")
+                                : "",
                             })
                           }}
                           className="
@@ -907,25 +1001,11 @@ return (
 
                             if (!deviceId) return
 
-                            const val =
-                              prompt(
-                                "備考を入力",
-                                note
-                              )
-
-                            if (val === null) return
-
-                            await executeWithErrorAndLoading({
-                              setLoading,
-                              action: async () => {
-                                const success =
-                                  await renameNote(
-                                    deviceId,
-                                    val
-                                  )
-
-                                if (!success) return
-                              },
+                            openInputModal({
+                              target: "note",
+                              title: "備考を入力",
+                              label: "特記事項・備考",
+                              defaultValue: note,
                             })
                           }}
                           className="
@@ -1220,49 +1300,16 @@ return (
                                     <button
                                       type="button"
                                       onClick={async () => {
-                                        const val =
-                                          prompt(
-                                            "メンテ期限を入力 (YYYY-MM-DD)",
-                                            task.dueAt.slice(
-                                              0,
-                                              10
-                                            )
-                                          )
-
-                                        if (
-                                          val === null
-                                        )
-                                          return
-
-                                        if (
-                                          !/^\d{4}-\d{2}-\d{2}$/.test(
-                                            val
-                                          )
-                                        ) {
-                                          alert(
-                                            "YYYY-MM-DD形式で入力してください"
-                                          )
-                                          return
-                                        }
-
-                                        await executeWithErrorAndLoading(
-                                          {
-                                            setLoading,
-                                            action:
-                                              async () => {
-                                                const success =
-                                                  await renameMaintenanceTaskDueAt(
-                                                    {
-                                                      id: task.id,
-                                                      dueAt: `${val}T00:00:00`,
-                                                    }
-                                                  )
-
-                                                if (!success)
-                                                  return
-                                              },
-                                          }
-                                        )
+                                        setInputModalTaskId(task.id)
+                                        openInputModal({
+                                          target: "maintenanceTaskDueAt",
+                                          title: "メンテ期限を入力",
+                                          label: "メンテ期限",
+                                          type: "date",
+                                          defaultValue: task.dueAt
+                                            .slice(0, 10)
+                                            .replace(/-/g, "/"),
+                                        })
                                       }}
                                       className="
                                         h-8 rounded-lg
@@ -1395,6 +1442,22 @@ return (
         {/* =====================================================
             Child Modals
         ===================================================== */}
+
+        <InputModal
+          open={isInputModalOpen}
+          onClose={() => {
+            setIsInputModalOpen(false)
+            setInputModalTarget(null)
+            setInputModalTaskId(null)
+          }}
+          onConfirm={handleInputModalConfirm}
+          title={inputModalTitle}
+          label={inputModalLabel}
+          type={inputModalType}
+          defaultValue={inputModalDefaultValue}
+          confirmText="保存"
+          cancelText="キャンセル"
+        />
 
         <InfectionSelectModal
           isOpen={isInfectionModalOpen}

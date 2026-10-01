@@ -14,23 +14,22 @@
 /* 病棟エリア */
 .ward{
   grid-area: ward;
-  background:#eef6ff;
+  background:#0f172a;
 
-  border-right:1px solid #888;
-  border-bottom:1px solid #888;
-  padding:10px;
-  overflow:auto;
+  border: none;
+  padding: 0;
+  overflow: hidden;
   user-select: none;
 }
 
 /* ストックエリア */
 .stock{
   grid-area: stock;
-  background:#fff7e6;
+  background:#091b22;
 
-  border-right:1px solid #888;
-  padding:10px;
-  overflow:auto;
+  border: none;
+  padding: 0;
+  overflow: hidden;
   user-select: none;
 }
 

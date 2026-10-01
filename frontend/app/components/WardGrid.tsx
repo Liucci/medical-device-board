@@ -123,13 +123,50 @@ const hasInfection = wardInfectionsForWard.length > 0;
               if (!infection) return null;
 
               return (
-                <FaVirus
+                <div
                   key={wi.id}
-                  size={12}
-                  color={infection.color}
-                  title={infection.name}
-                  className="filter drop-shadow-xs"
-                />
+                  className="relative group cursor-pointer flex items-center justify-center"
+                  onClick={(e) => {
+                    // アイコンホバー・クリック時に親の病棟クリックが誤爆しないよう伝播を防止
+                    e.stopPropagation();
+                  }}
+                >
+                  {/* 感染症アイコン（本体：ホバー時に少し拡大） */}
+                  <FaVirus
+                    size={12}
+                    color={infection.color || "#f43f5e"}
+                    className="filter drop-shadow-xs transition-transform duration-150 group-hover:scale-125"
+                  />
+
+                  {/* マウスホバー時にフワッと浮き出る感染症名ツールチップ */}
+                  <div
+                    className="
+                      absolute
+    left-full
+    top-1/2
+    -translate-y-1/2
+    ml-2
+    hidden
+    group-hover:flex
+    items-center
+    whitespace-nowrap
+    rounded-md
+    bg-slate-900/95
+    text-white
+    text-[10px]
+    font-bold
+    px-2
+    py-0.5
+    shadow-xl
+    border
+    border-rose-500/50
+    pointer-events-none
+    z-50
+                    "
+                  >
+                    {infection.name}
+                  </div>
+                </div>
               );
             })}
           </div>

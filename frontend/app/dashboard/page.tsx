@@ -143,6 +143,8 @@ import { LoadingOverlay } from "../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 import { normalizeHospitalSettings } from "../mapper/hospitalSettingMapper"
 
+//common modal系
+import { useConfirm } from "../components/common/useConfirm"
 
 export default function Page() {
   //console.log("Dashboard render")
@@ -228,7 +230,9 @@ export default function Page() {
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
   //設定詳細用のstate
   const [hospitalSettings, setHospitalSettings] =useState<HospitalSettingsType | null>(null)
-                                                                          
+  
+   // フックを1行呼び出し
+  const { confirmAsync, ConfirmModalElement } = useConfirm()
   //refresh token後realtime再登録用
   const {
         draggingDevice,
@@ -337,7 +341,13 @@ export default function Page() {
     if (!device?.id) {return}
     if (device.status === "room") {
       if (!device?.roomId) {return}
-      const confirmed = window.confirm("機器を倉庫へ移動しますか？")
+      const confirmed = await confirmAsync({
+        title: "倉庫移動の確認",
+        message: "機器を倉庫へ移動しますか？",
+        subMessage: "病室から中央倉庫へ返却移動します。",
+        buttonPattern: "yes_no", // 「はい」「いいえ」
+        confirmVariant: "teal",
+      })
       if (!confirmed) return
       await executeWithErrorAndLoading({
                                         setLoading,
@@ -375,7 +385,12 @@ export default function Page() {
     }
 
 
-    const confirmed = window.confirm("機器の保管場所を変更しますか？")
+    const confirmed = await confirmAsync({
+          title: "保管場所変更の確認",
+          message: "機器の保管場所を変更しますか？",
+          buttonPattern: "yes_no", // 「はい」「いいえ」
+          confirmVariant: "teal",
+        })    
     if (!confirmed) return
     await executeWithErrorAndLoading({
               setLoading,
@@ -1072,9 +1087,15 @@ const activeTasks = tasks.filter(
   const handleLogout = async (showConfirm = true) => {
     // 確認が必要な場合のみ表示
     if (showConfirm) {
-      if (!confirm("ログアウトしますか？")) {
-          return
-      }
+      const confirmed = await confirmAsync({
+            title: "ログアウトの確認",
+            message: "ログアウトしますか？",
+            subMessage: "ログアウトすると再ログインが必要になります。",
+            buttonPattern: "yes_no",
+            confirmVariant: "danger", // 注意喚起の赤ボタン
+            icon: "warning",
+      })
+      if (!confirmed) return
     }
     await logoutFromBackend()
     await supabase.auth.signOut()
@@ -1546,7 +1567,8 @@ if (!currentUser) {
         onSubmit={handleSubmitWardInfo}
         setWards={setWards}
       />
-      
+    {/* ★ 二択モーダル描画エレメント */}
+      {ConfirmModalElement}
 
     </div>
   {/* 処理中表示 */}
