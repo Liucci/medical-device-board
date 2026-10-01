@@ -57,160 +57,105 @@ export default function StockAreas({ deviceList,
                                     }: Props) {
 
 return (
-  <div
-    className="p-3"
-    style={{
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden"
-    }}
-  >
-    {/* header */}
-    <div
-      style={{
-        flexShrink: 0,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingTop: "0px",
-        paddingBottom: "4px",
-        marginBottom: "6px",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="font-bold">
-          ストックエリア一覧
-        </h2>
+    <div className="h-full flex flex-col overflow-hidden bg-[#091b22] p-3 sm:p-4 select-none">
+      {/* ─── エリアヘッダー ＆ ツールバー（ペトロールティール調） ─── */}
+      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-teal-900/80">
+        
+        {/* 左側：タイトル ＆ 最終更新日時 */}
+        <div className="flex items-center">
+          <h2 className="text-sm font-bold text-teal-100 tracking-tight whitespace-nowrap">
+            ストックエリア一覧
+          </h2>
 
-        <span className="ml-3 text-xs text-gray-500">
-          最終更新：{stockLastUpdated.updatedAt
-          ? formatDateTime(stockLastUpdated.updatedAt)
-          : "-"}
-        </span>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px"
-        }}
-      >
-        <div
-          style={{
-            minWidth: "48px",
-            textAlign: "right",
-            fontSize: "12px"
-          }}
-        >
-          {Math.round(stockCellSize / 80 * 100)}%
+          <span className="ml-3 font-mono text-xs text-teal-400/80 whitespace-nowrap">
+            最終更新：{stockLastUpdated.updatedAt
+              ? formatDateTime(stockLastUpdated.updatedAt)
+              : "-"}
+          </span>
         </div>
 
-        <button
-          onClick={() =>
-            setStockCellSize(s => Math.max(24, s - 4))
-          }
-        >
-          −
-        </button>
+        {/* 右側：ズームコントロールバー（WardAreaと統一された操作感） */}
+        <div className="flex items-center gap-2 bg-[#102832] px-2.5 py-1 rounded-xl border border-teal-800/80 shadow-md">
+          <span className="font-mono text-xs font-bold text-teal-200 bg-[#091b22] border border-teal-850 px-2 py-0.5 rounded-md min-w-[46px] text-center">
+            {Math.round((stockCellSize / 80) * 100)}%
+          </span>
 
-        <button
-          onClick={() =>
-            setStockCellSize(s => Math.min(120, s + 4))
-          }
-        >
-          ＋
-        </button>
+          <button
+            type="button"
+            onClick={() => setStockCellSize((s) => Math.max(24, s - 4))}
+            className="h-7 w-7 rounded-lg border border-teal-700/70 bg-[#173a49] hover:bg-[#1f4b5f] active:bg-[#0c222b] text-teal-200 flex items-center justify-center font-bold text-xs transition-all cursor-pointer"
+            title="縮小"
+          >
+            −
+          </button>
 
-        <input
-          type="range"
-          min={24}
-          max={120}
-          step={4}
-          value={stockCellSize}
-          onChange={(e) =>
-            setStockCellSize(Number(e.target.value))
-          }
-          style={{
-            width: "140px"
-          }}
-        />
+          <button
+            type="button"
+            onClick={() => setStockCellSize((s) => Math.min(120, s + 4))}
+            className="h-7 w-7 rounded-lg border border-teal-700/70 bg-[#173a49] hover:bg-[#1f4b5f] active:bg-[#0c222b] text-teal-200 flex items-center justify-center font-bold text-xs transition-all cursor-pointer"
+            title="拡大"
+          >
+            ＋
+          </button>
+
+          <input
+            type="range"
+            min={24}
+            max={120}
+            step={4}
+            value={stockCellSize}
+            onChange={(e) => setStockCellSize(Number(e.target.value))}
+            className="w-28 sm:w-36 h-1.5 bg-teal-950 rounded-lg appearance-none cursor-pointer accent-teal-400"
+            title="セルサイズ調整"
+          />
+        </div>
       </div>
-    </div>
 
-    {/* scroll body */}
-
-    <div
-      ref={scrollRef}
-      style={{
-        flex: 1,
-        overflow: "auto"
-      }}
-    >      
-    
-    <div
-      style={{
-        display: "flex",
-
-        // ★ 横並び
-        flexDirection: "row",
-
-        // ★ 自動折返し
-        flexWrap: "wrap",
-
-        alignItems: "flex-start",
-
-        gap: "12px"
-      }}
-    >
-
-  {
-[...stockAreas]
-  .sort((a, b) => a.displayOrder - b.displayOrder)
-  .map((area) => (
-     <div
-        key={area.id}
-        //DOM識別用ID
-       data-stock-area-id={area.id} 
-        style={{
-          gridColumn: area.id === 1 ? "span 3" : undefined
-        }}
-
-        
-
-      >           
-   {/*StockGirdにtitleを渡す。childrenには条件に応じてStockコンポーネントを配置。*/}
-          <StockGrid
-              title={area.name}
-              cellSize={stockCellSize}
-            >             
-              {/* Stockは機器アイコン作成ファイル */}
-                <Stock
-                  deviceList={deviceList}     // 修正: deviceList → devices
-                  stockAreaId={area.id}
-                  deviceTypes={deviceTypes}
-                  deviceModels={deviceModels}
-
-                  startDrag={startDrag}
-                  handleMouseMove={handleMouseMove}
-                  deleteDevice={deleteDevice}
-                  draggingDevice={draggingDevice}
-                  pendingDevice={pendingDevice}
-                  openStockInfoModal={openStockInfoModal}
-                  getMAlert={getMAlert}
+      {/* ─── スクロール可能メインエリア ─── */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-auto rounded-xl"
+      >
+        <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6">
+          {[...stockAreas]
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+            .map((area) => (
+              <div
+                key={area.id}
+                data-stock-area-id={area.id}
+                style={{
+                  gridColumn: area.id === 1 ? "span 3" : undefined,
+                }}
+              >
+                {/* ストックグリッドコンテナ */}
+                <StockGrid
+                  title={area.name}
                   cellSize={stockCellSize}
-                  managementNumber={managementNumber}
-                  serialNumber={serialNumber}
-                  currentUser={currentUser}
-                  isDragging={isDragging}
-                />
-            </StockGrid>
-          </div>
-        ))}
+                >
+                  {/* 機器アイコン描画コンポーネント */}
+                  <Stock
+                    deviceList={deviceList}
+                    stockAreaId={area.id}
+                    deviceTypes={deviceTypes}
+                    deviceModels={deviceModels}
+                    startDrag={startDrag}
+                    handleMouseMove={handleMouseMove}
+                    deleteDevice={deleteDevice}
+                    draggingDevice={draggingDevice}
+                    pendingDevice={pendingDevice}
+                    openStockInfoModal={openStockInfoModal}
+                    getMAlert={getMAlert}
+                    cellSize={stockCellSize}
+                    managementNumber={managementNumber}
+                    serialNumber={serialNumber}
+                    currentUser={currentUser}
+                    isDragging={isDragging}
+                  />
+                </StockGrid>
+              </div>
+            ))}
+        </div>
       </div>
-
     </div>
-  </div>
-  )
+  );
 }

@@ -90,98 +90,57 @@ export default function WardArea({
 
 return (
   <div
-    className="p-3"
-    style={{
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden"
-    }}
+    className="h-full flex flex-col overflow-hidden bg-[#0f172a] p-3 sm:p-4 select-none"
   >
-    {/* header */}
-    
-    <div
-      style={{
-        flexShrink: 0,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingTop: "0px",
-        paddingBottom: "4px",
-        marginBottom: "6px",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-<div
-    className="flex items-center"
-    style={{
-        flex: 1,
-        overflow: "hidden"
-    }}
->        <h2 className="font-bold">
+    {/* ─── エリアヘッダー ＆ ツールバー ─── */}
+    <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800">
+      
+      {/* 左側：タイトル・更新日時・お知らせティッカー */}
+      <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+        <h2 className="text-sm font-bold text-slate-100 tracking-tight whitespace-nowrap">
           病棟一覧
         </h2>
 
-        <span className="ml-3 text-xs text-gray-500">
+        <span className="ml-3 font-mono text-xs text-slate-400 whitespace-nowrap">
           最終更新：{wardLastUpdated.updatedAt
-          ? formatDateTime(wardLastUpdated.updatedAt)
-          : "-"}
+            ? formatDateTime(wardLastUpdated.updatedAt)
+            : "-"}
         </span>
 
-{
-    activeAnnouncements.length > 0 && (
-    <div
-        style={{
-            flex: 1,
-            marginLeft: "16px",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            fontSize: "13px",
-            color: "#92400e"
-        }}
-    >
-        <div className={styles.announcementTicker}>
-            【お知らせ】📢 {
-                activeAnnouncements
-                    .map(announcement => announcement.message)
-                    .join("　◆　")
-            }
-        </div>
-
-    </div>
-    )}
-
+        {activeAnnouncements.length > 0 && (
+          <div className="flex-1 ml-4 min-w-0 max-w-2xl overflow-hidden">
+            <div className="px-3 py-1 rounded-lg bg-amber-950/50 border border-amber-700/80 text-amber-200 text-xs shadow-xs overflow-hidden">
+              <div className={styles.announcementTicker}>
+                <span className="font-bold text-amber-300">【お知らせ】📢</span>{" "}
+                {activeAnnouncements
+                  .map((announcement) => announcement.message)
+                  .join("　◆　")}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px"
-        }}
-      >
-        <div
-          style={{
-            minWidth: "48px",
-            textAlign: "right",
-            fontSize: "12px"
-          }}
-        >
-          {Math.round(wardCellSize / 80 * 100)}%
-        </div>
+
+      {/* 右側：ズームコントロールバー（クールスレート調） */}
+      <div className="flex items-center gap-2 bg-[#1e293b] px-2.5 py-1 rounded-xl border border-slate-700 shadow-md">
+        <span className="font-mono text-xs font-bold text-slate-200 bg-[#0f172a] border border-slate-700 px-2 py-0.5 rounded-md min-w-[46px] text-center">
+          {Math.round((wardCellSize / 80) * 100)}%
+        </span>
 
         <button
-          onClick={() =>
-            setWardCellSize(s => Math.max(24, s - 4))
-          }
+          type="button"
+          onClick={() => setWardCellSize((s) => Math.max(24, s - 4))}
+          className="h-7 w-7 rounded-lg border border-slate-600/80 bg-[#283548] hover:bg-[#33435c] active:bg-[#1a2330] text-slate-200 flex items-center justify-center font-bold text-xs transition-all cursor-pointer"
+          title="縮小"
         >
           −
         </button>
 
         <button
-          onClick={() =>
-            setWardCellSize(s => Math.min(120, s + 4))
-          }
+          type="button"
+          onClick={() => setWardCellSize((s) => Math.min(120, s + 4))}
+          className="h-7 w-7 rounded-lg border border-slate-600/80 bg-[#283548] hover:bg-[#33435c] active:bg-[#1a2330] text-slate-200 flex items-center justify-center font-bold text-xs transition-all cursor-pointer"
+          title="拡大"
         >
           ＋
         </button>
@@ -192,131 +151,77 @@ return (
           max={120}
           step={4}
           value={wardCellSize}
-          onChange={(e) =>
-            setWardCellSize(Number(e.target.value))
-          }
-          style={{
-            width: "140px"
-          }}
+          onChange={(e) => setWardCellSize(Number(e.target.value))}
+          className="w-28 sm:w-36 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-400"
+          title="セルサイズ調整"
         />
       </div>
     </div>
 
-    {/* scroll body */}
+    {/* ─── スクロール可能メインエリア ─── */}
     <div
       ref={scrollRef}
-      style={{
-        flex:1,
-        overflow:"auto"
-      }}
+      className="flex-1 overflow-auto rounded-xl"
     >
-    <div
-      style={{
-        display: "flex",
-        // ★ 横並び化
-        flexDirection: "row",
-        // ★ 横いっぱいで折返し
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "12px",
-        paddingTop: "6px",
-        paddingLeft: "8px",
-        paddingRight: "6px",
-      }}
-    >       
-    {
-    [...wards]
-      .sort((a, b) => a.displayOrder - b.displayOrder)
-      .map((ward) => (          
-          <div
-            key={ward.id}
-            //DOMの識別用ID
-            data-ward-id={ward.id}
-
-            style={{
-              gridColumn:
-                ward.id === 1
-                  ? "span 3"
-                  : undefined
-            }}
-
-
-
-          >
-            {/* WardGridは病棟コンテナのUIを定義する関数コンポーネント */}
-            {/* WardGridの中に、病室コンテナであるRoomContainerを配置する。 */}
-            <WardGrid
-              title={ward.name}
-              minWidth={Math.max(
-                                  90,
-                                  wardCellSize * 1
-                                )}
-              cellSize={wardCellSize}
-              ward={ward}
-              onClick={() => openWardInfoModal(ward)}
-              infectionTypes={infectionTypes}
-              wardInfections={wardInfections}
-
-
+      <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6">
+        {[...wards]
+          .sort((a, b) => a.displayOrder - b.displayOrder)
+          .map((ward) => (
+            <div
+              key={ward.id}
+              data-ward-id={ward.id}
+              style={{
+                gridColumn: ward.id === 1 ? "span 3" : undefined,
+              }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "12px"
-                }}
+              <WardGrid
+                title={ward.name}
+                minWidth={Math.max(90, wardCellSize * 1)}
+                cellSize={wardCellSize}
+                ward={ward}
+                onClick={() => openWardInfoModal(ward)}
+                infectionTypes={infectionTypes}
+                wardInfections={wardInfections}
               >
-                {
-                  rooms.filter(r => r.wardId === ward.id)
-                       .sort((a, b) =>a.name.localeCompare(
-                                            b.name,
-                                            undefined,
-                                            { numeric: true }
-                                          )
-                        )
-                        .map(room => (
-                    <RoomContainer
-                      key={room.id}
-                      deviceList={deviceList}
-                      deviceTypes={deviceTypes}
-                      deviceModels={deviceModels}
-                      rooms={rooms}
-                      roomId={room.id}
-                      roomName={room.name}
-                      patientName={
-              
-                        room.patientName
-                      }
-                      startDrag={startDrag}
-                      draggingDevice={
-                        draggingDevice
-                      }
-                      pendingDevice={
-                        pendingDevice
-                      }
-                      deleteDevice={deleteDevice}
-                      openRoomDeviceInfoModal={
-                        openRoomDeviceInfoModal
-                      }
-                      getMAlert={getMAlert}
-                      cellSize={wardCellSize}
-                      inspectionCounts={inspectionCounts}
-                      todayInspections={todayInspections}
-                      managementNumber={managementNumber}
-                      serialNumber={serialNumber}
-                      currentUser={currentUser}
-                      isDragging={isDragging}
-                      roomInfections={roomInfections}
-                      infectionTypes={infectionTypes}
-                      hospitalSettings={hospitalSettings}
-                    />
-                  ))
-                }
-              </div>
-            </WardGrid>
-          </div>
-        ))}
+                <div className="flex flex-wrap gap-3">
+                  {rooms
+                    .filter((r) => r.wardId === ward.id)
+                    .sort((a, b) =>
+                      a.name.localeCompare(b.name, undefined, { numeric: true })
+                    )
+                    .map((room) => (
+                      <RoomContainer
+                        key={room.id}
+                        deviceList={deviceList}
+                        deviceTypes={deviceTypes}
+                        deviceModels={deviceModels}
+                        rooms={rooms}
+                        roomId={room.id}
+                        roomName={room.name}
+                        patientName={room.patientName}
+                        startDrag={startDrag}
+                        draggingDevice={draggingDevice}
+                        pendingDevice={pendingDevice}
+                        deleteDevice={deleteDevice}
+                        openRoomDeviceInfoModal={openRoomDeviceInfoModal}
+                        getMAlert={getMAlert}
+                        cellSize={wardCellSize}
+                        inspectionCounts={inspectionCounts}
+                        todayInspections={todayInspections}
+                        managementNumber={managementNumber}
+                        serialNumber={serialNumber}
+                        currentUser={currentUser}
+                        isDragging={isDragging}
+                        roomInfections={roomInfections}
+                        infectionTypes={infectionTypes}
+                        hospitalSettings={hospitalSettings}
+                      />
+                    ))}
+                </div>
+              </WardGrid>
+            </div>
+          ))}
       </div>
     </div>
   </div>
-)}
+);}
