@@ -336,11 +336,8 @@ export default function Page() {
   
   const handleDropToStock = async (device: Device, stockAreaId: number) => {
       if (!device?.id) return
-
       if (device.status === "room") {
         if (!device?.roomId) return
-
-        // ★ confirmModal.confirm で綺麗に await で受ける
         const confirmed = await confirmModal.confirm({
           title: "倉庫移動の確認",
           message: "機器を倉庫へ移動しますか？",
@@ -349,12 +346,31 @@ export default function Page() {
           confirmVariant: "teal",
         })
         if (!confirmed) return
-
         await executeWithErrorAndLoading({
           setLoading,
           action: async () => {
-            // 移動処理...
-          },
+            if (device.id === undefined || device.roomId === undefined) return
+            await moveRoomToStockTransaction({
+              deviceId: device.id,
+              roomId: device.roomId,
+              stockAreaId,
+              setDevices: setDeviceList,
+              setRooms,
+              setHistories,
+              setTasks,
+              setRoomInfections,
+              devices: deviceList
+            })
+            const lastUpdated = await fetchStockLastUpdated()
+            setStockLastUpdated(lastUpdated)
+            setWardLastUpdated(lastUpdated)
+            setInspectionCounts(prev => ({
+              ...prev,
+              [device.id]: 0,
+            }))
+            setTodayInspections(prev => prev.filter(inspection => inspection.deviceId !== device.id))
+            setDraggingDevice(null)
+          }
         })
         return
       }
@@ -366,8 +382,21 @@ export default function Page() {
         confirmVariant: "teal",
       })
       if (!confirmed) return
-
-      // ...
+      await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+          if (device.id === undefined) return
+          await moveStockToStockTransaction({
+            deviceId: device.id,
+            stockAreaId,
+            setDevices: setDeviceList,
+            setHistories,
+            devices: deviceList
+          })
+          setStockLastUpdated(await fetchStockLastUpdated())
+          setDraggingDevice(null)
+        }
+      })
     }
 
   const handleDropToWard = async (

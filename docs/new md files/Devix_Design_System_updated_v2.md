@@ -1,8 +1,8 @@
 # Devix Design System
 ## Medical Device Management UI / UX Guidelines
 
-Version: 1.0
-Base: RoomDeviceInfoModal redesign
+Version: 1.1
+Base: RoomDeviceInfoModal redesign & Inspection Checklist System
 Product: Devix
 
 ---
@@ -107,20 +107,6 @@ lg:grid-cols-12
 ```
 
 Do not create horizontal scrolling for normal content.
-
-The modal itself should become a full-height mobile experience:
-
-```tsx
-h-full w-full
-```
-
-On desktop:
-
-```tsx
-sm:h-auto
-sm:max-h-[94vh]
-sm:max-w-6xl
-```
 
 ---
 
@@ -1600,3 +1586,135 @@ hover:text-slate-700
 編集アイコンは情報カード内に控えめに配置し、編集可能であることを明確に示す。
 
 ---
+
+# 39. Mobile & Bottom Sheet Design Guidelines
+
+モバイル（幅640px未満 / `sm:` 未満）におけるモーダル、リスト、ダイアログ操作の標準仕様。
+
+## 39.1 モバイルにおけるモーダル表示方式の選定基準（入力項目数による分岐）
+
+モバイルにおけるモーダルは、一律ですべて全画面やボトムシートにするのではなく、**「入力・選択項目の情報量」**に応じて適切な表示形式を選択する。
+
+### A. ボトムシート方式（Bottom Sheet / 画面下部ドッキング）
+
+- **適用対象**: 入力・選択項目が少ないモーダル（**目安として4項目程度以下**）。
+  - 例: 点検小項目の追加・編集モーダル、簡易ステータス変更、二択確認モーダル
+- **UI仕様**:
+  - スマホ全画面（`h-full w-full`）を覆わず、画面下部（`items-end p-0`）にドッキングして表示する。
+  - 背景に親画面がうっすら見えていることで、ユーザーが「どの文脈で操作しているか」を見失わない。
+  - 高さ基準: 下から約2/5（`h-[40vh]` または `h-2/5`）
+  - 形状: 上部角丸（`rounded-t-2xl` または `rounded-t-3xl`）、上部境界線（`border-t border-slate-300`）
+  - アニメーション: 下からのスライドイン（`animate-in slide-in-from-bottom duration-200`）
+  - スマホ専用グラブバー: ヘッダー最上部にシートであることを示すつまみバー（`w-10 h-1 rounded-full bg-slate-600` / `sm:hidden`）を配置
+  - スクロール分離: 入力項目やキーボード表示に対応するため、コンテンツ領域は必ず `min-h-0 flex-1 overflow-y-auto` とする。
+
+Recommended Container:
+
+```tsx
+<div className="flex h-[40vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-slate-300 bg-slate-50 shadow-2xl transition-transform duration-200 animate-in slide-in-from-bottom sm:h-auto sm:max-h-[94vh] sm:max-w-xl sm:rounded-2xl sm:border sm:border-slate-300 sm:animate-none">
+  {/* スマホ専用グラブバー */}
+  <div className="flex justify-center pb-1.5 sm:hidden">
+    <div className="h-1 w-10 rounded-full bg-slate-600" />
+  </div>
+  ...
+</div>
+```
+
+### B. フルスクリーン方式（Full Screen / 全画面表示）
+
+- **適用対象**: 入力項目や表示情報量が多いモーダル（**目安として5項目以上**や複数セクションを持つ管理画面）。
+  - 例: `RoomDeviceInfoModal`（機器情報・病棟情報・点検履歴・メンテナンス一覧等を含む複合モーダル）、詳細設定モーダル
+- **UI仕様**:
+  - スマホ画面全体（`h-full w-full`）を使用し、1つの垂直スクロールフローで操作する。
+  - PC画面（`sm:`）では中央配置（`sm:h-auto sm:max-h-[94vh] sm:max-w-6xl sm:rounded-2xl`）に切り替える。
+
+---
+
+## 39.2 モーダル背面のスクロール抑止（Body Scroll Lock）
+
+モーダル表示中に背景画面（病棟リストや点検項目一覧など）が背後でスクロールすると、ユーザーの視線移動ストレスや誤操作の原因となるため、モーダルオープン時は背景のスクロールを完全に固定する。
+
+Recommended Implementation:
+
+```tsx
+useEffect(() => {
+  if (!open) return
+  const originalOverflow = document.body.style.overflow
+  document.body.style.overflow = "hidden"
+  return () => {
+    document.body.style.overflow = originalOverflow
+  }
+}, [open])
+```
+
+モーダルを閉じた際は必ず元のスタイルへクリーンアップ復元する。
+
+---
+
+## 39.3 モバイル2択アクションボタン（キャンセル・保存 / はい・いいえ）
+
+モーダルフッターやダイアログにおける2択アクション（「キャンセル・保存」「はい・いいえ」など）は、スマホ時の親指操作性とタップしやすさを最優先する。
+
+- **スマホ表示（幅640px未満）**:
+  - 横幅100%を左右均等（各50%）に使用したフルワイド横並び配置（`flex w-full gap-2` かつ各ボタン `flex-1`）。
+  - タップ高さを `h-10`（40px）〜 `h-11`（44px）確保し、誤タップを防ぐ。
+- **PC表示（`sm:` 以上）**:
+  - コンテナを右寄せ（`sm:justify-end sm:gap-3`）、各ボタンを標準幅（`sm:w-24 sm:h-9`、`sm:flex-none`）に自動切替。
+
+Recommended Pattern:
+
+```tsx
+<div className="flex w-full gap-2 border-t border-slate-200 bg-white p-3 sm:justify-end sm:gap-3 sm:px-5 sm:py-3">
+  <button
+    type="button"
+    onClick={onClose}
+    className="flex h-10 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 sm:h-9 sm:w-24 sm:flex-none sm:text-sm"
+  >
+    キャンセル
+  </button>
+  <button
+    type="button"
+    onClick={handleSave}
+    className="flex h-10 flex-1 items-center justify-center rounded-lg bg-teal-700 text-xs font-bold text-white hover:bg-teal-800 sm:h-9 sm:w-24 sm:flex-none sm:text-sm"
+  >
+    保存
+  </button>
+</div>
+```
+
+---
+
+## 39.4 モバイル用リスト・並び替え項目の最適化（Sortable Item）
+
+狭いモバイル画面（375px〜）において、横スクロール（`overflow-x`）を発生させず、1画面内に多くの項目を視認できる高密度かつ操作性の高いリスト項目設計。
+
+- **横スクロールの完全撤廃**: カード幅を画面幅に100%フィットさせ、横スクロールは絶対に出さない。
+- **2行コンパクト構成**:
+  - **1行目**: 専用ドラッググリップ帯 ＋ 編集アイコン ＋ 削除アイコン ＋ 項目名 ＋ 必須/任意バッジ
+  - **2行目**: 項目名の左位置に合わせたインデント（`pl-[58px]`）で、カテゴリ・入力方式・単位タグを集約
+- **専用ドラッググリップ帯**:
+  - 左端に幅32px（`w-[32px]`）の薄グレー背景（`bg-slate-100`）グリップ帯を常設。
+  - `touch-none` を指定し、スマホでの縦スクロールとドラッグ並び替えの衝突を防止。
+- **垂直軸ドラッグ拘束**:
+  - ドラッグ時に横ブレ（X軸ズレ）が起きないよう、`CSS.Translate` の X移動量を0に固定（`{ ...transform, x: 0 }`）し、DndContext に `modifiers={[restrictToVerticalAxis]}` を適用する。
+
+---
+
+## 39.5 アコーディオン・選択肢一覧の横幅抑制（常識的な幅の制限）
+
+PC大画面において「任意の選択肢」やアコーディオンを展開した際、カードの全幅（700〜800px）まで横長に広がってしまうのを防ぐ。
+
+- **クラス定義**: `w-fit min-w-[180px] max-w-xs sm:max-w-sm`
+- **目的**:
+  - コンテンツ量に応じた自然な幅（`w-fit`）としつつ、極端に短くならないよう最小幅（`min-w-[180px]`）を担保。
+  - PC画面でも約320px〜384px（`max-w-xs sm:max-w-sm`）で上限を設け、ボタン直下にすっきりと収まる常識的な長さに保つ。
+
+---
+
+## 39.6 ネイティブ alert / confirm の完全撤廃と共通ダイアログ統一
+
+ブラウザ標準のポップアップ（`window.alert` / `window.confirm`）は、操作感の断絶やデザインの崩れを招くため使用を禁止する。
+
+- すべて `useConfirmModal` および `ConfirmModal`（共通 `InputModal` レイヤー）へ置き換える。
+- 単一の確認（OKのみ）から二択確認（はい/いいえ、保存/キャンセル）まで、非同期 `await confirmModal.confirm(...)` で同期処理のように扱える構造とする。
+- モバイルでは親指の届くボトムシートまたは中央モーダルとして美しく描画される。

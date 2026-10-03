@@ -1,11 +1,14 @@
 "use client"
+
 import { useEffect, useMemo, useState } from "react"
-import { Device } from "../../types/deviceTypes"
-import { DeviceTypeType } from "../../types/deviceTypeTypes"
-import { DeviceModelType } from "../../types/deviceModelTypes"
-import { WardType } from "../../types/wardTypes"
-import { RoomType } from "../../types/roomTypes"
-import CommonModal from "../common/CommonModal"
+import { ChevronDown, ChevronUp, ArrowDown, X, AlertTriangle } from "lucide-react"
+import type { Device } from "../../types/deviceTypes"
+import type { DeviceTypeType } from "../../types/deviceTypeTypes"
+import type { DeviceModelType } from "../../types/deviceModelTypes"
+import type { WardType } from "../../types/wardTypes"
+import type { RoomType } from "../../types/roomTypes"
+import ConfirmModal from "../common/ConfirmModal"
+import useConfirmModal from "../common/useConfirmModal"
 
 type Props = {
   deviceList: Device[]
@@ -30,180 +33,244 @@ export default function RoomToRoomModal({
   pendingDevice,
   deviceTypes,
   deviceModels,
-  initialWardId
+  initialWardId,
 }: Props) {
+  console.log("RoomToRoomModal")
+  const confirmModal = useConfirmModal()
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
   const [patientName, setPatientName] = useState("")
-  const currentRoom = rooms.find(r => r.id === pendingDevice?.roomId)
-  const currentWard = wards.find(w => w.id === currentRoom?.wardId)
-  const typeName = deviceTypes.find(t => t.id === pendingDevice?.type)?.name ?? "不明"
-  const modelName = deviceModels.find(m => m.id === pendingDevice?.model)?.name ?? "不明"
+  const [isCurrentDetailOpen, setIsCurrentDetailOpen] = useState(false)
+
+  const currentRoom = rooms.find((r) => r.id === pendingDevice?.roomId)
+  const currentWard = wards.find((w) => w.id === currentRoom?.wardId)
+  const typeName = deviceTypes.find((t) => t.id === pendingDevice?.type)?.name ?? "不明"
+  const modelName = deviceModels.find((m) => m.id === pendingDevice?.model)?.name ?? "不明"
+
   useEffect(() => {
     if (!isOpen) return
     setTargetWardId(initialWardId)
     setSelectedRoomId(null)
     setPatientName(currentRoom?.patientName ?? "")
-  }, [isOpen, pendingDevice, currentRoom])
-  
+    setIsCurrentDetailOpen(false)
+  }, [isOpen, pendingDevice, currentRoom, initialWardId])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = originalOverflow }
+  }, [isOpen])
+
   const filteredRooms = useMemo(() => {
-    return rooms.filter(r => r.wardId === targetWardId).sort((a, b) => a.name.localeCompare(b.name, "ja", { numeric: true }))
+    return rooms.filter((r) => r.wardId === targetWardId).sort((a, b) => a.name.localeCompare(b.name, "ja", { numeric: true }))
   }, [rooms, targetWardId])
 
   useEffect(() => {
     if (!selectedRoomId) return
-    const room = rooms.find(r => r.id === selectedRoomId)
-    if (patientName === "") {
-      setPatientName(room?.patientName ?? "")
-    }
-  }, [selectedRoomId, rooms])
+    const r = rooms.find((room) => room.id === selectedRoomId)
+    if (patientName === "") setPatientName(r?.patientName ?? "")
+  }, [selectedRoomId, rooms, patientName])
+
   const samePatient = patientName === (currentRoom?.patientName ?? "")
   const willResetTasks = !samePatient
+
+  const handleRoomChange = async (roomId: number) => {
+    const existsDevice = deviceList.some((d) => d.roomId === roomId && d.id !== pendingDevice?.id)
+    if (existsDevice) {
+      const ok = await confirmModal.confirm({
+        title: "患者の重複確認",
+        message: "移動先の部屋には既に他の機器が配置されています。\n移動先の患者に使用しますか？",
+        buttonPattern: "yes_no",
+        icon: "question",
+      })
+      if (!ok) return
+    }
+    setSelectedRoomId(roomId)
+  }
+
   if (!isOpen) return null
+
   return (
-    <CommonModal
-      open={true}
-      onClose={onClose}
-      title="機器移動"
-      maxWidth="max-w-5xl"
-    >
-      <div className="w-full rounded-xl bg-gray-200 p-5">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-6">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-              <div className="mb-4 text-lg font-semibold text-gray-800">
-                現在
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-xs font-medium text-gray-600">病棟</div>
-                  <div className="mt-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700">
-                    {currentWard?.name ?? "-"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-600">病室</div>
-                  <div className="mt-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700">
-                    {currentRoom?.name ?? "-"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-600">患者名</div>
-                  <div className="mt-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700">
-                    {currentRoom?.patientName || "未入力"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-600">機種</div>
-                  <div className="mt-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700">
-                    {typeName}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-600">型式</div>
-                  <div className="mt-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700">
-                    {modelName}
-                  </div>
-                </div>
-              </div>
+    <>
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/65 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+        onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}
+      >
+        <div className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-slate-300 bg-slate-50 shadow-2xl transition-transform duration-200 animate-in slide-in-from-bottom sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl sm:border sm:border-slate-300 sm:animate-none">
+          <div className="bg-slate-900 px-4 py-3 text-white sm:px-5 sm:py-3.5">
+            <div className="flex justify-center pb-1.5 sm:hidden">
+              <div className="h-1 w-10 rounded-full bg-slate-600" />
             </div>
-            <div className="flex h-full items-center justify-center pt-20 text-5xl font-bold text-gray-300">
-              →
-            </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <div className="mb-4 text-lg font-semibold text-gray-800">
-                移動先
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-sm font-bold sm:text-base">機器移動</h2>
+                <p className="mt-0.5 text-[11px] text-slate-300">機器の移動先病棟・病室および患者名を設定します</p>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <div className="mb-1 text-xs font-medium text-gray-600">
-                    病棟
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white sm:h-8 sm:w-8"
+                title="閉じる"
+                aria-label="閉じる"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 sm:gap-4 sm:items-start">
+              {/* 移動元（現在）：スマホ時は矢印ボタンで詳細開閉 */}
+              <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+                <div
+                  onClick={() => setIsCurrentDetailOpen((prev) => !prev)}
+                  className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-4 py-2.5 cursor-pointer sm:cursor-default"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-slate-700">現在の配置（移動元）</span>
+                    <span className="text-[11px] font-bold text-slate-800 ml-2 sm:hidden">
+                      {currentWard?.name ?? "-"} / {currentRoom?.name ?? "-"}
+                    </span>
                   </div>
+                  <button
+                    type="button"
+                    aria-label="現在の配置詳細を開閉"
+                    className="flex h-6 w-6 items-center justify-center rounded text-slate-400 sm:hidden"
+                  >
+                    {isCurrentDetailOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                <div className={`p-4 space-y-2.5 text-xs ${isCurrentDetailOpen ? "block" : "hidden sm:block"}`}>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 pb-1.5">
+                    <span className="font-medium text-slate-500">機器名</span>
+                    <span className="font-bold text-slate-900">{typeName}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 pb-1.5">
+                    <span className="font-medium text-slate-500">型式</span>
+                    <span className="font-bold text-slate-900">{modelName}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 pb-1.5">
+                    <span className="font-medium text-slate-500">現在の病棟</span>
+                    <span className="font-bold text-slate-900">{currentWard?.name ?? "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5 border-b border-slate-100 pb-1.5">
+                    <span className="font-medium text-slate-500">現在の病室</span>
+                    <span className="font-bold text-slate-900">{currentRoom?.name ?? "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-0.5">
+                    <span className="font-medium text-slate-500">現在の患者名</span>
+                    <span className="font-bold text-teal-800">{currentRoom?.patientName || "未登録"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* スマホ用移動コネクター */}
+              <div className="flex justify-center sm:hidden -my-1">
+                <div className="flex items-center gap-1 rounded-full bg-slate-200 px-3 py-0.5 text-[10px] font-bold text-slate-600">
+                  <ArrowDown className="h-3 w-3" />
+                  <span>移動先を指定</span>
+                </div>
+              </div>
+
+              {/* 移動先の設定フォーム */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
+                <div className="border-b border-slate-100 pb-2">
+                  <span className="text-xs font-bold text-slate-700">移動先の設定</span>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-500">移動先病棟</label>
                   <select
-                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     value={targetWardId ?? ""}
                     onChange={(e) => {
-                      setTargetWardId(Number(e.target.value))
+                      setTargetWardId(e.target.value === "" ? null : Number(e.target.value))
                       setSelectedRoomId(null)
                     }}
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                   >
-                    <option value="">病棟を選択</option>
-                    {wards.map(w => (
-                      <option key={w.id} value={w.id}>
-                        {w.name}
-                      </option>
-                    ))}
+                    <option value="">病棟を選択してください</option>
+                    {wards.map((w) => (<option key={w.id} value={w.id}>{w.name}</option>))}
                   </select>
                 </div>
+
                 <div>
-                  <div className="mb-1 text-xs font-medium text-gray-600">
-                    病室
-                  </div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-500">移動先病室</label>
                   <select
-                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-gray-100 disabled:text-gray-400"
                     value={selectedRoomId ?? ""}
-                    onChange={(e) => {
-                      const roomId = Number(e.target.value)
-                      const existsDevice = deviceList.some(d => d.roomId === roomId && d.id !== pendingDevice?.id)
-                      if (existsDevice) {
-                        const ok = window.confirm("既に患者が存在します。\n移動先の患者に使用しますか？")
-                        if (!ok) return
-                      }
-                      setSelectedRoomId(roomId)
-                    }}
                     disabled={!targetWardId}
+                    onChange={(e) => {
+                      if (e.target.value === "") { setSelectedRoomId(null); return }
+                      handleRoomChange(Number(e.target.value))
+                    }}
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                   >
-                    <option value="">病室を選択</option>
-                    {filteredRooms.map(r => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                      </option>
-                    ))}
+                    <option value="">
+                      {!targetWardId ? "先に病棟を選択してください" : "病室を選択してください"}
+                    </option>
+                    {filteredRooms.map((r) => (<option key={r.id} value={r.id}>{r.name}</option>))}
                   </select>
                 </div>
+
                 <div>
-                  <div className="mb-1 text-xs font-medium text-gray-600">
-                    患者名
-                  </div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-500">患者名</label>
                   <input
                     type="text"
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="患者名を入力"
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                   />
                 </div>
+
                 {willResetTasks && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-500">
-                    患者名変更時は既存の
-                    メンテナンスタスクを
-                    キャンセルし、
-                    新規タスクを作成します
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900 leading-relaxed">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+                    <span>患者名変更に伴い、既存のメンテナンスタスクをキャンセルし新規タスクを作成します。</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
-          <div className="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-5">
+
+          {/* フッター：スマホ時は横幅100%の2分割親指ボタン、PCは右寄せ */}
+          <div className="flex w-full gap-2 border-t border-slate-200 bg-white p-3 sm:justify-end sm:gap-3 sm:px-5 sm:py-3">
             <button
+              type="button"
               onClick={onClose}
-              className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 sm:h-9 sm:w-24 sm:flex-none sm:text-sm"
             >
               キャンセル
             </button>
             <button
+              type="button"
               onClick={() => {
                 if (!selectedRoomId) return
                 onSubmit(selectedRoomId, patientName, samePatient)
               }}
               disabled={!selectedRoomId}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="flex h-10 flex-1 items-center justify-center rounded-lg bg-teal-700 text-xs font-bold text-white shadow-sm transition-all hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-40 sm:h-9 sm:w-24 sm:flex-none sm:text-sm"
             >
               確定
             </button>
           </div>
         </div>
       </div>
-    </CommonModal>
+
+      <ConfirmModal
+        open={confirmModal.isOpen}
+        onClose={confirmModal.closeConfirmModal}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        subMessage={confirmModal.subMessage}
+        icon={confirmModal.icon}
+        buttonPattern={confirmModal.buttonPattern}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        confirmVariant={confirmModal.confirmVariant}
+      />
+    </>
   )
 }
