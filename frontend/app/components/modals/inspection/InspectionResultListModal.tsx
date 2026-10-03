@@ -1,1887 +1,439 @@
 "use client"
 
+import { useMemo, useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { useEffect, useMemo, useState } from "react"
+import { ChevronDown, ChevronUp, X } from "lucide-react"
 import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
-import {LoadingOverlay} from "../../common/LoadingOverlay"
-
+import { LoadingOverlay } from "../../common/LoadingOverlay"
 import type { InspectionListType } from "../../../types/inspectionTypes/inspectionTransactionTypes/inspectionTransactionTypes"
 import type { InspectionResult } from "../../../types/inspectionTypes/inspectionResultTypes"
 import { HospitalSettingsType } from "../../../types/hospitalSettingTypes"
-
-import {
-    getInspectionsFromApi
-} from "../../../api/inspection/inspections/fetchInspections"
-
-import {
-    normalizeInspectionList,
-} from "../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
-
-import {
-    getInspectionResultsFromApi,
-} from "../../../api/inspection/inspectionResults/fetchInspectionResults"
-
-import {
-    normalizeInspectionResult,
-} from "../../../mapper/inspectionMapper/inspectionResultMapper"
-
+import { getInspectionsFromApi } from "../../../api/inspection/inspections/fetchInspections"
+import { normalizeInspectionList } from "../../../mapper/inspectionMapper/inspectionTransactionMapper/inspectionTransactionMapper"
+import { getInspectionResultsFromApi } from "../../../api/inspection/inspectionResults/fetchInspectionResults"
+import { normalizeInspectionResult } from "../../../mapper/inspectionMapper/inspectionResultMapper"
 import InspectionResultDetailModal from "./InspectionResultDetailModal"
-
-import {
-    getInspectionIdsForPdf,
-} from "../../../api/exports/getInspectionIdsForPdf"
-import {
-    createInspectionPdfTransaction,
-} from "../../../api/transactions/exports/createInspectionPdfTransaction"
+import { getInspectionIdsForPdf } from "../../../api/exports/getInspectionIdsForPdf"
+import { createInspectionPdfTransaction } from "../../../api/transactions/exports/createInspectionPdfTransaction"
 import { getInspectionIdsForCsv } from "../../../api/exports/getInspectionIdsForCsv"
 import { createInspectionCsvTransaction } from "../../../api/transactions/exports/createInspectionCsvTransaction"
 
 type Props = {
-    isOpen: boolean
-    onClose: () => void
-    hospitalSettings: HospitalSettingsType | null
-    
+  isOpen: boolean
+  onClose: () => void
+  hospitalSettings: HospitalSettingsType | null
 }
 
+export default function InspectionResultModal({ isOpen, onClose, hospitalSettings }: Props) {
+  console.log("InspectionResultModal")
+  const [inspections, setInspections] = useState<InspectionListType[]>([])
+  const [loading, setLoading] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [selectedDeviceTypes, setSelectedDeviceTypes] = useState<string[]>([])
+  const [selectedDeviceModels, setSelectedDeviceModels] = useState<string[]>([])
+  const [selectedWards, setSelectedWards] = useState<string[]>([])
+  const [selectedManagementNumber, setSelectedManagementNumber] = useState("")
+  const [selectedPerformer, setSelectedPerformer] = useState("")
+  const [openDetailModal, setOpenDetailModal] = useState(false)
+  const [selectedInspection, setSelectedInspection] = useState<InspectionListType | null>(null)
 
-export default function InspectionResultModal({
-    isOpen,
-    onClose, 
-    hospitalSettings,
-}: Props) {
-
-    // =========================================================
-    // 点検結果一覧
-    // =========================================================
-
-    const [inspections,setInspections] = useState<InspectionListType[]>([])
-    const [loading,setLoading] = useState(false)
-
-
-    // =========================================================
-    // 検索条件
-    // =========================================================
-
-    const [startDate, setStartDate] = useState("")
-    const [endDate, setEndDate] = useState("")
-
-    // 機種
-    const [
-        selectedDeviceTypes,
-        setSelectedDeviceTypes
-    ] = useState<string[]>([])
-
-    // 型式
-    const [
-        selectedDeviceModels,
-        setSelectedDeviceModels
-    ] = useState<string[]>([])
-
-    // 病棟
-    const [
-        selectedWards,
-        setSelectedWards
-    ] = useState<string[]>([])
-
-    // 管理番号
-    const [
-        selectedManagementNumber,
-        setSelectedManagementNumber
-    ] = useState("")
-
-    // 実施者
-    const [
-        selectedPerformer,
-        setSelectedPerformer
-    ] = useState("")
-
-
-    // =========================================================
-    // 詳細Modal
-    // =========================================================
-
-    const [
-        openDetailModal,
-        setOpenDetailModal
-    ] = useState(false)
-
-    const [
-        selectedInspection,
-        setSelectedInspection
-    ] = useState<InspectionListType | null>(null)
-
-
-    // =========================================================
-    // inspection result
-    // =========================================================
-
-    const [
-        inspectionResults,
-        setInspectionResults
-    ] = useState<Record<number, InspectionResult[]>>({})
-
-
-    // =========================================================
-    // 点検結果一覧取得
-    // Modalを開いたときに取得
-    // =========================================================
-
-    useEffect(() => {
-
-        if (!isOpen) {
-            return
-        }
-
-        const fetchData = async () => {
-
-            setLoading(true)
-
-            try {
-
-
-                const data =
-                    await getInspectionsFromApi()
-
-                const normalizedData =
-                    data.map(
-                        normalizeInspectionList
-                    )
-
-                setInspections(
-                    normalizedData
-                )
-
-            } catch (error) {
-
-                console.error(
-                    "点検結果一覧取得エラー:",
-                    error
-                )
-
-                setInspections([])
-
-            } finally {
-
-                setLoading(false)
-
-            }
-        }
-
-        fetchData()
-
-    }, [isOpen])
-
-
-    // =========================================================
-    // チェックボックス選択切り替え
-    // =========================================================
-
-    const toggleSelection = (
-        value: string,
-        list: string[],
-        setList: (value: string[]) => void
-    ) => {
-
-        if (list.includes(value)) {
-
-            setList(
-                list.filter(
-                    v => v !== value
-                )
-            )
-
-        } else {
-
-            setList([
-                ...list,
-                value,
-            ])
-
-        }
+  useEffect(() => {
+    if (!isOpen) return
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const data = await getInspectionsFromApi()
+        setInspections(data.map(normalizeInspectionList))
+      } catch (error) {
+        console.error("点検結果一覧取得エラー:", error)
+        setInspections([])
+      } finally {
+        setLoading(false)
+      }
     }
-
-
-    // =========================================================
-    // 検索候補
-    // Backendから取得した一覧だけから生成
-    // =========================================================
-
-    // 機種
-    const deviceTypeOptions = useMemo(() => {
-
-        return Array.from(
-            new Set(
-                inspections
-                    .map(
-                        inspection =>
-                            inspection.deviceTypeName
-                    )
-                    .filter(
-                        value =>
-                            value &&
-                            value !== "-"
-                    )
-            )
-        ).sort()
-
-    }, [inspections])
-
-
-    // 型式
-    // 機種を選択した場合は、
-    // その機種に属する型式だけ表示
-    const deviceModelOptions = useMemo(() => {
-
-        return Array.from(
-            new Set(
-                inspections
-                    .filter(
-                        inspection => {
-
-                            if (
-                                selectedDeviceTypes.length === 0
-                            ) {
-                                return true
-                            }
-
-                            return selectedDeviceTypes.includes(
-                                inspection.deviceTypeName ?? ""
-                            )
-
-                        }
-                    )
-                    .map(
-                        inspection =>
-                            inspection.deviceModelName
-                    )
-                    .filter(
-                        value =>
-                            value &&
-                            value !== "-"
-                    )
-            )
-        ).sort()
-
-    }, [
-        inspections,
-        selectedDeviceTypes,
-    ])
-
-
-    // 病棟
-    const wardOptions = useMemo(() => {
-
-        return Array.from(
-            new Set(
-                inspections
-                    .map(
-                        inspection =>
-                            inspection.wardName
-                    )
-                    .filter(
-                        (value): value is string =>
-                        value !== null
-                    )
-            )
-        ).sort()
-
-    }, [inspections])
-
-
-    // 管理番号
-    const managementNumberOptions = useMemo(() => {
-
-        return Array.from(
-            new Set(
-                inspections
-                    .map(
-                        inspection =>
-                            inspection.managementNumber
-                    )
-                    .filter(
-                        (value): value is string =>
-                            value !== null &&
-                            value !== "-"
-                    )
-            )
-        ).sort()
-
-    }, [inspections])
-
-
-    // 実施者
-    const performerOptions = useMemo(() => {
-
-        return Array.from(
-            new Set(
-                inspections
-                    .map(
-                        inspection =>
-                            inspection.performedByName
-                    )
-                    .filter(
-                        value =>
-                            value!== null
-                    )
-            )
-        ).sort()
-
-    }, [inspections])
-
-
-    // =========================================================
-    // 検索・ソート済み一覧
-    // =========================================================
-
-    const filteredInspections = useMemo(() => {
-
-        return inspections
-            .filter((inspection) => {
-
-                // -------------------------------------------------
-                // 点検日：開始日
-                // -------------------------------------------------
-
-                const inspectionDate =
-                    inspection.createdAt ?? ""
-
-                const date =
-                    inspectionDate
-                        ? new Date(inspectionDate)
-                        : null
-
-
-                if (
-                    startDate &&
-                    date
-                ) {
-
-                    const start =
-                        new Date(
-                            `${startDate}T00:00:00`
-                        )
-
-                    if (
-                        date < start
-                    ) {
-                        return false
-                    }
-
-                }
-
-
-                // -------------------------------------------------
-                // 点検日：終了日
-                // -------------------------------------------------
-
-                if (
-                    endDate &&
-                    date
-                ) {
-
-                    const end =
-                        new Date(
-                            `${endDate}T23:59:59.999`
-                        )
-
-                    if (
-                        date > end
-                    ) {
-                        return false
-                    }
-
-                }
-
-
-                // -------------------------------------------------
-                // 機種
-                // -------------------------------------------------
-
-                if (
-                    selectedDeviceTypes.length > 0 &&
-                    !selectedDeviceTypes.includes(
-                        inspection.deviceTypeName ?? ""
-                    )
-                ) {
-                    return false
-                }
-
-
-                // -------------------------------------------------
-                // 型式
-                // -------------------------------------------------
-
-                if (
-                    selectedDeviceModels.length > 0 &&
-                    !selectedDeviceModels.includes(
-                        inspection.deviceModelName ?? ""
-                    )
-                ) {
-                    return false
-                }
-
-
-                // -------------------------------------------------
-                // 病棟
-                // -------------------------------------------------
-
-                if (
-                    selectedWards.length > 0 &&
-                    !selectedWards.includes(
-                        inspection.wardName ?? ""
-                    )
-                ) {
-                    return false
-                }
-
-
-                // -------------------------------------------------
-                // 管理番号
-                // -------------------------------------------------
-
-                if (
-                    selectedManagementNumber &&
-                    inspection.managementNumber !==
-                        selectedManagementNumber
-                ) {
-                    return false
-                }
-
-
-                // -------------------------------------------------
-                // 実施者
-                // -------------------------------------------------
-
-                if (
-                    selectedPerformer &&
-                    inspection.performedByName !==
-                        selectedPerformer
-                ) {
-                    return false
-                }
-
-
-                return true
-
-            })
-
-            // -----------------------------------------------------
-            // 点検実施順
-            // 新しいものを上
-            // -----------------------------------------------------
-
-            .sort((a, b) => {
-
-                const dateA =
-                    new Date(
-                        a.createdAt ?? ""
-                    ).getTime()
-
-                const dateB =
-                    new Date(
-                        b.createdAt ?? ""
-                    ).getTime()
-
-                return dateB - dateA
-
-            })
-
-    }, [
-        inspections,
-
-        startDate,
-        endDate,
-
-        selectedDeviceTypes,
-        selectedDeviceModels,
-        selectedWards,
-
-        selectedManagementNumber,
-        selectedPerformer,
-    ])
-
-
-    // =========================================================
-    // inspection id に紐づく inspection result を取得
-    // =========================================================
-
-    const getResultsByInspectionId = async (
-        rows: InspectionListType[]
-    ) => {
-
-        console.log(
-            "getResultsByInspectionId"
-        )
-
-        const resultsByInspectionId:
-            Record<number, InspectionResult[]> = {}
-
-
-        for (const inspection of rows) {
-
-            const inspectionId =
-                inspection.id
-
-            const resultsData =
-                await getInspectionResultsFromApi(
-                    inspectionId
-                )
-
-            resultsByInspectionId[
-                inspectionId
-            ] =
-                resultsData.map(
-                    normalizeInspectionResult
-                )
-
-        }
-
-
-        return resultsByInspectionId
+    fetchData()
+  }, [isOpen])
+
+  const toggleSelection = (value: string, list: string[], setList: (v: string[]) => void) => {
+    if (list.includes(value)) {
+      setList(list.filter(v => v !== value))
+      return
     }
+    setList([...list, value])
+  }
 
+  const resetSearch = () => {
+    setStartDate("")
+    setEndDate("")
+    setSelectedDeviceTypes([])
+    setSelectedDeviceModels([])
+    setSelectedWards([])
+    setSelectedManagementNumber("")
+    setSelectedPerformer("")
+  }
 
-    // =========================================================
-    // 検索条件リセット
-    // =========================================================
+  const deviceTypeOptions = useMemo(() => {
+    return Array.from(new Set(inspections.map(i => i.deviceTypeName).filter((v): v is string => Boolean(v && v !== "-")))).sort()
+  }, [inspections])
 
-    const resetSearch = () => {
+  const deviceModelOptions = useMemo(() => {
+    return Array.from(new Set(inspections.filter(i => selectedDeviceTypes.length === 0 || selectedDeviceTypes.includes(i.deviceTypeName ?? "")).map(i => i.deviceModelName).filter((v): v is string => Boolean(v && v !== "-")))).sort()
+  }, [inspections, selectedDeviceTypes])
 
-        setStartDate("")
-        setEndDate("")
+  const wardOptions = useMemo(() => {
+    return Array.from(new Set(inspections.map(i => i.wardName).filter((v): v is string => Boolean(v && v !== "-")))).sort()
+  }, [inspections])
 
-        setSelectedDeviceTypes([])
-        setSelectedDeviceModels([])
-        setSelectedWards([])
+  const managementNumberOptions = useMemo(() => {
+    return Array.from(new Set(inspections.map(i => i.managementNumber).filter((v): v is string => Boolean(v && v !== "-")))).sort()
+  }, [inspections])
 
-        setSelectedManagementNumber("")
-        setSelectedPerformer("")
+  const performerOptions = useMemo(() => {
+    return Array.from(new Set(inspections.map(i => i.performedByName).filter((v): v is string => Boolean(v && v !== "-")))).sort()
+  }, [inspections])
 
-    }
+  const filteredInspections = useMemo(() => {
+    return inspections.filter(i => {
+      const created = new Date(i.createdAt ?? "")
+      if (startDate && created < new Date(`${startDate}T00:00:00`)) return false
+      if (endDate && created > new Date(`${endDate}T23:59:59.999`)) return false
+      if (selectedDeviceTypes.length > 0 && !selectedDeviceTypes.includes(i.deviceTypeName ?? "")) return false
+      if (selectedDeviceModels.length > 0 && !selectedDeviceModels.includes(i.deviceModelName ?? "")) return false
+      if (selectedWards.length > 0 && !selectedWards.includes(i.wardName ?? "")) return false
+      if (selectedManagementNumber && i.managementNumber !== selectedManagementNumber) return false
+      if (selectedPerformer && i.performedByName !== selectedPerformer) return false
+      return true
+    }).sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime())
+  }, [inspections, startDate, endDate, selectedDeviceTypes, selectedDeviceModels, selectedWards, selectedManagementNumber, selectedPerformer])
 
-
-    // =========================================================
-    // PDFボタン処理
-    // =========================================================
-
-    const handleExportPdf = async () => {
-        console.log("handleExportPdf")
-        await executeWithErrorAndLoading({
-            setLoading,
-            action: async () => {
-                const inspectionIds =getInspectionIdsForPdf(filteredInspections)
-                const blob =await createInspectionPdfTransaction(
-                                                                {inspectionIds,
-                                                                showPatientName:hospitalSettings?.showPatientName === true
-                })
-
-                const url =URL.createObjectURL(blob)
-                const link =document.createElement("a")
-                link.href = url
-                link.download = "inspection.pdf"
-                link.click()
-                URL.revokeObjectURL(url)
-            }
+  const handleExportPdf = async () => {
+    console.log("handleExportPdf")
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const inspectionIds = getInspectionIdsForPdf(filteredInspections)
+        const blob = await createInspectionPdfTransaction({
+          inspectionIds,
+          showPatientName: hospitalSettings?.showPatientName === true
         })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = "inspection.pdf"
+        link.click()
+        URL.revokeObjectURL(url)
+      }
+    })
+  }
 
-    }
+  const handleExportCsv = async () => {
+    console.log("handleExportCsv")
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        const inspectionIds = getInspectionIdsForCsv(filteredInspections)
+        const blob = await createInspectionCsvTransaction(inspectionIds)
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = "inspection.csv"
+        link.click()
+        URL.revokeObjectURL(url)
+      }
+    })
+  }
 
-    const handleExportCsv = async () => {
-        console.log("handleExportCsv")
-        await executeWithErrorAndLoading({
-            setLoading,
-            action: async () => {
-                const inspectionIds =getInspectionIdsForCsv(filteredInspections)
-                const blob =await createInspectionCsvTransaction(inspectionIds)
-                const url =URL.createObjectURL(blob)
-                const link =document.createElement("a")
-                link.href = url
-                link.download = "inspection.csv"
-                link.click()
-                URL.revokeObjectURL(url)
-            }
-        })
-    }
+  if (!isOpen) return null
 
-    // =========================================================
-    // Modal
-    // =========================================================
-
-    if (!isOpen) {
-        return null
-    }
-
-
-return createPortal(
-<>
-    <div
-        className="
-            fixed
-            inset-0
-            z-[1000]
-            flex
-            items-center
-            justify-center
-            bg-black/50
-            p-4
-        "
-    >
-
+  return createPortal(
+    <>
+      <div
+        className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/65 p-0 backdrop-blur-sm sm:p-4"
+        onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}
+      >
         <div
-            className="
-                bg-gray-200
-                rounded-2xl
-                shadow-2xl
-                w-[1400px]
-                max-w-[95vw]
-                h-[85vh]
-                flex
-                flex-col
-                overflow-hidden
-            "
+          className="flex h-full w-full flex-col overflow-hidden bg-slate-50 text-slate-900 sm:h-[92vh] sm:max-h-[94vh] sm:max-w-[1500px] sm:rounded-2xl sm:border sm:border-slate-300 sm:shadow-2xl"
+          onMouseDown={e => e.stopPropagation()}
         >
+          {/* ===== header ===== */}
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
+            <h2 className="text-base font-bold tracking-wide sm:text-lg">点検結果一覧</h2>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                className="h-8 rounded-lg border border-slate-600 bg-slate-800 px-3 text-xs font-bold text-slate-100 transition hover:bg-slate-700"
+              >
+                CSV出力
+              </button>
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                className="h-8 rounded-lg bg-teal-700 px-3 text-xs font-bold text-white transition hover:bg-teal-800"
+              >
+                PDF出力
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-slate-700 hover:text-white"
+                aria-label="閉じる"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-            {/* =================================================
-                Header
-            ================================================= */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    justify-between
-                    px-6
-                    py-4
-                    bg-white
-                    shrink-0
-                "
-            >
-
+          {/* ===== main ===== */}
+          <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4">
+            {/* ===== search section ===== */}
+            <section className="shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(prev => !prev)}
+                className="flex w-full items-center justify-between border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50 sm:px-5"
+              >
                 <div>
-
-                    <h2
-                        className="
-                            text-xl
-                            font-bold
-                            text-gray-800
-                        "
-                    >
-                        点検結果
-                    </h2>
-
-                    <p
-                        className="
-                            mt-1
-                            text-sm
-                            text-gray-500
-                        "
-                    >
-                        点検結果の一覧を確認します
-                    </p>
-
+                  <div className="text-xs font-bold tracking-wide text-slate-700">検索条件</div>
+                  {!searchOpen && <div className="mt-0.5 text-[11px] text-slate-400">条件を指定して点検結果を絞り込みます</div>}
                 </div>
-
-
-                <div
-                    className="
-                        flex
-                        items-center
-                        gap-2
-                    "
-                >
-
-                    <button
-                        type="button"
-                        onClick={handleExportCsv}
-                        className="
-                            rounded-lg
-                            bg-gray-100
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-700
-                            transition
-                            hover:bg-gray-200
-                        "
-                    >
-                        CSV
-                    </button>
-
-
-                    <button
-                        type="button"
-                        onClick={handleExportPdf}
-                        className="
-                            rounded-lg
-                            bg-gray-100
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-700
-                            transition
-                            hover:bg-gray-200
-                        "
-                    >
-                        PDF
-                    </button>
-
-
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="
-                            rounded-lg
-                            bg-gray-100
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-700
-                            transition
-                            hover:bg-gray-200
-                        "
-                    >
-                        閉じる
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            {/* =================================================
-                Search
-            ================================================= */}
-
-            <div
-                className="
-                    px-6
-                    py-5
-                "
-            >
-
-                <div
-                    className="
-                        rounded-xl
-                        bg-white
-                        p-6
-                        shadow-sm
-                    "
-                >
-
-                    <div
-                        className="
-                            grid
-                            grid-cols-6
-                            gap-4
-                            text-sm
-                        "
-                    >
-
-                        {/* =========================================
-                            検索期間
-                        ========================================= */}
-
-                        <div
-                            className="
-                                flex
-                                flex-col
-                                gap-3
-                            "
-                        >
-
-                            <div>
-
-                                <label
-                                    className="
-                                        mb-2
-                                        block
-                                        text-xs
-                                        font-medium
-                                        text-gray-600
-                                    "
-                                >
-                                    検索開始日
-                                </label>
-
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) =>
-                                        setStartDate(
-                                            e.target.value
-                                        )
-                                    }
-                                    className="
-                                        w-full
-                                        rounded-lg
-                                        border
-                                        border-gray-300
-                                        bg-white
-                                        px-3
-                                        py-2
-                                        text-sm
-                                        text-gray-700
-                                        outline-none
-                                        transition
-                                        focus:border-blue-500
-                                        focus:ring-2
-                                        focus:ring-blue-100
-                                    "
-                                />
-
-                            </div>
-
-
-                            <div>
-
-                                <label
-                                    className="
-                                        mb-2
-                                        block
-                                        text-xs
-                                        font-medium
-                                        text-gray-600
-                                    "
-                                >
-                                    検索終了日
-                                </label>
-
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) =>
-                                        setEndDate(
-                                            e.target.value
-                                        )
-                                    }
-                                    className="
-                                        w-full
-                                        rounded-lg
-                                        border
-                                        border-gray-300
-                                        bg-white
-                                        px-3
-                                        py-2
-                                        text-sm
-                                        text-gray-700
-                                        outline-none
-                                        transition
-                                        focus:border-blue-500
-                                        focus:ring-2
-                                        focus:ring-blue-100
-                                    "
-                                />
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =========================================
-                            機種
-                        ========================================= */}
-
-                        <div>
-
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-xs
-                                    font-medium
-                                    text-gray-600
-                                "
-                            >
-                                機種
-                            </label>
-
-
-                            <div
-                                className="
-                                    max-h-32
-                                    overflow-auto
-                                    rounded-lg
-                                    border
-                                    border-gray-300
-                                    bg-white
-                                    p-3
-                                "
-                            >
-
-                                {deviceTypeOptions.length === 0 ? (
-
-                                    <div className="text-gray-400">
-                                        選択肢なし
-                                    </div>
-
-                                ) : (
-
-                                    deviceTypeOptions.map(
-                                        (type) => (
-
-                                            <label
-                                                key={type}
-                                                className="
-                                                    block
-                                                    cursor-pointer
-                                                    py-0.5
-                                                    text-sm
-                                                    text-gray-700
-                                                "
-                                            >
-
-                                                <input
-                                                    type="checkbox"
-                                                    checked={
-                                                        selectedDeviceTypes.includes(
-                                                            type
-                                                        )
-                                                    }
-                                                    onChange={() =>
-                                                        toggleSelection(
-                                                            type,
-                                                            selectedDeviceTypes,
-                                                            setSelectedDeviceTypes
-                                                        )
-                                                    }
-                                                    className="mr-2"
-                                                />
-
-                                                {type}
-
-                                            </label>
-
-                                        )
-                                    )
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =========================================
-                            型式
-                        ========================================= */}
-
-                        <div>
-
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-xs
-                                    font-medium
-                                    text-gray-600
-                                "
-                            >
-                                型式
-                            </label>
-
-
-                            <div
-                                className="
-                                    max-h-32
-                                    overflow-auto
-                                    rounded-lg
-                                    border
-                                    border-gray-300
-                                    bg-white
-                                    p-3
-                                "
-                            >
-
-                                {deviceModelOptions.length === 0 ? (
-
-                                    <div className="text-gray-400">
-                                        選択肢なし
-                                    </div>
-
-                                ) : (
-
-                                    deviceModelOptions.map(
-                                        (model) => (
-
-                                            <label
-                                                key={model}
-                                                className="
-                                                    block
-                                                    cursor-pointer
-                                                    py-0.5
-                                                    text-sm
-                                                    text-gray-700
-                                                "
-                                            >
-
-                                                <input
-                                                    type="checkbox"
-                                                    checked={
-                                                        selectedDeviceModels.includes(
-                                                            model
-                                                        )
-                                                    }
-                                                    onChange={() =>
-                                                        toggleSelection(
-                                                            model,
-                                                            selectedDeviceModels,
-                                                            setSelectedDeviceModels
-                                                        )
-                                                    }
-                                                    className="mr-2"
-                                                />
-
-                                                {model}
-
-                                            </label>
-
-                                        )
-                                    )
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =========================================
-                            病棟
-                        ========================================= */}
-
-                        <div>
-
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-xs
-                                    font-medium
-                                    text-gray-600
-                                "
-                            >
-                                病棟
-                            </label>
-
-
-                            <div
-                                className="
-                                    max-h-32
-                                    overflow-auto
-                                    rounded-lg
-                                    border
-                                    border-gray-300
-                                    bg-white
-                                    p-3
-                                "
-                            >
-
-                                {wardOptions.length === 0 ? (
-
-                                    <div className="text-gray-400">
-                                        選択肢なし
-                                    </div>
-
-                                ) : (
-
-                                    wardOptions.map(
-                                        (ward) => (
-
-                                            <label
-                                                key={ward}
-                                                className="
-                                                    block
-                                                    cursor-pointer
-                                                    py-0.5
-                                                    text-sm
-                                                    text-gray-700
-                                                "
-                                            >
-
-                                                <input
-                                                    type="checkbox"
-                                                    checked={
-                                                        selectedWards.includes(
-                                                            ward
-                                                        )
-                                                    }
-                                                    onChange={() =>
-                                                        toggleSelection(
-                                                            ward,
-                                                            selectedWards,
-                                                            setSelectedWards
-                                                        )
-                                                    }
-                                                    className="mr-2"
-                                                />
-
-                                                {ward}
-
-                                            </label>
-
-                                        )
-                                    )
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =========================================
-                            管理番号
-                        ========================================= */}
-
-                        <div>
-
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-xs
-                                    font-medium
-                                    text-gray-600
-                                "
-                            >
-                                管理番号
-                            </label>
-
-
-                            <select
-                                value={selectedManagementNumber}
-                                onChange={(e) =>
-                                    setSelectedManagementNumber(
-                                        e.target.value
-                                    )
-                                }
-                                className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-300
-                                    bg-white
-                                    px-3
-                                    py-2
-                                    text-sm
-                                    text-gray-700
-                                    outline-none
-                                    transition
-                                    focus:border-blue-500
-                                    focus:ring-2
-                                    focus:ring-blue-100
-                                "
-                            >
-
-                                <option value="">
-                                    すべて
-                                </option>
-
-                                {managementNumberOptions.map(
-                                    (number) => (
-
-                                        <option
-                                            key={number}
-                                            value={number}
-                                        >
-                                            {number}
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* =========================================
-                            実施者
-                        ========================================= */}
-
-                        <div>
-
-                            <label
-                                className="
-                                    mb-2
-                                    block
-                                    text-xs
-                                    font-medium
-                                    text-gray-600
-                                "
-                            >
-                                実施者
-                            </label>
-
-
-                            <select
-                                value={selectedPerformer}
-                                onChange={(e) =>
-                                    setSelectedPerformer(
-                                        e.target.value
-                                    )
-                                }
-                                className="
-                                    w-full
-                                    rounded-lg
-                                    border
-                                    border-gray-300
-                                    bg-white
-                                    px-3
-                                    py-2
-                                    text-sm
-                                    text-gray-700
-                                    outline-none
-                                    transition
-                                    focus:border-blue-500
-                                    focus:ring-2
-                                    focus:ring-blue-100
-                                "
-                            >
-
-                                <option value= "">
-                                    すべて
-                                </option>
-
-                                {performerOptions.map(
-                                    (performer) => (
-
-                                        <option
-                                            key={performer}
-                                            value={performer}
-                                        >
-                                            {performer}
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
+                {searchOpen ? <ChevronUp className="h-4 w-4 text-slate-500" /> : <ChevronDown className="h-4 w-4 text-slate-500" />}
+              </button>
+
+              {searchOpen && (
+                <div className="max-h-[55vh] overflow-y-auto p-4 sm:max-h-none sm:overflow-visible sm:p-5">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    {/* 日付 */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-500">検索開始日</label>
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={e => setStartDate(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-500">検索終了日</label>
+                        <input
+                          type="date"
+                          value={endDate}
+                          onChange={e => setEndDate(e.target.value)}
+                          className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                        />
+                      </div>
                     </div>
 
+                    {/* 機種 */}
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-500">機種</label>
+                      <div className="max-h-36 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+                        {deviceTypeOptions.length === 0 ? (
+                          <div className="px-2 py-2 text-xs text-slate-400">選択肢がありません</div>
+                        ) : (
+                          deviceTypeOptions.map(type => (
+                            <label key={type} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-white">
+                              <input
+                                type="checkbox"
+                                checked={selectedDeviceTypes.includes(type)}
+                                onChange={() => toggleSelection(type, selectedDeviceTypes, setSelectedDeviceTypes)}
+                                className="h-4 w-4 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                              />
+                              <span>{type}</span>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                    </div>
 
-                    {/* =================================================
-                        検索条件リセット
-                    ================================================= */}
+                    {/* 型式 */}
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-500">型式</label>
+                      <div className="max-h-36 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+                        {deviceModelOptions.length === 0 ? (
+                          <div className="px-2 py-2 text-xs text-slate-400">選択肢がありません</div>
+                        ) : (
+                          deviceModelOptions.map(model => (
+                            <label key={model} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-white">
+                              <input
+                                type="checkbox"
+                                checked={selectedDeviceModels.includes(model)}
+                                onChange={() => toggleSelection(model, selectedDeviceModels, setSelectedDeviceModels)}
+                                className="h-4 w-4 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                              />
+                              <span>{model}</span>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                    </div>
 
-                    <div
-                        className="
-                            flex
-                            justify-end
-                            mt-4
-                        "
-                    >
+                    {/* 病棟 */}
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-500">病棟</label>
+                      <div className="max-h-36 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
+                        {wardOptions.length === 0 ? (
+                          <div className="px-2 py-2 text-xs text-slate-400">選択肢がありません</div>
+                        ) : (
+                          wardOptions.map(ward => (
+                            <label key={ward} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-white">
+                              <input
+                                type="checkbox"
+                                checked={selectedWards.includes(ward)}
+                                onChange={() => toggleSelection(ward, selectedWards, setSelectedWards)}
+                                className="h-4 w-4 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
+                              />
+                              <span>{ward}</span>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-                        <button
+                  {/* 管理番号 / 実施者 / クリア */}
+                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-500">管理番号</label>
+                      <select
+                        value={selectedManagementNumber}
+                        onChange={e => setSelectedManagementNumber(e.target.value)}
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                      >
+                        <option value="">すべて</option>
+                        {managementNumberOptions.map(num => <option key={num} value={num}>{num}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-500">実施者</label>
+                      <select
+                        value={selectedPerformer}
+                        onChange={e => setSelectedPerformer(e.target.value)}
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                      >
+                        <option value="">すべて</option>
+                        {performerOptions.map(performer => <option key={performer} value={performer}>{performer}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="flex items-end md:col-span-2">
+                      <button
+                        type="button"
+                        onClick={resetSearch}
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-100 xl:w-auto xl:min-w-32"
+                      >
+                        条件をクリア
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* ===== inspection table section ===== */}
+            <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-5">
+                <div className="text-xs font-bold tracking-wide text-slate-700">点検結果一覧</div>
+                <div className="text-xs font-medium text-slate-500">検索結果：{filteredInspections.length}件</div>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-auto">
+                <table className="min-w-[1150px] border-collapse text-xs">
+                  <thead className="sticky top-0 z-10 bg-slate-100">
+                    <tr>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-center font-bold text-slate-600">詳細</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">点検日時</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">点検種別</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">機種</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">型式</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">管理番号</th>
+                      {hospitalSettings?.showPatientName && (
+                        <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">患者名</th>
+                      )}
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">病棟</th>
+                      <th className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">部屋</th>
+                      <th className="whitespace-nowrap border-b border-slate-200 px-2.5 py-2 text-left font-bold text-slate-600">実施者</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInspections.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={hospitalSettings?.showPatientName ? 10 : 9}
+                          className="border-b border-slate-200 px-4 py-10 text-center text-sm text-slate-400"
+                        >
+                          点検結果はありません
+                        </td>
+                      </tr>
+                    )}
+                    {filteredInspections.map(inspection => (
+                      <tr key={inspection.id} className="transition hover:bg-slate-50">
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-center">
+                          <button
                             type="button"
-                            onClick={resetSearch}
-                            className="
-                                rounded-lg
-                                bg-gray-100
-                                px-4
-                                py-2
-                                text-sm
-                                font-medium
-                                text-gray-700
-                                transition
-                                hover:bg-gray-200
-                            "
-                        >
-                            検索条件をクリア
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* =================================================
-                Result
-            ================================================= */}
-
-            {loading ? (
-
-                <div
-                    className="
-                        flex-1
-                        flex
-                        items-center
-                        justify-center
-                        px-6
-                        pb-6
-                    "
-                >
-
-                    <div
-                        className="
-                            flex
-                            h-full
-                            w-full
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-white
-                            shadow-sm
-                        "
-                    >
-
-                        <div className="text-sm text-gray-500">
-                            点検結果を取得しています...
-                        </div>
-
-                    </div>
-
-                </div>
-
-            ) : (
-
-                <div
-                    className="
-                        flex-1
-                        overflow-auto
-                        px-6
-                        pb-6
-                    "
-                >
-
-                    <div
-                        className="
-                            rounded-xl
-                            bg-white
-                            p-6
-                            shadow-sm
-                        "
-                    >
-
-                        {/* =========================================
-                            件数
-                        ========================================= */}
-
-                        <div
-                            className="
-                                mb-5
-                                flex
-                                items-center
-                                justify-between
-                            "
-                        >
-
-                            <div>
-
-                                <h3
-                                    className="
-                                        text-lg
-                                        font-semibold
-                                        text-gray-800
-                                    "
-                                >
-                                    点検結果一覧
-                                </h3>
-
-                                <p
-                                    className="
-                                        mt-1
-                                        text-sm
-                                        text-gray-500
-                                    "
-                                >
-                                    検索結果：{filteredInspections.length} 件
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =========================================
-                            Table
-                        ========================================= */}
-
-                        <div
-                            className="
-                                overflow-hidden
-                                rounded-lg
-                                border
-                                border-gray-200
-                            "
-                        >
-
-                            <table
-                                className="
-                                    w-full
-                                    border-collapse
-                                    text-sm
-                                "
-                            >
-
-                                <thead>
-
-                                    <tr
-                                        className="
-                                            bg-gray-50
-                                            text-gray-600
-                                        "
-                                    >
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                text-center
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            詳細
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                whitespace-nowrap
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            点検日時
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            点検種別
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            機種
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            型式
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            管理番号
-                                        </th>
-
-                                    {hospitalSettings?.showPatientName === true && (
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            患者名
-                                        </th>
-                                    )}
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            病棟
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            部屋
-                                        </th>
-
-
-                                        <th
-                                            className="
-                                                border-b
-                                                border-gray-200
-                                                px-4
-                                                py-3
-                                                font-medium
-                                                sticky
-                                                top-0
-                                                bg-gray-50
-                                            "
-                                        >
-                                            実施者
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody>
-
-                                    {filteredInspections.map(
-                                        (inspection) => (
-
-                                            <tr
-                                                key={inspection.id}
-                                                className="
-                                                    transition
-                                                    hover:bg-gray-50
-                                                "
-                                            >
-
-                                                {/* 詳細 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-center
-                                                    "
-                                                >
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-
-                                                            setSelectedInspection(
-                                                                inspection
-                                                            )
-
-                                                            setOpenDetailModal(
-                                                                true
-                                                            )
-
-                                                        }}
-                                                        className="
-                                                            rounded-lg
-                                                            bg-gray-100
-                                                            px-3
-                                                            py-1.5
-                                                            text-sm
-                                                            font-medium
-                                                            text-gray-700
-                                                            transition
-                                                            hover:bg-gray-200
-                                                        "
-                                                    >
-                                                        詳細
-                                                    </button>
-
-                                                </td>
-
-
-                                                {/* 点検日時 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        whitespace-nowrap
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.createdAt
-                                                            ? new Date(
-                                                                inspection.createdAt
-                                                            ).toLocaleString(
-                                                                "ja-JP"
-                                                            )
-                                                            : "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 点検種別 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.inspectionTypeName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 機種 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.deviceTypeName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 型式 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.deviceModelName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 管理番号 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.managementNumber ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 患者名 */}
-                                            {hospitalSettings?.showPatientName === true && (
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.patientName ??
-                                                        "-"
-                                                    }
-                                                </td>
-                                            )}
-
-                                                {/* 病棟 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.wardName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 部屋 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.roomName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-
-                                                {/* 実施者 */}
-
-                                                <td
-                                                    className="
-                                                        border-b
-                                                        border-gray-100
-                                                        px-4
-                                                        py-3
-                                                        text-gray-800
-                                                    "
-                                                >
-                                                    {
-                                                        inspection.performedByName ??
-                                                        "-"
-                                                    }
-                                                </td>
-
-                                            </tr>
-
-                                        )
-                                    )}
-
-
-                                    {/* =====================================
-                                        検索結果なし
-                                    ===================================== */}
-
-                                    {filteredInspections.length === 0 && (
-
-                                        <tr>
-
-                                            <td
-                                                colSpan={10}
-                                                className="
-                                                    px-4
-                                                    py-12
-                                                    text-center
-                                                    text-sm
-                                                    text-gray-500
-                                                "
-                                            >
-                                                点検結果はありません
-                                            </td>
-
-                                        </tr>
-
-                                    )}
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            )}
-
-
-            {/* =====================================================
-                詳細Modal
-            ===================================================== */}
-
-            <InspectionResultDetailModal
-                isOpen={openDetailModal}
-                onClose={() => {
-
-                    setOpenDetailModal(false)
-                    setSelectedInspection(null)
-
-                }}
-                inspection={selectedInspection}
-                hospitalSettings={hospitalSettings}
-            />
-
+                            onClick={() => {
+                              setSelectedInspection(inspection)
+                              setOpenDetailModal(true)
+                            }}
+                            className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100"
+                          >
+                            詳細
+                          </button>
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.createdAt ? new Date(inspection.createdAt).toLocaleString("ja-JP") : "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.inspectionTypeName ?? "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.deviceTypeName ?? "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.deviceModelName ?? "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 font-mono text-slate-700">
+                          {inspection.managementNumber ?? "-"}
+                        </td>
+                        {hospitalSettings?.showPatientName && (
+                          <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                            {inspection.patientName ?? "-"}
+                          </td>
+                        )}
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.wardName ?? "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-r border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.roomName ?? "-"}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-slate-200 px-2.5 py-2 text-slate-700">
+                          {inspection.performedByName ?? "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         </div>
-    </div>
-    <LoadingOverlay loading={loading} />
-</>,
-document.body
-)}
+      </div>
+
+      <InspectionResultDetailModal
+        isOpen={openDetailModal}
+        onClose={() => {
+          setOpenDetailModal(false)
+          setSelectedInspection(null)
+        }}
+        inspection={selectedInspection}
+        hospitalSettings={hospitalSettings}
+      />
+      <LoadingOverlay loading={loading} />
+    </>,
+    document.body
+  )
+}

@@ -4,6 +4,7 @@ import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
+import {TodayInspectionFrontType}from"../types/inspectionTypes/inspectionTypes"
 
 import DeviceIcon from "../utils/DeviceIcon"
 import {useRef} from "react"
@@ -32,6 +33,8 @@ type Props = {
   cellSize: number
   currentUser: any
   isDragging: boolean
+  inspectionCounts?: Record<number, number> 
+  todayInspections?: TodayInspectionFrontType[] 
 }
 
 
@@ -51,7 +54,9 @@ export default function Stock({
                                 managementNumber,
                                 serialNumber,
                                 currentUser,
-                                isDragging
+                                isDragging,
+                                inspectionCounts = {}, 
+                                todayInspections = []  
                               }: Props) {
 
 
@@ -193,6 +198,8 @@ const isCurrentDragging = draggingDevice?.id === d.id
             standby={d.standby}
             standbyStartedAt={d.standbyStartedAt}
             createAt={d.createAt}
+            inspectionCount={inspectionCounts[d.id] ?? 0} 
+            todayInspections={todayInspections}
           />
 
         </div>

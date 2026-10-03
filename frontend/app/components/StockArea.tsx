@@ -7,6 +7,7 @@ import { Device } from "../types/deviceTypes"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
+import {TodayInspectionFrontType}from"../types/inspectionTypes/inspectionTypes"
 import { formatDateTime } from "../utils/dateTime/dateUtils"
 import { StockLastUpdatedResponse } from "../types/deviceTypes"
 
@@ -32,6 +33,8 @@ type Props = {
   scrollRef: React.RefObject<HTMLDivElement | null>
   isDragging: boolean
   stockLastUpdated: StockLastUpdatedResponse
+   inspectionCounts?: Record<number, number>
+  todayInspections?: TodayInspectionFrontType[]
 }
 
 export default function StockAreas({
@@ -54,7 +57,9 @@ export default function StockAreas({
   currentUser,
   scrollRef,
   isDragging,
-  stockLastUpdated
+  stockLastUpdated,
+  inspectionCounts= {},
+  todayInspections = []
 }: Props) {
   // スマホ画面用：最終更新日とズームコントロールの折りたたみ状態
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false)
@@ -217,6 +222,8 @@ export default function StockAreas({
                     serialNumber={serialNumber}
                     currentUser={currentUser}
                     isDragging={isDragging}
+                    inspectionCounts={inspectionCounts}  
+                    todayInspections={todayInspections}
                   />
                 </StockGrid>
               </div>
