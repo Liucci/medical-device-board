@@ -1,3 +1,5 @@
+"use client"
+
 type Props = {
     leftLabel: string
     rightLabel: string
@@ -11,60 +13,36 @@ export function InspectionTwoChoiceInput({
     rightLabel,
     value,
     onChange,
-    disabled
+    disabled,
 }: Props) {
-    //console.log("InspectionTwoChoiceInput")
-
+    console.log("InspectionTwoChoiceInput")
     return (
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 sm:w-auto">
             <button
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(leftLabel)}
-                className={`
-                    min-w-28
-                    rounded-lg
-                    border
-                    px-5
-                    py-2.5
-                    text-sm
-                    font-medium
-                    shadow-sm
-                    transition
-                    ${
-                        disabled
-                        ? "cursor-not-allowed bg-gray-200 text-gray-400"
-                        :value === leftLabel
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
-                    }
-                `}
+                className={`flex h-10 flex-1 items-center justify-center rounded-lg border px-4 text-xs font-bold transition-all sm:h-9 sm:min-w-24 sm:flex-none sm:text-sm ${
+                    disabled
+                        ? "cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                        : value === leftLabel
+                        ? "border-teal-700 bg-teal-700 text-white shadow-sm"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+                }`}
             >
                 {leftLabel}
             </button>
-
             <button
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(rightLabel)}
-                className={`
-                    min-w-28
-                    rounded-lg
-                    border
-                    px-5
-                    py-2.5
-                    text-sm
-                    font-medium
-                    shadow-sm
-                    transition
-                    ${    
+                className={`flex h-10 flex-1 items-center justify-center rounded-lg border px-4 text-xs font-bold transition-all sm:h-9 sm:min-w-24 sm:flex-none sm:text-sm ${
                     disabled
-                        ? "cursor-not-allowed bg-gray-200 text-gray-400"
-                        :value === rightLabel
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-gray-500 bg-white text-gray-700 hover:bg-gray-50"
-                    }
-                `}
+                        ? "cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200"
+                        : value === rightLabel
+                        ? "border-teal-700 bg-teal-700 text-white shadow-sm"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+                }`}
             >
                 {rightLabel}
             </button>

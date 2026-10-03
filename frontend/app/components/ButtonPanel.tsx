@@ -1,24 +1,22 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-//type
+import { Plus, History, Settings, FileText, LogOut, UserPlus, UserCircle, ClipboardCheck, ChevronLeft, ChevronRight, Menu, X } from "lucide-react"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
 import { WardType } from "../types/wardTypes"
-import {CurrentUser  } from "../types/userTypes"
+import { CurrentUser } from "../types/userTypes"
 import { RoomType } from "../types/roomTypes"
-import {MaintenanceType } from "../types/maintenanceTypeTypes"
+import { MaintenanceType } from "../types/maintenanceTypeTypes"
 import { InfectionTypeType } from "../types/infectionTypeTypes"
-import { Device,  StockLastUpdatedResponse,WardLastUpdatedResponse,} from "../types/deviceTypes"
+import { Device, StockLastUpdatedResponse, WardLastUpdatedResponse } from "../types/deviceTypes"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
 import { InspectionType } from "../types/inspectionTypes/inspectionTypeTypes"
-import {InspectionItemCategoryType} from "../types/inspectionTypes/inspectionItemCategoryTypes"
-//処理中表示
+import { InspectionItemCategoryType } from "../types/inspectionTypes/inspectionItemCategoryTypes"
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
-
-//modal
 import DeviceModal from "./modals/DeviceModal"
 import SettingsModal from "./modals/SettingsModal"
 import HistoryModal from "./modals/HistoryModal"
@@ -26,79 +24,49 @@ import DeviceListModal from "./modals/DeviceListModal"
 import InviteCreateModal from "./modals/InviteCreateModal"
 import AccountInfoModal from "./modals/AccountInfoModal"
 import InspectionResultModal from "../components/modals/inspection/InspectionResultListModal"
-
 import type { Inspection } from "../types/inspectionTypes/inspectionTypes"
 import { getInspectionsFromApi } from "../api/inspection/inspections/fetchInspections"
 import { normalizeInspection } from "../mapper/inspectionMapper/inspectionMapper"
-
-
-
 import ButtonGrid from "./ButtonGrid"
-import { useState } from "react"
-import {
-  Plus,
-  History,
-  Settings,
-  FileText,
-  LogOut,
-  UserPlus,
-  UserCircle,
-  ClipboardCheck,
-  ChevronLeft,
-  ChevronRight,
 
-} from "lucide-react"
-
-
-//supabase
-import { supabase } from "../lib/supabase"
-
-//page.tsxからaddDevice関数をpropsで受け取る
 type Props = {
-  currentUser:CurrentUser
-  deviceList:  Device[]
-  setDeviceList: React.Dispatch<
-                  React.SetStateAction<any[]>
-                >  
+  currentUser: CurrentUser
+  deviceList: Device[]
+  setDeviceList: React.Dispatch<React.SetStateAction<any[]>>
   deviceTypes: DeviceTypeType[]
   setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: DeviceModelType[]
   setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
   stockAreas: StockAreaType[]
   setStockAreas: React.Dispatch<React.SetStateAction<any[]>>
-  wards:WardType[]
-  setWards:React.Dispatch<React.SetStateAction<any[]>>
+  wards: WardType[]
+  setWards: React.Dispatch<React.SetStateAction<any[]>>
   rooms: RoomType[]
-  setRooms:React.Dispatch<React.SetStateAction<any[]>>
+  setRooms: React.Dispatch<React.SetStateAction<any[]>>
   maintenanceTypes: MaintenanceType[]
-  setMaintenanceTypes:React.Dispatch<React.SetStateAction<any[]>>
+  setMaintenanceTypes: React.Dispatch<React.SetStateAction<any[]>>
   histories: any[]
   fetchHistories: () => Promise<void>
   getWardDeviceList: () => any[]
-  getLatestMaintenanceTask:(deviceId?: number) => {
-                                                    name: string
-                                                    due_at: string
-                                                  } | null
+  getLatestMaintenanceTask: (deviceId?: number) => { name: string; due_at: string } | null
   handleLogout: () => Promise<void>
-  hospitalId:string
-  userId:string
+  hospitalId: string
+  userId: string
   userName: string
   role: string
   email: string
   hospitalName: string
-  infectionTypes:InfectionTypeType[]
-  setInfectionTypes:React.Dispatch<React.SetStateAction<any[]>>
+  infectionTypes: InfectionTypeType[]
+  setInfectionTypes: React.Dispatch<React.SetStateAction<any[]>>
   setStockLastUpdated: React.Dispatch<React.SetStateAction<StockLastUpdatedResponse>>
   setWardLastUpdated: React.Dispatch<React.SetStateAction<WardLastUpdatedResponse>>
   hospitalSettings: HospitalSettingsType | null
   setHospitalSettings: React.Dispatch<React.SetStateAction<HospitalSettingsType | null>>
   inspectionTypes: InspectionType[]
   setInspectionTypes: React.Dispatch<React.SetStateAction<InspectionType[]>>
-  inspectionItemCategories:InspectionItemCategoryType[]
-  setInspectionItemCategories : React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>   
-
+  inspectionItemCategories: InspectionItemCategoryType[]
+  setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
 }
-
 
 export default function ButtonPanel({
   currentUser,
@@ -138,243 +106,165 @@ export default function ButtonPanel({
   inspectionItemCategories,
   setInspectionItemCategories,
 }: Props) {
+  console.log("ButtonPanel")
   const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
   const [openHistoryModal, setOpenHistoryModal] = useState(false)
   const [openDeviceListModal, setOpenDeviceListModal] = useState(false)
-  const [openInviteModal,setOpenInviteModal] = useState(false)
+  const [openInviteModal, setOpenInviteModal] = useState(false)
   const [openAccountInfoModal, setOpenAccountInfoModal] = useState(false)
   const [openHospitalSettingsModal, setOpenHospitalSettingsModal] = useState(false)
-  const [openInspectionResultModal, setOpenInspectionResultModal]= useState(false)
-  const [inspectionResultsLoading, setInspectionResultsLoading] =useState(false)
-  const [inspections, setInspections] =useState<Inspection[]>([])
-  //button panel
+  const [openInspectionResultModal, setOpenInspectionResultModal] = useState(false)
+  const [inspections, setInspections] = useState<Inspection[]>([])
   const [isPanelOpen, setIsPanelOpen] = useState(false)
-
-  const checkAdminPermission = () => {
-                      if (currentUser.role !== "admin") {
-                          alert("権限がありません")
-                          return false
-                      }
-                      return true
-  }
-
-
-  const OpenModal = () => {
-                            if (!checkAdminPermission()) return
-                            setOpenDeviceModal(true)}
-  const openSettings = () => {
-                            if (!checkAdminPermission()) return
-                             setOpenSettingsModal(true)}
-  const openHistory = async () => {
-                            setOpenHistoryModal(true)
-                            await fetchHistories()}
-  const openDeviceList = () => {setOpenDeviceListModal(true)}
-
-  const openInvite = () => {
-                            if (!checkAdminPermission()) return
-                            setOpenInviteModal(true)}  
-  const openHospitalSettings = () => {
-                            if (!checkAdminPermission()) return
-                            setOpenHospitalSettingsModal(true)}
-
-      //処理中表示用
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-//点検結果ボタン処理内容
-  const openInspectionResult = async () => {
-      setOpenInspectionResultModal(true)
-
-      try {
-          await executeWithErrorAndLoading({
-            setLoading,
-            action: async () => {
-              const data =await getInspectionsFromApi()
-              const normalizedInspections =data.map(normalizeInspection)
-              setInspections(normalizedInspections)
-              }
-          })
-      } catch (error) {
-          console.error("failed to fetch inspections:",error)
-          alert("点検結果の取得に失敗しました")
-          setOpenInspectionResultModal(false)
-      } 
+  const checkAdminPermission = () => {
+    if (currentUser.role !== "admin") {
+      alert("権限がありません")
+      return false
+    }
+    return true
   }
 
+  const OpenModal = () => {
+    if (!checkAdminPermission()) return
+    setOpenDeviceModal(true)
+  }
 
-return (
-  <>
-    <div
-      className="relative h-full"
-      onMouseEnter={() => setIsPanelOpen(true)}
-      onMouseLeave={() => setIsPanelOpen(false)}
-    >
-      {/* 右端の開閉ボタン */}
-      <button
-        type="button"
-        onClick={() => setIsPanelOpen(prev => !prev)}
-        className="
-          absolute
-          right-0
-          top-1/2
-          -translate-y-1/2
+  const openSettings = () => {
+    if (!checkAdminPermission()) return
+    setOpenSettingsModal(true)
+  }
 
-          w-7
-          h-16
+  const openHistory = async () => {
+    setOpenHistoryModal(true)
+    await fetchHistories()
+  }
 
-          flex
-          items-center
-          justify-center
+  const openDeviceList = () => {
+    setOpenDeviceListModal(true)
+  }
 
-          rounded-l-lg
+  const openInvite = () => {
+    if (!checkAdminPermission()) return
+    setOpenInviteModal(true)
+  }
 
-          bg-white
-          border
-          border-r-0
-          border-slate-200
+  const openInspectionResult = async () => {
+    setOpenInspectionResultModal(true)
+    try {
+      await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+          const data = await getInspectionsFromApi()
+          setInspections(data.map(normalizeInspection))
+        },
+      })
+    } catch (error) {
+      console.error("failed to fetch inspections:", error)
+      alert("点検結果の取得に失敗しました")
+      setOpenInspectionResultModal(false)
+    }
+  }
 
-          shadow-sm
-
-          text-slate-400
-
-          hover:bg-slate-50
-          hover:text-slate-700
-
-          transition-colors
-          duration-200
-
-          z-30
-        "
-        aria-label="メニューを開閉"
-      >
-        {isPanelOpen ? (
-          <ChevronRight size={18} />
-        ) : (
-          <ChevronLeft size={18} />
-        )}
-      </button>
-
-      {/* メニューパネル */}
+  return (
+    <>
+      {/* ========================================================= */}
+      {/* 1. デスクトップ用スリムパネル (md以上でのみ表示・幅80px) */}
+      {/* ========================================================= */}
       <div
-        className={`
-          absolute
-          top-0
-          right-0
-
-          h-full
-          w-[120px]
-
-          bg-slate-50
-          border-l
-          border-slate-200
-          shadow-xl
-
-          px-2
-          py-3
-
-          overflow-y-auto
-
-          transition-transform
-          duration-300
-          ease-out
-
-          ${
-            isPanelOpen
-              ? "translate-x-0"
-              : "translate-x-full"
-          }
-        `}
+        className="hidden md:block relative h-full"
+        onMouseEnter={() => setIsPanelOpen(true)}
+        onMouseLeave={() => setIsPanelOpen(false)}
       >
-        <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => setIsPanelOpen(prev => !prev)}
+          className="group absolute right-0 top-1/2 -translate-y-1/2 flex h-11 w-5 cursor-pointer items-center justify-center rounded-l-md border border-r-0 border-slate-200 bg-white text-slate-400 shadow-sm transition-all duration-150 hover:border-teal-400 hover:bg-teal-50/60 hover:text-teal-700 hover:shadow-md z-30"
+          aria-label="メニューを開閉"
+        >
+          {isPanelOpen ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
 
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              OpenModal()
-            }}
-            title="新規"
-            titleSize="text-xs"
-            icon={<Plus size={16} />}
-          />
+        <div
+          className={`absolute right-0 top-0 h-full w-[80px] overflow-y-auto border-l border-slate-200 bg-slate-50 px-1.5 py-2.5 shadow-xl transition-transform duration-300 ease-out z-20 ${
+            isPanelOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex flex-col gap-1">
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); OpenModal() }} title="新規" icon={<Plus size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); openHistory() }} title="履歴" icon={<History size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); openSettings() }} title="設定" icon={<Settings size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); openDeviceList() }} title="一覧" icon={<FileText size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); openInspectionResult() }} title="点検結果" icon={<ClipboardCheck size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); openInvite() }} title="招待" icon={<UserPlus size={13} />} />
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); handleLogout() }} title="終了" icon={<LogOut size={13} />} />
+          </div>
 
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              openHistory()
-            }}
-            title="履歴"
-            titleSize="text-xs"
-            icon={<History size={16} />}
-          />
-
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              openSettings()
-            }}
-            title="設定"
-            titleSize="text-xs"
-            icon={<Settings size={16} />}
-          />
-
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              openDeviceList()
-            }}
-            title="一覧"
-            titleSize="text-xs"
-            icon={<FileText size={16} />}
-          />
-
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              openInspectionResult()
-            }}
-            title="点検結果"
-            titleSize="text-xs"
-            icon={<ClipboardCheck size={16} />}
-          />
-
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              openInvite()
-            }}
-            title="招待"
-            titleSize="text-xs"
-            icon={<UserPlus size={16} />}
-          />
-
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              handleLogout()
-            }}
-            title="終了"
-            titleSize="text-xs"
-            icon={<LogOut size={16} />}
-          />
-
+          <div className="mt-2 border-t border-slate-200 pt-2">
+            <ButtonGrid onAdd={() => { setIsPanelOpen(false); setOpenAccountInfoModal(true) }} title="アカウント" icon={<UserCircle size={13} />} />
+          </div>
         </div>
-
-        {/* アカウント */}
-        <div className="mt-3 pt-3 border-t border-slate-200">
-          <ButtonGrid
-            onAdd={() => {
-              setIsPanelOpen(false)
-              setOpenAccountInfoModal(true)
-            }}
-            title="アカウント"
-            titleSize="text-xs"
-            icon={<UserCircle size={16} />}
-          />
-        </div>        
       </div>
 
-      {openDeviceModal &&
+      {/* ========================================================= */}
+      {/* 2. モバイル用フローティング・ハンバーガーボタン (md未満) */}
+      {/* ========================================================= */}
+      <button
+        type="button"
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="fixed bottom-4 right-4 z-40 flex h-11 w-11 md:hidden cursor-pointer items-center justify-center rounded-full bg-teal-700 text-white shadow-lg active:scale-95 transition-all hover:bg-teal-800"
+        aria-label="メニューを開く"
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* ========================================================= */}
+      {/* 3. モバイル用ボトムシート型メニューモーダル (md未満) */}
+      {/* ========================================================= */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 backdrop-blur-2xs p-0 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div
+            className="w-full rounded-t-2xl border-t border-slate-200 bg-white p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 上部つまみ */}
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300" />
+
+            <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
+              <span className="text-xs font-bold text-slate-700">メニュー</span>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* モバイル4列コンパクトグリッド */}
+            <div className="grid grid-cols-4 gap-1.5">
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); OpenModal() }} title="新規" icon={<Plus size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openHistory() }} title="履歴" icon={<History size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openSettings() }} title="設定" icon={<Settings size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openDeviceList() }} title="一覧" icon={<FileText size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openInspectionResult() }} title="点検結果" icon={<ClipboardCheck size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openInvite() }} title="招待" icon={<UserPlus size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); handleLogout() }} title="終了" icon={<LogOut size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); setOpenAccountInfoModal(true) }} title="アカウント" icon={<UserCircle size={14} />} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 各種モーダル */}
+      {openDeviceModal && (
         <DeviceModal
           deviceList={deviceList}
           setDeviceList={setDeviceList}
@@ -386,9 +276,9 @@ return (
           setStockLastUpdated={setStockLastUpdated}
           setWardLastUpdated={setWardLastUpdated}
         />
-      }
+      )}
 
-      {openSettingsModal &&
+      {openSettingsModal && (
         <SettingsModal
           currentUser={currentUser}
           onClose={() => setOpenSettingsModal(false)}
@@ -413,18 +303,18 @@ return (
           inspectionItemCategories={inspectionItemCategories}
           setInspectionItemCategories={setInspectionItemCategories}
         />
-      }
+      )}
 
-      {openHistoryModal &&
+      {openHistoryModal && (
         <HistoryModal
           isOpen={openHistoryModal}
           onClose={() => setOpenHistoryModal(false)}
           histories={histories}
           hospitalSettings={hospitalSettings}
         />
-      }
+      )}
 
-      {openDeviceListModal &&
+      {openDeviceListModal && (
         <DeviceListModal
           isOpen={openDeviceListModal}
           onClose={() => setOpenDeviceListModal(false)}
@@ -437,7 +327,7 @@ return (
           getLatestMaintenanceTask={getLatestMaintenanceTask}
           hospitalSettings={hospitalSettings}
         />
-      }
+      )}
 
       {openInspectionResultModal && (
         <InspectionResultModal
@@ -447,11 +337,7 @@ return (
         />
       )}
 
-      {openInviteModal &&
-        <InviteCreateModal
-          onClose={() => setOpenInviteModal(false)}
-        />
-      }
+      {openInviteModal && <InviteCreateModal onClose={() => setOpenInviteModal(false)} />}
 
       <AccountInfoModal
         isOpen={openAccountInfoModal}
@@ -461,10 +347,8 @@ return (
         hospitalName={hospitalName}
         email={email}
       />
-    </div>
 
-    {/* 処理中表示 */}
-    <LoadingOverlay loading={loading} />
-  </>
-)  
+      <LoadingOverlay loading={loading} />
+    </>
+  )
 }

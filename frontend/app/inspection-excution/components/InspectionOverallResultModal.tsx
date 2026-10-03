@@ -1,6 +1,7 @@
 "use client"
 
-import CommonModal from "../../components/common/CommonModal"
+import { useEffect } from "react"
+import { Check, X } from "lucide-react"
 
 type InspectionOverallResultModalProps = {
     isOpen: boolean
@@ -13,178 +14,82 @@ export default function InspectionOverallResultModal({
     onClose,
     onSelect,
 }: InspectionOverallResultModalProps) {
+    console.log("InspectionOverallResultModal")
+
+    useEffect(() => {
+        if (!isOpen) return
+        const originalOverflow = document.body.style.overflow
+        document.body.style.overflow = "hidden"
+        return () => { document.body.style.overflow = originalOverflow }
+    }, [isOpen])
+
+    if (!isOpen) return null
 
     return (
-        <CommonModal
-            open={isOpen}
-            onClose={onClose}
-            title="点検総合判定"
+        <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/65 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+            onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}
         >
-            <div className="space-y-7">
-
-                {/* 説明 */}
-                <div className="text-center">
-                    <p className="text-sm font-medium text-gray-700">
-                        今回の点検結果を選択してください
-                    </p>
-                    <p className="mt-1 text-xs text-gray-400">
-                        選択した判定は点検記録に保存されます
-                    </p>
-                </div>
-
-                {/* 判定選択 */}
-                <div className="grid grid-cols-2 gap-4">
-
-                    {/* OK */}
-                    <button
-                        type="button"
-                        onClick={() => onSelect("OK")}
-                        className="
-                            group
-                            flex
-                            min-h-[140px]
-                            flex-col
-                            items-center
-                            justify-center
-                            rounded-2xl
-                            border
-                            border-gray-200
-                            bg-white
-                            p-5
-                            shadow-sm
-                            transition-all
-                            duration-200
-                            hover:-translate-y-1
-                            hover:border-green-300
-                            hover:bg-green-50
-                            hover:shadow-lg
-                            active:translate-y-0
-                        "
-                    >
-                        <div
-                            className="
-                                flex
-                                h-14
-                                w-14
-                                items-center
-                                justify-center
-                                rounded-full
-                                bg-green-100
-                                text-2xl
-                                font-bold
-                                text-green-600
-                                transition
-                                group-hover:bg-green-600
-                                group-hover:text-white
-                            "
-                        >
-                            ✓
+            <div className="flex w-full flex-col overflow-hidden rounded-t-2xl border-t border-slate-300 bg-slate-50 shadow-2xl transition-transform duration-200 animate-in slide-in-from-bottom sm:max-w-md sm:rounded-2xl sm:border sm:border-slate-300 sm:animate-none">
+                <div className="bg-slate-900 px-4 py-2.5 text-white sm:px-5 sm:py-3">
+                    <div className="flex justify-center pb-1.5 sm:hidden">
+                        <div className="h-1 w-10 rounded-full bg-slate-600" />
+                    </div>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <h2 className="text-sm font-bold sm:text-base">点検総合判定</h2>
+                            <p className="mt-0.5 text-[11px] text-slate-300">今回の点検総合結果を選択してください</p>
                         </div>
-
-                        <span
-                            className="
-                                mt-4
-                                text-xl
-                                font-bold
-                                tracking-wide
-                                text-gray-800
-                            "
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-white/10 hover:text-white sm:h-8 sm:w-8"
+                            title="閉じる"
+                            aria-label="閉じる"
                         >
-                            OK
-                        </span>
-
-                        <span className="mt-1 text-xs text-gray-400">
-                            問題なし
-                        </span>
-                    </button>
-
-                    {/* NG */}
-                    <button
-                        type="button"
-                        onClick={() => onSelect("NG")}
-                        className="
-                            group
-                            flex
-                            min-h-[140px]
-                            flex-col
-                            items-center
-                            justify-center
-                            rounded-2xl
-                            border
-                            border-gray-200
-                            bg-white
-                            p-5
-                            shadow-sm
-                            transition-all
-                            duration-200
-                            hover:-translate-y-1
-                            hover:border-red-300
-                            hover:bg-red-50
-                            hover:shadow-lg
-                            active:translate-y-0
-                        "
-                    >
-                        <div
-                            className="
-                                flex
-                                h-14
-                                w-14
-                                items-center
-                                justify-center
-                                rounded-full
-                                bg-red-100
-                                text-2xl
-                                font-bold
-                                text-red-600
-                                transition
-                                group-hover:bg-red-600
-                                group-hover:text-white
-                            "
-                        >
-                            ×
-                        </div>
-
-                        <span
-                            className="
-                                mt-4
-                                text-xl
-                                font-bold
-                                tracking-wide
-                                text-gray-800
-                            "
-                        >
-                            NG
-                        </span>
-
-                        <span className="mt-1 text-xs text-gray-400">
-                            要確認
-                        </span>
-                    </button>
-
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
 
-                {/* キャンセル */}
-                <div className="flex justify-center pt-1">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="
-                            rounded-lg
-                            px-5
-                            py-2
-                            text-sm
-                            font-medium
-                            text-gray-500
-                            transition
-                            hover:bg-gray-100
-                            hover:text-gray-700
-                        "
-                    >
-                        キャンセル
-                    </button>
-                </div>
+                <div className="p-4 sm:p-6">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        <button
+                            type="button"
+                            onClick={() => onSelect("OK")}
+                            className="group flex flex-col items-center justify-center rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-4 transition-all hover:bg-emerald-100 hover:border-emerald-500 active:scale-98 sm:p-5"
+                        >
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
+                                <Check className="h-7 w-7 stroke-[3]" />
+                            </div>
+                            <span className="mt-2.5 text-lg font-black tracking-wide text-emerald-800 sm:text-xl">OK</span>
+                            <span className="text-[11px] font-bold text-emerald-600">正常・使用可</span>
+                        </button>
 
+                        <button
+                            type="button"
+                            onClick={() => onSelect("NG")}
+                            className="group flex flex-col items-center justify-center rounded-2xl border-2 border-rose-300 bg-rose-50/70 p-4 transition-all hover:bg-rose-100 hover:border-rose-500 active:scale-98 sm:p-5"
+                        >
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-600 text-white shadow-md transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
+                                <X className="h-7 w-7 stroke-[3]" />
+                            </div>
+                            <span className="mt-2.5 text-lg font-black tracking-wide text-rose-800 sm:text-xl">NG</span>
+                            <span className="text-[11px] font-bold text-rose-600">要対応・修理</span>
+                        </button>
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex h-9 w-full items-center justify-center rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 sm:w-32 sm:text-sm"
+                        >
+                            キャンセル
+                        </button>
+                    </div>
+                </div>
             </div>
-        </CommonModal>
+        </div>
     )
 }

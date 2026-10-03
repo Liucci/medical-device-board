@@ -1,29 +1,31 @@
 "use client"
+
 import { useState } from "react"
-import {createDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
-import {deleteDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
-import {updateDeviceTypeTransaction} from  "../../../app/api/transactions/deviceTypes/updateDeviceTypeTransaction"
-import { createDeviceModelTransaction } from "../../../app/api/transactions/deviceModels/createDeviceModelTransaction"
-import { deleteDeviceModelsTransaction } from "../../../app/api/transactions/deviceModels/deleteDeviceModelsTransaction"
-import {updateDeviceModelTransaction} from  "../../../app/api/transactions/deviceModels/updateDeviceModelTransaction"
-import { Device } from "../../types/deviceTypes"
-import { StockAreaType } from "../../types/stockTypes"
+import { Edit2, Plus, Trash2 } from "lucide-react"
+
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
 import { DeviceModelType } from "../../types/deviceModelTypes"
-import { WardType } from "../../types/wardTypes"
-import {CurrentUser  } from "../../types/userTypes"
-import { RoomType } from "../../types/roomTypes"
-import { executeWithLoading } from "../common/executeWithLoading"
-import {LoadingOverlay} from "../common/LoadingOverlay"
+
+import { createDeviceTypeTransaction } from "../../../app/api/transactions/deviceTypes/createDeviceTypeTransaction"
+import { deleteDeviceTypeTransaction } from "../../../app/api/transactions/deviceTypes/deleteDeviceTypeTransaction"
+import { updateDeviceTypeTransaction } from "../../../app/api/transactions/deviceTypes/updateDeviceTypeTransaction"
+import { createDeviceModelTransaction } from "../../../app/api/transactions/deviceModels/createDeviceModelTransaction"
+import { deleteDeviceModelsTransaction } from "../../../app/api/transactions/deviceModels/deleteDeviceModelsTransaction"
+import { updateDeviceModelTransaction } from "../../../app/api/transactions/deviceModels/updateDeviceModelTransaction"
+
+import { LoadingOverlay } from "../common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import DeviceModelEditModal from "./DeviceModelEditModal"
-import { Edit2, Plus, Trash2 } from "lucide-react"
+
+// ★ InputModal とフック
+import InputModal from "../common/InputModal"
+import useInputModal from "../common/useInputModal"
 
 type Props = {
   deviceTypes: DeviceTypeType[]
-  setDeviceTypes:React.Dispatch<React.SetStateAction<any[]>>
+  setDeviceTypes: React.Dispatch<React.SetStateAction<any[]>>
   deviceModels: DeviceModelType[]
-  setDeviceModels:React.Dispatch<React.SetStateAction<any[]>>
+  setDeviceModels: React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export default function DeviceTypeSettingsModal({
@@ -32,7 +34,6 @@ export default function DeviceTypeSettingsModal({
   deviceModels,
   setDeviceModels,
 }: Props) {
-
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null)
   const [newTypeName, setNewTypeName] = useState("")
   const [newModelName, setNewModelName] = useState("")
@@ -41,266 +42,251 @@ export default function DeviceTypeSettingsModal({
   const [editIconColor, setEditIconColor] = useState("#BFDBFE")
   const [loading, setLoading] = useState(false)
   const [editDeviceModel, setEditDeviceModel] = useState<DeviceModelType | null>(null)
-  // ===== deviceType =====
-  const handleAddType = async() => {
-      const trimmed = newTypeName.trim()
-      if (!trimmed) {return}
 
-      const exists = deviceTypes.some(
-                                        t =>
-                                        t.name.toLowerCase() ===
-                                        trimmed.toLowerCase()
-                                    )
+  const inputModal = useInputModal()
 
-      if (exists) {
-          alert("同じ機種が既に存在します")
-          return
-      }
+  // ===== 機種（DeviceType）処理 =====
+
+  const handleAddType = async () => {
+    const trimmed = newTypeName.trim()
+    if (!trimmed) return
+
+    const exists = deviceTypes.some(
+      (t) => t.name.toLowerCase() === trimmed.toLowerCase()
+    )
+
+    if (exists) {
+      alert("同じ機種が既に存在します")
+      return
+    }
+
     await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
         await createDeviceTypeTransaction({
-                                            deviceType: {
-                                                          name: trimmed,
-                                                          iconColor: newIconColor
-                                                        },
-                                            setDeviceTypes
-                                          })
-                          }
-    })                                       
-      setNewTypeName("")  
-    }
+          deviceType: {
+            name: trimmed,
+            iconColor: newIconColor,
+          },
+          setDeviceTypes,
+        })
+      },
+    })
+    setNewTypeName("")
+  }
 
-  const handleRenameType = async() => {
+  // 機種名変更（InputModalを使用）
+  const handleRenameType = () => {
     if (!selectedTypeId) return
-
-    const type = deviceTypes.find(t => t.id === selectedTypeId)
-
+    const type = deviceTypes.find((t) => t.id === selectedTypeId)
     if (!type) return
 
-    const name = prompt(
-      "新しい機種名",
-      type.name
-    )
-
-    if (!name) return
-
-    await executeWithErrorAndLoading({
-    setLoading,
-    action: async () => {
-      await updateDeviceTypeTransaction({
-                                          deviceType: {
-                                                        id: selectedTypeId,
-                                                        name,
-                                                        iconColor: type.iconColor
-                                                        
-                                                      },
-                                          setDeviceTypes
-                                        })
-    }
+    inputModal.openInputModal({
+      title: "機種名の変更",
+      label: "機種名",
+      value: type.name,
+      type: "text",
+      required: true,
+      onConfirm: async (name) => {
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            await updateDeviceTypeTransaction({
+              deviceType: {
+                id: selectedTypeId,
+                name: name.trim(),
+                iconColor: type.iconColor,
+              },
+              setDeviceTypes,
+            })
+          },
+        })
+        inputModal.closeInputModal()
+      },
     })
   }
-  
-  //色変更用確定実施hundle
+
+  // アイコン色変更
   const handleChangeColor = async () => {
     if (!selectedTypeId) return
-
-    const type =deviceTypes.find(t => t.id === selectedTypeId)
-
+    const type = deviceTypes.find((t) => t.id === selectedTypeId)
     if (!type) return
-  await executeWithErrorAndLoading({
-    setLoading,
-    action: async () => {
-        await updateDeviceTypeTransaction({
-                                            deviceType: {
-                                              id: selectedTypeId,
-                                              name: type.name,
-                                              iconColor: editIconColor
-                                            },
-                                            setDeviceTypes
-                                          })
-   }
-  })
 
-  }
-
-  const handleDeleteType = async() => {
-      if (!selectedTypeId) {return}
-    const confirmed = window.confirm(
-      "この機種を削除しますか？\n関連付けられた型式、点検表、点検項目、選択肢も削除されます。\nこの操作は元に戻せません。"
-    )
-
-    if (!confirmed) return
-
-  await executeWithErrorAndLoading({
-    setLoading,
-    action: async () => {
-
-      await deleteDeviceTypeTransaction({
-                                          deviceType: {
-                                                        id: selectedTypeId
-                                                      },
-                                          setDeviceTypes
-                                        })
-     }
-  })
-
-  setSelectedTypeId(null)
-  }
-
-
-
-  // ===== deviceModel =====
-  const filteredModels = deviceModels
-                                    .filter(m => m.deviceTypeId === selectedTypeId)
-                                    .sort((a, b) => a.name.localeCompare(b.name, "ja"))
-  const toggleModel = (id: number) => {
-                                        setCheckedModelIds(prev =>
-                                                                  prev.includes(id)
-                                                                    ? prev.filter(i => i !== id)
-                                                                    : [...prev, id]
-                                                          )
-  }
-
-  const handleAddModel = async() => {
-    if (!selectedTypeId) {alert("機種を選択してください")
-      return
-    }
-
-    if (!newModelName.trim()) return
     await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
-
-      await createDeviceModelTransaction({
-                                          deviceModel: {
-                                                          deviceTypeId: selectedTypeId,
-                                                          name: newModelName.trim(),
-                                                          displayRemainingCount: false,
-                                                          remainingAlertCount: 0
-                                                        },
-                                          setDeviceModels
-                                        })
-      }
+        await updateDeviceTypeTransaction({
+          deviceType: {
+            id: selectedTypeId,
+            name: type.name,
+            iconColor: editIconColor,
+          },
+          setDeviceTypes,
+        })
+      },
     })
+  }
 
+  // 機種削除（InputModalの二択モードを使用）
+  const handleDeleteType = () => {
+    if (!selectedTypeId) return
+    const type = deviceTypes.find((t) => t.id === selectedTypeId)
+
+    inputModal.openInputModal({
+      title: "機種の削除",
+      message: `機種「${type?.name ?? ""}」を削除しますか？`,
+      subMessage:
+        "関連付けられた型式、点検表、点検項目、選択肢もすべて削除されます。この操作は元に戻せません。",
+      type: "confirm",
+      buttonPattern: "yes_no",
+      confirmVariant: "danger",
+      icon: "warning",
+      onConfirm: async () => {
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            await deleteDeviceTypeTransaction({
+              deviceType: {
+                id: selectedTypeId,
+              },
+              setDeviceTypes,
+            })
+          },
+        })
+        setSelectedTypeId(null)
+        inputModal.closeInputModal()
+      },
+    })
+  }
+
+  // ===== 型式（DeviceModel）処理 =====
+
+  const filteredModels = deviceModels
+    .filter((m) => m.deviceTypeId === selectedTypeId)
+    .sort((a, b) => a.name.localeCompare(b.name, "ja"))
+
+  const toggleModel = (id: number) => {
+    setCheckedModelIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
+  }
+
+  const handleAddModel = async () => {
+    if (!selectedTypeId) {
+      alert("機種を選択してください")
+      return
+    }
+    const trimmed = newModelName.trim()
+    if (!trimmed) return
+
+    await executeWithErrorAndLoading({
+      setLoading,
+      action: async () => {
+        await createDeviceModelTransaction({
+          deviceModel: {
+            deviceTypeId: selectedTypeId,
+            name: trimmed,
+            displayRemainingCount: false,
+            remainingAlertCount: 0,
+          },
+          setDeviceModels,
+        })
+      },
+    })
     setNewModelName("")
   }
 
-  const handleDeleteModels = async () => {
-    if (checkedModelIds.length === 0) {return}
-    const confirmed = window.confirm(
-      "この型式を削除しますか？\n関連付けられた点検表、点検項目、選択肢も削除されます。\nこの操作は元に戻せません。"
-    )
-     if (!confirmed) return
+  // 型式の一括削除（InputModalの二択モードを使用）
+  const handleDeleteModels = () => {
+    if (checkedModelIds.length === 0) return
 
-    await executeWithErrorAndLoading({
-        setLoading,
-        action: async () => {
-          await deleteDeviceModelsTransaction({
-                                                deviceModels: {
-                                                                ids: checkedModelIds
-                                                              },
-                                                setDeviceModels
-                                              })
-          }
+    inputModal.openInputModal({
+      title: "選択した型式の削除",
+      message: `選択した ${checkedModelIds.length} 件の型式を削除しますか？`,
+      subMessage:
+        "関連付けられた点検表、点検項目、選択肢も削除されます。この操作は元に戻せません。",
+      type: "confirm",
+      buttonPattern: "yes_no",
+      confirmVariant: "danger",
+      icon: "warning",
+      onConfirm: async () => {
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            await deleteDeviceModelsTransaction({
+              deviceModels: {
+                ids: checkedModelIds,
+              },
+              setDeviceModels,
+            })
+          },
+        })
+        setCheckedModelIds([])
+        inputModal.closeInputModal()
+      },
     })
-    setCheckedModelIds([])
-
-    }
-
-  const handleRenameModel = (
-                                model: DeviceModelType
-                            ) => {
-      setEditDeviceModel(model)
   }
 
-  const handleSaveModel = async (
-                                  deviceModel: DeviceModelType
-                              ) => {
+  const handleRenameModel = (model: DeviceModelType) => {
+    setEditDeviceModel(model)
+  }
 
+  const handleSaveModel = async (deviceModel: DeviceModelType) => {
     await executeWithErrorAndLoading({
-        setLoading,
-        action: async () => {
-            await updateDeviceModelTransaction({
-                                                  deviceModel,
-                                                  setDeviceModels
-                                              })
-        }
+      setLoading,
+      action: async () => {
+        await updateDeviceModelTransaction({
+          deviceModel,
+          setDeviceModels,
+        })
+      },
     })
-
     setEditDeviceModel(null)
   }
 
   return (
     <>
-      <div className="w-full rounded-2xl bg-slate-50 p-4 sm:p-5">
+      <div className="w-full rounded-2xl bg-slate-50 p-3 sm:p-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
           {/* ===================================================== */}
-          {/* 左：機種 */}
+          {/* 左カラム：機種（Device Type） */}
           {/* ===================================================== */}
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-
-            {/* ヘッダー */}
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
             <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
               <h3 className="text-xs font-bold tracking-wide text-slate-700">
-                機種
+                機種マスター
               </h3>
-              <p className="mt-1 text-[11px] text-slate-500">
-                機種を選択して、名前や色の変更、削除を行います
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                機種を選択して名前やアイコン色の編集、削除を行います
               </p>
             </div>
 
-            <div className="p-4 sm:p-5">
-
-              {/* ================================================= */}
-              {/* 機種選択 */}
-              {/* ================================================= */}
-              <div className="space-y-2">
-                <label className="block text-xs font-medium text-slate-500">
+            <div className="p-4 sm:p-5 space-y-4 flex-1">
+              {/* 機種選択カード */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <label className="block text-[11px] font-medium text-slate-400">
                   機種を選択
                 </label>
-
-                <div className="flex items-center gap-2">
+                <div className="mt-1.5 flex items-center gap-2">
                   <select
                     value={selectedTypeId ?? ""}
                     onChange={(e) => {
                       const val = Number(e.target.value)
-
                       setSelectedTypeId(val || null)
                       setCheckedModelIds([])
-
-                      const selectedType =
-                        deviceTypes.find((t) => t.id === val)
-
+                      const selectedType = deviceTypes.find((t) => t.id === val)
                       if (selectedType) {
                         setEditIconColor(selectedType.iconColor)
                       }
                     }}
                     className="
-                      min-w-0
-                      flex-1
-                      rounded-lg
-                      border
-                      border-slate-200
-                      bg-slate-50
-                      px-3
-                      py-2.5
-                      text-sm
-                      font-medium
-                      text-slate-700
-                      outline-none
-                      transition-colors
-                      focus:border-teal-500
-                      focus:ring-2
-                      focus:ring-teal-100
+                      min-w-0 flex-1 h-10 rounded-lg border border-slate-300 bg-white px-3
+                      text-sm font-bold text-slate-900 outline-none transition-colors
+                      focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
                     "
                   >
-                    <option value="">
-                      選択してください
-                    </option>
-
+                    <option value="">選択してください</option>
                     {deviceTypes.map((type) => (
                       <option key={type.id} value={type.id}>
                         {type.name}
@@ -308,266 +294,158 @@ export default function DeviceTypeSettingsModal({
                     ))}
                   </select>
 
-                  {/* 名前変更 */}
+                  {/* 機種名編集ボタン */}
                   <button
                     type="button"
                     onClick={handleRenameType}
                     disabled={!selectedTypeId}
                     aria-label="機種名を編集"
                     className="
-                      flex
-                      h-10
-                      w-10
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-lg
-                      text-slate-400
-                      transition-colors
-                      hover:bg-slate-100
-                      hover:text-slate-700
-                      disabled:cursor-not-allowed
-                      disabled:opacity-40
+                      flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white
+                      text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700
+                      disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer
                     "
+                    title="機種名を編集"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
 
-              {/* ================================================= */}
-              {/* 色変更 */}
-              {/* ================================================= */}
+              {/* 選択中機種の設定（色変更・削除） */}
               {selectedTypeId && (
-                <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <div className="mb-3">
-                    <h4 className="text-xs font-bold text-slate-700">
-                      アイコン色
-                    </h4>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      機種アイコンに使用する色を設定します
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={editIconColor}
-                      onChange={(e) =>
-                        setEditIconColor(e.target.value)
-                      }
-                      className="
-                        h-10
-                        w-14
-                        cursor-pointer
-                        rounded-lg
-                        border
-                        border-slate-200
-                        bg-white
-                        p-1
-                      "
-                    />
-
-                    <button
-                      type="button"
-                      onClick={handleChangeColor}
-                      className="
-                        h-10
-                        rounded-lg
-                        border
-                        border-slate-200
-                        bg-white
-                        px-3
-                        text-xs
-                        font-bold
-                        text-slate-700
-                        transition-colors
-                        hover:bg-slate-100
-                      "
-                    >
-                      色を変更
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================= */}
-              {/* 機種削除 */}
-              {/* ================================================= */}
-              {selectedTypeId && (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={handleDeleteType}
-                    className="
-                      inline-flex
-                      h-9
-                      items-center
-                      gap-1.5
-                      rounded-lg
-                      border
-                      border-rose-200
-                      bg-rose-50
-                      px-3
-                      text-xs
-                      font-bold
-                      text-rose-600
-                      transition-colors
-                      hover:bg-rose-100
-                    "
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    機種を削除
-                  </button>
-                </div>
-              )}
-
-              {/* ================================================= */}
-              {/* 新しい機種を追加 */}
-              {/* ================================================= */}
-              {!selectedTypeId && (
-                <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-4">
-                    <h4 className="text-xs font-bold tracking-wide text-slate-700">
-                      新しい機種を追加
-                    </h4>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      機種名とアイコン色を設定してください
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                    <div className="min-w-0 flex-1">
-                      <label className="mb-2 block text-xs font-medium text-slate-500">
-                        機種名
-                      </label>
-
-                      <input
-                        value={newTypeName}
-                        onChange={(e) =>
-                          setNewTypeName(e.target.value)
-                        }
-                        placeholder="例：人工呼吸器"
-                        className="
-                          w-full
-                          rounded-lg
-                          border
-                          border-slate-200
-                          bg-white
-                          px-3
-                          py-2.5
-                          text-sm
-                          text-slate-700
-                          outline-none
-                          transition-colors
-                          focus:border-teal-500
-                          focus:ring-2
-                          focus:ring-teal-100
-                        "
-                      />
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-3">
+                  <div>
+                    <div className="text-[11px] font-medium text-slate-400">
+                      アイコン色設定
                     </div>
-
-                    <div className="shrink-0">
-                      <label className="mb-2 block text-xs font-medium text-slate-500">
-                        色
-                      </label>
-
+                    <div className="mt-2 flex items-center gap-3">
                       <input
                         type="color"
-                        value={newIconColor}
-                        onChange={(e) =>
-                          setNewIconColor(e.target.value)
-                        }
-                        className="
-                          h-10
-                          w-14
-                          cursor-pointer
-                          rounded-lg
-                          border
-                          border-slate-200
-                          bg-white
-                          p-1
-                        "
+                        value={editIconColor}
+                        onChange={(e) => setEditIconColor(e.target.value)}
+                        className="h-9 w-14 cursor-pointer rounded-lg border border-slate-300 bg-white p-1"
                       />
+                      <button
+                        type="button"
+                        onClick={handleChangeColor}
+                        className="
+                          h-9 rounded-lg border border-slate-200 bg-white px-3
+                          text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100 cursor-pointer
+                        "
+                      >
+                        色を変更
+                      </button>
                     </div>
+                  </div>
 
+                  <div className="border-t border-slate-200/80 pt-3">
                     <button
                       type="button"
-                      onClick={handleAddType}
+                      onClick={handleDeleteType}
                       className="
-                        inline-flex
-                        h-10
-                        shrink-0
-                        items-center
-                        justify-center
-                        gap-1.5
-                        rounded-lg
-                        bg-teal-700
-                        px-4
-                        text-xs
-                        font-bold
-                        text-white
-                        transition-colors
-                        hover:bg-teal-800
+                        inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3
+                        text-xs font-bold text-rose-700 transition-colors hover:bg-rose-100 cursor-pointer
                       "
                     >
-                      <Plus className="h-3.5 w-3.5" />
-                      追加
+                      <Trash2 className="h-3.5 w-3.5" />
+                      この機種を削除
                     </button>
                   </div>
                 </div>
               )}
 
+              {/* 新規機種追加エリア */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="mb-3">
+                  <h4 className="text-xs font-bold tracking-wide text-slate-700">
+                    新しい機種を追加
+                  </h4>
+                  <p className="mt-0.5 text-[11px] text-slate-400">
+                    名称とアイコン色を指定して追加します
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <div className="min-w-0 flex-1">
+                    <label className="mb-1 block text-[11px] font-medium text-slate-400">
+                      機種名
+                    </label>
+                    <input
+                      value={newTypeName}
+                      onChange={(e) => setNewTypeName(e.target.value)}
+                      placeholder="例：人工呼吸器"
+                      className="
+                        h-10 w-full rounded-lg border border-slate-300 bg-white px-3
+                        text-sm font-medium text-slate-900 outline-none transition-colors
+                        focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
+                      "
+                    />
+                  </div>
+
+                  <div className="shrink-0">
+                    <label className="mb-1 block text-[11px] font-medium text-slate-400">
+                      色
+                    </label>
+                    <input
+                      type="color"
+                      value={newIconColor}
+                      onChange={(e) => setNewIconColor(e.target.value)}
+                      className="h-10 w-12 cursor-pointer rounded-lg border border-slate-300 bg-white p-1"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddType}
+                    className="
+                      inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg
+                      bg-teal-700 px-4 text-xs font-bold text-white transition-all
+                      hover:bg-teal-800 active:scale-[0.99] cursor-pointer
+                    "
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    追加
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* ===================================================== */}
-          {/* 右：型式 */}
+          {/* 右カラム：型式（Device Model） */}
           {/* ===================================================== */}
-          <div className="flex h-[600px] max-h-[600px] min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-
-            {/* ヘッダー */}
+          <div className="flex min-h-[420px] lg:h-[600px] lg:max-h-[600px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="shrink-0 border-b border-slate-100 px-4 py-3 sm:px-5">
               <h3 className="text-xs font-bold tracking-wide text-slate-700">
-                型式
+                型式マスター
               </h3>
-              <p className="mt-1 text-[11px] text-slate-500">
-                選択した機種の型式を管理します
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                選択した機種に属する型式を管理します
               </p>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-5">
-
-              {/* ================================================= */}
-              {/* 選択中の機種 */}
-              {/* ================================================= */}
-              <div className="mb-4 shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                <div className="text-[11px] font-medium text-slate-500">
+              {/* 選択中の機種ステータス */}
+              <div className="mb-3 shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+                <div className="text-[10px] font-semibold text-slate-400">
                   選択中の機種
                 </div>
-
-                <div className="mt-1 text-sm font-bold text-slate-900">
+                <div className="mt-0.5 text-sm font-bold text-slate-900">
                   {selectedTypeId
-                    ? deviceTypes.find(
-                        (type) => type.id === selectedTypeId
-                      )?.name
-                    : "機種を選択してください"}
+                    ? deviceTypes.find((t) => t.id === selectedTypeId)?.name
+                    : "機種未選択"}
                 </div>
               </div>
 
-              {/* ================================================= */}
               {/* 型式一覧ヘッダー */}
-              {/* ================================================= */}
-              <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
-                <div>
-                  <div className="text-xs font-bold tracking-wide text-slate-700">
-                    登録されている型式
-                  </div>
-
+              <div className="mb-2.5 flex shrink-0 items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-700">登録型式</span>
                   {selectedTypeId && (
-                    <div className="mt-1 text-[11px] text-slate-500">
+                    <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs font-bold text-slate-600">
                       {filteredModels.length} 件
-                    </div>
+                    </span>
                   )}
                 </div>
 
@@ -576,101 +454,54 @@ export default function DeviceTypeSettingsModal({
                     type="button"
                     onClick={handleDeleteModels}
                     className="
-                      inline-flex
-                      h-8
-                      shrink-0
-                      items-center
-                      gap-1.5
-                      rounded-lg
-                      border
-                      border-rose-200
-                      bg-rose-50
-                      px-3
-                      text-[11px]
-                      font-bold
-                      text-rose-600
-                      transition-colors
-                      hover:bg-rose-100
+                      inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-rose-200
+                      bg-rose-50 px-3 text-xs font-bold text-rose-700 transition-colors hover:bg-rose-100 cursor-pointer
                     "
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    選択削除
+                    選択削除 ({checkedModelIds.length})
                   </button>
                 )}
               </div>
 
-              {/* ================================================= */}
-              {/* 型式一覧 */}
-              {/* ================================================= */}
-              <div className="min-h-0 flex-1 overflow-y-auto">
+              {/* 型式一覧リスト */}
+              <div className="min-h-0 flex-1 overflow-y-auto pr-1">
                 {!selectedTypeId ? (
-
-                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 py-12 text-center text-xs text-slate-400">
-                    機種を選択してください
+                  <div className="flex h-full min-h-[140px] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-center text-xs text-slate-400">
+                    左側で機種を選択してください
                   </div>
-
                 ) : filteredModels.length === 0 ? (
-
-                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 py-12 text-center text-xs text-slate-400">
+                  <div className="flex h-full min-h-[140px] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-center text-xs text-slate-400">
                     登録されている型式はありません
                   </div>
-
                 ) : (
-
-                  <div className="overflow-hidden rounded-lg border border-slate-200">
+                  <div className="divide-y divide-slate-100 rounded-lg border border-slate-200">
                     {filteredModels.map((model) => (
                       <div
                         key={model.id}
-                        className="
-                          flex
-                          items-center
-                          gap-3
-                          border-b
-                          border-slate-100
-                          px-3
-                          py-2.5
-                          last:border-b-0
-                          hover:bg-slate-50
-                        "
+                        className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-slate-50"
                       >
-                        {/* チェックボックス */}
                         <input
                           type="checkbox"
                           checked={checkedModelIds.includes(model.id)}
                           onChange={() => toggleModel(model.id)}
-                          className="
-                            h-4
-                            w-4
-                            cursor-pointer
-                            rounded
-                            border-slate-300
-                            text-teal-700
-                            focus:ring-teal-500
-                          "
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300 text-teal-700 focus:ring-teal-600"
                         />
-
-                        {/* 型式名 */}
-                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">
+                        <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800">
                           {model.name}
                         </span>
-
-                        {/* 編集 */}
+                        {model.displayRemainingCount && (
+                          <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                            残数監視
+                          </span>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleRenameModel(model)}
                           aria-label="型式を編集"
                           className="
-                            flex
-                            h-8
-                            w-8
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-lg
-                            text-slate-400
-                            transition-colors
-                            hover:bg-slate-100
-                            hover:text-slate-700
+                            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400
+                            transition-colors hover:bg-slate-200 hover:text-slate-700 cursor-pointer
                           "
                         >
                           <Edit2 className="h-3.5 w-3.5" />
@@ -678,97 +509,50 @@ export default function DeviceTypeSettingsModal({
                       </div>
                     ))}
                   </div>
-
                 )}
               </div>
 
-              {/* ================================================= */}
-              {/* 型式追加 */}
-              {/* ================================================= */}
-              <div className="mt-4 shrink-0 border-t border-slate-100 pt-4">
-
-                <div className="mb-3">
-                  <h4 className="text-xs font-bold tracking-wide text-slate-700">
-                    新しい型式を追加
-                  </h4>
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    選択中の機種に型式を追加します
-                  </p>
-                </div>
-
+              {/* 新規型式追加入力 */}
+              <div className="mt-3 shrink-0 border-t border-slate-100 pt-3">
                 <div className="flex gap-2">
                   <input
                     value={newModelName}
-                    onChange={(e) =>
-                      setNewModelName(e.target.value)
-                    }
+                    onChange={(e) => setNewModelName(e.target.value)}
                     placeholder={
                       selectedTypeId
-                        ? "例：Servo-i"
-                        : "先に機種を選択してください"
+                        ? "新しい型式名（例：Servo-i）"
+                        : "機種を先に選択してください"
                     }
                     disabled={!selectedTypeId}
                     className="
-                      min-w-0
-                      flex-1
-                      rounded-lg
-                      border
-                      border-slate-200
-                      bg-slate-50
-                      px-3
-                      py-2.5
-                      text-sm
-                      text-slate-700
-                      outline-none
-                      transition-colors
-                      disabled:cursor-not-allowed
-                      disabled:bg-slate-100
-                      disabled:text-slate-400
-                      focus:border-teal-500
-                      focus:ring-2
-                      focus:ring-teal-100
+                      min-w-0 flex-1 h-10 rounded-lg border border-slate-300 bg-white px-3
+                      text-sm font-medium text-slate-900 outline-none transition-colors
+                      disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400
+                      focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
                     "
                   />
-
                   <button
                     type="button"
                     onClick={handleAddModel}
                     disabled={!selectedTypeId}
                     className="
-                      inline-flex
-                      h-10
-                      shrink-0
-                      items-center
-                      justify-center
-                      gap-1.5
-                      rounded-lg
-                      bg-teal-700
-                      px-4
-                      text-xs
-                      font-bold
-                      text-white
-                      transition-colors
-                      hover:bg-teal-800
-                      disabled:cursor-not-allowed
-                      disabled:bg-slate-300
+                      inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg
+                      bg-teal-700 px-4 text-xs font-bold text-white transition-all
+                      hover:bg-teal-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-slate-300 cursor-pointer
                     "
                   >
                     <Plus className="h-3.5 w-3.5" />
                     追加
                   </button>
                 </div>
-
               </div>
-
             </div>
           </div>
 
         </div>
       </div>
 
-      {/* ===================================================== */}
-      {/* 型式編集Modal */}
-      {/* ===================================================== */}
+      {/* 型式詳細編集モーダル */}
       <DeviceModelEditModal
         isOpen={editDeviceModel !== null}
         deviceModel={editDeviceModel}
@@ -776,11 +560,24 @@ export default function DeviceTypeSettingsModal({
         onSave={handleSaveModel}
       />
 
-      {/* ===================================================== */}
-      {/* Loading */}
-      {/* ===================================================== */}
-      <LoadingOverlay loading={loading} />
+      {/* InputModal（機種名変更・削除確認兼用） */}
+      <InputModal
+        open={inputModal.isOpen}
+        onClose={inputModal.closeInputModal}
+        onConfirm={inputModal.onConfirm}
+        title={inputModal.title}
+        message={inputModal.message}
+        subMessage={inputModal.subMessage}
+        icon={inputModal.icon}
+        label={inputModal.label}
+        type={inputModal.type}
+        defaultValue={inputModal.value}
+        buttonPattern={inputModal.buttonPattern}
+        confirmVariant={inputModal.confirmVariant}
+        required={inputModal.required}
+      />
 
+      <LoadingOverlay loading={loading} />
     </>
-  )  
+  )
 }

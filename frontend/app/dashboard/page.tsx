@@ -144,7 +144,8 @@ import { executeWithErrorAndLoading } from "../components/common/executeWithErro
 import { normalizeHospitalSettings } from "../mapper/hospitalSettingMapper"
 
 //common modal系
-import { useConfirm } from "../components/common/useConfirm"
+import ConfirmModal from "../components/common/ConfirmModal"
+import useConfirmModal from "../components/common/useConfirmModal"
 
 export default function Page() {
   //console.log("Dashboard render")
@@ -232,8 +233,8 @@ export default function Page() {
   const [hospitalSettings, setHospitalSettings] =useState<HospitalSettingsType | null>(null)
   
    // フックを1行呼び出し
-  const { confirmAsync, ConfirmModalElement } = useConfirm()
-  //refresh token後realtime再登録用
+  const confirmModal = useConfirmModal()
+//refresh token後realtime再登録用
   const {
         draggingDevice,
         setDraggingDevice,
@@ -333,84 +334,70 @@ export default function Page() {
     }
   }
   
-  const handleDropToStock = async (
-                                  device: Device,
-                                  stockAreaId: number
-                                ) => {
+  const handleDropToStock = async (device: Device, stockAreaId: number) => {
+      if (!device?.id) return
+      if (device.status === "room") {
+        if (!device?.roomId) return
+        const confirmed = await confirmModal.confirm({
+          title: "倉庫移動の確認",
+          message: "機器を倉庫へ移動しますか？",
+          subMessage: "病室から中央倉庫へ返却移動します。",
+          buttonPattern: "yes_no",
+          confirmVariant: "teal",
+        })
+        if (!confirmed) return
+        await executeWithErrorAndLoading({
+          setLoading,
+          action: async () => {
+            if (device.id === undefined || device.roomId === undefined) return
+            await moveRoomToStockTransaction({
+              deviceId: device.id,
+              roomId: device.roomId,
+              stockAreaId,
+              setDevices: setDeviceList,
+              setRooms,
+              setHistories,
+              setTasks,
+              setRoomInfections,
+              devices: deviceList
+            })
+            const lastUpdated = await fetchStockLastUpdated()
+            setStockLastUpdated(lastUpdated)
+            setWardLastUpdated(lastUpdated)
+            setInspectionCounts(prev => ({
+              ...prev,
+              [device.id]: 0,
+            }))
+            setTodayInspections(prev => prev.filter(inspection => inspection.deviceId !== device.id))
+            setDraggingDevice(null)
+          }
+        })
+        return
+      }
 
-    if (!device?.id) {return}
-    if (device.status === "room") {
-      if (!device?.roomId) {return}
-      const confirmed = await confirmAsync({
-        title: "倉庫移動の確認",
-        message: "機器を倉庫へ移動しますか？",
-        subMessage: "病室から中央倉庫へ返却移動します。",
-        buttonPattern: "yes_no", // 「はい」「いいえ」
+      const confirmed = await confirmModal.confirm({
+        title: "保管場所変更の確認",
+        message: "機器の保管場所を変更しますか？",
+        buttonPattern: "yes_no",
         confirmVariant: "teal",
       })
       if (!confirmed) return
       await executeWithErrorAndLoading({
-                                        setLoading,
-                                        action: async () => {
-                                          if (device.id === undefined) return
-                                          if (device.roomId === undefined) return
-                                            const deviceId = device.id
-                                            const roomId = device.roomId
-
-                                                      await moveRoomToStockTransaction({
-                                                                                          deviceId,
-                                                                                          roomId,
-                                                                                          stockAreaId,
-                                                                                          setDevices: setDeviceList,
-                                                                                          setRooms,
-                                                                                          setHistories,
-                                                                                          setTasks,
-                                                                                          setRoomInfections,
-                                                                                          devices:deviceList
-                                                    })
-                                                        setStockLastUpdated(await fetchStockLastUpdated())
-                                                        //ward更新日にはstock更新日を格納する
-                                                        setWardLastUpdated(await fetchStockLastUpdated())
-                                                        setInspectionCounts(prev => ({
-                                                                                        ...prev,
-                                                                                        [device.id]: 0,
-                                                                                      }))
-                                                        setTodayInspections(prev =>
-                                                                prev.filter(inspection => inspection.deviceId !== device.id)
-                                                        )
-                                                        setDraggingDevice(null)
-                                          }
+        setLoading,
+        action: async () => {
+          if (device.id === undefined) return
+          await moveStockToStockTransaction({
+            deviceId: device.id,
+            stockAreaId,
+            setDevices: setDeviceList,
+            setHistories,
+            devices: deviceList
+          })
+          setStockLastUpdated(await fetchStockLastUpdated())
+          setDraggingDevice(null)
+        }
       })
-      return
     }
-
-
-    const confirmed = await confirmAsync({
-          title: "保管場所変更の確認",
-          message: "機器の保管場所を変更しますか？",
-          buttonPattern: "yes_no", // 「はい」「いいえ」
-          confirmVariant: "teal",
-        })    
-    if (!confirmed) return
-    await executeWithErrorAndLoading({
-              setLoading,
-              action: async () => {
-                        if (device.id === undefined) return
-                        await moveStockToStockTransaction({
-                                                            deviceId: device.id,
-                                                            stockAreaId,
-                                                            setDevices: setDeviceList,
-                                                            setHistories,
-                                                            devices:deviceList
-                                                          })
-                        //stock areaのみ更新日更新                              
-                        setStockLastUpdated(await fetchStockLastUpdated())
-                        //setWardLastUpdated(await fetchWardLastUpdated())                                  
-                        setDraggingDevice(null)
-              }
-    })
-
-  }
 
   const handleDropToWard = async (
     device: Device,
@@ -1083,47 +1070,52 @@ const activeTasks = tasks.filter(
     }
   })
 
-  //logout関数
+// logout関数
   const handleLogout = async (showConfirm = true) => {
     // 確認が必要な場合のみ表示
     if (showConfirm) {
-      const confirmed = await confirmAsync({
-            title: "ログアウトの確認",
-            message: "ログアウトしますか？",
-            subMessage: "ログアウトすると再ログインが必要になります。",
-            buttonPattern: "yes_no",
-            confirmVariant: "danger", // 注意喚起の赤ボタン
-            icon: "warning",
+      // ★ inputModal を confirmModal に変更するだけ！
+      const confirmed = await confirmModal.confirm({
+        title: "ログアウトの確認",
+        message: "ログアウトしますか？",
+        subMessage: "ログアウトすると再ログインが必要になります。",
+        buttonPattern: "yes_no",
+        confirmVariant: "danger", // 赤色ボタン
+        icon: "warning",          // 警告アイコン
       })
+
+      // 「いいえ」または枠外タップ時は処理中断
       if (!confirmed) return
     }
+
+    // 「はい」を押した後のログアウト処理
     await logoutFromBackend()
     await supabase.auth.signOut()
     setCurrentUser(null)
     router.push("/login")
   }
 
-//dashboard/page.tsx読み込み時に走るhook
-useEffect(() => {
-    const init = async () => 
-    {
-        try {
-            const user=await initDashboard({
-                                  setCurrentUser,
-                                  setAccessToken,
-            })
-            if (user?.access_token) {
-                      startAutoRefreshToken(
-                                            user.access_token,
-                                            setAccessToken
-                      )
-            }
-        } 
-        catch (error) 
-        {console.error(error)}
-    }
-    init()
-}, [])
+  //dashboard/page.tsx読み込み時に走るhook
+  useEffect(() => {
+      const init = async () => 
+      {
+          try {
+              const user=await initDashboard({
+                                    setCurrentUser,
+                                    setAccessToken,
+              })
+              if (user?.access_token) {
+                        startAutoRefreshToken(
+                                              user.access_token,
+                                              setAccessToken
+                        )
+              }
+          } 
+          catch (error) 
+          {console.error(error)}
+      }
+      init()
+  }, [])
 
   
   //リロード時やlogin時にrealtime開始
@@ -1567,10 +1559,20 @@ if (!currentUser) {
         onSubmit={handleSubmitWardInfo}
         setWards={setWards}
       />
-    {/* ★ 二択モーダル描画エレメント */}
-      {ConfirmModalElement}
-
-    </div>
+      <ConfirmModal
+        open={confirmModal.isOpen}
+        onClose={confirmModal.closeConfirmModal}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        subMessage={confirmModal.subMessage}
+        icon={confirmModal.icon}
+        buttonPattern={confirmModal.buttonPattern}
+        confirmVariant={confirmModal.confirmVariant}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+      />
+      </div>
   {/* 処理中表示 */}
   <LoadingOverlay loading={loading} />
 </>
