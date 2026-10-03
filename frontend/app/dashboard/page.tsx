@@ -1,6 +1,11 @@
 "use client"
 import { useEffect, useState,useRef } from "react"
-
+import {getDashboardCache, 
+        setDashboardCache, 
+        hasDashboardCache, 
+        clearDashboardCache,
+        getNeedsRefreshTodayInspections,
+        flagNeedsRefreshTodayInspections } from "../utils/dashboardCache"
 import { initDashboard } from "../dashboard/initDashboard"
 import styles from "../page.module.css"
 import StockAreas from "../components/StockArea"
@@ -944,37 +949,37 @@ export default function Page() {
 
 
   //device_idに紐づくタスクの状態からアラートカラーを返す関数
-const getMAlert = (
-                    deviceId?: number
-                  ): "red" | "yellow" | "green" | null => {
+  const getMAlert = (
+                      deviceId?: number
+                    ): "red" | "yellow" | "green" | null => {
 
-  if (!deviceId) return null
+    if (!deviceId) return null
 
-const activeTasks = tasks.filter(
-  t =>
-    Number(t.deviceId) === Number(deviceId) &&
-    t.isActive &&
-    !t.completedAt
-)
-//console.log(deviceId, activeTasks)
-    if (activeTasks.length === 0) {
-      return null
-    }
+  const activeTasks = tasks.filter(
+    t =>
+      Number(t.deviceId) === Number(deviceId) &&
+      t.isActive &&
+      !t.completedAt
+  )
+  //console.log(deviceId, activeTasks)
+      if (activeTasks.length === 0) {
+        return null
+      }
 
-        const nearestTask = activeTasks.sort(
-          (a, b) =>
-            new Date(a.dueAt).getTime() -
-            new Date(b.dueAt).getTime()
-        )[0]
+          const nearestTask = activeTasks.sort(
+            (a, b) =>
+              new Date(a.dueAt).getTime() -
+              new Date(b.dueAt).getTime()
+          )[0]
 
-  const now = new Date()
-  const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    const now = new Date()
+    const diff =new Date(nearestTask.dueAt).getTime() - now.getTime()
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
 
-  if (days < 0) return "red"
-  if (days <= 2) return "yellow"
-  return "green"
-}
+    if (days < 0) return "red"
+    if (days <= 2) return "yellow"
+    return "green"
+  }
 
   const handleSubmitWardInfo = async (
                                       ward: UpdateWardInfoType,
@@ -1091,8 +1096,31 @@ const activeTasks = tasks.filter(
     // 「はい」を押した後のログアウト処理
     await logoutFromBackend()
     await supabase.auth.signOut()
+    clearDashboardCache() 
     setCurrentUser(null)
     router.push("/login")
+  }
+
+  // 本日の点検情報のみをピンポイント取得・更新する関数
+  const refreshTodayInspectionsOnly = async () => {
+    console.log("refreshTodayInspectionsOnly")
+    try {
+      const data = await getTodayInspectionsFromApi()
+      const todayIns = data.map(normalizeTodayInspection)
+      const counts: Record<number, number> = {}
+      todayIns.forEach(i => { counts[i.deviceId] = (counts[i.deviceId] ?? 0) + 1 })
+      setTodayInspections(todayIns)
+      setInspectionCounts(counts)
+
+      // キャッシュ側も最新の点検情報に更新しておく（次回巻き戻らないように）
+      const cache = getDashboardCache()
+      if (cache) {
+        cache.today_inspections = data
+        setDashboardCache(cache)
+      }
+    } catch (error) {
+      console.error("本日の点検情報更新エラー:", error)
+    }
   }
 
   //dashboard/page.tsx読み込み時に走るhook
@@ -1183,51 +1211,69 @@ const activeTasks = tasks.filter(
   }, [accessToken])
 
  
-  //FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
-  useEffect(() => {
-  const fetchData = async () => {
-    if (!currentUser) {return}
-        await executeWithErrorAndLoading({
-            setLoading,
-            action: async () => {    
-                  const data =await fetchInitDashboard()
-                  if (!data) {return}
-                  setDeviceList(data.devices.map(normalizeDevice))
-                  setStockAreas(data.stock_areas.map(normalizeStockArea))
-                  setWards(data.wards.map(normalizeWard))
-                  setRooms(data.rooms.map(normalizeRoom))
-                  setDeviceTypes(data.device_types.map(normalizeDeviceType))
-                  setDeviceModels(data.device_models.map(normalizeDeviceModel))
-                  setTasks(data.tasks.map(normalizeMaintenanceTask))
-                  setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
-                  setHistories(data.histories.map(normalizeHistory))
-                  setInfectionTypes(data.infection_types.map(normalizeInfectionType))
-                  setRoomInfections(data.room_infections.map(normalizeRoomInfection))
-                  setWardInfections(data.ward_infections.map(normalizeWardInfection))
-                  setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
-                  setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
-                  setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
-                  setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
-                  //最終更新日を取得用APIをたたく
-                  const stockLastUpdated = await fetchStockLastUpdated()
-                  const wardLastUpdated = await fetchWardLastUpdated()
-                  setStockLastUpdated(stockLastUpdated)
-                  setWardLastUpdated(wardLastUpdated)
-                  //お知らせ表示
-                  //await fetchActiveAnnouncementsTransaction({setAnnouncements: setActiveAnnouncements})
-                  const todayInspections: TodayInspectionFrontType[] = data.today_inspections.map(normalizeTodayInspection)
-                  const counts: Record<number, number> = {}
-                  todayInspections.forEach(inspection => 
-                  {
-                    counts[inspection.deviceId] =
-                      (counts[inspection.deviceId] ?? 0) + 1
-                  })
-                  setTodayInspections(todayInspections)
-                  setInspectionCounts(counts)
-          },
-    })
+// キャッシュおよびAPI取得結果を各Stateへ展開する関数
+  const applyDashboardData = (data: any) => {
+    console.log("applyDashboardData")
+    setDeviceList(data.devices.map(normalizeDevice))
+    setStockAreas(data.stock_areas.map(normalizeStockArea))
+    setWards(data.wards.map(normalizeWard))
+    setRooms(data.rooms.map(normalizeRoom))
+    setDeviceTypes(data.device_types.map(normalizeDeviceType))
+    setDeviceModels(data.device_models.map(normalizeDeviceModel))
+    setTasks(data.tasks.map(normalizeMaintenanceTask))
+    setMaintenanceTypes(data.maintenance_types.map(normalizeMaintenanceType))
+    setHistories(data.histories.map(normalizeHistory))
+    setInfectionTypes(data.infection_types.map(normalizeInfectionType))
+    setRoomInfections(data.room_infections.map(normalizeRoomInfection))
+    setWardInfections(data.ward_infections.map(normalizeWardInfection))
+    setActiveAnnouncements(data.active_announcements.map(normalizeActiveAnnouncement))
+    setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
+    setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
+    setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
+    const todayInspections: TodayInspectionFrontType[] = data.today_inspections.map(normalizeTodayInspection)
+    const counts: Record<number, number> = {}
+    todayInspections.forEach(i => { counts[i.deviceId] = (counts[i.deviceId] ?? 0) + 1 })
+    setTodayInspections(todayInspections)
+    setInspectionCounts(counts)
   }
-  fetchData()}, [currentUser])
+
+  // FASTAPIのfetch関数類を呼び出し、レンダリング時にDBデータを受け取る
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!currentUser) return
+
+      // ★ キャッシュが存在する場合（点検表作成・編集から戻った時など）はAPI取得をスキップ
+      if (hasDashboardCache()) {
+        console.log("Dashboard: キャッシュから即時復帰")
+        const cachedData = getDashboardCache()
+        applyDashboardData(cachedData)
+
+         // ★ 点検実施後フラグがONの場合のみ、本日の点検情報だけサッと更新
+      if (getNeedsRefreshTodayInspections()) {
+        flagNeedsRefreshTodayInspections(false)
+        await refreshTodayInspectionsOnly()
+      }
+        return
+      }
+
+      // 初回ログインまたはリロード時は通常通りAPI取得
+      await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+          clearDashboardCache()
+          const data = await fetchInitDashboard()
+          if (!data) return
+          setDashboardCache(data) // ★ キャッシュに保存
+          applyDashboardData(data)
+          const stockLastUpdated = await fetchStockLastUpdated()
+          const wardLastUpdated = await fetchWardLastUpdated()
+          setStockLastUpdated(stockLastUpdated)
+          setWardLastUpdated(wardLastUpdated)
+        },
+      })
+    }
+    fetchData()
+  }, [currentUser])
   
   //login情報ない場合はnullを返す。結果login画面に遷移される。
   //一番最後に記述しないとエラーになる
@@ -1235,6 +1281,8 @@ const activeTasks = tasks.filter(
     if (currentUser === undefined) return
 
     if (!currentUser) {
+      
+      clearDashboardCache()
       router.replace("/login")
     }
   }, [currentUser, router])
@@ -1409,6 +1457,8 @@ if (!currentUser) {
           scrollRef={stockScrollRef}
           isDragging={isDragging}
           stockLastUpdated={stockLastUpdated}
+          inspectionCounts={inspectionCounts}   
+          todayInspections={todayInspections}  
         />
       </div>      
 

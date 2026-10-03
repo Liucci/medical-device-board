@@ -213,6 +213,8 @@ export default function SettingsModal({
         open={true}
         onClose={onClose}
         title="設定"
+        // ★ メニューの時だけ bottom、詳細に入ったら full！
+        mobilePosition={mode === "menu" ? "bottom" : "full"}        
         maxWidth={
           mode === "maintenance" || mode === "deviceType" || mode === "ward"
             ? "max-w-[1000px]"
@@ -220,6 +222,7 @@ export default function SettingsModal({
             ? "max-w-[600px]"
             : "max-w-[500px]"
         }
+
       >
         <div className="bg-slate-50 p-3 sm:p-5">
           {mode === "menu" && (

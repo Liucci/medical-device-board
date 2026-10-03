@@ -93,6 +93,7 @@ export default function RoomDeviceInfoModal({
   const [inputModalTarget, setInputModalTarget] = useState<
     | "managementNumber"
     | "serialNumber"
+    | "patientName"
     | "rentalStartDate"
     | "rentalEndDate"
     | "note"
@@ -105,19 +106,21 @@ export default function RoomDeviceInfoModal({
   const [inputModalDefaultValue, setInputModalDefaultValue] = useState("")
   const [inputModalTaskId, setInputModalTaskId] = useState<number | null>(null)
   const [inputModalRentalStartDate, setInputModalRentalStartDate] = useState("")
-
+  const [inputModalRequired, setInputModalRequired] = useState(false)
   const openInputModal = ({
     target,
     title,
     label,
     type = "text",
     defaultValue = "",
+    required = false,
   }: {
-    target: "managementNumber" | "serialNumber" | "rentalStartDate" | "rentalEndDate" | "note" | "maintenanceTaskDueAt"
+    target: "managementNumber" | "serialNumber" | "patientName" | "rentalStartDate" | "rentalEndDate" | "note" | "maintenanceTaskDueAt"
     title: string
     label?: string
     type?: "text" | "number" | "date" | "time"
     defaultValue?: string
+    required?: boolean
   }) => {
     setInputModalTarget(target)
     setInputModalTitle(title)
@@ -125,6 +128,7 @@ export default function RoomDeviceInfoModal({
     setInputModalType(type)
     setInputModalDefaultValue(defaultValue)
     setIsInputModalOpen(true)
+    setInputModalRequired(required)
   }
 
   const handleInputModalConfirm = async (value: string) => {
@@ -144,6 +148,15 @@ export default function RoomDeviceInfoModal({
       await executeWithErrorAndLoading({
         setLoading,
         action: async () => { await renameSerialNumber(selectedRoomDevice.id, value) },
+      })
+      return
+    }
+
+    if (target === "patientName") {
+      if (!selectedRoomDevice.roomId) return
+      await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => { await renamePatientName(selectedRoomDevice.roomId!, value) },
       })
       return
     }
@@ -444,6 +457,23 @@ export default function RoomDeviceInfoModal({
                         <div className="mb-1 text-[11px] font-medium text-slate-400">患者名</div>
                         <div className="flex items-center justify-between gap-2">
                           <span className="truncate text-sm font-bold text-slate-900">{patientName || "未設定"}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!selectedRoomDevice.roomId) return
+                              openInputModal({
+                                target: "patientName",
+                                title: "患者名を入力",
+                                label: "患者名",
+                                defaultValue: patientName,
+                                required: false,
+                              })
+                            }}
+                            className="shrink-0 rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                            title="患者名を編集"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       </div>
                     )}
@@ -630,19 +660,21 @@ export default function RoomDeviceInfoModal({
                 </section>
 
                 <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-5">
-                    <div>
-                      <div className="flex items-center gap-2 text-xs font-bold tracking-wide text-slate-700">定期保守</div>
-                      <div className="mt-0.5 text-[11px] text-slate-400">登録されているメンテナンスタスク</div>
+                  <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold tracking-wide text-slate-700">定期保守</div>
+                        <div className="mt-0.5 text-[11px] text-slate-400">登録されているメンテナンスタスク</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddMaintenanceTaskModalOpen(true)}
+                        className="flex h-8 items-center gap-1 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white transition-colors hover:bg-slate-800"
+                      >
+                        <Plus className="h-3 w-3" />
+                        追加
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddMaintenanceTaskModalOpen(true)}
-                      className="flex h-8 items-center gap-1 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white transition-colors hover:bg-slate-800"
-                    >
-                      <Plus className="h-3 w-3" />
-                      追加
-                    </button>
                   </div>
 
                   <div className="space-y-2 p-3 sm:p-4">
@@ -803,6 +835,7 @@ export default function RoomDeviceInfoModal({
           label={inputModalLabel}
           type={inputModalType}
           defaultValue={inputModalDefaultValue}
+          required={inputModalRequired}
           confirmText="保存"
           cancelText="キャンセル"
         />

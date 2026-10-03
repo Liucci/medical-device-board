@@ -6,6 +6,8 @@ import { ChevronDown, ChevronUp, History, MessageSquare, CheckCircle2 } from "lu
 import { fetchInitInspectionExecution } from "../api/inits/fetchInitInspectionExecution"
 import { getInspectionChecklistItemsWithOptionsFromApi } from "../api/inspection/inspectionChecklistItems/fetchInspectionChecklistItemsWithOptions"
 import { createInspectionTransaction } from "../api/transactions/inspection/inspections/createInspectionTransaction"
+import { flagNeedsRefreshTodayInspections } from "../utils/dashboardCache"
+
 import type { Device } from "../types/deviceTypes"
 import type { WardType } from "../types/wardTypes"
 import type { RoomType } from "../types/roomTypes"
@@ -131,6 +133,7 @@ function InspectionExecutionPage() {
                 setLoading,
                 action: async () => { await createInspectionTransaction({ inspection }) },
             })
+            flagNeedsRefreshTodayInspections(true) // ★ 点検更新フラグをON
             await confirmModal.confirm({ title: "保存完了", message: `点検結果（判定: ${result}）を記録しました`, buttonPattern: "ok_only", icon: "success", confirmVariant: "teal" })
             router.push("/dashboard")
         } catch (error) {
