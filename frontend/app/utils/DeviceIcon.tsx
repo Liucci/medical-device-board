@@ -356,8 +356,7 @@ return (
                 代
               </div>
             )}
-
-{/* メンテインジケータ */}
+            {/* メンテインジケータ */}
             {showIndicator && mAlert && (
               <div
                 className="relative flex items-center justify-center shrink-0"
@@ -367,40 +366,84 @@ return (
                 }}
               >
                 {mAlert === "red" ? (
-                  /* ★ 完全同期ソナー：1.2秒の同一周期で波紋とLEDが完全に一致して拍動 */
                   <>
-                    {/* ソナー波紋（面とエッジが同時に外側へ美しく拡散） */}
-                    <span
-                      className="absolute -inset-1 rounded-full bg-red-500 border border-rose-200 opacity-80 pointer-events-none"
-                      style={{
-                        animation: "ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite",
-                      }}
-                    />
-
-                    {/* 中心LED本体（波紋の放出と1.2秒で完全にシンクロして強烈に点滅） */}
+                    {/* ★ スマホ画面（sm未満）：GPU負荷ゼロ・静止したシンプルな赤丸 */}
                     <div
-                      className="relative rounded-full bg-gradient-to-br from-red-500 to-rose-700 shrink-0"
+                      className="block sm:hidden rounded-full bg-rose-600 shrink-0"
                       style={{
                         width: cellSize >= 88 ? 10 : 8,
                         height: cellSize >= 88 ? 10 : 8,
-                        border: "1.5px solid #ffffff",
-                        boxShadow: "0 0 12px 2px #ef4444, inset 0 1px 1px #ffffff",
-                        animation: "pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        border: "1.2px solid #ffffff",
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.3)",
                       }}
                     />
+
+                    {/* ★ PC画面（sm以上）：放射状ソナー波紋 ＋ 高輝度鼓動コア */}
+                    <div className="hidden sm:flex relative items-center justify-center">
+                      <style>{`
+                        @keyframes devixSonarSpread {
+                          0% {
+                            transform: scale(0.6);
+                            opacity: 1;
+                            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.9);
+                          }
+                          50% {
+                            opacity: 0.8;
+                          }
+                          100% {
+                            transform: scale(3.5);
+                            opacity: 0;
+                            box-shadow: 0 0 16px 6px rgba(239, 68, 68, 0);
+                          }
+                        }
+                        @keyframes devixCoreBeacon {
+                          0%, 100% {
+                            transform: scale(0.9);
+                            box-shadow: 0 0 6px 1px #ef4444, inset 0 1px 1px #ffffff;
+                          }
+                          20% {
+                            transform: scale(1.25);
+                            box-shadow: 0 0 16px 4px #ff0000, 0 0 24px 8px rgba(239, 68, 68, 0.7), inset 0 1px 2px #ffffff;
+                          }
+                        }
+                      `}</style>
+
+                      {/* 放射波紋 1波目：中心から外側へ3.5倍の大きさまで光を拡散 */}
+                      <span
+                        className="absolute rounded-full border border-red-500 bg-red-500/20 pointer-events-none"
+                        style={{
+                          width: cellSize >= 88 ? 10 : 8,
+                          height: cellSize >= 88 ? 10 : 8,
+                          animation: "devixSonarSpread 1.6s cubic-bezier(0, 0.6, 0.35, 1) infinite",
+                        }}
+                      />
+
+                      {/* 放射波紋 2波目：0.55秒遅れで追従する第2の光の輪 */}
+                      <span
+                        className="absolute rounded-full border border-rose-400 bg-rose-500/15 pointer-events-none"
+                        style={{
+                          width: cellSize >= 88 ? 10 : 8,
+                          height: cellSize >= 88 ? 10 : 8,
+                          animation: "devixSonarSpread 1.6s cubic-bezier(0, 0.6, 0.35, 1) 0.55s infinite",
+                        }}
+                      />
+
+                      {/* 中心コア：波紋を放つ瞬間に強く白熱発光するLEDビーコン */}
+                      <div
+                        className="relative rounded-full bg-gradient-to-br from-white via-red-500 to-rose-700 shrink-0"
+                        style={{
+                          width: cellSize >= 88 ? 10 : 8,
+                          height: cellSize >= 88 ? 10 : 8,
+                          border: "1.5px solid #ffffff",
+                          animation: "devixCoreBeacon 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        }}
+                      />
+                    </div>
                   </>
                 ) : (
                   /* 黄・緑の時：通常インジケータ */
                   <div
-                    className={`
-                      rounded-full
-                      shrink-0
-                      ${
-                        mAlert === "yellow"
-                          ? "bg-amber-300 shadow-[0_0_6px_#fcd34d]"
-                          : "bg-emerald-400 shadow-[0_0_6px_#34d399]"
-                      }
-                    `}
+                    className={`rounded-full shrink-0 ${mAlert === "yellow" ? "bg-amber-300 shadow-[0_0_6px_#fcd34d]" : "bg-emerald-400 shadow-[0_0_6px_#34d399]"}`}
                     style={{
                       width: cellSize >= 88 ? 10 : 8,
                       height: cellSize >= 88 ? 10 : 8,
@@ -410,7 +453,8 @@ return (
                   />
                 )}
               </div>
-            )}            
+            )}
+
             {/* 点検回数バッジ */}
             {showIndicator && inspectionCount > 0 && (
               <div
