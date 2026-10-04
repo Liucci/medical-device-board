@@ -18,7 +18,14 @@
     --foreground: #ededed;
   }
 }
-
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    overscroll-behavior: none; /* ★ 画面全体のバウンススクロール・引っ張りを完全遮断 */
+    -webkit-overflow-scrolling: touch;
+  }
 body {
   
   background: var(--background);

@@ -19,6 +19,8 @@ import RoomContainer from "./RoomContainer"
 import { formatDateTime } from "../utils/dateTime/dateUtils"
 import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 
+import { QuickScrollBar } from "./common/QuickScrollBar"
+
 // page.tsxより
 type Props = {
   deviceList: Device[]
@@ -231,12 +233,14 @@ export default function WardArea({
       </div>
 
       {/* ─── スクロール可能メインエリア ─── */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-auto rounded-xl"
-      >
-        <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6">
-          {[...wards]
+      <div className="relative flex-1 min-h-0 overflow-hidden">
+        {/* スクロールする中身（ここには relative を付けない） */}
+        <div
+          ref={scrollRef}
+           className="h-full w-full overflow-auto rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6 pr-6 sm:pr-1">
+                  {[...wards]
             .sort((a, b) => a.displayOrder - b.displayOrder)
             .map((ward) => (
               <div
@@ -295,6 +299,9 @@ export default function WardArea({
             ))}
         </div>
       </div>
+      {/* ★ 元のスクロールコンテナの中に absolute で置くだけ */}
+        <QuickScrollBar targetRef={scrollRef} colorScheme="teal" mobileOnly={true} />
     </div>
+  </div>
   )
 }
