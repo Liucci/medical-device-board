@@ -56,6 +56,8 @@ body {
   animation: newGlow 1.2s ease-in-out infinite;
 }
 
+
+
 /* 感染症病棟光る */
 
 @keyframes infectionGlow {
@@ -101,7 +103,34 @@ body {
  */  
 }
 
-/* app/globals.css の一番下に追記 */
 .font-model {
   font-family: 'Outfit', 'BIZ UDGothic', sans-serif;
+}
+
+
+/* ==========================================================================
+   スマホ（幅640px未満）GPU発熱の完全根絶
+   インラインスタイルの animation / transform も含めて強制停止
+   ========================================================================== */
+@media (max-width: 639px) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-name: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+  }
+
+  /* インライン style 属性で animation が書かれている要素も強制遮断 */
+  [style*="animation"] {
+    animation: none !important;
+  }
+
+  /* お知らせテロップの常時GPUスクロールを停止 */
+  [class*="announcementTicker"] {
+    animation: none !important;
+    transform: none !important;
+  }
 }
