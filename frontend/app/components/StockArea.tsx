@@ -11,6 +11,9 @@ import {TodayInspectionFrontType}from"../types/inspectionTypes/inspectionTypes"
 import { formatDateTime } from "../utils/dateTime/dateUtils"
 import { StockLastUpdatedResponse } from "../types/deviceTypes"
 
+import { QuickScrollBar } from "./common/QuickScrollBar"
+
+
 // page.tsxより
 type Props = {  
   deviceList: Device[]
@@ -185,50 +188,56 @@ export default function StockAreas({
         )}
       </div>
 
-      {/* ─── スクロール可能メインエリア ─── */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-auto rounded-xl"
-      >
-        <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6">
-          {[...stockAreas]
-            .sort((a, b) => a.displayOrder - b.displayOrder)
-            .map((area) => (
-              <div
-                key={area.id}
-                data-stock-area-id={area.id}
-                style={{
-                  gridColumn: area.id === 1 ? "span 3" : undefined,
-                }}
-              >
-                <StockGrid
-                  title={area.name}
-                  cellSize={stockCellSize}
+{/* ─── スクロール可能メインエリア ─── */}
+      <div className="relative flex-1 min-h-0 overflow-hidden">
+        {/* スクロール本体：標準バー非表示クラスを追加して二重表示を防止 */}
+        <div
+          ref={scrollRef}
+          className="h-full w-full overflow-auto rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6 pr-6 sm:pr-1">
+            {[...stockAreas]
+              .sort((a, b) => a.displayOrder - b.displayOrder)
+              .map((area) => (
+                <div
+                  key={area.id}
+                  data-stock-area-id={area.id}
+                  style={{
+                    gridColumn: area.id === 1 ? "span 3" : undefined,
+                  }}
                 >
-                  <Stock
-                    deviceList={deviceList}
-                    stockAreaId={area.id}
-                    deviceTypes={deviceTypes}
-                    deviceModels={deviceModels}
-                    startDrag={startDrag}
-                    handleMouseMove={handleMouseMove}
-                    deleteDevice={deleteDevice}
-                    draggingDevice={draggingDevice}
-                    pendingDevice={pendingDevice}
-                    openStockInfoModal={openStockInfoModal}
-                    getMAlert={getMAlert}
+                  <StockGrid
+                    title={area.name}
                     cellSize={stockCellSize}
-                    managementNumber={managementNumber}
-                    serialNumber={serialNumber}
-                    currentUser={currentUser}
-                    isDragging={isDragging}
-                    inspectionCounts={inspectionCounts}  
-                    todayInspections={todayInspections}
-                  />
-                </StockGrid>
-              </div>
-            ))}
+                  >
+                    <Stock
+                      deviceList={deviceList}
+                      stockAreaId={area.id}
+                      deviceTypes={deviceTypes}
+                      deviceModels={deviceModels}
+                      startDrag={startDrag}
+                      handleMouseMove={handleMouseMove}
+                      deleteDevice={deleteDevice}
+                      draggingDevice={draggingDevice}
+                      pendingDevice={pendingDevice}
+                      openStockInfoModal={openStockInfoModal}
+                      getMAlert={getMAlert}
+                      cellSize={stockCellSize}
+                      managementNumber={managementNumber}
+                      serialNumber={serialNumber}
+                      currentUser={currentUser}
+                      isDragging={isDragging}
+                      inspectionCounts={inspectionCounts}  
+                      todayInspections={todayInspections}
+                    />
+                  </StockGrid>
+                </div>
+              ))}
+          </div>
         </div>
+
+        {/* ★ 追加：ストックエリア用クイックスクロールレール（ペトロールティール調：teal） */}
+        <QuickScrollBar targetRef={scrollRef} colorScheme="teal" mobileOnly={true} />
       </div>
     </div>
   )
