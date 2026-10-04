@@ -17,7 +17,6 @@ import RoomToRoomModal from "../components/modals/RoomToRoomModal"
 import StockInfoModal from "../components/modals/StockInfoModal"
 import RoomDeviceInfoModal from "../components/modals/RoomDeviceInfoModal"
 import WardInfoModal from "../components/modals/WardInfoModal"
-import LowStockPanel from "../components/LowStockPanel"
 //type
 import { CurrentUser } from "../types/userTypes"
 import { WardType,UpdateWardInfoType} from "../types/wardTypes"
@@ -1355,6 +1354,7 @@ if (!currentUser) {
       <div className={styles.ward} ref={wardRef}>
         <WardArea
           deviceList={deviceList}
+          lowStockDevices={lowStockDevices}
           deviceTypes={deviceTypes}
           deviceModels={deviceModels}
           deleteDevice={deleteDevice}
@@ -1507,13 +1507,7 @@ if (!currentUser) {
           setInspectionItemCategories={setInspectionItemCategories}    
            />
       </div>
-      {/*機器残数表示パネル */}
-      <LowStockPanel
-        devices={lowStockDevices}
-        deviceModels={deviceModels}
-        isDragging={!!draggingDevice}
 
-      />
 
 
       {/* drag layer */}
