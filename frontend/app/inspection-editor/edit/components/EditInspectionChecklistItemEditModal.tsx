@@ -32,7 +32,6 @@ export default function EditInspectionChecklistItemEditModal({
     onClose,
     onSave,
 }: Props) {
-    console.log("EditInspectionChecklistItemEditModal")
     const [name, setName] = useState("")
     const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)

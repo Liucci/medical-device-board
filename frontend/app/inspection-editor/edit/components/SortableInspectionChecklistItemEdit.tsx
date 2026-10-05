@@ -25,7 +25,6 @@ export default function SortableInspectionChecklistItemEdit({
     onEdit,
     onDelete,
 }: SortableInspectionChecklistItemEditProps) {
-    console.log("SortableInspectionChecklistItemEdit")
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
     const style = {

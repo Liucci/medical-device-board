@@ -195,7 +195,7 @@ export default function StockAreas({
           ref={scrollRef}
           className="h-full w-full overflow-auto rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
-          <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6 pr-6 sm:pr-1">
+          <div className="flex flex-row flex-wrap items-start gap-4 p-1 pb-6 pr-7">
             {[...stockAreas]
               .sort((a, b) => a.displayOrder - b.displayOrder)
               .map((area) => (
@@ -237,7 +237,7 @@ export default function StockAreas({
         </div>
 
         {/* ★ 追加：ストックエリア用クイックスクロールレール（ペトロールティール調：teal） */}
-        <QuickScrollBar targetRef={scrollRef} colorScheme="teal" mobileOnly={true} />
+        <QuickScrollBar targetRef={scrollRef} colorScheme="teal" mobileOnly={false} />
       </div>
     </div>
   )

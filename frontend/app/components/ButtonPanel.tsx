@@ -1,6 +1,5 @@
 "use client"
-
-import { useState } from "react"
+import { memo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, History, Settings, FileText, LogOut, UserPlus, UserCircle, ClipboardCheck, ChevronLeft, ChevronRight, Menu, X } from "lucide-react"
 import { StockAreaType } from "../types/stockTypes"
@@ -68,7 +67,7 @@ type Props = {
   setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
 }
 
-export default function ButtonPanel({
+function ButtonPanel({
   currentUser,
   deviceList,
   setDeviceList,
@@ -106,7 +105,6 @@ export default function ButtonPanel({
   inspectionItemCategories,
   setInspectionItemCategories,
 }: Props) {
-  console.log("ButtonPanel")
   const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
   const [openSettingsModal, setOpenSettingsModal] = useState(false)
@@ -174,24 +172,26 @@ export default function ButtonPanel({
     <>
       {/* ========================================================= */}
       {/* 1. デスクトップ用スリムパネル (md以上でのみ表示・幅80px) */}
+      {/* ⭕ onMouseEnter / onMouseLeave の振動ループを削除し、クリック開閉に一本化 */}
       {/* ========================================================= */}
-      <div
-        className="hidden md:block relative h-full"
-        onMouseEnter={() => setIsPanelOpen(true)}
-        onMouseLeave={() => setIsPanelOpen(false)}
-      >
+      <div className="hidden md:block relative h-full">
+        {/* 開閉トグルツマミボタン */}
         <button
           type="button"
           onClick={() => setIsPanelOpen(prev => !prev)}
-          className="group absolute right-0 top-1/2 -translate-y-1/2 flex h-11 w-5 cursor-pointer items-center justify-center rounded-l-md border border-r-0 border-slate-200 bg-white text-slate-400 shadow-sm transition-all duration-150 hover:border-teal-400 hover:bg-teal-50/60 hover:text-teal-700 hover:shadow-md z-30"
+          className={`group absolute top-1/2 -translate-y-1/2 flex h-11 w-5 cursor-pointer items-center justify-center rounded-l-md border border-r-0 border-slate-200 bg-white text-slate-500 shadow-md transition-all duration-300 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 z-30 ${
+            isPanelOpen ? "right-[80px]" : "right-0"
+          }`}
           aria-label="メニューを開閉"
+          title={isPanelOpen ? "メニューを閉じる" : "メニューを開く"}
         >
           {isPanelOpen ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
 
+        {/* スライドメニュー本体 */}
         <div
           className={`absolute right-0 top-0 h-full w-[80px] overflow-y-auto border-l border-slate-200 bg-slate-50 px-1.5 py-2.5 shadow-xl transition-transform duration-300 ease-out z-20 ${
-            isPanelOpen ? "translate-x-0" : "translate-x-full"
+            isPanelOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
           }`}
         >
           <div className="flex flex-col gap-1">
@@ -234,9 +234,7 @@ export default function ButtonPanel({
             className="w-full rounded-t-2xl border-t border-slate-200 bg-white p-4 shadow-2xl animate-in slide-in-from-bottom duration-200 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 上部つまみ */}
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300" />
-
             <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
               <span className="text-xs font-bold text-slate-700">メニュー</span>
               <button
@@ -248,7 +246,6 @@ export default function ButtonPanel({
               </button>
             </div>
 
-            {/* モバイル4列コンパクトグリッド */}
             <div className="grid grid-cols-4 gap-1.5">
               <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); OpenModal() }} title="新規" icon={<Plus size={14} />} />
               <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openHistory() }} title="履歴" icon={<History size={14} />} />
@@ -352,3 +349,20 @@ export default function ButtonPanel({
     </>
   )
 }
+
+export default memo(ButtonPanel, (prev, next) => {
+  return (
+    prev.deviceList === next.deviceList &&
+    prev.wards === next.wards &&
+    prev.rooms === next.rooms &&
+    prev.stockAreas === next.stockAreas &&
+    prev.deviceTypes === next.deviceTypes &&
+    prev.deviceModels === next.deviceModels &&
+    prev.maintenanceTypes === next.maintenanceTypes &&
+    prev.histories === next.histories &&
+    prev.infectionTypes === next.infectionTypes &&
+    prev.hospitalSettings === next.hospitalSettings &&
+    prev.inspectionTypes === next.inspectionTypes &&
+    prev.inspectionItemCategories === next.inspectionItemCategories
+  )
+})

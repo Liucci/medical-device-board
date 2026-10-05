@@ -18,7 +18,6 @@ type WardOrderModalProps = {
 }
 
 export default function WardOrderModal({ isOpen, onClose, wards, setWards }: WardOrderModalProps) {
-  console.log("WardOrderModal")
   const [editingWards, setEditingWards] = useState<WardType[]>([])
   const [loading, setLoading] = useState(false)
 

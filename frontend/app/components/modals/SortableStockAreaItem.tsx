@@ -10,7 +10,6 @@ type Props = {
 }
 
 export default function SortableStockAreaItem({ stockArea }: Props) {
-  console.log("SortableStockAreaItem")
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: stockArea.id,
   })

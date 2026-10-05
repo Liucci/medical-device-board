@@ -362,7 +362,6 @@ export function buildInspection({
     inspectionDate,
     onChange,
 }: BuildInspectionProps) {
-    console.log("buildInspection")
     const groups = getInspectionChecklistItemGroups(items, categories)
 
     return (

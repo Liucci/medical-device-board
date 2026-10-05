@@ -671,3 +671,6 @@ Mapper は型変換のみを責務とし、業務ロジック・API呼び出し�
 を本プロジェクトにおける Type / Mapper の標準実装（Reference Implementation）とする。
 
 今後は、この実装パターンに従って Type・Mapper を作成すること。
+
+
+Modalようファイル内の関数に関数名のconsol.log()は不要

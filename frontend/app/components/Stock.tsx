@@ -148,7 +148,7 @@ const isCurrentDragging = draggingDevice?.id === d.id
                   longPress.current,
                   () => {
                     console.log("シングルクリック")
-                    console.log("stockDevice", d)
+                    //console.log("stockDevice", d)
                     openStockInfoModal(d)
                   },
                   isDragging

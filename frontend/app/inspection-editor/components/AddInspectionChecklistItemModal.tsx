@@ -28,7 +28,6 @@ export default function AddInspectionChecklistItemModal({
     onClose,
     onAdd,
 }: Props) {
-    console.log("AddInspectionChecklistItemModal")
     const [name, setName] = useState("")
     const [unit, setUnit] = useState("")
     const [categoryId, setCategoryId] = useState<number | null>(null)

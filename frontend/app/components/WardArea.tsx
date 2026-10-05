@@ -84,20 +84,20 @@ export default function WardArea({
   hospitalSettings
 }: Props) {
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false)
+  const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false)
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#0f172a] p-2 sm:px-3 sm:py-2 select-none">
       {/* ─── 1. エリアヘッダー ＆ ツールバー ─── */}
       <div className="flex-shrink-0 border-b border-slate-800 pb-1.5 mb-1.5 sm:pb-1.5 sm:mb-2 transition-all">
-        {/* 1行目：タイトル ＋ スマホ用▼展開ボタン ＋ PC用更新日時・お知らせ ＋ 機器残数 ＋ ズーム */}
+        {/* 1行目：タイトル ＋ スマホ用アナウンスボタン ＋ スマホ用▼詳細ボタン ＋ PC用更新日時・お知らせ ＋ 機器残数 ＋ ズーム */}
         <div className="flex items-center justify-between gap-2">
-          {/* 左側：タイトル ＆ スマホ用▼ボタン ＆ PC用更新日時・お知らせ */}
+          {/* 左側：タイトル ＆ スマホ用ボタン群 ＆ PC用更新日時・お知らせ */}
           <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
             <h2 className="text-sm font-bold text-slate-100 tracking-tight whitespace-nowrap">
               病棟一覧
             </h2>
-
-            {/* スマホ用：▼/▲ トグルボタン */}
+            {/* スマホ用：▼/▲ 詳細トグルボタン */}
             <button
               type="button"
               onClick={() => setIsHeaderExpanded(prev => !prev)}
@@ -107,24 +107,33 @@ export default function WardArea({
               <span className="text-[11px] font-mono leading-none">{isHeaderExpanded ? "▲" : "▼"}</span>
               <span className="text-[10px] text-slate-400">{isHeaderExpanded ? "閉じる" : "詳細"}</span>
             </button>
+            {/* スマホ用：極めてシンプルな [アナウンス ▼] ボタン */}
+            <button
+              type="button"
+              onClick={() => setIsAnnouncementOpen(prev => !prev)}
+              className="sm:hidden px-2 py-0.5 rounded border border-amber-600/80 bg-amber-950/70 active:bg-amber-900 text-amber-200 text-xs font-medium cursor-pointer"
+            >
+              アナウンス {isAnnouncementOpen ? "▲" : "▼"}
+            </button>
+
 
             {/* PC表示：最終更新日時 */}
             <span className="hidden sm:inline font-mono text-[11px] text-slate-400 whitespace-nowrap ml-2">
               最終更新：{wardLastUpdated.updatedAt ? formatDateTime(wardLastUpdated.updatedAt) : "-"}
             </span>
 
-            {/* PC表示：お知らせティッカー */}
-            {activeAnnouncements.length > 0 && (
-              <div className="hidden sm:block flex-1 ml-2.5 min-w-0 max-w-lg overflow-hidden">
-                <div className="px-2 py-0.5 rounded-md bg-amber-950/50 border border-amber-700/80 text-amber-200 text-[11px] overflow-hidden">
-                  <div className={styles.announcementTicker}>
-                    <span className="font-bold text-amber-300">【お知らせ】📢</span>{" "}
-                    {activeAnnouncements.map(a => a.message).join("　◆　")}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            {/* PC表示：お知らせティッカー（スクロール幅を最大化） */}
+ {activeAnnouncements.length > 0 && (
+    <div className="hidden sm:block flex-1 ml-2.5 min-w-0 overflow-hidden">
+      <div className="px-2.5 py-0.5 rounded-md bg-amber-950/50 border border-amber-700/80 text-amber-200 text-[11px] overflow-hidden">
+        <div className={styles.announcementTicker}>
+          <span className="font-bold text-amber-300">【お知らせ】📢</span>{" "}
+          {activeAnnouncements.map(a => a.message).join("　◆　")}
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
           {/* 右側：機器残数ボタン ＆ PC用ズームコントロール */}
           <div className="flex items-center gap-2 shrink-0">
@@ -167,9 +176,9 @@ export default function WardArea({
               />
             </div>
           </div>
-        </div> {/* ⭕ 正しく1行目を閉じる */}
+        </div>
 
-        {/* スマホ表示時かつ ▼ボタン展開時 */}
+        {/* スマホ表示時かつ ▼詳細ボタン展開時 */}
         {isHeaderExpanded && (
           <div className="sm:hidden mt-2 pt-2 border-t border-slate-800/80 flex flex-col gap-2 bg-[#141e33] p-2.5 rounded-lg border border-slate-700/60 shadow-inner">
             <div className="flex items-center justify-between text-xs text-slate-300">
@@ -178,15 +187,6 @@ export default function WardArea({
                 {wardLastUpdated.updatedAt ? formatDateTime(wardLastUpdated.updatedAt) : "-"}
               </span>
             </div>
-
-            {activeAnnouncements.length > 0 && (
-              <div className="px-2 py-1 rounded bg-amber-950/60 border border-amber-700/80 text-amber-200 text-[11px] overflow-hidden">
-                <div className={styles.announcementTicker}>
-                  <span className="font-bold text-amber-300">【お知らせ】📢</span>{" "}
-                  {activeAnnouncements.map(a => a.message).join("　◆　")}
-                </div>
-              </div>
-            )}
 
             <div className="flex items-center justify-between gap-2 bg-[#0f172a] px-2 py-1.5 rounded-lg border border-slate-700">
               <div className="flex items-center gap-1.5">
@@ -221,11 +221,43 @@ export default function WardArea({
             </div>
           </div>
         )}
+
+
+        {/* スマホ表示時：お知らせアコーディオン展開部（案A） */}
+        {isAnnouncementOpen && activeAnnouncements.length > 0 && (
+          <div className="sm:hidden mt-2 p-2.5 rounded-lg bg-amber-950/90 border border-amber-700/80 text-amber-100 text-xs shadow-lg space-y-2 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between border-b border-amber-800/80 pb-1 text-[11px] font-bold text-amber-300">
+              <span className="flex items-center gap-1">
+                <span>📢</span>
+                <span>運営からのお知らせ</span>
+                <span className="font-mono text-[10px] text-amber-400">({activeAnnouncements.length}件)</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsAnnouncementOpen(false)}
+                className="text-amber-400 hover:text-amber-200 px-1 py-0.5 rounded text-[11px] leading-none cursor-pointer"
+                title="閉じる"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="max-h-48 overflow-y-auto space-y-1.5 divide-y divide-amber-900/60">
+              {activeAnnouncements.map((a, idx) => (
+                <div key={idx} className="pt-1.5 first:pt-0 text-[11px] leading-relaxed text-amber-100">
+                  <div className="flex items-start gap-1">
+                    <span className="text-amber-400 shrink-0 font-bold">•</span>
+                    <span className="break-words flex-1">{a.message}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
 
-      {/* ─── 2. スクロール可能メインエリア（ヘッダーから完全に独立） ─── */}
+      {/* ─── 2. スクロール可能メインエリア ─── */}
       <div className="relative flex-1 min-h-0 overflow-hidden">
-        {/* スクロールコンテナ */}
         <div
           ref={scrollRef}
           className="h-full w-full overflow-auto rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -287,7 +319,6 @@ export default function WardArea({
           </div>
         </div>
 
-        {/* 画面内オーバーレイ・クイックスクロールバー */}
         <QuickScrollBar targetRef={scrollRef} colorScheme="teal" mobileOnly={false} />
       </div>
     </div>

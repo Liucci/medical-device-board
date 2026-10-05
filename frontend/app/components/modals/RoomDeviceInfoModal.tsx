@@ -82,7 +82,6 @@ export default function RoomDeviceInfoModal({
   hospitalSettings,
   todayInspections,
 }: Props) {
-  console.log("RoomDeviceInfoModal")
   const [loading, setLoading] = useState(false)
   const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
   const router = useRouter()

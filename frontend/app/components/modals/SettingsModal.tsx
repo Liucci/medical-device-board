@@ -79,7 +79,6 @@ export default function SettingsModal({
   inspectionItemCategories,
   setInspectionItemCategories,
 }: Props) {
-  console.log("SettingsModal")
   const router = useRouter()
   const [mode, setMode] = useState<Mode>("menu")
   const inputModal = useInputModal()

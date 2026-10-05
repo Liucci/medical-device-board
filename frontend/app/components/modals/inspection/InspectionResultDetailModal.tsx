@@ -22,7 +22,6 @@ export default function InspectionResultDetailModal({
   inspection,
   hospitalSettings,
 }: Props) {
-  console.log("InspectionResultDetailModal")
   const [results, setResults] = useState<InspectionResult[]>([])
   const [loading, setLoading] = useState(false)
 

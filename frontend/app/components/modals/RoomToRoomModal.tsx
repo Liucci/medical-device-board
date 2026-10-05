@@ -35,7 +35,6 @@ export default function RoomToRoomModal({
   deviceModels,
   initialWardId,
 }: Props) {
-  console.log("RoomToRoomModal")
   const confirmModal = useConfirmModal()
   const [targetWardId, setTargetWardId] = useState<number | null>(null)
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)

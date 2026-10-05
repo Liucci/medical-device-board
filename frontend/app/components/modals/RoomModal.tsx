@@ -25,7 +25,6 @@ export default function RoomModal({
   rooms,
   pendingDevice,
 }: Props) {
-  console.log("RoomModal")
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
   const [patientName, setPatientName] = useState("")
 

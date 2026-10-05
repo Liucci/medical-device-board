@@ -41,7 +41,6 @@ import { createInspectionChecklistTransaction } from "../../api/transactions/ins
 import { deleteInspectionChecklistTransaction } from "../../api/transactions/inspection/inspectionChecklists/deleteInspectionChecklistTransaction"
 
 export default function InspectionChecklistEditPage() {
-    console.log("InspectionChecklistEditPage")
     const router = useRouter()
     const confirmModal = useConfirmModal()
 

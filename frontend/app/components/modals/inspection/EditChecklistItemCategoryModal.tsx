@@ -20,7 +20,6 @@ type Props = {
 }
 
 export default function EditChecklistItemCategoryModal({ inspectionItemCategories, setInspectionItemCategories, onclose }: Props) {
-    console.log("EditChecklistItemCategoryModal")
     const [editCategories, setEditCategories] = useState<InspectionItemCategoryEditType[]>([])
     const [newName, setNewName] = useState("")
     const [loading, setLoading] = useState(false)

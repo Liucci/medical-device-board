@@ -15,7 +15,6 @@ export function InspectionTwoChoiceInput({
     onChange,
     disabled,
 }: Props) {
-    console.log("InspectionTwoChoiceInput")
     return (
         <div className="flex w-full gap-2 sm:w-auto">
             <button

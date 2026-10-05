@@ -10,7 +10,6 @@ type Props = {
 }
 
 export default function ButtonGrid({ onAdd, title, titleSize = "text-[10px]", icon }: Props) {
- //console.log("ButtonGrid")
   return (
     <button
       type="button"

@@ -2,7 +2,7 @@
 import { useMemo, useState, useRef, useEffect } from "react"
 import { DeviceModelType } from "../types/deviceModelTypes"
 import { ChevronDown, ChevronUp, AlertCircle, Package } from "lucide-react"
-
+import { memo } from "react"
 type Device = {
   id: number
   typeName: string
@@ -27,8 +27,7 @@ type SummaryItem = {
   alertCount: number
 }
 
-export default function LowStockPanel({ devices = [], deviceModels = [] }: Props) {
-  console.log("LowStockPanel")
+function LowStockPanel({ devices = [], deviceModels = [] }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -179,3 +178,4 @@ export default function LowStockPanel({ devices = [], deviceModels = [] }: Props
     </div>
   )
 }
+export default memo(LowStockPanel)
