@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useState, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronDown, ChevronUp, History, MessageSquare, CheckCircle2 } from "lucide-react"
 import { fetchInitInspectionExecution } from "../api/inits/fetchInitInspectionExecution"
@@ -52,6 +52,9 @@ function InspectionExecutionPage() {
     const confirmModal = useConfirmModal()
     const deviceId = Number(searchParams.get("deviceId"))
 
+    const leftColRef = useRef<HTMLDivElement>(null)
+    const [leftHeight, setLeftHeight] = useState<number | null>(null)
+
     const [currentUser, setCurrentUser] = useState<{ displayName: string; role: string } | null>(null)
     const [device, setDevice] = useState<Device | null>(null)
     const [deviceType, setDeviceType] = useState<DeviceTypeType | null>(null)
@@ -77,7 +80,6 @@ function InspectionExecutionPage() {
     const [isInspectionHistoryModalOpen, setIsInspectionHistoryModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    // スマホ用アコーディオン開閉状態 (デフォルトは閉じて省スペース化)
     const [isUserDetailOpen, setIsUserDetailOpen] = useState(false)
     const [isInfectionDetailOpen, setIsInfectionDetailOpen] = useState(false)
     const [isDeviceDetailOpen, setIsDeviceDetailOpen] = useState(false)
@@ -86,6 +88,16 @@ function InspectionExecutionPage() {
         const now = new Date()
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
     }
+
+    // 左側カラムの縦幅を計測し、右側点検項目セクションの高さを完全に一致させる
+    useEffect(() => {
+        if (!leftColRef.current) return
+        const updateHeight = () => { if (leftColRef.current) setLeftHeight(leftColRef.current.offsetHeight) }
+        updateHeight()
+        const observer = new ResizeObserver(updateHeight)
+        observer.observe(leftColRef.current)
+        return () => observer.disconnect()
+    }, [])
 
     const handleInspectionResultChange = (itemId: number, value: string | null) => {
         setInspectionResults((prev) => ({ ...prev, [itemId]: value }))
@@ -133,7 +145,7 @@ function InspectionExecutionPage() {
                 setLoading,
                 action: async () => { await createInspectionTransaction({ inspection }) },
             })
-            flagNeedsRefreshTodayInspections(true) // ★ 点検更新フラグをON
+            flagNeedsRefreshTodayInspections(true)
             await confirmModal.confirm({ title: "保存完了", message: `点検結果（判定: ${result}）を記録しました`, buttonPattern: "ok_only", icon: "success", confirmVariant: "teal" })
             router.push("/dashboard")
         } catch (error) {
@@ -193,7 +205,6 @@ function InspectionExecutionPage() {
 
     useEffect(() => { fetchInitialData() }, [])
 
-    // 点検表種類の変更時に選択中点検表を再設定
     const handleInspectionTypeChange = (typeId: number | null) => {
         setSelectedInspectionTypeId(typeId)
         if (typeId === null) {
@@ -257,9 +268,9 @@ function InspectionExecutionPage() {
 
     return (
         <>
-            <div className="min-h-screen w-full bg-slate-50 text-slate-900 pb-28">
+            <div className="h-screen w-full overflow-y-auto bg-slate-50 text-slate-900 pb-36">
                 {/* Header */}
-                <header className="w-full border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
+                <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 sm:px-6">
                     <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
                         <div>
                             <h1 className="text-base font-bold text-slate-900 sm:text-lg">点検実施</h1>
@@ -274,11 +285,11 @@ function InspectionExecutionPage() {
                     </div>
                 </header>
 
-                {/* Main: PC・タブレット横は 4/12 vs 8/12、スマホ・タブレット縦は1列垂直スクロール */}
+                {/* Main: 左側と右側の高さを同期 */}
                 <main className="mx-auto w-full max-w-7xl p-3 sm:p-5">
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
-                        {/* 左側：必要情報（実施者・感染・機器・点検表選択） */}
-                        <div className="space-y-3 lg:col-span-4 lg:space-y-4">
+                        {/* 左側：必要情報（refで高さを計測） */}
+                        <div ref={leftColRef} className="space-y-3 lg:col-span-4 lg:space-y-4">
                             {/* 1. 実施者情報 */}
                             <section className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
                                 <div
@@ -353,7 +364,7 @@ function InspectionExecutionPage() {
                                 </div>
                             </section>
 
-                            {/* 3. 機器情報 (全項目保持・矢印で詳細開閉) */}
+                            {/* 3. 機器情報 */}
                             <section className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
                                 <div
                                     onClick={() => setIsDeviceDetailOpen((prev) => !prev)}
@@ -411,14 +422,13 @@ function InspectionExecutionPage() {
                                 </div>
                             </section>
 
-                            {/* 4. 点検表選択 (①点検表種類 -> ②点検表 -> ③過去点検ボタン) */}
+                            {/* 4. 点検表選択 */}
                             <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
                                 <div className="border-b border-slate-100 pb-2">
                                     <h2 className="text-xs font-bold tracking-wide text-slate-700">点検表選択</h2>
                                     <p className="mt-0.5 text-[11px] text-slate-400">種類を選択し、点検表を決定します</p>
                                 </div>
 
-                                {/* ① 点検表種類 */}
                                 <div>
                                     <label className="mb-1.5 block text-xs font-medium text-slate-500">点検表種類</label>
                                     <select
@@ -436,7 +446,6 @@ function InspectionExecutionPage() {
                                     </select>
                                 </div>
 
-                                {/* ② 点検表 */}
                                 <div>
                                     <label className="mb-1.5 block text-xs font-medium text-slate-500">点検表</label>
                                     <select
@@ -453,7 +462,6 @@ function InspectionExecutionPage() {
                                     </select>
                                 </div>
 
-                                {/* ③ 過去の点検結果を参照ボタン */}
                                 <button
                                     type="button"
                                     onClick={() => setIsInspectionHistoryModalOpen(true)}
@@ -466,37 +474,53 @@ function InspectionExecutionPage() {
                             </section>
                         </div>
 
-                        {/* 右側：点検項目メインエリア */}
+                        {/* 右側：左側の縦幅と完全に同期して枠内をスクロール */}
                         <div className="space-y-4 lg:col-span-8">
-                            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5">
-                                <div className="mb-4 border-b border-slate-100 pb-3">
-                                    <h2 className="text-sm font-bold tracking-wide text-slate-800 sm:text-base">
-                                        点検項目
-                                    </h2>
-                                    <p className="mt-0.5 text-xs text-slate-500">
+                            <section
+                                style={{
+                                    height: leftHeight && typeof window !== "undefined" && window.innerWidth >= 1024 ? `${leftHeight}px` : undefined,
+                                    maxHeight: "calc(100vh - 160px)",
+                                }}
+                                className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5 h-[75vh] lg:h-auto"
+                            >
+                                <div className="mb-4 shrink-0 border-b border-slate-100 pb-3">
+                                    {/* 1行目: タイトルと件数バッジを横並び */}
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-sm font-bold tracking-wide text-slate-800 sm:text-base">
+                                            点検項目
+                                        </h2>
+                                        {selectedChecklistId && (
+                                            <span className="rounded-md bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700 border border-teal-200">
+                                                全 {inspectionChecklistItems.length} 項目
+                                            </span>
+                                        )}
+                                    </div>
+                                    {/* 2行目: 説明文を独立配置（被りを完全に解消） */}
+                                    <p className="mt-1 text-xs text-slate-500">
                                         各項目を確認・入力してください（長押しで対象外に切り替え可能）
                                     </p>
                                 </div>
-
-                                {!selectedChecklistId ? (
-                                    <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 text-center">
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-400">点検表を選択してください</p>
-                                            <p className="mt-1 text-xs text-slate-400">点検表を選択すると、点検項目が表示されます</p>
+                                <div className="min-h-0 flex-1 overflow-y-auto pr-2">
+                                    {!selectedChecklistId ? (
+                                        <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 text-center">
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-400">点検表を選択してください</p>
+                                                <p className="mt-1 text-xs text-slate-400">点検表を選択すると、点検項目が表示されます</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    buildInspection({
-                                        checklist: selectedChecklist!,
-                                        items: inspectionChecklistItems,
-                                        categories: inspectionItemCategories,
-                                        itemTypes: inspectionItemTypes,
-                                        optionsByChecklistItemId: inspectionChecklistItemOptions,
-                                        inspectionResults,
-                                        inspectionDate: getTodayDate(),
-                                        onChange: handleInspectionResultChange,
-                                    })
-                                )}
+                                    ) : (
+                                        buildInspection({
+                                            checklist: selectedChecklist!,
+                                            items: inspectionChecklistItems,
+                                            categories: inspectionItemCategories,
+                                            itemTypes: inspectionItemTypes,
+                                            optionsByChecklistItemId: inspectionChecklistItemOptions,
+                                            inspectionResults,
+                                            inspectionDate: getTodayDate(),
+                                            onChange: handleInspectionResultChange,
+                                        })
+                                    )}
+                                </div>
                             </section>
 
                             {/* 備考内容のリアルタイム表示確認カード */}
@@ -521,7 +545,7 @@ function InspectionExecutionPage() {
                     </div>
                 </main>
 
-                {/* 画面下部固定アクションバー (Sticky Bottom Bar) */}
+                {/* 画面下部固定アクションバー */}
                 <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md px-3 py-2.5 shadow-lg sm:px-6 sm:py-3">
                     <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2 sm:gap-4">
                         <button

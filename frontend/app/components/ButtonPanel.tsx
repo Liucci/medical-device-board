@@ -1,5 +1,5 @@
 "use client"
-
+import { memo } from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, History, Settings, FileText, LogOut, UserPlus, UserCircle, ClipboardCheck, ChevronLeft, ChevronRight, Menu, X } from "lucide-react"
@@ -67,8 +67,7 @@ type Props = {
   inspectionItemCategories: InspectionItemCategoryType[]
   setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
 }
-
-export default function ButtonPanel({
+function ButtonPanel({
   currentUser,
   deviceList,
   setDeviceList,
@@ -351,4 +350,22 @@ export default function ButtonPanel({
       <LoadingOverlay loading={loading} />
     </>
   )
+  
 }
+// ⭕ 修正後: データが変わっていない時はドラッグ中の関数変化を無視して再実行を完全ブロック
+export default memo(ButtonPanel, (prev, next) => {
+  return (
+    prev.deviceList === next.deviceList &&
+    prev.wards === next.wards &&
+    prev.rooms === next.rooms &&
+    prev.stockAreas === next.stockAreas &&
+    prev.deviceTypes === next.deviceTypes &&
+    prev.deviceModels === next.deviceModels &&
+    prev.maintenanceTypes === next.maintenanceTypes &&
+    prev.histories === next.histories &&
+    prev.infectionTypes === next.infectionTypes &&
+    prev.hospitalSettings === next.hospitalSettings &&
+    prev.inspectionTypes === next.inspectionTypes &&
+    prev.inspectionItemCategories === next.inspectionItemCategories
+  )
+})
