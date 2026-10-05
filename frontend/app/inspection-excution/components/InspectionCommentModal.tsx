@@ -16,7 +16,6 @@ export default function InspectionCommentModal({
     onClose,
     onSave,
 }: InspectionCommentModalProps) {
-    console.log("InspectionCommentModal")
     const [comment, setComment] = useState(initialComment)
 
     useEffect(() => {

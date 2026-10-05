@@ -18,7 +18,6 @@ type StockAreaOrderModalProps = {
 }
 
 export default function StockAreaOrderModal({ isOpen, onClose, stockAreas, setStockAreas }: StockAreaOrderModalProps) {
-  console.log("StockAreaOrderModal")
   const [editingStockAreas, setEditingStockAreas] = useState<StockAreaType[]>([])
   const [loading, setLoading] = useState(false)
 

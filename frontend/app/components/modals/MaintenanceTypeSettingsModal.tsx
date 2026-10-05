@@ -20,7 +20,6 @@ type Props = {
 }
 
 export default function MaintenanceTypeSettingsModal({ maintenanceTypes, setMaintenanceTypes, deviceTypes, deviceModels }: Props) {
-  console.log("MaintenanceTypeSettingsModal")
   const [selectedTypeId, setSelectedTypeId] = useState<number | "">("")
   const [selectedModelId, setSelectedModelId] = useState<number | "">("")
   const [name, setName] = useState("")

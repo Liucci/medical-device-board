@@ -25,7 +25,6 @@ type Props = {
 }
 
 export default function InspectionResultModal({ isOpen, onClose, hospitalSettings }: Props) {
-  console.log("InspectionResultModal")
   const [inspections, setInspections] = useState<InspectionListType[]>([])
   const [loading, setLoading] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)

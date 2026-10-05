@@ -20,7 +20,6 @@ export default function SortableInspectionItemCategory({
     onDelete,
     onToggleExcludeWhenStandby,
 }: Props) {
-    console.log("SortableInspectionItemCategory")
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: category.id !== null ? `category-${category.id}` : `new-category-${index}`,
     })

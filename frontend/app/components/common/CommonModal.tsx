@@ -24,7 +24,6 @@ export default function CommonModal({
   height,
   mobilePosition = "full", // ★ 未指定時は従来の全画面表示を維持（他のモーダルに影響なし）
 }: Props) {
-  //console.log("CommonModal")
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }

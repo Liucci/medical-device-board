@@ -76,7 +76,7 @@ const hasInfection = wardInfectionsForWard.length > 0;
       <div
         className="group/header cursor-pointer pb-2 mb-2.5 border-b border-slate-700/80 flex items-center justify-between gap-2"
         onClick={() => {
-          console.log("ward click", ward.name);
+          //console.log("ward click", ward.name);
           onClick?.(ward);
         }}
       >

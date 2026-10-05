@@ -271,7 +271,6 @@ export default function Page() {
     if (!checkWardWarning(ward, wardInfections)) return
     setPendingDevice(device)
     setTargetWardId(wardId)
-    console.log("機器アイコンのドラッグイベント")
     if (device.status === "stock") setRoomModalOpen(true)
     else if (device.status === "room") setRoomToRoomModalOpen(true)
   }

@@ -64,7 +64,6 @@ export default function StockInfoModal({
   onDelete,
   todayInspections,
 }: Props) {
-  console.log("StockInfoModal")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const confirmModal = useConfirmModal()

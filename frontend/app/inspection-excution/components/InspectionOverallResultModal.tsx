@@ -14,7 +14,6 @@ export default function InspectionOverallResultModal({
     onClose,
     onSelect,
 }: InspectionOverallResultModalProps) {
-    console.log("InspectionOverallResultModal")
 
     useEffect(() => {
         if (!isOpen) return

@@ -50,7 +50,6 @@ import ConfirmModal from "../components/common/ConfirmModal"
 import useConfirmModal from "../components/common/useConfirmModal"
 
 export default function InspectionEditorPage() {
-    console.log("InspectionEditorPage")
     const router = useRouter()
     const confirmModal = useConfirmModal()
 

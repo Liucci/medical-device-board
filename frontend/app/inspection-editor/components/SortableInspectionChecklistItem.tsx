@@ -37,7 +37,6 @@ export default function SortableInspectionChecklistItem({
     onEdit,
     onDelete,
 }: SortableInspectionChecklistItemProps) {
-    console.log("SortableInspectionChecklistItem")
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
 
     // X軸の移動量を 0 に強制固定し、縦方向のみにドラッグを拘束

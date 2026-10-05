@@ -21,7 +21,6 @@ export default function InspectionHistoryModal({
     deviceId,
     checklistId,
 }: InspectionHistoryModalProps) {
-    console.log("InspectionHistoryModal")
     const [inspectionData, setInspectionData] = useState<InspectionsByLimitFrontType | null>(null)
     const [loading, setLoading] = useState(false)
 

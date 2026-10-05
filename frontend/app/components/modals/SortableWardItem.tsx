@@ -10,7 +10,6 @@ type Props = {
 }
 
 export default function SortableWardItem({ ward }: Props) {
-  console.log("SortableWardItem")
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: ward.id,
   })

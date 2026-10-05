@@ -32,7 +32,6 @@ export default function AccountInfoModal({
   if (!isOpen) return null
 
   const handleEdit = async () => {
-    console.log("handleEdit")
 
     setLoading(true)
 

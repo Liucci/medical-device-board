@@ -20,7 +20,6 @@ type Props = {
 }
 
 export default function WardAreaSettingsModal({ wards, setWards, rooms, setRooms }: Props) {
-  console.log("WardAreaSettingsModal")
   const [selectedWardId, setSelectedWardId] = useState<number | null>(null)
   const [newWardName, setNewWardName] = useState("")
   const [newRoomName, setNewRoomName] = useState("")

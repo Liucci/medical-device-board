@@ -46,7 +46,6 @@ import ConfirmModal from "../components/common/ConfirmModal"
 import useConfirmModal from "../components/common/useConfirmModal"
 
 function InspectionExecutionPage() {
-    console.log("InspectionExecutionPage")
     const router = useRouter()
     const searchParams = useSearchParams()
     const confirmModal = useConfirmModal()

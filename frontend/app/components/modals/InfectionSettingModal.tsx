@@ -14,7 +14,6 @@ type Props = {
 }
 
 export default function InfectionSettingsModal({ infectionTypes, setInfectionTypes }: Props) {
-  console.log("InfectionSettingsModal")
   const [checkedIds, setCheckedIds] = useState<number[]>([])
   const [newName, setNewName] = useState("")
   const [newColor, setNewColor] = useState("#ff0000")

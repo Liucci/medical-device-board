@@ -28,7 +28,6 @@ type SummaryItem = {
 }
 
 function LowStockPanel({ devices = [], deviceModels = [] }: Props) {
-  console.log("LowStockPanel")
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 

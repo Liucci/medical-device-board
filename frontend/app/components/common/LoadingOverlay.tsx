@@ -7,7 +7,6 @@ type Props = {
 }
 
 export const LoadingOverlay = memo(function LoadingOverlay({ loading, message = "処理中..." }: Props) {
-  //console.log("LoadingOverlay")
   if (!loading) return null
 
   return createPortal(
