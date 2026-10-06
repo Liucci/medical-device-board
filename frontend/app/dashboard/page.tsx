@@ -659,7 +659,7 @@ export default function Page() {
     }
     init()
   }, [])
-
+//currentUser又はaccessToken変化したとき走る。
   useEffect(() => {
     if (!currentUser) return
     if (!accessToken) return
@@ -696,7 +696,7 @@ export default function Page() {
       unsubscribeHospitalSettingRealtime()
       unsubscribeInspections()
     }
-  }, [currentUser])
+  }, [currentUser, accessToken])
 
   useEffect(() => {
     if (!accessToken) return
