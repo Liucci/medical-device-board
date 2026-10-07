@@ -776,6 +776,8 @@ export default function Page() {
     return () => { stopAutoLogout() }
   }, [hospitalSettings])
 
+  //日付監視タイマーが初期化時に発動
+  //1分ごとに監視し日が変わるとTodayInspectionsをreset
   useEffect(() => {
     if (!currentUser) return
     const getTodayKey = () => new Date().toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })
@@ -786,6 +788,7 @@ export default function Page() {
       currentDate = today
       setInspectionCounts({})
       setTodayInspections([])
+      clearDashboardCache()
     }, 60 * 1000)
     return () => { window.clearInterval(timer) }
   }, [currentUser])
