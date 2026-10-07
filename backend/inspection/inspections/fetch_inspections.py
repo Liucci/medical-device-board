@@ -1,5 +1,5 @@
 from supabase import Client
-from datetime import datetime, timezone
+from datetime import datetime, timezone,timedelta
 
 def fetch_inspections(
     client: Client,
