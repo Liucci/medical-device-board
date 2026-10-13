@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import DemoAccountApplicationModal from "./components/DemoAccountApplicationModal";
+import DemoAccountApplicationModal from "./components/modals/DemoAccountApplicationModal";
 import Link from "next/link";
 
 export default function HomePage() {

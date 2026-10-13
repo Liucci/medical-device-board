@@ -19,9 +19,6 @@ interface DemoAccountApplicationModalProps {
   onClose: () => void;
 }
 
-const GAS_WEBHOOK_URL =
-  "https://script.google.com/macros/s/AKfycbzcog28dJYtXTdDuvtNZHS9oD8ueHSmMqHooAb7A5PssLLxDbzS1PjEQS-Iac2PtDeLTA/exec";
-
 const INITIAL_APPLICATION_MESSAGE = `【アカウント申請について】
 
 以下について、分かる範囲でご記入ください。
@@ -163,16 +160,22 @@ export default function DemoAccountApplicationModal({
     };
 
     try {
-      // 既存GASを利用するため、GAS側の変更は不要。
-      // no-corsではレスポンス本文を読み取れない点に注意。
-      await fetch(GAS_WEBHOOK_URL, {
+      // ブラウザからGASを直接呼ばず、Next.js API Routeを経由する。
+      const response = await fetch("/api/demo-account", {
         method: "POST",
         headers: {
-          "Content-Type": "text/plain;charset=utf-8",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-        mode: "no-cors",
       });
+
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok || result?.success !== true) {
+        throw new Error(
+          result?.error || "アカウント申請の送信に失敗しました。"
+        );
+      }
 
       setSubmitted(true);
     } catch (error) {
