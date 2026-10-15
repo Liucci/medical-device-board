@@ -1,20 +1,7 @@
+"use client";
 
-import type { Metadata } from "next";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "お問い合わせ | devix",
-  description: "医療機器管理システム devix に関するお問い合わせ",
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
-    },
-  },
-};
 
 const inquiryTypes = [
   "アカウント申請",
@@ -22,20 +9,63 @@ const inquiryTypes = [
   "導入・利用方法について",
   "料金について",
   "不具合・トラブルについて",
+  "セキュリティについて",
   "その他",
 ];
 
-type ContactPageProps = {
-  searchParams: Promise<{
-    status?: string;
-  }>;
-};
+export default function ContactPage() {
+  const [inquiryType, setInquiryType] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
-export default async function ContactPage({
-  searchParams,
-}: ContactPageProps) {
-  const params = await searchParams;
-  const status = params.status;
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setStatus("idle");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inquiryType,
+          email,
+          message,
+          website,
+        }),
+      });
+
+      const result: {
+        success?: boolean;
+        error?: string;
+      } = await response.json();
+
+      if (!response.ok || result.success !== true) {
+        throw new Error("Contact submission failed");
+      }
+
+      setStatus("success");
+      setInquiryType("");
+      setEmail("");
+      setMessage("");
+      setWebsite("");
+    } catch {
+      setStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#080f23] text-white">
       {/* 背景装飾 */}
@@ -81,13 +111,31 @@ export default async function ContactPage({
           </p>
 
           <div className="mt-9 rounded-2xl border border-white/10 bg-[#101a32]/90 p-5 shadow-2xl shadow-black/20 sm:p-8">
-            <form
-              action="/api/contact"
-              method="POST"
-              className="space-y-7"
-            >
-            
-            {/* 迷惑送信対策用の隠し項目 */}
+            {/* 送信結果 */}
+            {status === "success" && (
+              <div
+                role="status"
+                className="mb-6 rounded-lg border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm leading-6 text-emerald-200"
+              >
+                お問い合わせを受け付けました。
+                メールアドレスを入力された場合は、自動返信メールをご確認ください。
+              </div>
+            )}
+
+            {status === "error" && (
+              <div
+                role="alert"
+                className="mb-6 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm leading-6 text-red-200"
+              >
+                送信に失敗しました。通信環境をご確認のうえ、
+                時間をおいて再度お試しください。
+                すでに受付が完了している可能性もあるため、
+                連続して送信する前にお問い合わせ窓口へご確認ください。
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-7">
+              {/* 迷惑送信対策用の隠し項目 */}
               <div
                 aria-hidden="true"
                 className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
@@ -99,9 +147,12 @@ export default async function ContactPage({
                   type="text"
                   tabIndex={-1}
                   autoComplete="off"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
                 />
               </div>
-              {/* 問い合わせ種類 */}
+
+              {/* お問い合わせ種類 */}
               <div>
                 <label
                   htmlFor="inquiryType"
@@ -117,7 +168,8 @@ export default async function ContactPage({
                   id="inquiryType"
                   name="inquiryType"
                   required
-                  defaultValue=""
+                  value={inquiryType}
+                  onChange={(event) => setInquiryType(event.target.value)}
                   className="w-full rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm text-white outline-none transition focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
                 >
                   <option value="" disabled>
@@ -131,29 +183,33 @@ export default async function ContactPage({
                   ))}
                 </select>
               </div>
-            {/* 返信用アドレス入力欄 */}             
-            <div>
-            <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-white"
-            >
-                返信先メールアドレス
-                <span className="ml-2 text-xs font-normal text-[#8795b2]">
-                任意
-                </span>
-            </label>
 
-            <input
-                id="email"
-                name="email"
-                type="email"
-                maxLength={254}
-                autoComplete="email"
-                placeholder="example@example.com"
-                className="w-full rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
-            />
-            </div>
-              {/* 問い合わせ内容 */}
+              {/* 返信用メールアドレス */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-semibold text-white"
+                >
+                  返信先メールアドレス
+                  <span className="ml-2 text-xs font-normal text-[#8795b2]">
+                    任意
+                  </span>
+                </label>
+
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  maxLength={254}
+                  autoComplete="email"
+                  placeholder="example@example.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
+                />
+              </div>
+
+              {/* お問い合わせ内容 */}
               <div>
                 <label
                   htmlFor="message"
@@ -172,6 +228,8 @@ export default async function ContactPage({
                   rows={8}
                   maxLength={5000}
                   placeholder="お問い合わせ内容をご記入ください。"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
                   className="w-full resize-y rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm leading-7 text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
                 />
 
@@ -183,9 +241,10 @@ export default async function ContactPage({
               {/* 送信ボタン */}
               <button
                 type="submit"
-                className="w-full rounded-lg bg-[#00d2ff] px-6 py-3.5 text-sm font-bold text-[#071326] shadow-lg shadow-[#00d2ff]/10 transition hover:bg-[#75e4ff] focus:outline-none focus:ring-2 focus:ring-[#00d2ff] focus:ring-offset-2 focus:ring-offset-[#101a32] active:scale-[0.99]"
+                disabled={isSubmitting}
+                className="w-full rounded-lg bg-[#00d2ff] px-6 py-3.5 text-sm font-bold text-[#071326] shadow-lg shadow-[#00d2ff]/10 transition hover:bg-[#75e4ff] focus:outline-none focus:ring-2 focus:ring-[#00d2ff] focus:ring-offset-2 focus:ring-offset-[#101a32] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                送信する
+                {isSubmitting ? "送信中..." : "送信する"}
               </button>
 
               <p className="text-center text-xs leading-6 text-[#8795b2]">
@@ -202,7 +261,7 @@ export default async function ContactPage({
             </form>
           </div>
 
-          {/* メールでの問い合わせ */}
+          {/* メールでのお問い合わせ */}
           <div className="mt-8 text-center">
             <p className="text-sm text-[#8795b2]">
               メールでのお問い合わせはこちら
