@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -18,56 +19,120 @@ const isString = (value: unknown): value is string =>
 
 export async function POST(request: Request) {
   try {
+    // リクエストJSONを取得
     const body = (await request.json()) as ApplicationPayload;
 
+    // 入力値を文字列として取得・整形
     const hospitalName = isString(body.hospitalName)
       ? body.hospitalName.trim()
       : "";
-    const name = isString(body.name) ? body.name.trim() : "";
-    const role = isString(body.role) ? body.role.trim() : "";
-    const email = isString(body.email) ? body.email.trim() : "";
-    const phone = isString(body.phone) ? body.phone.trim() : "";
-    const preferredDate1 = isString(body.preferredDate1)
-      ? body.preferredDate1
-      : "";
-    const preferredDate2 = isString(body.preferredDate2)
-      ? body.preferredDate2
-      : "";
-    const message = isString(body.message) ? body.message.trim() : "";
 
+    const name = isString(body.name)
+      ? body.name.trim()
+      : "";
+
+    const role = isString(body.role)
+      ? body.role.trim()
+      : "";
+
+    const email = isString(body.email)
+      ? body.email.trim()
+      : "";
+
+    const phone = isString(body.phone)
+      ? body.phone.trim()
+      : "";
+
+    const preferredDate1 = isString(body.preferredDate1)
+      ? body.preferredDate1.trim()
+      : "";
+
+    const preferredDate2 = isString(body.preferredDate2)
+      ? body.preferredDate2.trim()
+      : "";
+
+    const message = isString(body.message)
+      ? body.message.trim()
+      : "";
+
+    // 必須項目の検証
     if (!hospitalName || hospitalName.length > 200) {
       return NextResponse.json(
-        { success: false, error: "医療機関名を正しく入力してください。" },
+        {
+          success: false,
+          error: "医療機関名を正しく入力してください。",
+        },
         { status: 400 }
       );
     }
 
     if (!name || name.length > 100) {
       return NextResponse.json(
-        { success: false, error: "ご担当者名を正しく入力してください。" },
-        { status: 400 }
-      );
-    }
-
-    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json(
-        { success: false, error: "メールアドレスを正しく入力してください。" },
+        {
+          success: false,
+          error: "ご担当者名を正しく入力してください。",
+        },
         { status: 400 }
       );
     }
 
     if (
-      role.length > 200 ||
-      phone.length > 50 ||
-      message.length > 5000
+      !email ||
+      email.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     ) {
       return NextResponse.json(
-        { success: false, error: "入力内容が長すぎます。" },
+        {
+          success: false,
+          error: "メールアドレスを正しく入力してください。",
+        },
         { status: 400 }
       );
     }
 
-    // GASの既存受信フィールド形式を維持する。
+    // 入力値の長さを検証
+    if (
+      role.length > 200 ||
+      phone.length > 50 ||
+      preferredDate1.length > 100 ||
+      preferredDate2.length > 100 ||
+      message.length > 5000
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "入力内容が長すぎます。",
+        },
+        { status: 400 }
+      );
+    }
+
+    // GASのURLと秘密鍵を環境変数から取得
+    const gasUrl = process.env.GAS_DEMO_URL;
+    const secret = process.env.GAS_DEMO_SECRET;
+
+    // 環境変数の設定漏れを検出
+    if (!gasUrl || !secret) {
+      console.error(
+        "Demo account API environment variables are missing.",
+        {
+          gasUrlConfigured: Boolean(gasUrl),
+          secretConfigured: Boolean(secret),
+        }
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "送信設定に問題があります。時間をおいて再度お試しください。",
+        },
+        { status: 500 }
+      );
+    }
+
+    // GASの既存受信フィールド形式を維持し、
+    // SECRET鍵を追加する
     const payload = {
       hospitalName,
       name,
@@ -77,18 +142,10 @@ export async function POST(request: Request) {
       preferredDate1,
       preferredDate2,
       message,
+      secret,
     };
 
-    const gasUrl = process.env.GAS_CONTACT_URL;
-
-    if (!gasUrl) {
-      console.error("GAS_CONTACT_URL is not configured.");
-      return NextResponse.json(
-        { success: false, error: "送信設定に問題があります。時間をおいて再度お試しください。" },
-        { status: 500 }
-      );
-    }
-
+    // GASへ送信
     const response = await fetch(gasUrl, {
       method: "POST",
       headers: {
@@ -99,17 +156,20 @@ export async function POST(request: Request) {
       signal: AbortSignal.timeout(15000),
     });
 
-    
     if (!response.ok) {
       throw new Error(`GAS HTTP error: ${response.status}`);
     }
 
+    // GASの応答を取得
     const responseText = await response.text();
-        console.log("[Demo Account API] GAS status:", response.status);
-        console.log("[Demo Account API] GAS response:", responseText);
 
+    console.log(
+      "[Demo Account API] GAS HTTP status:",
+      response.status
+    );
 
     let result: unknown;
+
     try {
       result = JSON.parse(responseText);
     } catch {
@@ -118,27 +178,37 @@ export async function POST(request: Request) {
       );
     }
 
-
+    // GASが成功を明示した場合のみ受付成功とする
     if (
-    typeof result !== "object" ||
-    result === null ||
-    !("status" in result) ||
-    (result as { status?: unknown }).status !== "success"
+      typeof result !== "object" ||
+      result === null ||
+      !("status" in result) ||
+      (result as { status?: unknown }).status !== "success"
     ) {
-    throw new Error("GAS did not confirm successful application receipt.");
-    }
+      console.error(
+        "[Demo Account API] GAS did not confirm successful receipt."
+      );
 
+      throw new Error(
+        "GAS did not confirm successful application receipt."
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Demo account application failed:", error);
+    // SECRET鍵や申請内容はログに出力しない
+    console.error(
+      "Demo account application failed:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+
     return NextResponse.json(
       {
         success: false,
-        error: "送信処理でエラーが発生しました。通信環境をご確認のうえ、再度お試しください。",
+        error:
+          "送信処理でエラーが発生しました。通信環境をご確認のうえ、再度お試しください。",
       },
       { status: 500 }
     );
   }
-  
 }
