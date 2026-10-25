@@ -141,3 +141,22 @@ body {
     transform: none !important;
   }
 }
+
+/* iOSのホーム画面PWAで上端のブラー（暈し）を軽減する実験的対策 */
+.ios-pwa-top-cover {
+  display: none;
+}
+
+@media (display-mode: standalone) {
+  .ios-pwa-top-cover {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: var(--background);
+    pointer-events: none;
+    z-index: 99999;
+  }
+}

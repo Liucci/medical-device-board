@@ -27,6 +27,7 @@ return (
   </head>
 
   <body>
+
     <ContextMenuBlocker />
     {/* ログイン中ユーザー情報をapp全体で共有するProvider。*/}
 
@@ -35,7 +36,10 @@ return (
 
     {/* React Portal用のmodal描画専用DOM。*/}
     <div id="modal-root"></div>
-
+  <div
+    className="ios-pwa-top-cover"
+    aria-hidden="true"
+  />
   </body>
 
 </html>
