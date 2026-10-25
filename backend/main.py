@@ -239,8 +239,7 @@ app.add_middleware(
         "https://devix.jp",
         "https://www.devix.jp",
         #以下開発用公開URL
-        "https://medical-device-board-frontend-develop.onrender.com",
-        #"https://medical-device-board-backend-develop.onrender.com",
+        "https://develop.devix.jp",
     ],
     allow_credentials=True,
     allow_methods=["*"],
