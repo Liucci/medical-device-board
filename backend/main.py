@@ -232,10 +232,15 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        #local開発URL
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        #本番URL
         "https://devix.jp",
-         "https://www.devix.jp",
+        "https://www.devix.jp",
+        #以下開発用公開URL
+        "https://medical-device-board-frontend-develop.onrender.com",
+        #"https://medical-device-board-backend-develop.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
