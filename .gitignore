@@ -55,3 +55,8 @@ next-env.d.ts
 *.pyc
 *.pyo
 *.pyd
+
+# Supabase local generated files
+.temp/
+snippets/
+docker.env
