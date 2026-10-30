@@ -62,6 +62,7 @@ def register_first_admin_transaction(
                                                       show_patient_name=False,
                                                       auto_logout_enabled=False,
                                                       auto_logout_time=None,
+                                                      clear_device_info_on_stock=True
         )
     )
  #user 登録
