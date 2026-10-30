@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,timezone
 from supabase import Client
 from schemas.invite_schemas import CreateInviteCodeRequest
 
@@ -14,9 +14,9 @@ def create_first_admin_invite_code(
     code = str(uuid.uuid4())
 
     expires_at = (
-                    datetime.utcnow()
-                    + timedelta(days=7)
-                 )
+                  datetime.now(timezone.utc)
+                  + timedelta(days=7)
+    )
 
     response = (
                   client
