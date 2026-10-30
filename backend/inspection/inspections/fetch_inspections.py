@@ -90,8 +90,8 @@ def fetch_today_inspections(client: Client, hospital_id: str):
 
     now = datetime.now(timezone(timedelta(hours=9)))
     start_at = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_at = start_at.replace(day=start_at.day + 1)
-
+    end_at = start_at + timedelta(days=1)
+    
     response = (
         client.table("inspections")
         .select("device_id, created_at")
