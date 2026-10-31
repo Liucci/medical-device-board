@@ -54,6 +54,7 @@ type Props = {
   onDelete: (deviceId: number) => Promise<void>
   hospitalSettings: HospitalSettingsType | null
   todayInspections?: TodayInspectionFrontType[]
+  saveDashboardCache: () => void
 }
 
 export default function RoomDeviceInfoModal({
@@ -81,6 +82,7 @@ export default function RoomDeviceInfoModal({
   onDelete,
   hospitalSettings,
   todayInspections,
+  saveDashboardCache,
 }: Props) {
   const [loading, setLoading] = useState(false)
   const [isInfectionModalOpen, setIsInfectionModalOpen] = useState(false)
@@ -278,6 +280,7 @@ export default function RoomDeviceInfoModal({
       })
       return
     }
+    saveDashboardCache()
     router.push(`/inspection-excution?deviceId=${selectedRoomDevice.id}`)
   }
 

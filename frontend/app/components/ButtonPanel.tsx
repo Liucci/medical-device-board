@@ -65,6 +65,7 @@ type Props = {
   setInspectionTypes: React.Dispatch<React.SetStateAction<InspectionType[]>>
   inspectionItemCategories: InspectionItemCategoryType[]
   setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
+  saveDashboardCache: () => void
 }
 
 function ButtonPanel({
@@ -104,6 +105,7 @@ function ButtonPanel({
   setInspectionTypes,
   inspectionItemCategories,
   setInspectionItemCategories,
+  saveDashboardCache,
 }: Props) {
   const router = useRouter()
   const [openDeviceModal, setOpenDeviceModal] = useState(false)
@@ -299,6 +301,7 @@ function ButtonPanel({
           setInspectionTypes={setInspectionTypes}
           inspectionItemCategories={inspectionItemCategories}
           setInspectionItemCategories={setInspectionItemCategories}
+          saveDashboardCache={saveDashboardCache}
         />
       )}
 

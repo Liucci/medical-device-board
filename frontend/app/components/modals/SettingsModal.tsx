@@ -51,6 +51,7 @@ type Props = {
   setInspectionTypes: React.Dispatch<React.SetStateAction<any[]>>
   inspectionItemCategories: InspectionItemCategoryType[]
   setInspectionItemCategories: React.Dispatch<React.SetStateAction<InspectionItemCategoryType[]>>
+  saveDashboardCache: () => void
 }
 
 type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance" | "infection" | "hospitalSetting" | "wardOrder" | "stockAreaOrder" | "checklistType" | "checklistCategory"
@@ -78,6 +79,7 @@ export default function SettingsModal({
   setInspectionTypes,
   inspectionItemCategories,
   setInspectionItemCategories,
+  saveDashboardCache,
 }: Props) {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>("menu")
@@ -175,6 +177,8 @@ export default function SettingsModal({
       icon: ClipboardPlus,
       onClick: () => {
         if (!checkAdminPermission()) return
+        //遷移前にdashboardの状態をcacheに保存
+        saveDashboardCache()
         router.push("/inspection-editor")
       },
     },
@@ -183,6 +187,8 @@ export default function SettingsModal({
       icon: ClipboardPenLine,
       onClick: () => {
         if (!checkAdminPermission()) return
+        //遷移前にdashboardの状態をcacheに保存
+        saveDashboardCache()
         router.push("/inspection-editor/edit")
       },
     },
