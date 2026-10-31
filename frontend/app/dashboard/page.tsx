@@ -639,10 +639,17 @@ export default function Page() {
       setTodayInspections(todayIns)
       setInspectionCounts(counts)
       const cache = getDashboardCache()
-      if (cache) {
+
+    if (cache) {
+      if (cache.cacheFormat === "frontend") {
+        cache.todayInspections = todayIns
+      } else {
         cache.today_inspections = data
-        setDashboardCache(cache)
       }
+
+      setDashboardCache(cache)
+    }
+
     } catch (error) {
       console.error("本日の点検情報更新エラー:", error)
     }
@@ -703,7 +710,67 @@ export default function Page() {
     supabase.realtime.setAuth(accessToken)
   }, [accessToken])
 
+  // Dashboardの最新stateをフロントエンド形式でキャッシュに保存
+  const saveDashboardCache = () => {
+    setDashboardCache({
+      cacheFormat: "frontend",
+
+      devices: deviceList,
+      stockAreas,
+      wards,
+      rooms,
+      deviceTypes,
+      deviceModels,
+      tasks,
+      maintenanceTypes,
+      histories,
+      infectionTypes,
+      roomInfections,
+      wardInfections,
+      activeAnnouncements,
+      inspectionTypes,
+      inspectionItemCategories,
+      hospitalSettings,
+      todayInspections,
+    })
+  }
+
+//初期化時はnormalizeしてstate setする。それ以外はそのままstateにset
   const applyDashboardData = (data: any) => {
+
+    // フロントエンド形式のキャッシュの場合
+    if (data.cacheFormat === "frontend") {
+      setDeviceList(data.devices)
+      setStockAreas(data.stockAreas)
+      setWards(data.wards)
+      setRooms(data.rooms)
+      setDeviceTypes(data.deviceTypes)
+      setDeviceModels(data.deviceModels)
+      setTasks(data.tasks)
+      setMaintenanceTypes(data.maintenanceTypes)
+      setHistories(data.histories)
+      setInfectionTypes(data.infectionTypes)
+      setRoomInfections(data.roomInfections)
+      setWardInfections(data.wardInfections)
+      setActiveAnnouncements(data.activeAnnouncements)
+      setInspectionTypes(data.inspectionTypes)
+      setInspectionItemCategories(data.inspectionItemCategories)
+      setHospitalSettings(data.hospitalSettings)
+
+      const todayIns: TodayInspectionFrontType[] = data.todayInspections
+      const counts: Record<number, number> = {}
+
+      todayIns.forEach(i => {
+        counts[i.deviceId] = (counts[i.deviceId] ?? 0) + 1
+      })
+
+      setTodayInspections(todayIns)
+      setInspectionCounts(counts)
+
+      return
+    }
+
+    // APIから取得したDB形式のデータの場合（従来の処理）
     setDeviceList(data.devices.map(normalizeDevice))
     setStockAreas(data.stock_areas.map(normalizeStockArea))
     setWards(data.wards.map(normalizeWard))
@@ -720,9 +787,16 @@ export default function Page() {
     setInspectionTypes(data.inspection_types.map(normalizeInspectionType))
     setInspectionItemCategories(data.inspection_item_categories.map(normalizeInspectionItemCategory))
     setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
-    const todayIns: TodayInspectionFrontType[] = data.today_inspections.map(normalizeTodayInspection)
+
+    const todayIns: TodayInspectionFrontType[] =
+      data.today_inspections.map(normalizeTodayInspection)
+
     const counts: Record<number, number> = {}
-    todayIns.forEach(i => { counts[i.deviceId] = (counts[i.deviceId] ?? 0) + 1 })
+
+    todayIns.forEach(i => {
+      counts[i.deviceId] = (counts[i.deviceId] ?? 0) + 1
+    })
+
     setTodayInspections(todayIns)
     setInspectionCounts(counts)
   }
@@ -731,6 +805,7 @@ export default function Page() {
     const fetchData = async () => {
       if (!currentUser) return
       if (hasDashboardCache()) {
+        //console.log("Dashboard: キャッシュを使用")
         const cachedData = getDashboardCache()
         applyDashboardData(cachedData)
         if (getNeedsRefreshTodayInspections()) {
@@ -744,6 +819,7 @@ export default function Page() {
         setLoading,
         action: async () => {
           clearDashboardCache()
+          //console.log("Dashboard: DBから全データを再取得")
           const data = await fetchInitDashboard()
           if (!data) return
           setDashboardCache(data)
@@ -941,7 +1017,8 @@ export default function Page() {
             inspectionTypes={inspectionTypes}
             setInspectionTypes={setInspectionTypes}   
             inspectionItemCategories={inspectionItemCategories}
-            setInspectionItemCategories={setInspectionItemCategories}    
+            setInspectionItemCategories={setInspectionItemCategories} 
+            saveDashboardCache={saveDashboardCache}   
           />
         </div>
 
@@ -1034,6 +1111,8 @@ export default function Page() {
             onDelete={deleteDevice}
             hospitalSettings={hospitalSettings}
             todayInspections={todayInspections}
+            saveDashboardCache={saveDashboardCache}   
+
           />
         )}
 
