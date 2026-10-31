@@ -60,3 +60,7 @@ next-env.d.ts
 .temp/
 snippets/
 docker.env
+
+local_auth.dump
+local_public_data.sql
+local_data.sql
