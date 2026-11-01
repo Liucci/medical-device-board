@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {inviteFirstAdminTransaction} from "../../api/transactions/invites/inviteFirstAdminTransaction"
+import { LoadingOverlay } from "../../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 
 export default function FirstAdminInvitePage() {
 

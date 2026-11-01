@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation"
 import { CurrentUser } from "../types/userTypes"
 import { fetchCurrentUser } from "../api/auth/fetchCurrentUser"
 import { normalizeCurrentUser } from "../mapper/userMapper"
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
 export default function SystemAdminPage() 
 {
     const router = useRouter()
     const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+    const [loading, setLoading] = useState(false)
     const init = async () => {
         const user = await fetchCurrentUser()
             if (!user) {

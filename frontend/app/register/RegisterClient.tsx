@@ -1,138 +1,83 @@
 "use client"
-
 import { API_BASE_URL } from "../api/client/apiClient"
-
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-
 import { registerUserTransaction } from "../api/transactions/invites/registerUserTransaction"
-
 import RegisterCompleteModal from "../components/modals/RegisterCompleteModal"
-
 import { RegisteredUser } from "../types/registerTypes"
+import { LoadingOverlay } from "../components/common/LoadingOverlay"
+import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 
-type RegisterClientProps = {
-  code: string
-}
+type RegisterClientProps = {code: string}
 
-export default function RegisterClient({
-  code
-}: RegisterClientProps) {
+export default function RegisterClient({code}: RegisterClientProps) {
 
   const router = useRouter()
-
-  const [registeredUser, setRegisteredUser] =
-    useState<RegisteredUser | null>(null)
-
+  const [registeredUser, setRegisteredUser] =useState<RegisteredUser | null>(null)
   const [inviteData, setInviteData] = useState<any>(null)
-
   const [loading, setLoading] = useState(true)
-
   const [error, setError] = useState("")
-
   const [displayName, setDisplayName] = useState("")
-
   const [password, setPassword] = useState("")
-
-  const [showRegisterCompleteModal, setShowRegisterCompleteModal] =
-    useState(false)
+  const [showRegisterCompleteModal, setShowRegisterCompleteModal] =useState(false)
 
   const handleRegister = async () => {
-
     if (password.length < 6) {
-
       alert("パスワードは6文字以上で入力してください")
-
       return
-
     }
-
     if (!code) {
-
       return
-
     }
-
     try {
-
-      await registerUserTransaction({
-        registerUserRequest: {
-          code,
-          password,
-          displayName
-        },
-        setRegisteredUser
-      })
-
-      setShowRegisterCompleteModal(true)
-
+          await executeWithErrorAndLoading({
+            setLoading,
+            action: async () => {
+                await registerUserTransaction({
+                  registerUserRequest: {
+                    code,
+                    password,
+                    displayName
+                  },
+                  setRegisteredUser
+                })
+            }
+          })
+          setShowRegisterCompleteModal(true)
     } catch {
-
       alert("登録に失敗しました")
-
     }
   }
 
   useEffect(() => {
-
     const fetchInvite = async () => {
-
       if (!code) {
-
         setError("招待コードなし")
-
         setLoading(false)
-
         return
-
       }
 
       try {
-
         const response = await fetch(
           `${API_BASE_URL}/invite-info/${code}`
         )
-
         if (!response.ok) {
-
           setError("無効な招待コード")
-
           setLoading(false)
-
           return
-
         }
 
         const inviteInfo = await response.json()
-
         setInviteData(inviteInfo)
-
       } catch {
-
         setError("招待情報の取得失敗")
-
       } finally {
-
         setLoading(false)
-
       }
     }
-
     fetchInvite()
-
   }, [code])
-
-  if (loading) {
-
-    return (
-      <div>
-        Loading...
-      </div>
-    )
-  }
-
   if (error) {
-
     return (
       <div>
         {error}
@@ -141,14 +86,12 @@ export default function RegisterClient({
   }
 
   if (!inviteData) {
-
     return (
       <div>
         招待データなし
       </div>
     )
   }
-
   return (
     <>
       <div
@@ -276,6 +219,7 @@ export default function RegisterClient({
           />
         )
       }
+    <LoadingOverlay loading={loading} />
     </>
   )
 }

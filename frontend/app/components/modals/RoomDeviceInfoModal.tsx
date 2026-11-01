@@ -30,6 +30,7 @@ import { createBothMaintenanceTask } from "../../api/tasks/createBothMaintenance
 import { normalizeMaintenanceTask } from "../../mapper/taskMapper"
 
 type Props = {
+  currentUser: CurrentUser
   isOpen: boolean
   selectedRoomDevice: Device | null
   deviceTypes: DeviceTypeType[]
@@ -58,6 +59,7 @@ type Props = {
 }
 
 export default function RoomDeviceInfoModal({
+  currentUser,
   isOpen,
   selectedRoomDevice,
   deviceTypes,
@@ -108,6 +110,19 @@ export default function RoomDeviceInfoModal({
   const [inputModalTaskId, setInputModalTaskId] = useState<number | null>(null)
   const [inputModalRentalStartDate, setInputModalRentalStartDate] = useState("")
   const [inputModalRequired, setInputModalRequired] = useState(false)
+  
+  // 権限チェック関数
+  const checkPermission = () => {
+    if (
+      currentUser.role !== "admin" &&
+      currentUser.role !== "normal"
+    ) {
+      alert("権限がありません")
+      return false
+    }
+    return true
+  }
+
   const openInputModal = ({
     target,
     title,
@@ -268,6 +283,7 @@ export default function RoomDeviceInfoModal({
   }
 
   const handleInspection = async () => {
+    if (!checkPermission()) return
     if (!selectedRoomDevice?.id) return
     const mgmt = selectedRoomDevice.managementNumber?.trim() ?? ""
     const serial = selectedRoomDevice.serialNumber?.trim() ?? ""
