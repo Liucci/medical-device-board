@@ -1087,6 +1087,7 @@ export default function Page() {
 
         {roomDeviceInfoModalOpen && selectedRoomDevice && (
           <RoomDeviceInfoModal
+            currentUser={currentUser}
             isOpen={roomDeviceInfoModalOpen}
             selectedRoomDevice={selectedRoomDevice}
             deviceTypes={deviceTypes}
