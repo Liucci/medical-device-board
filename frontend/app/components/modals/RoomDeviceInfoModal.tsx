@@ -111,14 +111,17 @@ export default function RoomDeviceInfoModal({
   const [inputModalRentalStartDate, setInputModalRentalStartDate] = useState("")
   const [inputModalRequired, setInputModalRequired] = useState(false)
   
-  //権限チェック関数
+  // 権限チェック関数
   const checkPermission = () => {
-  if (currentUser.role !== "admin") {
-    alert("権限がありません")
-    return false
+    if (
+      currentUser.role !== "admin" &&
+      currentUser.role !== "normal"
+    ) {
+      alert("権限がありません")
+      return false
+    }
+    return true
   }
-  return true
-}
 
   const openInputModal = ({
     target,
