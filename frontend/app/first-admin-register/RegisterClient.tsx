@@ -123,13 +123,6 @@ export default function RegisterClient({
     }
 
   }
-  if (loading) {
-    return (
-      <div>
-        Loading...
-      </div>
-    )
-  }
   if (error) {
     return (
       <div className="p-8 text-red-500">
