@@ -77,7 +77,7 @@ def get_init_inspection_execution(
 ):
     check_permission(
         current_user=session,
-        allowed_roles=["admin"],
+        allowed_roles=["admin", "normal"],
     )
     
     return fetch_init_inspection_execution(
