@@ -1,7 +1,9 @@
 "use client"
 import { memo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, History, Settings, FileText, LogOut, UserPlus, UserCircle, ClipboardCheck, ChevronLeft, ChevronRight, Menu, X } from "lucide-react"
+import { Plus, History, Settings, FileText, LogOut, UserPlus,
+          UserCircle, ClipboardCheck, ChevronLeft, ChevronRight, Menu, X,Mail
+       } from "lucide-react"
 import { StockAreaType } from "../types/stockTypes"
 import { DeviceTypeType } from "../types/deviceTypeTypes"
 import { DeviceModelType } from "../types/deviceModelTypes"
@@ -204,10 +206,9 @@ function ButtonPanel({
             <ButtonGrid onAdd={() => { setIsPanelOpen(false); openInspectionResult() }} title="点検結果" icon={<ClipboardCheck size={13} />} />
             <ButtonGrid onAdd={() => { setIsPanelOpen(false); openInvite() }} title="招待" icon={<UserPlus size={13} />} />
             <ButtonGrid onAdd={() => { setIsPanelOpen(false); handleLogout() }} title="終了" icon={<LogOut size={13} />} />
-          </div>
 
-          <div className="mt-2 border-t border-slate-200 pt-2">
             <ButtonGrid onAdd={() => { setIsPanelOpen(false); setOpenAccountInfoModal(true) }} title="アカウント" icon={<UserCircle size={13} />} />
+            <ButtonGrid onAdd={() => {setIsPanelOpen(false); saveDashboardCache() ;router.push("/contact")}}title="問い合わせ"icon={<Mail size={13} />}/>
           </div>
         </div>
       </div>
@@ -257,6 +258,7 @@ function ButtonPanel({
               <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); openInvite() }} title="招待" icon={<UserPlus size={14} />} />
               <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); handleLogout() }} title="終了" icon={<LogOut size={14} />} />
               <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); setOpenAccountInfoModal(true) }} title="アカウント" icon={<UserCircle size={14} />} />
+              <ButtonGrid onAdd={() => { setIsMobileMenuOpen(false); saveDashboardCache(); router.push("/contact") }} title="問い合わせ" icon={<Mail size={14} />}/>
             </div>
           </div>
         </div>
