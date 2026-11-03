@@ -57,10 +57,11 @@ next-env.d.ts
 *.pyd
 
 # Supabase local generated files
-.temp/
-snippets/
-docker.env
-
-local_auth.dump
-local_public_data.sql
-local_data.sql
+# Supabase
+/database/supabase/.branches/
+/database/supabase/.temp/
+/database/supabase/.env.keys
+/database/supabase/.env.local
+/database/supabase/.env.*.local
+/database/supabase/snippets/
+/database/supabase/docker.env
