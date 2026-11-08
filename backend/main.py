@@ -221,6 +221,11 @@ from session.fetch_session import fetch_session
 from auth.get_current_session import get_current_session
 from schemas.session_schemas import BackendSession
 
+#passward reset
+from schemas.password_reset_schemas import (CreatePasswordResetRequest)
+
+from transactions.password_reset.create_password_reset_request_transaction import (create_password_reset_request_transaction)
+
 from dotenv import load_dotenv
 load_dotenv()
 #本番環境、開発環境判定用APP_ENVを取得し判定する
@@ -2011,3 +2016,43 @@ def update_ward_info(
                                         ward=ward,
                                         hospital_id=session.hospital_id,
     )
+
+
+# パスワードリセット申請
+@app.post("/password-reset-request")
+def create_password_reset_request_route(
+                                request: CreatePasswordResetRequest,
+                                response: Response,
+):
+
+    print("create_password_reset_request_route")
+
+    # Transaction実行
+    result = create_password_reset_request_transaction(email=request.email)
+
+    # reset_tokenをHttpOnly Cookieに保存
+    if APP_ENV == "development":
+        response.set_cookie(
+            key="reset_token",
+            value=result["reset_token"],
+            max_age=1800,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+        )
+    else:
+        response.set_cookie(
+            key="reset_token",
+            value=result["reset_token"],
+            max_age=1800,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+        )
+
+    return {
+        "success": True,
+        "message": "本人確認メールを送信しました"
+    }

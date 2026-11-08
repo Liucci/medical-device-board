@@ -7,10 +7,10 @@ import Link from "next/link";
 
 //import { useAuth }from "../contexts/AuthContext"
 import { loginTransaction } from "../api/transactions/auth/loginTransaction"
-import {executeWithLoading} from "../components/common/executeWithLoading"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
-
 import {LoadingOverlay} from "../components/common/LoadingOverlay"
+
+import PasswordResetRequestModal from "../components/modals/PasswordResetRequestModal"
 
 export default function LoginPage() {
 
@@ -20,58 +20,54 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-    const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
-    const [accessToken, setAccessToken] =useState<string | null>(null)
+  const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
+  const [accessToken, setAccessToken] =useState<string | null>(null)
   
-  // const {
-  //         currentUser,
-  //         setCurrentUser,
-  //         setAccessToken,
-  // } = useAuth()
+  const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false)
 
   //backendの/loginを呼び出す
-const handleLogin = async () => {
+  const handleLogin = async () => {
 
-  setError("")
-  await executeWithErrorAndLoading({
-      setLoading,
-      action: async () => {
-          
-          try {
+    setError("")
+    await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+            
+            try {
 
-            const currentUser =
-              await loginTransaction({
-                                        email,
-                                        password,
-                                        setCurrentUser,
-                                        //setAccessToken,
-                                      })
+              const currentUser =
+                await loginTransaction({
+                                          email,
+                                          password,
+                                          setCurrentUser,
+                                          //setAccessToken,
+                                        })
 
-            if (currentUser.role === "system_admin") {
-              router.push("/system-admin")
-              return
-            }
-
-            router.push("/dashboard")
-
-          } 
-          catch (err) {
-              console.error(err)
-
-              if (err instanceof Error) {
-                  setError(err.message)
-                  return
+              if (currentUser.role === "system_admin") {
+                router.push("/system-admin")
+                return
               }
 
-              setError("ログイン失敗")
-          }          
-          finally {
+              router.push("/dashboard")
+
+            } 
+            catch (err) {
+                console.error(err)
+
+                if (err instanceof Error) {
+                    setError(err.message)
+                    return
+                }
+
+                setError("ログイン失敗")
+            }          
+            finally {
+            }
           }
-        }
-        })
+          })
 
 
-}  
+  }  
 
 
 return (
@@ -141,7 +137,16 @@ return (
                 required
                 className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
               />
-
+              
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordResetModalOpen(true)}
+                  className="text-xs text-[#9ba9c9] transition-colors hover:text-[#a5e7ff]"
+                >
+                  パスワードを忘れた場合
+                </button>
+              </div>
               {error && (
                 <div role="alert" className="rounded-xl border border-[#ffb4ab]/20 bg-[#93000a]/20 px-4 py-3 text-sm text-[#ffb4ab]">
                   {error}
@@ -190,7 +195,13 @@ return (
 
         </div>
       </div>
-
+      <PasswordResetRequestModal
+        isOpen={isPasswordResetModalOpen}
+        onClose={() => setIsPasswordResetModalOpen(false)}
+        onSubmit={(_email) => {
+          // 次の段階でパスワードリセット申請APIを接続
+        }}
+      />
       <LoadingOverlay loading={loading} />
     </>
   )  
