@@ -198,9 +198,6 @@ return (
       <PasswordResetRequestModal
         isOpen={isPasswordResetModalOpen}
         onClose={() => setIsPasswordResetModalOpen(false)}
-        onSubmit={(_email) => {
-          // 次の段階でパスワードリセット申請APIを接続
-        }}
       />
       <LoadingOverlay loading={loading} />
     </>
