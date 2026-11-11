@@ -5,6 +5,8 @@ import {
     VerifyPasswordResetCodeBackType,
     ResetPasswordFrontType,
     ResetPasswordBackType,
+    UpdatePasswordResetFrontType,
+    UpdatePasswordResetBackType,
 } from "../types/passwordResetTypes"
 
 
@@ -34,5 +36,16 @@ export const toResetPasswordRequest = (
 ): ResetPasswordBackType => {
     return {
         password: front.password,
+    }
+}
+
+
+// Update Password Reset
+export const toUpdatePasswordResetRequest = (
+    front: UpdatePasswordResetFrontType
+): UpdatePasswordResetBackType => {
+    return {
+        code: front.code,
+        new_password: front.newPassword,
     }
 }

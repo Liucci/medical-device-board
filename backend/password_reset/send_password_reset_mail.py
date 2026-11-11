@@ -21,7 +21,7 @@ def send_password_reset_mail(
             "Content-Type": "application/json"
         },
         json={
-            "from": "Devix <invite@devix.jp>",
+            "from": "Devix <info@devix.jp>",
             "to": [email],
             "subject": "パスワード変更のご案内",
             "html": f"""

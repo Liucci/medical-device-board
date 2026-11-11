@@ -226,7 +226,9 @@ from schemas.password_reset_schemas import (CreatePasswordResetRequest)
 
 from transactions.password_reset.create_password_reset_request_transaction import (create_password_reset_request_transaction)
 from transactions.password_reset.send_password_reset_mail_transaction import send_password_reset_mail_transaction
-
+from transactions.password_reset.update_password_reset_transaction import update_password_reset_transaction
+from transactions.password_reset.init_password_reset_page_transaction import init_password_reset_page_transaction
+from schemas.password_reset_schemas import UpdatePasswordResetRequest
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -2076,6 +2078,84 @@ def send_password_reset_mail_route(reset_token: str | None = Cookie(default=None
 
     if not result:
         raise HTTPException(status_code=400, detail="本人確認に失敗しました")
+
+    return {
+        "success": True,
+        **result
+    }
+
+
+# パスワード変更実行時に呼ぶAPI
+@app.post("/update-password-reset")
+def update_password_reset_route(
+    request: UpdatePasswordResetRequest,
+    response: Response,
+    reset_token: str | None = Cookie(default=None)
+):
+    print("update_password_reset_route")
+
+    if not reset_token:
+        raise HTTPException(
+            status_code=400,
+            detail="本人確認の有効期限が切れています"
+        )
+
+    client = get_admin_client()
+
+    result = update_password_reset_transaction(
+        client=client,
+        reset_token=reset_token,
+        code=request.code,
+        new_password=request.new_password
+    )
+
+    if not result:
+        raise HTTPException(
+            status_code=400,
+            detail="パスワード変更に失敗しました"
+        )
+
+    response.delete_cookie(
+        key="reset_token",
+        path="/",
+        httponly=True,
+        secure=APP_ENV != "development",
+        samesite="lax" if APP_ENV == "development" else "none"
+    )
+
+    return {
+        "success": True,
+        **result
+    }
+
+
+# パスワード変更ページ初期化
+@app.get("/init-password-reset-page")
+def init_password_reset_page_route(
+    code: str,
+    reset_token: str | None = Cookie(default=None)
+):
+    print("init_password_reset_page_route")
+
+    if not reset_token:
+        raise HTTPException(
+            status_code=400,
+            detail="本人確認の有効期限が切れています"
+        )
+
+    client = get_admin_client()
+
+    result = init_password_reset_page_transaction(
+        client=client,
+        reset_token=reset_token,
+        code=code
+    )
+
+    if not result:
+        raise HTTPException(
+            status_code=400,
+            detail="パスワード変更ページの認証に失敗しました"
+        )
 
     return {
         "success": True,

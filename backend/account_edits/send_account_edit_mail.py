@@ -19,7 +19,7 @@ def send_account_edit_mail(
             "Content-Type": "application/json"
         },
         json={
-            "from": "Devix <invite@devix.jp>",
+            "from": "Devix <info@devix.jp>",
             "to": [request.email],
             "subject": "アカウント情報編集",
             "html": f"""

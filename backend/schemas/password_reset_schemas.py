@@ -17,7 +17,9 @@ class VerifyPasswordResetCodeRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     password: str
 
-
+class UpdatePasswordResetRequest(BaseModel):
+    code: str
+    new_password: str
 
 # Create Password Reset Code
 class CreatePasswordResetCodeResponse(BaseModel):

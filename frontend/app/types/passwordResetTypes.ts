@@ -24,3 +24,15 @@ export type ResetPasswordFrontType = {
 export type ResetPasswordBackType = {
     password: string
 }
+
+
+// Update Password Reset
+export type UpdatePasswordResetFrontType = {
+    code: string
+    newPassword: string
+}
+
+export type UpdatePasswordResetBackType = {
+    code: string
+    new_password: string
+}

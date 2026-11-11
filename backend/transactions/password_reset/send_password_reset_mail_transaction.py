@@ -43,8 +43,7 @@ def send_password_reset_mail_transaction(client: Client, reset_token: str):
     expires_at = datetime.fromisoformat(password_reset_code["expires_at"].replace("Z", "+00:00"))
 
     # パスワード変更ページURL
-    reset_url = f"{os.getenv('FRONTEND_URL')}/password-reset?code={password_reset_code['code']}"
-
+    reset_url = f"{os.getenv('FRONTEND_URL')}/password-reset/new-password?code={password_reset_code['code']}"
     # パスワード変更メール送信
     send_password_reset_mail(email=email, reset_url=reset_url, expires_at=expires_at)
     print("send_password_reset_mail: completed")

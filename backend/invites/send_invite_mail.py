@@ -22,7 +22,7 @@ def send_invite_mail(
                                             "Content-Type":"application/json"
                                         },
                                 json={
-                                    "from":"Devix <invite@devix.jp>",
+                                    "from":"Devix <info@devix.jp>",
                                     "to":[invite.email],
                                     "subject":"医療機器管理システム招待",
                                     "html":f"""
