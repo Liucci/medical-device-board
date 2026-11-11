@@ -225,6 +225,8 @@ from schemas.session_schemas import BackendSession
 from schemas.password_reset_schemas import (CreatePasswordResetRequest)
 
 from transactions.password_reset.create_password_reset_request_transaction import (create_password_reset_request_transaction)
+from transactions.password_reset.send_password_reset_mail_transaction import send_password_reset_mail_transaction
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -2055,4 +2057,27 @@ def create_password_reset_request_route(
     return {
         "success": True,
         "message": "本人確認メールを送信しました"
+    }
+
+
+# 本人確認し認証後にパスワード変更メール送信用
+@app.post("/send-password-reset-mail")
+def send_password_reset_mail_route(reset_token: str | None = Cookie(default=None),
+                                   ):
+    print("send_password_reset_mail_route")
+
+    # reset_tokenの存在確認
+    if not reset_token:
+        raise HTTPException(status_code=400, detail="本人確認の有効期限が切れています")
+
+    # Transaction実行
+    client = get_admin_client()
+    result = send_password_reset_mail_transaction(client=client, reset_token=reset_token)
+
+    if not result:
+        raise HTTPException(status_code=400, detail="本人確認に失敗しました")
+
+    return {
+        "success": True,
+        **result
     }

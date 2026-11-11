@@ -1,10 +1,7 @@
 from supabase import Client
 
 
-def fetch_user_by_email(
-                            client: Client,
-                            email: str
-):
+def fetch_user_by_email(client: Client, email: str):
     print("fetch_user_by_email")
 
     response = (
@@ -12,8 +9,11 @@ def fetch_user_by_email(
         .table("users")
         .select("id, email")
         .eq("email", email)
-        .maybe_single()
+        #.maybe_single()
         .execute()
     )
+
+    print("response:", response)
+    print("response type:", type(response))
 
     return response.data

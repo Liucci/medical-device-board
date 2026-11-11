@@ -20,7 +20,7 @@ def create_password_reset_request_transaction(email: str):
         f"{os.getenv('FRONTEND_URL')}"
         f"/password-reset/verify"
     )
-
+    print("verification_url:", verification_url)
     # 本人確認メール送信
     send_verification_mail(
         email=email,
