@@ -3,6 +3,7 @@ import os
 import requests
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 def send_verification_mail(
@@ -11,7 +12,7 @@ def send_verification_mail(
     expires_at: datetime
 ):
     print("send_verification_mail")
-
+    jst_expires_at = expires_at.astimezone(ZoneInfo("Asia/Tokyo"))
     resend_api_key = os.getenv("RESEND_API_KEY")
 
     response = requests.post(
@@ -21,7 +22,7 @@ def send_verification_mail(
             "Content-Type": "application/json"
         },
         json={
-            "from": "Devix <info@devix.jp>",
+            "from": "Devix <no-reply@devix.jp>",
             "to": [email],
             "subject": "パスワードリセット申請のご案内",
             "html": f"""
@@ -32,7 +33,10 @@ def send_verification_mail(
                 </p>
 
                 <p>
-                    以下のURLからユーザー登録確認を実施してください。
+                    以下のURLからユーザー登録確認を実施してください。<br>
+                    必ずパスワード変更申請した同一の端末からアクセスしてください。<br>
+                    リンクの有効期限は30分です。
+
                 </p>
 
                 <p>
@@ -44,7 +48,7 @@ def send_verification_mail(
                 <p>
                     URLの有効期限：
                     <strong>
-                        {expires_at.strftime("%Y/%m/%d %H:%M")}
+                    {jst_expires_at.strftime("%Y/%m/%d %H:%M")}
                     </strong>
                 </p>
 
@@ -71,7 +75,9 @@ def send_verification_mail(
                 </p>
 
                 <p>
-                    このメールに心当たりがない場合は破棄してください。
+                    このメールに心当たりがない場合は破棄してください。<br>
+                    このメールアドレスは送信専用です。<br>
+                    返信しないでください。
                 </p>
             """
         }
