@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException, Header, Depends, Response,Request,Co
 from fastapi.middleware.cors import (CORSMiddleware)
 from pydantic import BaseModel
 import os
+#routes
 from routes.inspection_routes import inspection_router
+from routes.websocket_routes import router as websocket_router
 
 from auth.login import (login_user)
 from auth.logout import logout
@@ -230,6 +232,9 @@ from transactions.password_reset.update_password_reset_transaction import update
 from transactions.password_reset.init_password_reset_page_transaction import init_password_reset_page_transaction
 from schemas.password_reset_schemas import UpdatePasswordResetRequest
 
+#websocket
+from websocket.connection_manager import connection_manager
+
 from dotenv import load_dotenv
 load_dotenv()
 #本番環境、開発環境判定用APP_ENVを取得し判定する
@@ -256,7 +261,7 @@ app.add_middleware(
 )
 
 app.include_router(inspection_router)
-
+app.include_router(websocket_router)
 class LoginRequest(BaseModel):
                                 email: str
                                 password: str
@@ -511,8 +516,9 @@ def get_devices(
     )
 
 #機器アイコンの新規登録用のAPI
+#websocket通知を追記
 @app.post("/create-device-transaction")
-def create_device_transaction_route(
+async def create_device_transaction_route(
                                     body: AddDeviceRequest,
                                     session: BackendSession = Depends(get_current_session),
                                    ):
@@ -529,6 +535,12 @@ def create_device_transaction_route(
                             action_type="create",
                             message="機器を新規登録"
                           )
+    #websocket通知用
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "create_device"}
+    )
+    
 
 #機器アイコンを削除するAPI
 @app.post("/delete-device-transaction")

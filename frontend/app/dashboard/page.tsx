@@ -83,6 +83,7 @@ import { useDrag } from "../drag/useDrag"
 import { autoScroll, isInside } from "../drag/autoScroll"
 import { getDropTarget } from "../drag/drop"
 import { createLongPressState, startLongPress, finishLongPress, cancelLongPress } from "../drag/longPress"
+
 import { subscribeDevicesRealtime } from "../realtime/devicesRealtime"
 import { subscribeWardsRealtime } from "../realtime/wardsRealtime"
 import { subscribeRoomsRealtime } from "../realtime/roomsRealtime"
@@ -97,6 +98,9 @@ import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtim
 import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
 import { subscribeHospitalSettingsRealtime } from "../realtime/hospitalSettingsRealtime"
 import { subscribeInspectionsRealtime } from "../realtime/inspectionsRealtime"
+//websocket
+import { connectWebSocket } from "../websocket/websocketClient"
+
 import { ActiveAnnouncementFrontType } from "../types/announcementTypes"
 import { fetchActiveAnnouncementsTransaction } from "../api/transactions/announcements/fetchActiveAnnouncementsTransaction"
 import { HospitalSettingsType } from "../types/hospitalSettingTypes"
@@ -672,7 +676,7 @@ export default function Page() {
     if (!accessToken) return
     supabase.realtime.setAuth(accessToken)
     
-    const unsubscribeDevices = subscribeDevicesRealtime({ setDeviceList, setStockLastUpdated, setWardLastUpdated })
+    //const unsubscribeDevices = subscribeDevicesRealtime({ setDeviceList, setStockLastUpdated, setWardLastUpdated })
     const unsubscribeWards = subscribeWardsRealtime({ setWards })
     const unsubscribeRooms = subscribeRoomsRealtime({ setRooms })
     const unsubscribeStockAreas = subscribeStockAreasRealtime({ setStockAreas })
@@ -688,7 +692,7 @@ export default function Page() {
     const unsubscribeInspections = subscribeInspectionsRealtime({ setInspectionCounts, setTodayInspections })
 
     return () => {
-      unsubscribeDevices()
+      //unsubscribeDevices()
       unsubscribeWards()
       unsubscribeRooms()
       unsubscribeStockAreas()
@@ -709,6 +713,22 @@ export default function Page() {
     if (!accessToken) return
     supabase.realtime.setAuth(accessToken)
   }, [accessToken])
+
+  //websocket受信用
+  useEffect(() => {
+    if (!currentUser) return
+
+    const ws = connectWebSocket(async () => {
+      //create device受信用
+      const devices = await getDevicesFromApi()
+      setDeviceList(devices.map(normalizeDevice))
+      setStockAreas((await getStockAreasFromApi()).map(normalizeStockArea))
+      setStockLastUpdated(await fetchStockLastUpdated())
+    })
+    return () => {
+      ws.close()
+    }
+  }, [currentUser])  
 
   // Dashboardの最新stateをフロントエンド形式でキャッシュに保存
   const saveDashboardCache = () => {
