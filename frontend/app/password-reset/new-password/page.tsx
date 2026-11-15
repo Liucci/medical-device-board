@@ -95,7 +95,7 @@ export default function PasswordResetPage() {
 
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0a122a] px-4 py-10 text-[#dbe1ff]">
-            <LoadingOverlay loading={loading} message="パスワードを変更しています..." />
+            <LoadingOverlay loading={loading} message="処理中…" />
 
             {/* Background */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">

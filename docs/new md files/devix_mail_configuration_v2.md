@@ -7,7 +7,7 @@
   サービス                   役割
   -------------------------- ----------------------------------------------------
   Resend                     Devixからの自動送信、Gmailからの手動送信に使うSMTP
-  Cloudflare Email Routing   `@devix.jp` 宛てメールを個人Gmailへ転送
+  Cloudflare Email Routing   `info@devix.jp` 宛てメールを個人Gmailへ転送
   Gmail                      メールの確認・作成・返信
 
 ## 送信
@@ -16,12 +16,9 @@
 
 Resend API（`https://api.resend.com/emails`）を利用する。
 
-  用途                 送信元アドレス
-  -------------------- -------------------
-  ユーザー招待         `invite@devix.jp`
-  アカウント編集関連   `edit@devix.jp`
-  パスワードリセット   `reset@devix.jp`
-  デモ申請・運営連絡   `info@devix.jp`
+自動送信はすべて
+no-reply@devix.jp
+とする
 
 ### 手動送信（Gmail）
 

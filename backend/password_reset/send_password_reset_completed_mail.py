@@ -16,7 +16,7 @@ def send_password_reset_completed_mail(email: str):
             "Content-Type": "application/json"
         },
         json={
-        "from": "Devix <info@devix.jp>",
+        "from": "Devix <no-reply@devix.jp>",
             "to": [email],
             "subject": "パスワード変更完了のお知らせ",
             "html": """
@@ -37,13 +37,13 @@ def send_password_reset_completed_mail(email: str):
                 </p>
 
                 <p>
-                    この操作に心当たりがない場合は、
-                    第三者によってパスワードが変更された可能性があります。
+                    この操作に心当たりがない場合は、第三者によってパスワードが変更された可能性があります。<br>
                     速やかにDevix運営までお問い合わせください。
                 </p>
 
                 <p>
-                    このメールは送信専用です。
+                    このメールアドレスは送信専用です。<br>
+                    返信しないでください。
                 </p>
             """
         }

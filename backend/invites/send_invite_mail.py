@@ -1,6 +1,7 @@
 import os
 import requests
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from schemas.invite_schemas import (SendInviteMailRequest)
 
 #resendには認証機能持たせない
@@ -13,6 +14,7 @@ def send_invite_mail(
     expires_at = datetime.fromisoformat(
                                         invite.expires_at
                                         )
+    jst_expires_at = expires_at.astimezone(ZoneInfo("Asia/Tokyo"))
     resend_api_key = os.getenv("RESEND_API_KEY")
     #print(resend_api_key)
     response = requests.post(
@@ -22,7 +24,7 @@ def send_invite_mail(
                                             "Content-Type":"application/json"
                                         },
                                 json={
-                                    "from":"Devix <info@devix.jp>",
+                                    "from":"Devix <no-reply@devix.jp>",
                                     "to":[invite.email],
                                     "subject":"医療機器管理システム招待",
                                     "html":f"""
@@ -33,7 +35,8 @@ def send_invite_mail(
                                         </p>
 
                                         <p>
-                                        以下のリンクからユーザー登録を行ってください。
+                                        以下のリンクからユーザー登録を行ってください。<br>
+                                        リンクの有効期限は7日間です
                                         </p>
 
                                         <p>
@@ -54,12 +57,14 @@ def send_invite_mail(
 
                                         <p>
                                             <strong>
-                                                {expires_at.strftime("%Y/%m/%d %H:%M")}
+                                            {jst_expires_at.strftime("%Y/%m/%d %H:%M")}
                                             </strong>
                                         </p>
 
                                         <p>
-                                            期限切れの場合は管理者へ再発行をご依頼ください。
+                                            期限切れの場合は管理者へ再発行をご依頼ください。<br>
+                                            このメールアドレスは送信専用です。<br>
+                                            返信しないでください。
                                         </p>
                                     """
                                 }

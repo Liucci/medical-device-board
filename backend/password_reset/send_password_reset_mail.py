@@ -21,7 +21,7 @@ def send_password_reset_mail(
             "Content-Type": "application/json"
         },
         json={
-            "from": "Devix <info@devix.jp>",
+            "from": "Devix <no-reply@devix.jp>",
             "to": [email],
             "subject": "パスワード変更のご案内",
             "html": f"""
@@ -33,7 +33,10 @@ def send_password_reset_mail(
 
                 <p>
                     以下のURLからパスワード変更ページへ進み、
-                    新しいパスワードを設定してください。
+                    新しいパスワードを設定してください。<br>
+                    必ずパスワード変更申請した同一の端末からアクセスしてください。
+                    リンクの有効期限は30分です。
+
                 </p>
 
                 <p>
@@ -57,7 +60,9 @@ def send_password_reset_mail(
                 </p>
 
                 <p>
-                    このメールに心当たりがない場合は破棄してください。
+                    このメールに心当たりがない場合は破棄してください。<br>
+                    このメールアドレスは送信専用です。<br>
+                    返信しないでください。
                 </p>
             """
         }
