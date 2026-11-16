@@ -718,13 +718,21 @@ export default function Page() {
   useEffect(() => {
     if (!currentUser) return
 
-    const ws = connectWebSocket(async () => {
+    const ws = connectWebSocket(
       //create device受信用
+      async () => {
       const devices = await getDevicesFromApi()
       setDeviceList(devices.map(normalizeDevice))
-      setStockAreas((await getStockAreasFromApi()).map(normalizeStockArea))
       setStockLastUpdated(await fetchStockLastUpdated())
-    })
+      },
+      //delete device受信用
+      async () => {
+      const devices = await getDevicesFromApi()
+      setDeviceList(devices.map(normalizeDevice))
+      setStockLastUpdated(await fetchStockLastUpdated())
+      setWardLastUpdated(await fetchWardLastUpdated())
+      }  
+    )
     return () => {
       ws.close()
     }

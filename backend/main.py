@@ -543,26 +543,30 @@ async def create_device_transaction_route(
     
 
 #機器アイコンを削除するAPI
+#websocket通知
 @app.post("/delete-device-transaction")
-def delete_device_transaction_route(
-                                        body: DeleteDeviceRequest,
-                                        session: BackendSession = Depends(get_current_session),
-                                   ):
-    
+async def delete_device_transaction_route(
+    body: DeleteDeviceRequest,
+    session: BackendSession = Depends(get_current_session),
+):
     check_permission(
-                        current_user=session,
-                        allowed_roles=["admin"]
-                    )
+        current_user=session,
+        allowed_roles=["admin"]
+    )
 
     delete_device_transaction(
-                            client=session.client,
-                            device=body,
-                            hospital_id=session.hospital_id,
-                            user_id=session.user_id,
-                            action_type="delete",
-                            message="機器を削除"
-                         )    
+        client=session.client,
+        device=body,
+        hospital_id=session.hospital_id,
+        user_id=session.user_id,
+        action_type="delete",
+        message="機器を削除"
+    )
 
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "delete_device"}
+    )
 
 @app.get("/stock-areas")
 def get_stock_areas(
