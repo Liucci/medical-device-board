@@ -33,8 +33,7 @@ export async function updateRoomInfectionsTransaction({
                     }
                   )
 
-  const roomInfections =
-    await getRoomInfectionsFromApi()
+  const roomInfections =await getRoomInfectionsFromApi()
 
   setRoomInfections(
                       roomInfections.map(

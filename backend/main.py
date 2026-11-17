@@ -894,7 +894,7 @@ def get_tasks(
     return tasks
 
 @app.post("/create-both-maintenance-task")
-def create_both_maintenance_task_route(
+async def create_both_maintenance_task_route(
                                         task: CreateBothMaintenanceTaskRequest,
                                         session: BackendSession = Depends(get_current_session),
                                     ):
@@ -903,16 +903,20 @@ def create_both_maintenance_task_route(
                         allowed_roles=["admin", "normal"]
                     )
 
-    return create_both_maintenance_task_transaction(
+    create_both_maintenance_task_transaction(
                                                         client=session.client,
                                                         device_id=task.device_id,
                                                         maintenance_type_id=task.maintenance_type_id,
                                                         hospital_id=session.hospital_id
                                                     )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
 
 
 @app.post("/update-maintenance-task-due-at")
-def update_maintenance_task_due_at_route(
+async def update_maintenance_task_due_at_route(
                                         task: UpdateMaintenanceTaskDueAtRequest,
                                         session: BackendSession = Depends(get_current_session),
                                         ):
@@ -922,7 +926,7 @@ def update_maintenance_task_due_at_route(
                         allowed_roles=["admin","normal"]
                     )
 
-    return update_maintenance_task_due_at_transaction(
+    update_maintenance_task_due_at_transaction(
                                                         client=session.client, 
                                                         task=task,
                                                         hospital_id=session.hospital_id,
@@ -930,9 +934,14 @@ def update_maintenance_task_due_at_route(
                                                         action_type="update",
                                                         message="メンテナンス期限を変更"
                                                     )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/cancel-maintenance-task")
-def cancel_maintenance_task_route(
+async def cancel_maintenance_task_route(
                                     task: CancelMaintenanceTaskRequest,
                                     session: BackendSession = Depends(get_current_session),
                                     ):
@@ -941,7 +950,7 @@ def cancel_maintenance_task_route(
                         current_user=session,
                         allowed_roles=["admin","normal"]
                     )
-    return cancel_maintenance_task_transaction(
+    cancel_maintenance_task_transaction(
                                                 client=session.client, 
                                                 task=task,
                                                 hospital_id=session.hospital_id,
@@ -949,6 +958,11 @@ def cancel_maintenance_task_route(
                                                 action_type="update",
                                                 message="メンテナンスタスクを中止"
                                             )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 
 @app.get("/maintenance-types")
@@ -1152,7 +1166,7 @@ def get_room_infections(
 
 
 @app.post("/room-infections")
-def create_room_infection_route(
+async def create_room_infection_route(
                                 room_infection: AddRoomInfectionRequest,
                                     session: BackendSession = Depends(get_current_session),
                                ):
@@ -1167,16 +1181,18 @@ def create_room_infection_route(
                                         room_infection,
                                         session.hospital_id
                                      )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 
 @app.post("/delete-room-infections")
-def delete_room_infections_route(
+async def delete_room_infections_route(
                                     room_infection: DeleteRoomInfectionsRequest,
                                     session: BackendSession = Depends(get_current_session),
                                 ):
-
-
-
 
     check_permission(
                         current_user=session,
@@ -1189,9 +1205,14 @@ def delete_room_infections_route(
                                         room_infection,
                                         session.hospital_id
                                       )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/update-room-infections-transaction")
-def update_room_infections_route(
+async def update_room_infections_route(
                     room_infection: UpdateRoomInfectionsRequest,
                     session: BackendSession = Depends(get_current_session),
 ):
@@ -1201,16 +1222,22 @@ def update_room_infections_route(
                     )
 
     
-    return update_room_infections_transaction(
+    update_room_infections_transaction(
                                               session.client, 
                                               room_infection, 
                                               session.hospital_id
                                               )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
+
 
 @app.post("/update-stock-area-display-order")
 def update_stock_area_display_order_route(
-                                            stock_areas: UpdateStockAreaOrdersRequest,
-                                    session: BackendSession = Depends(get_current_session),
+                                        stock_areas: UpdateStockAreaOrdersRequest,
+                                        session: BackendSession = Depends(get_current_session),
                                         ):
 
     check_permission(
@@ -1231,7 +1258,7 @@ def update_stock_area_display_order_route(
 
 
 @app.post("/update-management-number")
-def update_management_number_route(
+async def update_management_number_route(
                                      body: UpdateManagementNumberRequest,
                                     session: BackendSession = Depends(get_current_session),
                                    ):
@@ -1250,9 +1277,13 @@ def update_management_number_route(
                                             action_type="update",
                                             message="管理番号を更新"
                                          )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
 
 @app.post("/update-serial-number")
-def update_serial_number_route(
+async def update_serial_number_route(
                                  body: UpdateSerialNumberRequest,
                                     session: BackendSession = Depends(get_current_session),
                                
@@ -1272,9 +1303,14 @@ def update_serial_number_route(
                                         action_type="update",
                                         message="シリアル番号を更新"
                                      )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/update-note")
-def update_note_route(
+async def update_note_route(
                         body: UpdateNoteRequest,
                         session: BackendSession = Depends(get_current_session),
                       ):
@@ -1293,9 +1329,14 @@ def update_note_route(
                               action_type="update",
                               message="備考を更新"
                            )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/update-device-rental-dates")
-def update_device_rental_dates_route(
+async def update_device_rental_dates_route(
                                     device: UpdateDeviceRentalDatesRequest,
                                     session: BackendSession = Depends(get_current_session),
                                     ):
@@ -1312,32 +1353,43 @@ def update_device_rental_dates_route(
                                             hospital_id=session.hospital_id,
                                             user_id=session.user_id
                                            )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/update-maintenance-dates")
-def update_maintenance_dates_route(
+async def update_maintenance_dates_route(
                                       device: UpdateMaintenanceDatesRequest,
                                     session: BackendSession = Depends(get_current_session),
                                   ):
 
     check_permission(
-                        current_user=session,
-                        allowed_roles=["admin","normal"]
+                    current_user=session,
+                    allowed_roles=["admin","normal"]
                     )
+    
 
-    return update_maintenance_dates_transaction(
-                                                client=session.client,
-                                                device=device,
+    update_maintenance_dates_transaction(
+                                        client=session.client,
+                                        device=device,
+                                        hospital_id=session.hospital_id,
+                                        user_id=session.user_id,
+                                        action_type="update",
+                                        message="保守開始日変更"
+                                        )
+    
+    await connection_manager.broadcast_to_hospital(
                                                 hospital_id=session.hospital_id,
-                                                user_id=session.user_id,
-                                                action_type="update",
-                                                message="保守開始日変更"
-                                                )
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/start-maintenance")
-def start_maintenance_route(
+async def start_maintenance_route(
                             body: StartMaintenanceRequest,
                             session: BackendSession = Depends(get_current_session),
-
                             ):
 
 
@@ -1355,9 +1407,14 @@ def start_maintenance_route(
                                     action_type="update",
                                     message="保守開始"
                                  )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/finish-maintenance")
-def finish_maintenance_route(
+async def finish_maintenance_route(
                             body: FinishMaintenanceRequest,
                             session: BackendSession = Depends(get_current_session),
                              ):
@@ -1376,9 +1433,14 @@ def finish_maintenance_route(
                                      action_type="update",
                                      message="保守終了"
                                   )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/start-standby")
-def start_standby_route(
+async def start_standby_route(
                         body: StartStandbyRequest,
                         session: BackendSession = Depends(get_current_session),
                         ):
@@ -1397,9 +1459,14 @@ def start_standby_route(
                                 action_type="update",
                                 message="スタンバイ開始"
                              )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/finish-standby")
-def finish_standby_route(
+async def finish_standby_route(
                         body: FinishStandbyRequest,
                         session: BackendSession = Depends(get_current_session),
                          ):
@@ -1419,6 +1486,11 @@ def finish_standby_route(
                                  action_type="update",
                                  message="スタンバイ終了"
                               )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
+
 
 @app.post("/move_stock_to_room")
 def move_stock_to_room_route(

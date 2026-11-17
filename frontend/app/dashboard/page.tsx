@@ -731,7 +731,18 @@ export default function Page() {
       setDeviceList(devices.map(normalizeDevice))
       setStockLastUpdated(await fetchStockLastUpdated())
       setWardLastUpdated(await fetchWardLastUpdated())
-      }  
+      },
+      //update device受信用
+       async () => {
+      const [devices, roomInfections, tasks] = await Promise.all([
+          getDevicesFromApi(),
+          getRoomInfectionsFromApi(),
+          getTasksFromApi()
+      ])
+      setDeviceList(devices.map(normalizeDevice))
+      setRoomInfections(roomInfections.map(normalizeRoomInfection))
+      setTasks(tasks.map(normalizeMaintenanceTask))
+      }
     )
     return () => {
       ws.close()

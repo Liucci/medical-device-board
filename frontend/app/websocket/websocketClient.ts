@@ -5,6 +5,7 @@ const WS_URL = API_BASE_URL.replace(/^http/, "ws") + "/ws"
 
 export function connectWebSocket(onCreateDevice: () => void,
                                 onDeleteDevice: () => void,
+                                onUpdateDevice: () => void,
                               )
  {
   const ws = new WebSocket(WS_URL)
@@ -22,6 +23,10 @@ export function connectWebSocket(onCreateDevice: () => void,
     if (message.type === "delete_device") {
         console.log("[WebSocket] delete_device を検知")
       onDeleteDevice()
+    }
+    if (message.type === "update_device") {
+      console.log("[WebSocket] update_device を検知")
+      onUpdateDevice()
     }
   }
 
