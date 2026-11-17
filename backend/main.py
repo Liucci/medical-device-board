@@ -592,7 +592,7 @@ def get_wards(
     return wards
 
 @app.post("/wards")
-def create_ward_route(
+async def create_ward_route(
                         ward: AddWardRequest,
                         session: BackendSession = Depends(get_current_session),
                      ):
@@ -607,9 +607,13 @@ def create_ward_route(
                             ward=ward,
                             hospital_id=session.hospital_id
                             )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_ward"}
+    )
 
 @app.post("/delete-ward")
-def delete_ward_route(
+async def delete_ward_route(
                         ward: DeleteWardRequest,
                         session: BackendSession = Depends(get_current_session),
                      ):
@@ -624,9 +628,14 @@ def delete_ward_route(
                                 ward=ward,
                                 hospital_id=session.hospital_id
                             )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_ward"}
+    )
+
 
 @app.post("/update-ward")
-def update_ward_route(
+async def update_ward_route(
                         ward: UpdateWardRequest,
                         session: BackendSession = Depends(get_current_session),
                      ):
@@ -640,9 +649,13 @@ def update_ward_route(
                                 ward=ward,
                                 hospital_id=session.hospital_id
                             )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_ward"}
+    )
     
 @app.post("/update-ward-display-order")
-def update_ward_display_order_route(
+async def update_ward_display_order_route(
                                     wards: UpdateWardOrdersRequest,
                                     session: BackendSession = Depends(get_current_session),
 ):
@@ -657,6 +670,10 @@ def update_ward_display_order_route(
                                         wards=wards,
                                         hospital_id=session.hospital_id
                                         )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_ward"}
+    )
 
     return {
         "success": True
@@ -913,7 +930,30 @@ async def create_both_maintenance_task_route(
                                                 hospital_id=session.hospital_id,
                                                 message={"type": "update_device"}
     )
+@app.post("/complete_maintenance_task")
+async def complete_maintenance_task_api(
+                                    task: CompleteMaintenanceTaskRequest,
+                                    session: BackendSession = Depends(get_current_session),
+                                 ):
 
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin","normal"]
+                    )
+
+
+    complete_maintenance_task_transaction(
+                                                    client=session.client, 
+                                                    task=task,
+                                                    hospital_id=session.hospital_id,
+                                                    user_id=session.user_id,
+                                                    action_type="update",
+                                                    message="maintenance task completed"
+                                                )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device"}
+    )
 
 @app.post("/update-maintenance-task-due-at")
 async def update_maintenance_task_due_at_route(
@@ -939,7 +979,6 @@ async def update_maintenance_task_due_at_route(
                                                 message={"type": "update_device"}
     )
 
-
 @app.post("/cancel-maintenance-task")
 async def cancel_maintenance_task_route(
                                     task: CancelMaintenanceTaskRequest,
@@ -962,7 +1001,6 @@ async def cancel_maintenance_task_route(
                                                 hospital_id=session.hospital_id,
                                                 message={"type": "update_device"}
     )
-
 
 
 @app.get("/maintenance-types")
@@ -1493,13 +1531,11 @@ async def finish_standby_route(
 
 
 @app.post("/move_stock_to_room")
-def move_stock_to_room_route(
+async def move_stock_to_room_route(
                             device: MoveDeviceRequest,
                             room: UpdateRoomPatientRequest,
                             session: BackendSession = Depends(get_current_session),
                            ):
-
-
     check_permission(
                         current_user=session,
                         allowed_roles=["admin","normal"]
@@ -1514,12 +1550,15 @@ def move_stock_to_room_route(
                                                     action_type="move",
                                                     message="stock to room"
                                                   )
-
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "move_device"}
+    )
     return moved_device
 
 
 @app.post("/move_stock_to_stock")
-def move_stock_to_stock_route(
+async def move_stock_to_stock_route(
                                 device: MoveDeviceRequest,
                                 session: BackendSession = Depends(get_current_session),
                              ):
@@ -1537,11 +1576,15 @@ def move_stock_to_stock_route(
                                                     action_type="move",
                                                     message="stock to stock"
                                                   )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "move_device"}
+    )
 
     return moved_device
 
 @app.post("/move_room_to_stock")
-def move_room_to_stock_route(
+async def move_room_to_stock_route(
                             device: MoveDeviceRequest,
                             room: ClearRoomPatientRequest,
                             session: BackendSession = Depends(get_current_session),
@@ -1564,11 +1607,14 @@ def move_room_to_stock_route(
                                                     action_type="move",
                                                     message="room to stock"
                                                   )
-
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "move_device"}
+    )
     return moved_device
 
 @app.post("/move_room_to_room")
-def move_room_to_room_route(
+async def move_room_to_room_route(
                         device: MoveDeviceRequest,
                         pre_room: ClearRoomPatientRequest,
                         post_room: UpdateRoomPatientRequest,
@@ -1591,10 +1637,14 @@ def move_room_to_room_route(
                                             action_type="move",
                                             message="room to room"
                                          )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "move_device"}
+    )
     return moved_device
 
 @app.post("/move_room_to_room_new_patient")
-def move_room_to_room_new_patient_route(
+async def move_room_to_room_new_patient_route(
                                         device: MoveDeviceRequest,
                                         pre_room: ClearRoomPatientRequest,
                                         post_room: UpdateRoomPatientRequest,
@@ -1622,7 +1672,10 @@ def move_room_to_room_new_patient_route(
                                                               action_type="move",
                                                               message="room to room new patient"
                                                             )
-
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "move_device"}
+    )
     return moved_device
 
 @app.get("/stock-last-updated")
@@ -1656,26 +1709,7 @@ def fetch_ward_last_updated_route(
 
 
 
-@app.post("/complete_maintenance_task")
-def complete_maintenance_task_api(
-                                    task: CompleteMaintenanceTaskRequest,
-                                    session: BackendSession = Depends(get_current_session),
-                                 ):
 
-    check_permission(
-                        current_user=session,
-                        allowed_roles=["admin","normal"]
-                    )
-
-
-    return complete_maintenance_task_transaction(
-                                                    client=session.client, 
-                                                    task=task,
-                                                    hospital_id=session.hospital_id,
-                                                    user_id=session.user_id,
-                                                    action_type="update",
-                                                    message="maintenance task completed"
-                                                )
 
 @app.post("/export-history-pdf")
 async def export_history_pdf_route(

@@ -74,6 +74,7 @@ import { getTodayInspectionsFromApi } from "../api/inspection/inspections/fetchT
 import { getInfectionTypesFromApi } from "../api/infectionTypes/fetchInfectionTypes"
 import { getRoomInfectionsFromApi } from "../api/roomInfections/fetchRoomInfections"
 import { updateWardInfoTransaction } from "../api/transactions/wards/updateWardInfoTransaction"
+import { getWardInfectionsFromApi } from "../api/wardInfections/fetchWardInfections"
 import { createInfectionTypeTransaction } from "../api/transactions/infectionTypes/createInfectionTypeTransaction"
 import { updateInfectionTypeTransaction } from "../api/transactions/infectionTypes/updateInfectionTypeTransaction"
 import { deleteInfectionTypesTransaction } from "../api/transactions/infectionTypes/deleteInfectionTypesTransaction"
@@ -677,15 +678,15 @@ export default function Page() {
     supabase.realtime.setAuth(accessToken)
     
     //const unsubscribeDevices = subscribeDevicesRealtime({ setDeviceList, setStockLastUpdated, setWardLastUpdated })
-    const unsubscribeWards = subscribeWardsRealtime({ setWards })
-    const unsubscribeRooms = subscribeRoomsRealtime({ setRooms })
+    //const unsubscribeWards = subscribeWardsRealtime({ setWards })
+    //const unsubscribeRooms = subscribeRoomsRealtime({ setRooms })
     const unsubscribeStockAreas = subscribeStockAreasRealtime({ setStockAreas })
     const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({ setDeviceTypes })
     const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({ setDeviceModels })
     const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({ setMaintenanceTypes })
     const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({ setInfectionTypes })
-    const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({ setRoomInfections })
-    const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({ setTasks })
+    //const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({ setRoomInfections })
+    //const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({ setTasks })
     const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
     const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
     const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
@@ -693,15 +694,15 @@ export default function Page() {
 
     return () => {
       //unsubscribeDevices()
-      unsubscribeWards()
-      unsubscribeRooms()
+      //unsubscribeWards()
+      //unsubscribeRooms()
       unsubscribeStockAreas()
       unsubscribeDeviceTypes()
       unsubscribeDeviceModels()
       unsubscribeMaintenanceTypes()
       unsubscribeInfectionTypes()
-      unsubscribeRoomInfections()
-      unsubscribeMaintenanceTasks()
+      //unsubscribeRoomInfections()
+      //unsubscribeMaintenanceTasks()
       unsubscribeAnnouncements()
       unsubscribeAnnouncementHospitals()
       unsubscribeHospitalSettingRealtime()
@@ -722,18 +723,18 @@ export default function Page() {
       //create device受信用
       async () => {
       const devices = await getDevicesFromApi()
-      setDeviceList(devices.map(normalizeDevice))
-      setStockLastUpdated(await fetchStockLastUpdated())
+        setDeviceList(devices.map(normalizeDevice))
+        setStockLastUpdated(await fetchStockLastUpdated())
       },
       //delete device受信用
       async () => {
       const devices = await getDevicesFromApi()
-      setDeviceList(devices.map(normalizeDevice))
-      setStockLastUpdated(await fetchStockLastUpdated())
-      setWardLastUpdated(await fetchWardLastUpdated())
+        setDeviceList(devices.map(normalizeDevice))
+        setStockLastUpdated(await fetchStockLastUpdated())
+        setWardLastUpdated(await fetchWardLastUpdated())
       },
       //update device受信用
-       async () => {
+      async () => {
       const [devices, roomInfections, tasks] = await Promise.all([
           getDevicesFromApi(),
           getRoomInfectionsFromApi(),
@@ -742,6 +743,28 @@ export default function Page() {
       setDeviceList(devices.map(normalizeDevice))
       setRoomInfections(roomInfections.map(normalizeRoomInfection))
       setTasks(tasks.map(normalizeMaintenanceTask))
+      },
+      //move device受信用
+      async () => {
+      const [devices, rooms, tasks, roomInfections] = await Promise.all([
+          getDevicesFromApi(),
+          getRoomsFromApi(),
+          getTasksFromApi(),
+          getRoomInfectionsFromApi()
+      ])
+      setDeviceList(devices.map(normalizeDevice))
+      setRooms(rooms.map(normalizeRoom))
+      setTasks(tasks.map(normalizeMaintenanceTask))
+      setRoomInfections(roomInfections.map(normalizeRoomInfection))
+      },
+      //update ward受信用
+      async () => {
+      const [wards, wardInfections] = await Promise.all([
+            getWardsFromApi(),
+            getWardInfectionsFromApi()
+      ])
+      setWards(wards.map(normalizeWard))
+      setWardInfections(wardInfections.map(normalizeWardInfection))
       }
     )
     return () => {
