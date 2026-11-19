@@ -680,7 +680,7 @@ export default function Page() {
     //const unsubscribeDevices = subscribeDevicesRealtime({ setDeviceList, setStockLastUpdated, setWardLastUpdated })
     //const unsubscribeWards = subscribeWardsRealtime({ setWards })
     //const unsubscribeRooms = subscribeRoomsRealtime({ setRooms })
-    const unsubscribeStockAreas = subscribeStockAreasRealtime({ setStockAreas })
+    //const unsubscribeStockAreas = subscribeStockAreasRealtime({ setStockAreas })
     const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({ setDeviceTypes })
     const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({ setDeviceModels })
     const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({ setMaintenanceTypes })
@@ -689,14 +689,14 @@ export default function Page() {
     //const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({ setTasks })
     const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
     const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
-    const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
-    const unsubscribeInspections = subscribeInspectionsRealtime({ setInspectionCounts, setTodayInspections })
+    //const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
+    //const unsubscribeInspections = subscribeInspectionsRealtime({ setInspectionCounts, setTodayInspections })
 
     return () => {
       //unsubscribeDevices()
       //unsubscribeWards()
       //unsubscribeRooms()
-      unsubscribeStockAreas()
+      //unsubscribeStockAreas()
       unsubscribeDeviceTypes()
       unsubscribeDeviceModels()
       unsubscribeMaintenanceTypes()
@@ -705,8 +705,8 @@ export default function Page() {
       //unsubscribeMaintenanceTasks()
       unsubscribeAnnouncements()
       unsubscribeAnnouncementHospitals()
-      unsubscribeHospitalSettingRealtime()
-      unsubscribeInspections()
+      //unsubscribeHospitalSettingRealtime()
+      //unsubscribeInspections()
     }
   }, [currentUser, accessToken])
 
@@ -729,16 +729,16 @@ export default function Page() {
       //delete device受信用
       async () => {
       const devices = await getDevicesFromApi()
-        setDeviceList(devices.map(normalizeDevice))
-        setStockLastUpdated(await fetchStockLastUpdated())
-        setWardLastUpdated(await fetchWardLastUpdated())
+            setDeviceList(devices.map(normalizeDevice))
+            setStockLastUpdated(await fetchStockLastUpdated())
+            setWardLastUpdated(await fetchWardLastUpdated())
       },
       //update device受信用
       async () => {
       const [devices, roomInfections, tasks] = await Promise.all([
-          getDevicesFromApi(),
-          getRoomInfectionsFromApi(),
-          getTasksFromApi()
+            getDevicesFromApi(),
+            getRoomInfectionsFromApi(),
+            getTasksFromApi()
       ])
       setDeviceList(devices.map(normalizeDevice))
       setRoomInfections(roomInfections.map(normalizeRoomInfection))
@@ -765,7 +765,21 @@ export default function Page() {
       ])
       setWards(wards.map(normalizeWard))
       setWardInfections(wardInfections.map(normalizeWardInfection))
-      }
+      },
+      //stock area受信用
+      async () => {
+      const stockAreas = await getStockAreasFromApi()
+            setStockAreas(stockAreas.map(normalizeStockArea))
+      },
+      //create inspection受信用
+      async () => {await refreshTodayInspectionsOnly()},
+
+      //update hospital setting受信用
+      async () => {
+        const settings = await fetchHospitalSettingsTransaction()
+        setHospitalSettings(settings)
+      },
+
     )
     return () => {
       ws.close()

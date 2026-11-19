@@ -8,6 +8,10 @@ export function connectWebSocket(onCreateDevice: () => void,
                                 onUpdateDevice: () => void,
                                 onMoveDevice: () => void,
                                 onUpdateWard: () => void,
+                                onUpdateStockArea: () => void,
+                                onCreateInspection: () => void,
+                                onUpdateHospitalSetting: () => void,
+
                               )
  {
   const ws = new WebSocket(WS_URL)
@@ -38,7 +42,18 @@ export function connectWebSocket(onCreateDevice: () => void,
       console.log("[WebSocket] update_ward を検知")
       onUpdateWard()
     }
-
+    if (message.type === "update_stock_area") {
+      console.log("[WebSocket] update_stock_area を検知")
+      onUpdateStockArea()
+    }
+    if (message.type === "create_inspection") {
+      console.log("[WebSocket] create_inspection を検知")
+      onCreateInspection()
+    }
+    if (message.type === "update_hospital_setting") {
+    console.log("[WebSocket] update_hospital_setting を検知")
+    onUpdateHospitalSetting()
+    }
 
   }
 

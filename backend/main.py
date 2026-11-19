@@ -1077,24 +1077,27 @@ def get_histories(
 
 #stock_area追加用API
 @app.post("/create-stock-area-transaction")
-def create_stock_area_transaction_route(
+async def create_stock_area_transaction_route(
                                         stock_area: AddStockAreaRequest,
                                         session: BackendSession = Depends(get_current_session),
                                         ):
     check_permission(
-                        current_user=session,
-                        allowed_roles=["admin"]
+                    current_user=session,
+                    allowed_roles=["admin"]
                     )
 
-    response = create_stock_area_transaction(
-                                                client=session.client, 
-                                                stock_area=stock_area,
-                                                hospital_id=session.hospital_id
-                                             )
-    return response
+    create_stock_area_transaction(
+                                    client=session.client, 
+                                    stock_area=stock_area,
+                                    hospital_id=session.hospital_id
+                                    )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_stock_area"}
+    )
 
 @app.post("/delete-stock-area-transaction")
-def delete_stock_area_transaction_route(
+async def delete_stock_area_transaction_route(
                                         stock_area: DeleteStockAreasRequest,
                                     session: BackendSession = Depends(get_current_session),
                                         ):
@@ -1108,9 +1111,14 @@ def delete_stock_area_transaction_route(
                                     stock_area=stock_area,
                                     hospital_id=session.hospital_id
                                  )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_stock_area"}
+    )
+
 
 @app.post("/update-stock-area-transaction")
-def update_stock_area_transaction_route(
+async def update_stock_area_transaction_route(
                                         stock_area: UpdateStockAreaRequest,
                                         session: BackendSession = Depends(get_current_session),
                                         ):
@@ -1124,6 +1132,10 @@ def update_stock_area_transaction_route(
                                     stock_area=stock_area,
                                     hospital_id=session.hospital_id
                                     )
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_stock_area"}
+    )
 
 @app.get("/infection-types")
 def get_infection_types(
@@ -2054,7 +2066,7 @@ def get_hospital_settings(
                                               )
 
 @app.post("/update-hospital-settings")
-def update_hospital_settings_route(
+async def update_hospital_settings_route(
                                         hospital_settings: UpdateHospitalSettingsRequest,
                                         session: BackendSession = Depends(get_current_session),
                                   ):
@@ -2062,11 +2074,16 @@ def update_hospital_settings_route(
                         current_user=session,
                         allowed_roles=["admin"]
                     )
-    return update_hospital_settings_transaction(
+    update_hospital_settings_transaction(
                                                     session.client, 
                                                     hospital_settings,
                                                     session.hospital_id
                                                )
+    await connection_manager.broadcast_to_hospital(
+                                                    hospital_id=session.hospital_id,
+                                                    message={"type": "update_hospital_setting"}
+    )
+
 
 @app.get("/ward-infections")
 def get_ward_infections(

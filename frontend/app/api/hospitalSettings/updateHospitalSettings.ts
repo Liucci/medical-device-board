@@ -19,5 +19,7 @@ export async function updateHospitalSettings(
                         }
                       )
 
-    return await response.json()
+if (!response.ok) {
+    throw new Error("病院設定の更新に失敗しました")
+}
 }
