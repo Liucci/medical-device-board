@@ -206,6 +206,7 @@ from transactions.announcements.create_announcement_transaction import (create_a
 from transactions.announcements.update_announcement_transaction import (update_announcement_transaction)
 from transactions.announcements.fetch_announcements_transaction import (fetch_announcements_transaction)
 from transactions.announcements.fetch_active_announcements_transaction import fetch_active_announcements_transaction
+from announcement_hospitals.fetch_announcement_hospitals import fetch_announcement_hospitals
 
 #hospital setting用
 from schemas.hospital_settings_schemas import (UpdateHospitalSettingsRequest)
@@ -290,16 +291,14 @@ def login(
                             password=body.password
                         )
     auth_user_id = (auth_response .user.id)
-    client = get_auth_client(
-                            auth_response .session.access_token
-                            )
+    client = get_auth_client(auth_response .session.access_token)
     check_user_active(client,auth_user_id)
     current_user = fetch_current_user_transaction(
                                                 client,
                                                 auth_user_id
                                                 )
-    auth_user_response = client.auth.get_user()
-    print("AUTH USER:", auth_user_response)
+    #auth_user_response = client.auth.get_user()
+    #print("AUTH USER:", auth_user_response)
 
     # Backend Session作成
     backend_session = BackendSession(
@@ -374,35 +373,26 @@ def get_current_user(
 
 
 @app.post("/refresh-token")
-def refresh_token_route(
-    session_id: str | None = Cookie(default=None),
+def refresh_token_route(session_id: str | None = Cookie(default=None),
 ):
     print("refresh_token_route")
-
     if not session_id:
         raise HTTPException(
-            status_code=401,
-            detail="Session not found"
+                            status_code=401,
+                            detail="Session not found"
         )
 
     try:
-        response = refresh_token(
-            session_id
-        )
-
+        response = refresh_token(session_id)
         return {
-            "access_token":
-                response.session.access_token,
+                "access_token":response.session.access_token,
         }
-
     except Exception as e:
         print("refresh failed", e)
-
         raise HTTPException(
-            status_code=401,
-            detail=str(e)
+                            status_code=401,
+                            detail=str(e)
         )
-
 
 #招待用コードを作成し、メールを送信する
 @app.post("/create-invite-code")
@@ -462,22 +452,21 @@ def register_first_admin_route(
                                            )
 
 
-
-
 @app.post("/invite-first-admin")
 def invite_first_admin_route(
                             request: InviteFirstAdminRequest,
                             session: BackendSession = Depends(get_current_session),
                             ):
 
-
     check_permission(
                         current_user=session,
                         allowed_roles=["system_admin"]
                     )
+    # ② 管理者権限でDB操作
+    client = get_admin_client()
 
     return invite_first_admin_transaction(
-                                            client=session.client,
+                                            client,
                                             request=request,
                                             current_user_id=session.user_id,
                                          )
@@ -492,18 +481,9 @@ def init_dashboard(
     #sessionから直接clientを取得
     client = session.client
     return fetch_init_dashboard(
-        client=client,
-        hospital_id=session.hospital_id,
+                                client=client,
+                                hospital_id=session.hospital_id,
     )
-
-
-                                
-#全患者情報取得
-@app.get("/users")
-def get_users():
-    client = get_admin_client()
-    response = fetch_users(client=client)
-    return response
 
 
 @app.get("/devices")
@@ -541,7 +521,6 @@ async def create_device_transaction_route(
         message={"type": "create_device"}
     )
     
-
 #機器アイコンを削除するAPI
 #websocket通知
 @app.post("/delete-device-transaction")
@@ -633,7 +612,6 @@ async def delete_ward_route(
                                     message={"type": "update_ward"}
     )
 
-
 @app.post("/update-ward")
 async def update_ward_route(
                         ward: UpdateWardRequest,
@@ -679,7 +657,6 @@ async def update_ward_display_order_route(
         "success": True
     }    
 
-
 @app.get("/rooms")
 def get_rooms(
                 session: BackendSession = Depends(get_current_session),
@@ -692,7 +669,7 @@ def get_rooms(
     return rooms
 
 @app.post("/rooms")
-def create_room_route(
+async def create_room_route(
                         room:AddRoomRequest,
                         session: BackendSession = Depends(get_current_session),
                      ):
@@ -707,9 +684,13 @@ def create_room_route(
                                 room=room,
                                 hospital_id=session.hospital_id
                             )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_room"}
+    )
 
 @app.post("/update-room")
-def update_room_route(
+async def update_room_route(
                         room: UpdateRoomRequest,
                         session: BackendSession = Depends(get_current_session),
 ):
@@ -724,10 +705,13 @@ def update_room_route(
                             room=room,
                             hospital_id=session.hospital_id
                             )
-
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_room"}
+    )
 
 @app.post("/update-room-patientname")
-def update_room_patientname_route(
+async def update_room_patientname_route(
                                     room: UpdateRoomPatientRequest,
                                     session: BackendSession = Depends(get_current_session),
                                     ):    
@@ -743,26 +727,13 @@ def update_room_patientname_route(
                                         hospital_id=session.hospital_id,
                                         user_id=session.user_id
                                     )
-
-
-@app.post("/update-device-type")
-def update_device_type_route(
-                                device_type: UpdateDeviceTypeRequest,
-                                session: BackendSession = Depends(get_current_session),
-                            ):
-    check_permission(
-                        current_user=session,
-                        allowed_roles=["admin"]
-                    )
-    update_device_type_transaction(
-                                    session.client, 
-                                    device_type,
-                                    session.hospital_id
-                                    )
-
+    await connection_manager.broadcast_to_hospital(
+                                        hospital_id=session.hospital_id,
+                                        message={"type": "update_room"}
+    )
 
 @app.post("/delete-rooms-transaction")
-def delete_rooms_transaction_route(
+async def delete_rooms_transaction_route(
                                     room: DeleteRoomsRequest,
                                     session: BackendSession = Depends(get_current_session),
                                     ):
@@ -775,6 +746,10 @@ def delete_rooms_transaction_route(
                               room=room,
                               hospital_id=session.hospital_id
                            )
+    await connection_manager.broadcast_to_hospital(
+                                hospital_id=session.hospital_id,
+                                message={"type": "update_room"}
+    )
 
 @app.get("/device-types")
 def get_device_types(
@@ -787,7 +762,7 @@ def get_device_types(
                             )
 
 @app.post("/device-types")
-def create_device_type_route(
+async def create_device_type_route(
                             device_type: AddDeviceTypeRequest,
                             session: BackendSession = Depends(get_current_session),
                             ):
@@ -802,9 +777,32 @@ def create_device_type_route(
                                     device_type,
                                     hospital_id=session.hospital_id
                                     )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_device_type"}
+    )
+
+@app.post("/update-device-type")
+async def update_device_type_route(
+                                device_type: UpdateDeviceTypeRequest,
+                                session: BackendSession = Depends(get_current_session),
+                            ):
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin"]
+                    )
+    update_device_type_transaction(
+                                    session.client, 
+                                    device_type,
+                                    session.hospital_id
+                                    )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_device_type"}
+    )
 
 @app.post("/delete-device-type")
-def delete_device_type_route(
+async def delete_device_type_route(
                                 device_type:DeleteDeviceTypeRequest,
                                 session: BackendSession = Depends(get_current_session),
 ):
@@ -821,7 +819,10 @@ def delete_device_type_route(
                                                 device_type,
                                                 hospital_id=session.hospital_id
                                             )
-
+            await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_device_type"}
+    )
             return {"message": "機種を削除しました。"}
 
     except ValueError as e:
@@ -840,7 +841,7 @@ def get_device_models(
                                 )
 
 @app.post("/device-models")
-def create_device_model(
+async def create_device_model(
                             device_model: AddDeviceModelRequest,
                             session: BackendSession = Depends(get_current_session),
 ):
@@ -854,9 +855,13 @@ def create_device_model(
                                     device_model,
                                     session.hospital_id
                                     )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_device_model"}
+    )    
 
 @app.post("/delete-device-models")
-def delete_device_models_route(
+async def delete_device_models_route(
                                 device_model: DeleteDeviceModelsRequest,
                                 session: BackendSession = Depends(get_current_session),
                               ):
@@ -871,17 +876,21 @@ def delete_device_models_route(
                                     device_model,
                                     session.hospital_id
                                     )
+        await connection_manager.broadcast_to_hospital(
+                                        hospital_id=session.hospital_id,
+                                        message={"type": "update_device_model"}
+        )    
+
         return {"message": "機種を削除しました。"}
 
     except ValueError as e:
             raise HTTPException(
                                     status_code=400,
                                     detail=str(e)
-                                )
-    
+                                )   
 
 @app.post("/update-device-model")
-def update_device_model_route(
+async def update_device_model_route(
                                 device_model: UpdateDeviceModelRequest,
                                 session: BackendSession = Depends(get_current_session),
 
@@ -897,6 +906,10 @@ def update_device_model_route(
                                     device_model,
                                     session.hospital_id
                                     )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_device_model"}
+    )    
 
 @app.get("/tasks")
 def get_tasks(
@@ -1015,7 +1028,7 @@ def get_maintenance_types(
                                     )
 
 @app.post("/maintenance-types")
-def create_maintenance_type_route(
+async def create_maintenance_type_route(
                                 maintenance_type: AddMaintenanceTypeRequest, 
                                 session: BackendSession = Depends(get_current_session),
     ):
@@ -1024,15 +1037,19 @@ def create_maintenance_type_route(
                         allowed_roles=["admin"]
                     )
 
-    return create_maintenance_type_transaction(
+    create_maintenance_type_transaction(
                                                 session.client, 
                                                 maintenance_type,
                                                 session.hospital_id,
                                                 session.user_id
                                           )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_maintenance_type"}
+    )
 
 @app.post("/update-maintenance-type")
-def update_maintenance_type_route(
+async def update_maintenance_type_route(
                                 maintenance_type: UpdateMaintenanceTypeRequest, 
                                 session: BackendSession = Depends(get_current_session),
             ):
@@ -1040,15 +1057,19 @@ def update_maintenance_type_route(
                         current_user=session,
                         allowed_roles=["admin"]
                     )
-    return update_maintenance_type_transaction(
+    update_maintenance_type_transaction(
                                                 session.client, 
                                                 maintenance_type,
                                                 session.hospital_id
                                               )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_maintenance_type"}
+    )
 
 
 @app.post("/delete-maintenance-types")
-def delete_maintenance_types_route(
+async def delete_maintenance_types_route(
                         maintenance_types: DeleteMaintenanceTypesRequest,
                         session: BackendSession = Depends(get_current_session),
     ):
@@ -1059,11 +1080,16 @@ def delete_maintenance_types_route(
                         allowed_roles=["admin"]
                     )
 
-    return delete_maintenance_type_transaction(
+    delete_maintenance_type_transaction(
                                                 session.client, 
                                                 maintenance_types,
                                                 session.hospital_id
                                               )
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_maintenance_type"}
+    )
+
 @app.get("/histories")
 def get_histories(
                 session: BackendSession = Depends(get_current_session),
@@ -1149,7 +1175,7 @@ def get_infection_types(
 
 
 @app.post("/infection-types")
-def create_infection_type_route(
+async def create_infection_type_route(
                                 infection_type: AddInfectionTypeRequest,
                                 session: BackendSession = Depends(get_current_session),
                                ):
@@ -1164,10 +1190,13 @@ def create_infection_type_route(
                                         infection_type,
                                         session.hospital_id
                                      )
-
+    await connection_manager.broadcast_to_hospital(
+                                        hospital_id=session.hospital_id,
+                                        message={"type": "update_infection_type"}
+    )
 
 @app.post("/update-infection-type")
-def update_infection_type_route(
+async def update_infection_type_route(
                                     infection_type: UpdateInfectionTypeRequest,
                                     session: BackendSession = Depends(get_current_session),
                                ):
@@ -1184,10 +1213,13 @@ def update_infection_type_route(
                                         infection_type,
                                         session.hospital_id
                                      )
-
+    await connection_manager.broadcast_to_hospital(
+                    hospital_id=session.hospital_id,
+                    message={"type": "update_infection_type"}
+    )
 
 @app.post("/delete-infection-types")
-def delete_infection_types_route(
+async def delete_infection_types_route(
                                     infection_type: DeleteInfectionTypesRequest,
                                     session: BackendSession = Depends(get_current_session),
                                 ):
@@ -1203,6 +1235,10 @@ def delete_infection_types_route(
                                         infection_type,
                                         session.hospital_id
                                       )
+    await connection_manager.broadcast_to_hospital(
+                        hospital_id=session.hospital_id,
+                        message={"type": "update_infection_type"}
+    )
 
 
 @app.get("/room-infections")
@@ -1232,10 +1268,9 @@ async def create_room_infection_route(
                                         session.hospital_id
                                      )
     await connection_manager.broadcast_to_hospital(
-                                                hospital_id=session.hospital_id,
-                                                message={"type": "update_device"}
+        hospital_id=session.hospital_id,
+        message={"type": "update_room_infection"}
     )
-
 
 
 @app.post("/delete-room-infections")
@@ -1256,10 +1291,9 @@ async def delete_room_infections_route(
                                         session.hospital_id
                                       )
     await connection_manager.broadcast_to_hospital(
-                                                hospital_id=session.hospital_id,
-                                                message={"type": "update_device"}
+        hospital_id=session.hospital_id,
+        message={"type": "update_room_infection"}
     )
-
 
 @app.post("/update-room-infections-transaction")
 async def update_room_infections_route(
@@ -1278,14 +1312,13 @@ async def update_room_infections_route(
                                               session.hospital_id
                                               )
     await connection_manager.broadcast_to_hospital(
-                                                hospital_id=session.hospital_id,
-                                                message={"type": "update_device"}
+        hospital_id=session.hospital_id,
+        message={"type": "update_room_infection"}
     )
 
 
-
 @app.post("/update-stock-area-display-order")
-def update_stock_area_display_order_route(
+async def update_stock_area_display_order_route(
                                         stock_areas: UpdateStockAreaOrdersRequest,
                                         session: BackendSession = Depends(get_current_session),
                                         ):
@@ -1301,6 +1334,11 @@ def update_stock_area_display_order_route(
                                             stock_areas=stock_areas,
                                             hospital_id=session.hospital_id
                                         )
+
+    await connection_manager.broadcast_to_hospital(
+                                    hospital_id=session.hospital_id,
+                                    message={"type": "update_stock_area"}
+    )
 
     return {
         "success": True
@@ -1941,7 +1979,7 @@ def update_user_route(
                     request: UpdateUserRequest,
                     session: BackendSession = Depends(get_current_session),
 ):
-    print("role =", session.role)
+    #print("role =", session.role)
     check_permission(
                         current_user=session,
                         allowed_roles=["system_admin"]
@@ -2006,17 +2044,21 @@ def update_my_account(
 #一覧取得
 @app.get("/fetch-announcements")
 def fetch_announcements_route(
-                            session: BackendSession = Depends(get_current_session),
-    ):
+        session: BackendSession = Depends(get_current_session),
+):
     check_permission(
                     current_user=session,
                     allowed_roles=["system_admin"]
     )
-    return fetch_announcements_transaction(session.client, )
+
+    client = get_admin_client()
+
+    return fetch_announcements_transaction(client)
+
 
 #announce新規作成
 @app.post("/create-announcement")
-def create_announcement_route(
+async def create_announcement_route(
                             request: AddAnnouncementRequest,
                             session: BackendSession = Depends(get_current_session),
 ):
@@ -2024,23 +2066,58 @@ def create_announcement_route(
                     current_user=session,
                     allowed_roles=["system_admin"]
     )
+    #管理者権限でDB操作
+    client = get_admin_client()
+    create_announcement_transaction(client,request)
 
-    return create_announcement_transaction(session.client, 
-                                           request)
+    # WebSocket通知
+    for hospital_id in set(request.hospital_ids):
+        await connection_manager.broadcast_to_hospital(
+            hospital_id=hospital_id,
+            message={"type": "update_announcement"}
+        )    
 
-#annouce編集更新
+#announce編集更新
 @app.post("/update-announcement")
-def update_announcement_route(
-                                request: UpdateAnnouncementRequest,
-                                session: BackendSession = Depends(get_current_session),
+async def update_announcement_route(
+                                    request: UpdateAnnouncementRequest,
+                                    session: BackendSession = Depends(get_current_session),
 ):
     check_permission(
                     current_user=session,
                     allowed_roles=["system_admin"]
     )
+    #管理者権限でDB操作
+    client = get_admin_client()
 
-    return update_announcement_transaction(session.client, 
-                                           request)
+    # 更新前の配信先病院を取得
+    old_hospitals = fetch_announcement_hospitals(
+                                                client,
+                                                request.id
+    )
+
+    old_hospital_ids = {
+                        hospital["hospital_id"]
+                        for hospital in old_hospitals
+    }
+
+    # お知らせを更新
+    update_announcement_transaction(
+                                    client,
+                                    request
+    )
+
+    # 更新前と更新後の配信先を統合
+    #| はPythonの集合（set）の和集合演算子。重複する病院IDを自動的に除外できる。
+    hospital_ids = old_hospital_ids | set(request.hospital_ids)
+
+    # WebSocket通知
+    for hospital_id in hospital_ids:
+        await connection_manager.broadcast_to_hospital(
+                                                hospital_id=hospital_id,
+                                                message={"type": "update_announcement"}
+        )
+
 
 
 #dashboardお知らせ表示用
@@ -2097,7 +2174,7 @@ def get_ward_infections(
                                 )
 
 @app.post("/ward-infections")
-def create_ward_infection_route(
+async def create_ward_infection_route(
                                 ward_infection: AddWardInfectionRequest,
                                 session: BackendSession = Depends(get_current_session),
 ):
@@ -2107,14 +2184,18 @@ def create_ward_infection_route(
                     allowed_roles=["admin", "normal"]
     )
 
-    return create_ward_infection_transaction(
+    create_ward_infection_transaction(
                                             session.client, 
                                             ward_infection,
                                             session.hospital_id
     )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_ward"}
+    )
 
 @app.post("/delete-ward-infections")
-def delete_ward_infections_route(
+async def delete_ward_infections_route(
                         ward_infection: DeleteWardInfectionsRequest,
                         session: BackendSession = Depends(get_current_session),
 ):
@@ -2130,9 +2211,12 @@ def delete_ward_infections_route(
                                         ward_infection,
                                         session.hospital_id
     )
-
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_ward"}
+    )
 @app.post("/update-ward-infections-transaction")
-def update_ward_infections_route(
+async def update_ward_infections_route(
                                         ward_infection: UpdateWardInfectionsRequest,
                                         session: BackendSession = Depends(get_current_session),
 ):
@@ -2142,22 +2226,30 @@ def update_ward_infections_route(
                         allowed_roles=["admin", "normal"]
                     )
 
-    return update_ward_infections_transaction(
+    update_ward_infections_transaction(
                                             session.client, 
                                             ward_infection,
                                             session.hospital_id
     )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_ward"}
+    )
 
 @app.post("/update-ward-info")
-def update_ward_info(
+async def update_ward_info(
                         ward: UpdateWardInfoRequest,
                         session: BackendSession = Depends(get_current_session),
 ):
 
-    return update_ward_info_transaction(
+    update_ward_info_transaction(
                                         client=session.client, 
                                         ward=ward,
                                         hospital_id=session.hospital_id,
+    )
+    await connection_manager.broadcast_to_hospital(
+        hospital_id=session.hospital_id,
+        message={"type": "update_ward"}
     )
 
 

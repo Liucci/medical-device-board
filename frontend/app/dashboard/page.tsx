@@ -33,7 +33,6 @@ import { normalizeInspectionType } from "../mapper/inspectionMapper/inspectionTy
 import { normalizeTodayInspection } from "../mapper/inspectionMapper/inspectionMapper"
 import { checkWardWarning } from "../utils/checkWardWarning"
 import { useRouter } from "next/navigation"
-import { startAutoRefreshToken } from "../contexts/autoRefreshToken"
 import { logoutFromBackend } from "../api/auth/logout"
 import { startAutoLogout, stopAutoLogout } from "../contexts/autoLogout"
 import { supabase } from "../lib/supabase"
@@ -47,6 +46,7 @@ import { getStockAreasFromApi } from "../api/stockAreas/fetchStockAreas"
 import { getWardsFromApi } from "../api/wards/fetchWards"
 import { getRoomsFromApi } from "../api/rooms/fetchRooms"
 import { getDeviceTypesFromApi } from "../api/deviceTypes/fetchDeviceTypes"
+import { getDeviceModelsFromApi } from "../api/deviceModels/fetchDeviceModels"
 import { getTasksFromApi } from "../api/tasks/fetchTasks"
 import { getMaintenanceTypesFromApi } from "../api/maintenanceTypes/fetchMaintenanceTypes"
 import { getHistoriesFromApi } from "../api/histories/fetchHistories"
@@ -85,20 +85,6 @@ import { autoScroll, isInside } from "../drag/autoScroll"
 import { getDropTarget } from "../drag/drop"
 import { createLongPressState, startLongPress, finishLongPress, cancelLongPress } from "../drag/longPress"
 
-import { subscribeDevicesRealtime } from "../realtime/devicesRealtime"
-import { subscribeWardsRealtime } from "../realtime/wardsRealtime"
-import { subscribeRoomsRealtime } from "../realtime/roomsRealtime"
-import { subscribeStockAreasRealtime } from "../realtime/stockAreasRealtime"
-import { subscribeDeviceTypesRealtime } from "../realtime/deviceTypesRealtime"
-import { subscribeDeviceModelsRealtime } from "../realtime/deviceModelsRealtime"
-import { subscribeMaintenanceTypesRealtime } from "../realtime/maintenanceTypesRealtime"
-import { subscribeInfectionTypesRealtime } from "../realtime/infectionTypesRealtime"
-import { subscribeRoomInfectionsRealtime } from "../realtime/roomInfectionsRealtime"
-import { subscribeMaintenanceTasksRealtime } from "../realtime/maintenanceTasksRealtime"
-import { subscribeAnnouncementsRealtime } from "../realtime/announcementsRealtime"
-import { subscribeAnnouncementHospitalsRealtime } from "../realtime/announcementHospitalsRealtime"
-import { subscribeHospitalSettingsRealtime } from "../realtime/hospitalSettingsRealtime"
-import { subscribeInspectionsRealtime } from "../realtime/inspectionsRealtime"
 //websocket
 import { connectWebSocket } from "../websocket/websocketClient"
 
@@ -156,7 +142,6 @@ export default function Page() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState<CurrentUser | null | undefined>(undefined)
-  const [accessToken, setAccessToken] = useState<string | null>(null)
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
   const [hospitalSettings, setHospitalSettings] = useState<HospitalSettingsType | null>(null)
   const confirmModal = useConfirmModal()
@@ -663,57 +648,13 @@ export default function Page() {
   useEffect(() => {
     const init = async () => {
       try {
-        const user = await initDashboard({ setCurrentUser, setAccessToken })
-        if (user?.access_token) startAutoRefreshToken(user.access_token, setAccessToken)
+        await initDashboard({ setCurrentUser,})
       } catch (error) {
         console.error(error)
       }
     }
     init()
   }, [])
-//currentUser又はaccessToken変化したとき走る。
-  useEffect(() => {
-    if (!currentUser) return
-    if (!accessToken) return
-    supabase.realtime.setAuth(accessToken)
-    
-    //const unsubscribeDevices = subscribeDevicesRealtime({ setDeviceList, setStockLastUpdated, setWardLastUpdated })
-    //const unsubscribeWards = subscribeWardsRealtime({ setWards })
-    //const unsubscribeRooms = subscribeRoomsRealtime({ setRooms })
-    //const unsubscribeStockAreas = subscribeStockAreasRealtime({ setStockAreas })
-    const unsubscribeDeviceTypes = subscribeDeviceTypesRealtime({ setDeviceTypes })
-    const unsubscribeDeviceModels = subscribeDeviceModelsRealtime({ setDeviceModels })
-    const unsubscribeMaintenanceTypes = subscribeMaintenanceTypesRealtime({ setMaintenanceTypes })
-    const unsubscribeInfectionTypes = subscribeInfectionTypesRealtime({ setInfectionTypes })
-    //const unsubscribeRoomInfections = subscribeRoomInfectionsRealtime({ setRoomInfections })
-    //const unsubscribeMaintenanceTasks = subscribeMaintenanceTasksRealtime({ setTasks })
-    const unsubscribeAnnouncements = subscribeAnnouncementsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
-    const unsubscribeAnnouncementHospitals = subscribeAnnouncementHospitalsRealtime({ hospitalId: currentUser.hospitalId, setAnnouncements: setActiveAnnouncements })
-    //const unsubscribeHospitalSettingRealtime = subscribeHospitalSettingsRealtime()
-    //const unsubscribeInspections = subscribeInspectionsRealtime({ setInspectionCounts, setTodayInspections })
-
-    return () => {
-      //unsubscribeDevices()
-      //unsubscribeWards()
-      //unsubscribeRooms()
-      //unsubscribeStockAreas()
-      unsubscribeDeviceTypes()
-      unsubscribeDeviceModels()
-      unsubscribeMaintenanceTypes()
-      unsubscribeInfectionTypes()
-      //unsubscribeRoomInfections()
-      //unsubscribeMaintenanceTasks()
-      unsubscribeAnnouncements()
-      unsubscribeAnnouncementHospitals()
-      //unsubscribeHospitalSettingRealtime()
-      //unsubscribeInspections()
-    }
-  }, [currentUser, accessToken])
-
-  useEffect(() => {
-    if (!accessToken) return
-    supabase.realtime.setAuth(accessToken)
-  }, [accessToken])
 
   //websocket受信用
   useEffect(() => {
@@ -722,62 +663,111 @@ export default function Page() {
     const ws = connectWebSocket(
       //create device受信用
       async () => {
-      const devices = await getDevicesFromApi()
-        setDeviceList(devices.map(normalizeDevice))
-        setStockLastUpdated(await fetchStockLastUpdated())
+          const devices = await getDevicesFromApi()
+              setDeviceList(devices.map(normalizeDevice))
+              setStockLastUpdated(await fetchStockLastUpdated())
       },
       //delete device受信用
       async () => {
-      const devices = await getDevicesFromApi()
-            setDeviceList(devices.map(normalizeDevice))
-            setStockLastUpdated(await fetchStockLastUpdated())
-            setWardLastUpdated(await fetchWardLastUpdated())
+          const devices = await getDevicesFromApi()
+                setDeviceList(devices.map(normalizeDevice))
+                setStockLastUpdated(await fetchStockLastUpdated())
+                setWardLastUpdated(await fetchWardLastUpdated())
       },
       //update device受信用
       async () => {
-      const [devices, roomInfections, tasks] = await Promise.all([
-            getDevicesFromApi(),
-            getRoomInfectionsFromApi(),
-            getTasksFromApi()
-      ])
-      setDeviceList(devices.map(normalizeDevice))
-      setRoomInfections(roomInfections.map(normalizeRoomInfection))
-      setTasks(tasks.map(normalizeMaintenanceTask))
+          const [devices, roomInfections, tasks] = await Promise.all([
+                getDevicesFromApi(),
+                getRoomInfectionsFromApi(),
+                getTasksFromApi()
+          ])
+          setDeviceList(devices.map(normalizeDevice))
+          setRoomInfections(roomInfections.map(normalizeRoomInfection))
+          setTasks(tasks.map(normalizeMaintenanceTask))
       },
       //move device受信用
       async () => {
-      const [devices, rooms, tasks, roomInfections] = await Promise.all([
-          getDevicesFromApi(),
-          getRoomsFromApi(),
-          getTasksFromApi(),
-          getRoomInfectionsFromApi()
-      ])
-      setDeviceList(devices.map(normalizeDevice))
-      setRooms(rooms.map(normalizeRoom))
-      setTasks(tasks.map(normalizeMaintenanceTask))
-      setRoomInfections(roomInfections.map(normalizeRoomInfection))
+          const [devices, rooms, tasks, roomInfections] = await Promise.all([
+              getDevicesFromApi(),
+              getRoomsFromApi(),
+              getTasksFromApi(),
+              getRoomInfectionsFromApi()
+          ])
+          setDeviceList(devices.map(normalizeDevice))
+          setRooms(rooms.map(normalizeRoom))
+          setTasks(tasks.map(normalizeMaintenanceTask))
+          setRoomInfections(roomInfections.map(normalizeRoomInfection))
       },
       //update ward受信用
       async () => {
-      const [wards, wardInfections] = await Promise.all([
-            getWardsFromApi(),
-            getWardInfectionsFromApi()
-      ])
-      setWards(wards.map(normalizeWard))
-      setWardInfections(wardInfections.map(normalizeWardInfection))
+          const [wards, wardInfections] = await Promise.all([
+                getWardsFromApi(),
+                getWardInfectionsFromApi()
+          ])
+          setWards(wards.map(normalizeWard))
+          setWardInfections(wardInfections.map(normalizeWardInfection))
+      },
+      // update room受信用
+      async () => {
+          const rooms = await getRoomsFromApi()
+          setRooms(rooms.map(normalizeRoom))
       },
       //stock area受信用
       async () => {
-      const stockAreas = await getStockAreasFromApi()
-            setStockAreas(stockAreas.map(normalizeStockArea))
+          const stockAreas = await getStockAreasFromApi()
+                setStockAreas(stockAreas.map(normalizeStockArea))
       },
       //create inspection受信用
       async () => {await refreshTodayInspectionsOnly()},
 
       //update hospital setting受信用
       async () => {
-        const settings = await fetchHospitalSettingsTransaction()
-        setHospitalSettings(settings)
+          const settings = await fetchHospitalSettingsTransaction()
+              setHospitalSettings(settings)
+      },
+      //update announcement受信用
+      async () => {
+          await fetchActiveAnnouncementsTransaction({
+            setAnnouncements: setActiveAnnouncements
+          })
+      },      
+      //update device type受信用
+      async () => {
+        const deviceTypes = await getDeviceTypesFromApi()
+        setDeviceTypes(deviceTypes.map(normalizeDeviceType))
+      },
+
+      //update maintenance type受信用
+      async () => {
+        const maintenanceTypes = await getMaintenanceTypesFromApi()
+        setMaintenanceTypes(maintenanceTypes.map(normalizeMaintenanceType))
+      },
+      // update device model受信用
+      async () => {
+        const deviceModels = await getDeviceModelsFromApi()
+        setDeviceModels(deviceModels.map(normalizeDeviceModel))
+      },
+      // update infection type受信用
+      async () => {
+        const [
+          infectionTypes,
+          roomInfections,
+          wardInfections
+        ] = await Promise.all([
+          getInfectionTypesFromApi(),
+          getRoomInfectionsFromApi(),
+          getWardInfectionsFromApi()
+        ])
+
+        setInfectionTypes(infectionTypes.map(normalizeInfectionType))
+        setRoomInfections(roomInfections.map(normalizeRoomInfection))
+        setWardInfections(wardInfections.map(normalizeWardInfection))
+      },      
+
+      // update room infection受信用
+      async () => {
+        const roomInfections = await getRoomInfectionsFromApi()
+        setRoomInfections(roomInfections.map(normalizeRoomInfection))
       },
 
     )

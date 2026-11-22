@@ -324,7 +324,6 @@ Production
 
 - Initial Load
 - Drag & Drop
-- Realtime
 - Last Updated
 
 ---

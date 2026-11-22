@@ -3,13 +3,11 @@ import { normalizeCurrentUser } from "../mapper/userMapper"
 
 type InitDashboardParams = {
                             setCurrentUser: (user: any) => void
-                            setAccessToken: (token: string) => void
 }
 //Dashboardの初期化関数
-//setCurrentUserとsetAccessTokenをする
+//setCurrentUserをする
 export const initDashboard = async ({
                                     setCurrentUser,
-                                    setAccessToken,
 }: InitDashboardParams) => 
 {
     console.log("initDashboard")
@@ -22,6 +20,5 @@ export const initDashboard = async ({
     }
 
     setCurrentUser(normalizeCurrentUser(user))
-    setAccessToken(user.access_token)
     return user
 }

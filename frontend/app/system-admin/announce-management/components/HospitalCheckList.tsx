@@ -1,3 +1,4 @@
+
 "use client"
 
 import { HospitalManagementType } from "../../../types/hospitalTypes"
@@ -12,92 +13,56 @@ export default function HospitalCheckList({
     hospitals,
     selectedHospitalIds,
     setSelectedHospitalIds
-}: HospitalCheckListProps)
-{
+}: HospitalCheckListProps) {
+    console.log("HospitalCheckList")
+
     const toggleHospital = (hospitalId: string) => {
-
         if (selectedHospitalIds.includes(hospitalId)) {
-
-            setSelectedHospitalIds(
-                selectedHospitalIds.filter(
-                    id => id !== hospitalId
-                )
-            )
-
+            setSelectedHospitalIds(selectedHospitalIds.filter(id => id !== hospitalId))
             return
         }
-
-        setSelectedHospitalIds([
-            ...selectedHospitalIds,
-            hospitalId
-        ])
+        setSelectedHospitalIds([...selectedHospitalIds, hospitalId])
     }
 
     const selectAll = () => {
-
-        setSelectedHospitalIds(
-            hospitals.map(hospital => hospital.id)
-        )
-
+        setSelectedHospitalIds(hospitals.map(hospital => hospital.id))
     }
 
     const clearAll = () => {
-
         setSelectedHospitalIds([])
-
     }
 
     return (
-
-        <div className="rounded border p-3">
-
+        <div className="rounded-lg border border-gray-300 bg-white p-3">
             <div className="mb-3 flex gap-2">
-
                 <button
                     type="button"
                     onClick={selectAll}
-                    className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+                    className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm text-white transition hover:bg-blue-600"
                 >
                     すべて選択
                 </button>
-
                 <button
                     type="button"
                     onClick={clearAll}
-                    className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600"
+                    className="rounded-lg bg-gray-300 px-3 py-1.5 text-sm text-gray-700 transition hover:bg-gray-400"
                 >
                     すべて解除
                 </button>
-
             </div>
-
             <div className="max-h-60 overflow-y-auto">
-
-                {
-                    hospitals.map((hospital) => (
-
-                        <div
-                            key={hospital.id}
-                            className="flex items-center gap-2 py-1"
-                        >
-
-                            <input
-                                type="checkbox"
-                                checked={selectedHospitalIds.includes(hospital.id)}
-                                onChange={() => toggleHospital(hospital.id)}
-                            />
-
-                            <span>
-                                {hospital.hospitalName}
-                            </span>
-
-                        </div>
-                    ))
-                }
-
+                {hospitals.map((hospital) => (
+                    <label key={hospital.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-700 transition hover:bg-gray-50">
+                        <input
+                            type="checkbox"
+                            checked={selectedHospitalIds.includes(hospital.id)}
+                            onChange={() => toggleHospital(hospital.id)}
+                            className="accent-blue-500"
+                        />
+                        {hospital.hospitalName}
+                    </label>
+                ))}
             </div>
-
         </div>
-
     )
 }

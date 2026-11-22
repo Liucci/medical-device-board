@@ -483,10 +483,6 @@ Frontend Transaction
 ↓
 
 Dashboard確認
-
-↓
-
-Realtime確認
 ```
 
 ---
@@ -587,32 +583,6 @@ Frontend Export
 
 ---
 
-# New Realtime Pattern
-
-```
-対象Table決定
-
-↓
-
-Realtime追加
-
-↓
-
-Fetch追加
-
-↓
-
-State更新
-
-↓
-
-Dashboard確認
-```
-
-Backendは修正しない。
-
----
-
 # Responsibility Rules
 
 ## Backend
@@ -675,7 +645,6 @@ DBだけを担当する。
 - □ Dashboard
 - □ History
 - □ Task
-- □ Realtime
 - □ Export
 - □ Permission
 - □ Loading
@@ -689,7 +658,6 @@ DBだけを担当する。
 
 - API動作確認
 - Dashboard確認
-- Realtime確認
 - History確認
 - Task確認
 - Export確認
