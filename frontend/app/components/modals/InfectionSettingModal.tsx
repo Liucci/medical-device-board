@@ -17,6 +17,7 @@ export default function InfectionSettingsModal({ infectionTypes, setInfectionTyp
   const [checkedIds, setCheckedIds] = useState<number[]>([])
   const [newName, setNewName] = useState("")
   const [newColor, setNewColor] = useState("#ff0000")
+  const [editingColors, setEditingColors] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(false)
   const inputModal = useInputModal()
 
@@ -45,33 +46,36 @@ export default function InfectionSettingsModal({ infectionTypes, setInfectionTyp
 
   const handleRename = (infectionType: InfectionTypeType) => {
     inputModal.openInputModal({
-      title: "感染症名の変更",
-      label: "感染症名",
-      value: infectionType.name,
-      type: "text",
-      buttonPattern: "save_cancel",
-      onConfirm: async (name: string) => {
-        const trimmed = name.trim()
-        if (!trimmed || trimmed === infectionType.name) return
-        await executeWithErrorAndLoading({
-          setLoading,
-          action: async () => {
-            await updateInfectionTypeTransaction({
-              infectionType: {
-                id: infectionType.id,
-                name: trimmed,
-                color: infectionType.color
-              },
-              setInfectionTypes
-            })
-          }
-        })
-      }
+                                title: "感染症名の変更",
+                                label: "感染症名",
+                                value: infectionType.name,
+                                type: "text",
+                                buttonPattern: "save_cancel",
+                                onConfirm: async (name: string) => {
+                                  const trimmed = name.trim()
+                                  if (!trimmed || trimmed === infectionType.name) return
+                                  await executeWithErrorAndLoading({
+                                    setLoading,
+                                    action: async () => {
+                                      await updateInfectionTypeTransaction({
+                                        infectionType: {
+                                          id: infectionType.id,
+                                          name: trimmed,
+                                          color: infectionType.color
+                                        },
+                                        setInfectionTypes
+                                      })
+                                    }
+                                  })
+                                }
     })
   }
 
-  const handleColorChange = async (infectionType: InfectionTypeType, color: string) => {
-    if (color === infectionType.color) return
+  const handleColorSave = async (infectionType: InfectionTypeType) => {
+    const color = editingColors[infectionType.id]
+
+    if (!color || color === infectionType.color) return
+
     await executeWithErrorAndLoading({
       setLoading,
       action: async () => {
@@ -82,6 +86,12 @@ export default function InfectionSettingsModal({ infectionTypes, setInfectionTyp
             color
           },
           setInfectionTypes
+        })
+
+        setEditingColors(prev => {
+          const next = { ...prev }
+          delete next[infectionType.id]
+          return next
         })
       }
     })
@@ -158,11 +168,27 @@ export default function InfectionSettingsModal({ infectionTypes, setInfectionTyp
 
                       <input
                         type="color"
-                        value={infectionType.color}
-                        onChange={(e) => handleColorChange(infectionType, e.target.value)}
+                        value={editingColors[infectionType.id] ?? infectionType.color}
+                        onChange={(e) => {
+                            const color = e.target.value
+                            setEditingColors(prev => ({
+                                  ...prev,
+                                  [infectionType.id]: color,
+                            }))
+                        }}
                         className="h-9 w-12 shrink-0 cursor-pointer rounded-lg border border-slate-200 bg-white p-1"
                       />
-
+                        {editingColors[infectionType.id] &&
+                        editingColors[infectionType.id] !== infectionType.color && (
+                          <button
+                            type="button"
+                            onClick={() => handleColorSave(infectionType)}
+                            disabled={loading}
+                            className="h-8 shrink-0 rounded-lg bg-teal-700 px-3 text-xs font-bold text-white transition-colors hover:bg-teal-800 disabled:opacity-50"
+                          >
+                            保存
+                          </button>
+                        )}
                       <button
                         type="button"
                         onClick={() => handleRename(infectionType)}

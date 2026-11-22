@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import {  } from "../../client/apiClient"
+import { updateAnnouncement } from "../../announcements/updateAnnouncement"
 import {UpdateAnnouncementFrontType} from "../../../types/announcementTypes"
 import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
 import {
@@ -19,19 +20,11 @@ export async function updateAnnouncementTransaction({
 {
     console.log("updateAnnouncementTransaction")
 
-    await fetch(
-        `${API_BASE_URL}/update-announcement`,
-        {
-            method: "POST",
-            headers: {
-                        "Content-Type":
-                        "application/json"
-                     },
-            credentials: "include",
-            body: JSON.stringify(toUpdateAnnouncementRequest(announcement))
-        }
-    )
+    // お知らせを更新
+    const request = toUpdateAnnouncementRequest(announcement)
+    await updateAnnouncement(request)
 
+    // お知らせ一覧を再取得
     const announcements =await getAnnouncementsFromApi()
     setAnnouncements(announcements.map(normalizeAnnouncement))
 }

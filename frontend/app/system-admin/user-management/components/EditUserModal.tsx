@@ -1,20 +1,22 @@
+
 "use client"
 
 import { useEffect, useState } from "react"
-import { createPortal } from "react-dom"
+
 import {
-        UserManagementType,
-        UserRole
+  UserManagementType,
+  UserRole
 } from "../../../types/userTypes"
 import { updateUserTransaction } from "../../../api/transactions/users/updateUserTransaction"
-import {LoadingOverlay} from "../../../components/common/LoadingOverlay"
+import CommonModal from "../../../components/common/CommonModal"
+import { LoadingOverlay } from "../../../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../../../components/common/executeWithErrorAndLoading"
 
 type Props = {
-              isOpen: boolean
-              onClose: () => void
-              user: UserManagementType | null
-              setUsers: React.Dispatch<React.SetStateAction<UserManagementType[]>>
+  isOpen: boolean
+  onClose: () => void
+  user: UserManagementType | null
+  setUsers: React.Dispatch<React.SetStateAction<UserManagementType[]>>
 }
 
 export default function EditUserModal({
@@ -28,26 +30,26 @@ export default function EditUserModal({
   const [role, setRole] = useState<UserRole>("normal")
   const [isActive, setIsActive] = useState(true)
   const [loading, setLoading] = useState(false)
+
   const initialize = () => {
-                          if (!user) return
-                          setDisplayName(user.displayName)
-                          setRole(user.role)
-                          setIsActive(user.isActive)
-}
-const closeModal = () => {
-                          initialize()
-                          onClose()
-}
-
-
-  useEffect(() => {
-
     if (!user) return
 
     setDisplayName(user.displayName)
     setRole(user.role)
     setIsActive(user.isActive)
+  }
 
+  const closeModal = () => {
+    initialize()
+    onClose()
+  }
+
+  useEffect(() => {
+    if (!user) return
+
+    setDisplayName(user.displayName)
+    setRole(user.role)
+    setIsActive(user.isActive)
   }, [user])
 
   if (!isOpen || !user) return null
@@ -62,85 +64,60 @@ const closeModal = () => {
     setLoading(true)
 
     try {
-          await executeWithErrorAndLoading({
-              setLoading,
-              action: async () => {
-              await updateUserTransaction({
-                user: {
-                  id: user.id,
-                  role,
-                  isActive
-                },
-                setUsers,
-                onClose
-              })
-            }
-        })
+      await executeWithErrorAndLoading({
+        setLoading,
+        action: async () => {
+          await updateUserTransaction({
+            user: {
+              id: user.id,
+              role,
+              isActive
+            },
+            setUsers,
+            onClose
+          })
+        }
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  return createPortal(
-<>
-    <div
-      className="
-                fixed
-                inset-0
-                z-50
-                flex
-                items-center
-                justify-center
-                bg-black/30
-                p-4
-      "
-       onClick={closeModal}
-    >
+  const readOnlyInputClass = `
+    w-full
+    rounded
+    border
+    border-gray-300
+    bg-gray-100
+    px-3
+    py-2
+    text-gray-600
+  `
 
-      <div
-        className="
-                  relative
-                  flex
-                  max-h-[70vh]
-                  w-full
-                  max-w-md
-                  flex-col
-                  rounded-xl
-                  bg-white
-                  shadow-xl
-        "
-        onClick={(e) => e.stopPropagation()}
+  const editableInputClass = `
+    w-full
+    rounded
+    border
+    border-gray-300
+    bg-white
+    px-3
+    py-2
+    focus:border-blue-400
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-100
+  `
+
+  const labelClass = "mb-1 text-sm font-medium text-gray-700"
+
+  return (
+    <>
+      <CommonModal
+        open={isOpen}
+        onClose={closeModal}
+        title="ユーザー編集"
+        maxWidth="max-w-[450px]"
       >
-
-        <div
-          className="
-            relative
-            border-b
-            px-8
-            pt-8
-            pb-6
-          "
-        >
-
-          <button
-            onClick={closeModal}
-            className="
-              absolute
-              left-4
-              top-4
-              text-2xl
-              text-gray-500
-              hover:text-black
-            "
-          >
-            ×
-          </button>
-
-          <h2 className="text-center text-2xl font-bold">
-            ユーザー編集
-          </h2>
-
-        </div>
 
         <div
           className="
@@ -155,77 +132,48 @@ const closeModal = () => {
           "
         >
 
+          {/* ユーザー名 */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               ユーザー名
             </div>
 
             <input
-           value={user.displayName}
-                readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-              "
+              value={user.displayName}
+              readOnly
+              className={readOnlyInputClass}
             />
-
           </div>
 
+          {/* メールアドレス */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               メールアドレス
             </div>
 
             <input
               value={user.email}
               readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-                text-gray-600
-              "
+              className={readOnlyInputClass}
             />
-
           </div>
 
+          {/* 所属病院 */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               所属病院
             </div>
 
             <input
               value={user.hospitalName}
               readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-                text-gray-600
-              "
+              className={readOnlyInputClass}
             />
-
           </div>
 
+          {/* 権限 */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               権限
             </div>
 
@@ -234,14 +182,7 @@ const closeModal = () => {
               onChange={e =>
                 setRole(e.target.value as UserRole)
               }
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                px-3
-                py-2
-              "
+              className={editableInputClass}
             >
               <option value="viewer">viewer</option>
               <option value="normal">normal</option>
@@ -249,75 +190,61 @@ const closeModal = () => {
               <option value="support">support</option>
               <option value="system_admin">system_admin</option>
             </select>
-
           </div>
 
+          {/* 利用状態 */}
           <div>
-
-            <div className="mb-2 text-sm">
+            <div className="mb-2 text-sm font-medium text-gray-700">
               利用状態
             </div>
 
             <div className="flex gap-6">
 
-              <label>
-
+              <label className="flex items-center">
                 <input
                   type="radio"
                   checked={isActive}
                   onChange={() => setIsActive(true)}
+                  className="accent-blue-500"
                 />
 
-                <span className="ml-1">
+                <span className="ml-1 text-sm text-gray-700">
                   利用中
                 </span>
-
               </label>
 
-              <label>
-
+              <label className="flex items-center">
                 <input
                   type="radio"
                   checked={!isActive}
                   onChange={() => setIsActive(false)}
+                  className="accent-blue-500"
                 />
 
-                <span className="ml-1">
+                <span className="ml-1 text-sm text-gray-700">
                   停止
                 </span>
-
               </label>
 
             </div>
-
           </div>
 
+          {/* ユーザーID */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               ユーザーID
             </div>
 
             <input
               value={user.id}
               readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-                text-gray-600
-              "
+              className={readOnlyInputClass}
             />
-
           </div>
 
+          {/* 登録日 */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               登録日
             </div>
 
@@ -337,23 +264,13 @@ const closeModal = () => {
                   : ""
               }
               readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-                text-gray-600
-              "
+              className={readOnlyInputClass}
             />
-
           </div>
 
+          {/* 更新日 */}
           <div>
-
-            <div className="mb-1 text-sm">
+            <div className={labelClass}>
               更新日
             </div>
 
@@ -373,35 +290,24 @@ const closeModal = () => {
                   : ""
               }
               readOnly
-              className="
-                w-full
-                rounded
-                border
-                border-gray-300
-                bg-gray-100
-                px-3
-                py-2
-                text-gray-600
-              "
+              className={readOnlyInputClass}
             />
-
           </div>
 
         </div>
 
+        {/* フッター */}
         <div
           className="
             flex
             justify-end
             gap-4
-            rounded-b-xl
             border-t
             bg-white
             px-8
             py-6
           "
         >
-
           <button
             onClick={closeModal}
             className="
@@ -430,16 +336,11 @@ const closeModal = () => {
           >
             {loading ? "保存中..." : "保存"}
           </button>
-
         </div>
 
-      </div>
+      </CommonModal>
 
-    </div>
-  <LoadingOverlay loading={loading} />
-  </>
-    ,    
-    document.body
-
+      <LoadingOverlay loading={loading} />
+    </>
   )
 }

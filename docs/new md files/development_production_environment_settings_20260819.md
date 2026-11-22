@@ -203,7 +203,6 @@ Frontend JavaScriptから`session_id`を直接読み取らない。
 
 ### Access Token
 
-Supabase Realtime認証に必要なため、FrontendのMemory上のStateに保持する。
 
 ```text
 React State / AuthContext / Zustand等
@@ -257,7 +256,6 @@ Login時にaccess tokenをFrontendへ渡す設計も可能だが、LoginとCurre
 
 /current-user
   → current_userを返す
-  → Realtime用access_tokenを返す
 ```
 
 これにより、access tokenは`/current-user`で取得する。
@@ -296,7 +294,6 @@ Frontendへnew access_token
   ↓
 React State更新
   ↓
-supabase.realtime.setAuth(new_access_token)
 ```
 
 Refresh後の新しいrefresh tokenはFrontendには渡さない。
@@ -305,7 +302,6 @@ Refresh後の新しいrefresh tokenはFrontendには渡さない。
 
 ## 8. Access TokenをFrontendに渡すことについて
 
-RealtimeをFrontendから直接購読する構成では、Supabase Realtimeの認証にaccess tokenが必要となるため、Frontend Stateにaccess tokenを保持する設計を採用する。
 
 これは「Frontendから完全に見えない」方式ではない。React State上のtokenはJavaScriptから参照可能であるため、XSS等への対策が必要。
 
@@ -413,7 +409,6 @@ Backend再起動でSessionが消えること自体は、再Loginすればよい�
 - [ ] `/current-user` Requestに`Cookie: session_id=...`がある
 - [ ] `/current-user`が200を返す
 - [ ] Reload後もcurrent userを復元できる
-- [ ] Refresh後に新access tokenでRealtimeが継続する
 
 ---
 
@@ -429,15 +424,11 @@ Backend Session
   ↓
 Supabase DB
 
-Realtime
 Frontend
-  ↓ access_token (Memory State)
-Supabase Realtime
 ```
 
 つまり、通常APIの認証にaccess tokenをFrontendから送信する方式にはせず、session_id Cookie + Backend Sessionを利用する。
 
-Access tokenをFrontendへ保持するのはRealtime認証のための例外とする。
 
 ---
 
@@ -472,6 +463,5 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 2. Render `APP_ENV=production`
 3. 本番ブラウザでCookie保存・送信を確認
 4. access token / refresh tokenがlocalStorage等に残っていないことを確認
-5. Refresh後のRealtime認証継続を確認
 6. RenderのScaling設定を確認し、複数Instance運用の有無を把握
 7. 複数Instanceへ移行する場合のみ共有Session Storeを再検討

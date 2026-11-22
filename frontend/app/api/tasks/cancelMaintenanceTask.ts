@@ -19,6 +19,4 @@ export async function cancelMaintenanceTask(task: CancelMaintenanceTask)
                                     )
                                     }
   )
-
-  return await response.json()
 }

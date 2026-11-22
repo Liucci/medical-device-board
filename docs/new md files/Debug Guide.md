@@ -192,7 +192,6 @@ UI
 
 ---
 
-# Realtime Debug
 
 確認
 
@@ -201,7 +200,6 @@ DB更新
 
 ↓
 
-Realtime通知
 
 ↓
 
@@ -319,7 +317,6 @@ Task
 
 ↓
 
-Realtime
 
 ↓
 
