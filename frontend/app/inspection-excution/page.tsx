@@ -53,6 +53,8 @@ function InspectionExecutionPage() {
 
     const leftColRef = useRef<HTMLDivElement>(null)
     const [leftHeight, setLeftHeight] = useState<number | null>(null)
+    //自動scroll用
+    const inspectionItemsRef = useRef<HTMLDivElement>(null)
 
     const [currentUser, setCurrentUser] = useState<{ displayName: string; role: string } | null>(null)
     const [device, setDevice] = useState<Device | null>(null)
@@ -72,6 +74,8 @@ function InspectionExecutionPage() {
     const [inspectionItemCategories, setInspectionItemCategories] = useState<InspectionItemCategoryType[]>([])
     const [inspectionItemTypes, setInspectionItemTypes] = useState<InspectionItemType[]>([])
     const [inspectionResults, setInspectionResults] = useState<Record<number, string | null>>({})
+    const [missingItemIds, setMissingItemIds] = useState<number[]>([])
+
     const [overallResult, setOverallResult] = useState<"OK" | "NG" | null>(null)
     const [comment, setComment] = useState("")
     const [isOverallResultModalOpen, setIsOverallResultModalOpen] = useState(false)
@@ -111,14 +115,20 @@ function InspectionExecutionPage() {
             return val === null || val === undefined || (typeof val === "string" && val.trim() === "")
         })
         if (missing.length > 0) {
+            setMissingItemIds(missing.map((item) => item.id))
             await confirmModal.confirm({
                 title: "未入力の必須項目",
                 message: `以下の必須項目が未入力です：\n${missing.map((item: InspectionChecklistItem) => `・${item.itemName}`).join("\n")}`,
                 buttonPattern: "ok_only",
                 icon: "warning",
             })
+            //自動スクロール先の要素を inspection-item-項目ID というIDで探します
+            inspectionItemsRef.current
+                ?.querySelector(`#inspection-item-${missing[0].id}`)
+                ?.scrollIntoView({ behavior: "smooth", block: "center" })
             return false
         }
+        setMissingItemIds([])
         return true
     }
 
@@ -187,11 +197,6 @@ function InspectionExecutionPage() {
                     setInspectionItemTypes(data.inspection_item_types.map(normalizeInspectionItemType))
                     setHospitalSettings(normalizeHospitalSettings(data.hospital_settings))
 
-                    if (filteredChecklists.length > 0) {
-                        const firstType = filteredChecklists[0].inspectionTypeId
-                        setSelectedInspectionTypeId(firstType)
-                        setSelectedChecklistId(String(filteredChecklists[0].id))
-                    }
                 },
             })
         } catch (error) {
@@ -499,8 +504,7 @@ function InspectionExecutionPage() {
                                         各項目を確認・入力してください（長押しで対象外に切り替え可能）
                                     </p>
                                 </div>
-                                <div className="min-h-0 flex-1 overflow-y-auto pr-2">
-                                    {!selectedChecklistId ? (
+                                    <div ref={inspectionItemsRef} className="min-h-0 flex-1 overflow-y-auto pr-2">                                    {!selectedChecklistId ? (
                                         <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 text-center">
                                             <div>
                                                 <p className="text-sm font-bold text-slate-400">点検表を選択してください</p>
@@ -517,6 +521,7 @@ function InspectionExecutionPage() {
                                             inspectionResults,
                                             inspectionDate: getTodayDate(),
                                             onChange: handleInspectionResultChange,
+                                             missingItemIds
                                         })
                                     )}
                                 </div>
