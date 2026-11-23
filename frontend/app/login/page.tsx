@@ -104,7 +104,7 @@ return (
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
+                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
               />
 
               <input
@@ -115,7 +115,7 @@ return (
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
+                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
               />
               
               <div className="flex justify-end">

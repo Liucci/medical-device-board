@@ -195,7 +195,7 @@ export default function PasswordResetPage() {
                                     required
                                     disabled={isCompleted}
                                     placeholder="新しいパスワードを入力"
-                                    className="w-full rounded-xl border border-white/10 bg-[#0a122a]/70 px-4 py-3 pr-16 text-sm text-white outline-none transition-all placeholder:text-[#647392] focus:border-[#47d6ff]/60 focus:ring-2 focus:ring-[#47d6ff]/10"
+                                    className="w-full rounded-xl border border-white/10 bg-[#0a122a]/70 px-4 py-3 pr-16 text-base text-white outline-none transition-all placeholder:text-[#647392] focus:border-[#47d6ff]/60 focus:ring-2 focus:ring-[#47d6ff]/10"
                                 />
 
                                 <button
@@ -240,7 +240,7 @@ export default function PasswordResetPage() {
                                     required
                                     disabled={isCompleted}
                                     placeholder="もう一度入力してください"
-                                    className="w-full rounded-xl border border-white/10 bg-[#0a122a]/70 px-4 py-3 pr-16 text-sm text-white outline-none transition-all placeholder:text-[#647392] focus:border-[#47d6ff]/60 focus:ring-2 focus:ring-[#47d6ff]/10"
+                                    className="w-full rounded-xl border border-white/10 bg-[#0a122a]/70 px-4 py-3 pr-16 text-base text-white outline-none transition-all placeholder:text-[#647392] focus:border-[#47d6ff]/60 focus:ring-2 focus:ring-[#47d6ff]/10"
                                 />
 
                                 <button
