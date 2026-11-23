@@ -149,10 +149,16 @@ export default function UpdateAnnouncementModal({
                                 await executeWithErrorAndLoading({
                                     setLoading,
                                     action: async () => {
+                                        //UTCに変換してbackendに渡す
                                         await updateAnnouncementTransaction({
-                                            announcement: editAnnouncement,
+                                            announcement: {
+                                                ...editAnnouncement,
+                                                startAt: new Date(`${editAnnouncement.startAt}:00+09:00`).toISOString(),
+                                                endAt: new Date(`${editAnnouncement.endAt}:00+09:00`).toISOString()
+                                            },
                                             setAnnouncements
                                         })
+
                                         setEditAnnouncement(initialEditAnnouncement)
                                         onClose()
                                     }
