@@ -212,7 +212,7 @@ export default function InspectionResultModal({ isOpen, onClose, hospitalSetting
                           type="date"
                           value={startDate}
                           onChange={e => setStartDate(e.target.value)}
-                          className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                          className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                         />
                       </div>
                       <div>
@@ -221,7 +221,7 @@ export default function InspectionResultModal({ isOpen, onClose, hospitalSetting
                           type="date"
                           value={endDate}
                           onChange={e => setEndDate(e.target.value)}
-                          className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                          className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-800 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                         />
                       </div>
                     </div>

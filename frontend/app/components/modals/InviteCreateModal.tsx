@@ -146,7 +146,7 @@ export default function InviteCreateModal({
                         bg-white
                         px-3
                         py-2.5
-                        text-sm
+                        text-base
                         text-slate-700
                         outline-none
                         transition-colors

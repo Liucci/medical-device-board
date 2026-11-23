@@ -69,7 +69,7 @@ export default function InspectionCommentModal({
                         onChange={(event) => setComment(event.target.value)}
                         placeholder="例：微細な擦れ傷あり、動作および流量確認は問題なし"
                         rows={5}
-                        className="w-full resize-none rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                        className="w-full resize-none rounded-xl border border-slate-300 bg-white p-3 text-base text-slate-900 outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                     />
                 </div>
 
