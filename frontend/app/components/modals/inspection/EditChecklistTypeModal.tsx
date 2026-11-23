@@ -314,7 +314,8 @@ const handleDelete = async (
                   border border-slate-200
                   bg-slate-50
                   px-3 py-2.5
-                  text-sm text-slate-900
+                  text-base
+                  text-slate-900
                   outline-none
                   transition-colors
                   placeholder:text-slate-400

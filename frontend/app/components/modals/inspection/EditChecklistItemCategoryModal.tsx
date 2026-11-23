@@ -226,7 +226,7 @@ export default function EditChecklistItemCategoryModal({ inspectionItemCategorie
                                     if (e.key === "Enter") handleAdd()
                                 }}
                                 placeholder="例：外観・動作確認"
-                                className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                                className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                             />
                             <button
                                 type="button"
