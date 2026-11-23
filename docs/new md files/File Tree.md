@@ -327,18 +327,6 @@
    │
    ├─ login/
    │  └─ page.tsx
-   ├─ realtime/
-   │  ├─ deviceModelsRealtime.ts
-   │  ├─ deviceRealtime.tsx
-   │  ├─ deviceTypesRealtime.ts
-   │  ├─ historiesRealtime.ts
-   │  ├─ infectionTypesRealtime.ts
-   │  ├─ maintenanceTasksRealtime.ts
-   │  ├─ maintenanceTypesRealtime.ts
-   │  ├─ roomInfectionsRealtime.ts
-   │  ├─ roomsRealtime.ts
-   │  ├─ stockAreasRealtime.ts
-   │  └─ wardsRealtime.ts
    │
    ├─ register/
    │  ├─ RegisterClient.ts

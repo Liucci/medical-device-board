@@ -191,7 +191,7 @@ export default function MaintenanceTypeSettingsModal({ maintenanceTypes, setMain
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="使用前点検"
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-base text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
                   />
                 </div>
 
@@ -215,7 +215,7 @@ export default function MaintenanceTypeSettingsModal({ maintenanceTypes, setMain
                       type="number"
                       value={intervalDays}
                       onChange={e => setIntervalDays(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 pr-12 text-sm text-slate-700 outline-none transition-colors focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 pr-12 text-base text-slate-700 outline-none transition-colors focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
                     />
                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">日</span>
                   </div>

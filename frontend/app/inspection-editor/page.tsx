@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { Plus } from "lucide-react"
+import { Plus, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 // 処理中表示
 import { LoadingOverlay } from "../components/common/LoadingOverlay"
@@ -282,14 +282,27 @@ export default function InspectionEditorPage() {
         <>
             <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto max-w-7xl">
+                    
                     {/* Header */}
                     <div className="mb-6">
-                        <h1 className="text-base font-bold text-slate-900 sm:text-lg">
-                            点検表作成
-                        </h1>
-                        <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
-                            点検表の情報と点検項目を設定してください
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.push("/dashboard")}
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50"
+                            >
+                                <ArrowLeft size={18} />
+                            </button>
+
+                            <div>
+                                <h1 className="text-base font-bold text-slate-900 sm:text-lg">
+                                    点検表作成
+                                </h1>
+                                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
+                                    点検表の情報と点検項目を設定してください
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Main */}
@@ -389,7 +402,7 @@ export default function InspectionEditorPage() {
                                         value={inspectionName}
                                         onChange={(event) => setInspectionName(event.target.value)}
                                         placeholder="例：人工呼吸器 定期点検表"
-                                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                                     />
                                 </div>
                             </div>

@@ -119,7 +119,6 @@ Frontend・Backend契約
 - 履歴
 - タスク
 - 感染症
-- Realtime
 - Export
 - Dashboard動作
 - UI仕様

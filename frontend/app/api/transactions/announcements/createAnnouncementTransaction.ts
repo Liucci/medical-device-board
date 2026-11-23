@@ -1,10 +1,8 @@
 import { API_BASE_URL } from "../../client/apiClient"
 import {  } from "../../client/apiClient"
-
 import {CreateAnnouncementFrontType} from "../../../types/announcementTypes"
-
 import {getAnnouncementsFromApi} from "../../announcements/fetchAnnouncements"
-
+import { createAnnouncement } from "../../announcements/createAnnouncement"
 import {
     normalizeAnnouncement,
     toCreateAnnouncementRequest
@@ -23,18 +21,9 @@ export async function createAnnouncementTransaction({
                                                 }: CreateAnnouncementTransactionParams)
 {
     console.log("createAnnouncementTransaction")
-    await fetch(
-        `${API_BASE_URL}/create-announcement`,
-        {
-            method: "POST",
-            headers: {
-                        "Content-Type":
-                        "application/json"
-                     },
-            credentials: "include",
-            body: JSON.stringify(toCreateAnnouncementRequest(announcement))
-        }
-    )
+    // お知らせを新規作成
+    const request = toCreateAnnouncementRequest(announcement)
+    await createAnnouncement(request)
 
     const announcements =await getAnnouncementsFromApi()
     setAnnouncements(announcements.map(normalizeAnnouncement))

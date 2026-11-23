@@ -4,12 +4,9 @@ import { useState ,useEffect} from "react"
 import { useRouter } from "next/navigation"
 import { CurrentUser } from "../types/userTypes"
 import Link from "next/link";
-
-//import { useAuth }from "../contexts/AuthContext"
 import { loginTransaction } from "../api/transactions/auth/loginTransaction"
 import { executeWithErrorAndLoading } from "../components/common/executeWithErrorAndLoading"
 import {LoadingOverlay} from "../components/common/LoadingOverlay"
-
 import PasswordResetRequestModal from "../components/modals/PasswordResetRequestModal"
 
 export default function LoginPage() {
@@ -19,54 +16,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-
   const [currentUser, setCurrentUser] =useState<CurrentUser | null | undefined>(undefined)
-  const [accessToken, setAccessToken] =useState<string | null>(null)
-  
   const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false)
-
   //backendの/loginを呼び出す
   const handleLogin = async () => {
-
     setError("")
     await executeWithErrorAndLoading({
         setLoading,
         action: async () => {
-            
-            try {
-
-              const currentUser =
-                await loginTransaction({
-                                          email,
-                                          password,
-                                          setCurrentUser,
-                                          //setAccessToken,
+            try {const currentUser =await loginTransaction({
+                                                        email,
+                                                        password,
+                                                        setCurrentUser,
                                         })
-
-              if (currentUser.role === "system_admin") {
+              if (currentUser.role === "system_admin") 
+              {
                 router.push("/system-admin")
                 return
               }
-
               router.push("/dashboard")
-
             } 
             catch (err) {
                 console.error(err)
-
                 if (err instanceof Error) {
                     setError(err.message)
                     return
                 }
-
                 setError("ログイン失敗")
             }          
-            finally {
-            }
+            finally {}
           }
           })
-
-
   }  
 
 
@@ -124,7 +104,7 @@ return (
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
+                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
               />
 
               <input
@@ -135,7 +115,7 @@ return (
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
+                className="w-full rounded-xl border border-[#414754] bg-[#0a122a]/80 px-4 py-3.5 text-base text-white outline-none transition placeholder:text-[#8b91a0] focus:border-[#47d6ff] focus:ring-2 focus:ring-[#00d2ff]/15"
               />
               
               <div className="flex justify-end">

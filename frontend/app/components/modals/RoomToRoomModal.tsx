@@ -219,7 +219,7 @@ export default function RoomToRoomModal({
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
                     placeholder="患者名を入力"
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                   />
                 </div>
 

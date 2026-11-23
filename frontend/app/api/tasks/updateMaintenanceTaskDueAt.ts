@@ -19,5 +19,4 @@ export async function updateMaintenanceTaskDueAt(task: UpdateMaintenanceTaskDueA
                                         )
                                         }
     )
-  return await response.json()
 }

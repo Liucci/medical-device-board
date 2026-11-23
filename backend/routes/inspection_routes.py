@@ -6,6 +6,8 @@ from fastapi import Depends, Response
 from schemas.session_schemas import BackendSession
 from auth.get_current_session import get_current_session
 from auth.check_permission import check_permission
+#web socket
+from websocket.connection_manager import connection_manager
 #CRUD
 from inspection.inspection_types.add_inspection_type import add_inspection_type
 from inspection.inspection_types.update_inspection_type import update_inspection_type
@@ -241,7 +243,7 @@ def get_inspection_results(
 
 
 @inspection_router.post("/create-inspection")
-def create_inspection(
+async def create_inspection(
     request: CreateInspectionTransactionRequest,
     session: BackendSession = Depends(get_current_session),
 ):
@@ -258,13 +260,20 @@ def create_inspection(
     if not management_number and not serial_number:
         return {"error": "管理番号またはシリアル番号を入力してください"}
 
-    return create_inspection_transaction(
+    result=create_inspection_transaction(
                                         client=session.client,
                                         inspection=request.inspection,
                                         results=request.results,
                                         hospital_id=session.hospital_id,
                                         user_id=session.user_id
     )
+
+    if result:
+        await connection_manager.broadcast_to_hospital(
+            hospital_id=session.hospital_id,
+            message={"type": "create_inspection"}
+        )
+
 
 
 @inspection_router.post("/create-inspection-type-transaction")

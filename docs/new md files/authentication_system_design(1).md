@@ -7,8 +7,6 @@
 原則として、Supabaseのtoken情報はBackendが保持し、Frontendは`session_id`を用いてBackend
 Sessionに紐づく情報を利用する。
 
-ただし、Supabase
-RealtimeはFrontendから直接購読するため、Realtimeの認証に必要な`access_token`のみFrontendのStateにも保持する。
 
 ### 基本方針
 
@@ -18,10 +16,6 @@ RealtimeはFrontendから直接購読するため、Realtimeの認証に必要�
 -   `session_id`はHttpOnly CookieでFrontendへ保持させる
 -   Frontendは`session_id`を直接読み取らず、Cookieを`credentials: "include"`でBackendへ送る
 -   FrontendはBackend APIから必要なSession由来情報を取得する
--   RealtimeはFrontendがSupabase Realtimeを購読する
--   Realtimeの認証に必要な`access_token`はFrontendのStateに保持する
--   Frontendの`access_token`および`refresh_token`をLocal
-    Storageには保存しない
 -   `refresh_token`はBackend Sessionでのみ管理する
 -   system_adminによる管理操作は、Backend内部のService Role
     Keyを使用したAdmin Clientで実行する
@@ -63,13 +57,6 @@ class BackendSession(BaseModel):
     client: Client
 ```
 
-## Frontend State
-
-Frontendでは、Realtimeに必要な`access_token`をStateとして保持する。
-
-``` text
-access_token
-```
 
 保存場所はReact State / AuthContextとし、Local Storageには保存しない。
 
@@ -145,7 +132,6 @@ session_id発行
 HttpOnly Cookie
 ```
 
-Login成功後、FrontendはBackendから現在ユーザー情報とRealtime用`access_token`を受け取り、Stateへ保存する。
 
 ------------------------------------------------------------------------
 
@@ -178,10 +164,8 @@ Backend Session
 Frontend
   │
   ├─ currentUser → State
-  └─ accessToken → State
 ```
 
-これによりReload後もFrontendへ必要な`access_token`を再設定できる。
 
 ------------------------------------------------------------------------
 
@@ -224,105 +208,6 @@ Frontend
 Refresh後、FrontendのStateに保存されている`access_token`を更新する。
 
 `refresh_token`はFrontendへ渡さない。
-
-------------------------------------------------------------------------
-
-# 7. Access TokenのFrontend保持
-
-Frontendに`access_token`を持たせる理由は、Supabase
-Realtimeの認証に必要だからである。
-
-ただし、Local Storageには保存しない。
-
-``` text
-NG
-
-localStorage
- ├─ access_token
- └─ refresh_token
-```
-
-採用する方式：
-
-``` text
-AuthContext / React State
- └─ access_token
-```
-
-State上のtokenはブラウザのJavaScriptから参照可能であるため、XSS対策を前提とする。
-
-特に以下を行わない。
-
--   Local Storageへのtoken保存
--   Session Storageへのtoken保存
--   Refresh TokenのFrontend保持
--   Service Role KeyのFrontend保持
-
-------------------------------------------------------------------------
-
-# 8. Realtime
-
-RealtimeはBackendではなくFrontendからSupabase Realtimeを購読する。
-
-``` text
-Frontend
-  │
-  │ access_token
-  ▼
-supabase.realtime.setAuth(access_token)
-  │
-  ▼
-Supabase Realtime
-  │
-  ├─ devices
-  ├─ wards
-  ├─ rooms
-  ├─ stock areas
-  ├─ device types
-  ├─ device models
-  ├─ maintenance types
-  ├─ infection types
-  ├─ room infections
-  ├─ maintenance tasks
-  ├─ announcements
-  ├─ announcement hospitals
-  └─ hospital settings
-```
-
-RealtimeでDB更新を受信した場合、FrontendのStateを更新してUIを再描画する。
-
-``` text
-DB Update
-  ↓
-Supabase Realtime
-  ↓
-Frontend subscription
-  ↓
-State update
-  ↓
-UI redraw
-```
-
-------------------------------------------------------------------------
-
-# 9. RealtimeとAccess Token更新
-
-Access TokenがRefreshされた場合、Realtime用の認証情報も更新する。
-
-基本方針は、
-
-``` text
-accessToken State変更
-        ↓
-supabase.realtime.setAuth(newAccessToken)
-```
-
-とする。
-
-Access Token更新のたびに、必ずしも全Realtime channelをunsubscribe /
-subscribeし直す必要はない。
-
-Realtime channelを維持したまま認証tokenを更新する方式を基本とする。
 
 ------------------------------------------------------------------------
 
@@ -461,13 +346,11 @@ Clientで実行する。
                               DB
 
 
-Realtime:
 
 Browser
   │
   │ access_token
   ▼
-Supabase Realtime
   │
   │ postgres_changes
   ▼
@@ -519,9 +402,6 @@ FrontendはSupabase AuthのSessionを直接管理しない。
 
 Refresh TokenはBackend Sessionにのみ保持する。
 
-### Access TokenはRealtimeのためFrontendにも保持
-
-Realtime購読に必要なため、Access TokenのみFrontend Stateへ渡す。
 
 ### Local Storageにはtokenを保存しない
 
@@ -531,24 +411,4 @@ Access Token、Refresh TokenともにLocal Storageには保存しない。
 
 Service Role Keyを使用するAdmin ClientはBackend内部のみで利用する。
 
-### RealtimeはFrontend購読
 
-Realtime
-DB更新の受信はFrontendが行い、受信したデータをStateへ反映してUIを更新する。
-
-------------------------------------------------------------------------
-
-# 15. 今後の検討事項
-
--   Backend Session Storeの永続化
-    -   現在のメモリSession
-        StoreではBackend再起動時にSessionが消える可能性がある
-    -   本番環境ではRedis等の外部Session Storeを検討する
--   Access Token更新時のRealtime認証更新
-    -   `supabase.realtime.setAuth(newAccessToken)`を利用する
-    -   不要な全channel再購読を避ける
--   system_admin操作のBackend権限チェック
-    -   Service
-        RoleによってRLSを回避するため、Backend側のroleチェックを必須とする
--   XSS対策
-    -   Frontend Stateにaccess_tokenを保持するため、XSS対策を継続する

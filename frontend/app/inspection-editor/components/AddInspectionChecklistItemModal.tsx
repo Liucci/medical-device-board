@@ -122,7 +122,7 @@ export default function AddInspectionChecklistItemModal({
                             value={name}
                             onChange={(event) => setName(event.target.value)}
                             placeholder="例：電源が正常に入ること"
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-base outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
                         />
                     </div>
 
@@ -190,7 +190,7 @@ export default function AddInspectionChecklistItemModal({
                                                 setOptions((current) => current.map((cOpt, optIdx) => optIdx === index ? { ...cOpt, value: event.target.value } : cOpt))
                                             }}
                                             placeholder="選択肢を入力"
-                                            className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
+                                            className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-base outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
                                         />
                                         <button
                                             type="button"
@@ -223,7 +223,7 @@ export default function AddInspectionChecklistItemModal({
                                 value={unit}
                                 onChange={(event) => setUnit(event.target.value)}
                                 placeholder="例：mmHg、回、個"
-                                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
+                                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-base outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 sm:px-4 sm:py-2.5"
                             />
                         </div>
                     )}

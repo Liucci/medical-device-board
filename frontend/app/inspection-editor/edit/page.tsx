@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus } from "lucide-react"
+import { Plus, ArrowLeft } from "lucide-react"
 import { LoadingOverlay } from "../../components/common/LoadingOverlay"
 import { executeWithErrorAndLoading } from "../../components/common/executeWithErrorAndLoading"
 import { fetchCurrentUser } from "../../api/auth/fetchCurrentUser"
@@ -294,13 +294,27 @@ export default function InspectionChecklistEditPage() {
         <>
             <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
                 <div className="mx-auto max-w-7xl">
+                    
+                    {/* Header */}
                     <div className="mb-6">
-                        <h1 className="text-base font-bold text-slate-900 sm:text-lg">
-                            点検表編集
-                        </h1>
-                        <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
-                            点検表の情報と点検項目を編集します
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => router.push("/dashboard")}
+                                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50"
+                            >
+                                <ArrowLeft size={18} />
+                            </button>
+
+                            <div>
+                                <h1 className="text-base font-bold text-slate-900 sm:text-lg">
+                                    点検表編集
+                                </h1>
+                                <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">
+                                    点検表の情報と点検項目を編集します
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">

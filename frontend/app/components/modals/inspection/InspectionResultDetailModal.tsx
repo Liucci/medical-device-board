@@ -66,22 +66,30 @@ export default function InspectionResultDetailModal({
         className="flex h-full w-full flex-col overflow-hidden bg-slate-50 text-slate-900 sm:h-[90vh] sm:max-h-[92vh] sm:max-w-[1100px] sm:rounded-2xl sm:border sm:border-slate-300 sm:shadow-2xl"
         onMouseDown={e => e.stopPropagation()}
       >
-        {/* ===== header ===== */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
-          <div>
-            <h2 className="text-base font-bold tracking-wide sm:text-lg">点検結果詳細</h2>
-            <div className="text-[11px] text-slate-400">点検結果の詳細情報</div>
-          </div>
+      {/* ===== header ===== */}
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
+
+        {/* 左側：閉じるボタン・タイトル */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-slate-700 hover:text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-300 transition hover:bg-slate-700 hover:text-white"
             aria-label="閉じる"
           >
             <X className="h-4 w-4" />
           </button>
-        </div>
 
+          <div>
+            <h2 className="text-base font-bold tracking-wide sm:text-lg">
+              点検結果詳細
+            </h2>
+            <div className="text-[11px] text-slate-400">
+              点検結果の詳細情報
+            </div>
+          </div>
+        </div>
+      </div>
         {/* ===== main content ===== */}
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 sm:gap-4 sm:p-4">
           {/* ===== section 1: inspection info ===== */}

@@ -442,13 +442,6 @@ Device List
 
 ---
 
-# Realtime
-
-Realtimeは
-
-更新されたTableごと
-
-に同期する。
 
 ---
 
@@ -520,27 +513,6 @@ roomInfections
 
 ## Transaction
 
-Transactionは
-
-更新された全Table
-
-をRealtime同期する。
-
-例
-
-Room→Stock
-
-↓
-
-devices
-
-rooms
-
-histories
-
-room_infections
-
----
 
 # Last Updated
 
@@ -581,7 +553,6 @@ Loading中は画面全体を操作不可とする。
 - Task運用
 - 感染症運用
 - History運用
-- Realtime運用
 
 を理解できる状態を維持する。
 
@@ -612,30 +583,9 @@ Dashboard初回表示時は
 
 ---
 
-## Realtime
-
-Realtime受信時は `payload.old.status` と `payload.new.status` を利用して更新対象を判定する。
-
-* Room → Room
-
-  * Wardのみ更新
-* Stock → Stock
-
-  * Stockのみ更新
-* Room → Stock
-
-  * Ward・Stock両方更新
-* Stock → Room
-
-  * Ward・Stock両方更新
-
-通常運用時はRealtimeにより各エリアの最終更新日時を維持する。
-
----
 
 ## Refresh
 
-本システムはRealtime運用を前提とする。
 
 リロード時は `fetchStockLastUpdated()` および `fetchWardLastUpdated()` を実行し、現在存在するDeviceの `updated_at` を基に最新日時を取得する。
 
@@ -649,4 +599,3 @@ Realtime受信時は `payload.old.status` と `payload.new.status` を利用し�
 
 最終更新日時は画面表示用情報とする。
 
-永続的な管理は行わず、通常利用時はRealtimeにより最新状態を維持することを前提とする。

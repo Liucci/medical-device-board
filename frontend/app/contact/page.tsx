@@ -205,7 +205,7 @@ export default function ContactPage() {
                   placeholder="example@example.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="w-full rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
+                  className="w-full rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-base text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
                 />
               </div>
 
@@ -230,7 +230,7 @@ export default function ContactPage() {
                   placeholder="お問い合わせ内容をご記入ください。"
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
-                  className="w-full resize-y rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-sm leading-7 text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
+                  className="w-full resize-y rounded-lg border border-white/15 bg-[#0a1228] px-4 py-3 text-base leading-7 text-white outline-none transition placeholder:text-[#697895] focus:border-[#00d2ff] focus:ring-2 focus:ring-[#00d2ff]/20"
                 />
 
                 <p className="mt-2 text-xs leading-5 text-[#8795b2]">

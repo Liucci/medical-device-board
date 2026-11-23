@@ -258,7 +258,7 @@ export default function HospitalSettingsModal({
                           bg-white
                           px-3
                           py-2
-                          text-sm
+                          text-base
                           font-medium
                           text-slate-700
                           outline-none

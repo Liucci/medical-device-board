@@ -214,70 +214,74 @@ export default function HistoryModal({
           "
           onMouseDown={e => e.stopPropagation()}
         >
-          {/* ===== header ===== */}
-          <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
-            <h2 className="text-base font-bold tracking-wide sm:text-lg">
-              履歴一覧
-            </h2>
+        {/* ===== header ===== */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  executeWithErrorAndLoading({
-                    setLoading,
-                    action: () =>
-                      exportHistoryCsvTransaction(
-                        filteredHistories,
-                        hospitalSettings?.showPatientName ?? false
-                      )
-                  })
-                }
-                className="
-                  h-8 rounded-lg border border-slate-600
-                  bg-slate-800 px-3 text-xs font-bold text-slate-100
-                  transition hover:bg-slate-700
-                "
-              >
-                CSV出力
-              </button>
+        {/* 左側：閉じるボタン・タイトル */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="
+              flex h-8 w-8 items-center justify-center
+              rounded-lg text-slate-300
+              transition hover:bg-slate-700 hover:text-white
+            "
+            aria-label="閉じる"
+          >
+            <X className="h-4 w-4" />
+          </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  executeWithErrorAndLoading({
-                    setLoading,
-                    action: () =>
-                      exportHistoryPdfTransaction(
-                        filteredHistories,
-                        hospitalSettings?.showPatientName ?? false
-                      )
-                  })
-                }
-                className="
-                  h-8 rounded-lg bg-teal-700 px-3
-                  text-xs font-bold text-white
-                  transition hover:bg-teal-800
-                "
-              >
-                PDF出力
-              </button>
+          <h2 className="text-base font-bold tracking-wide sm:text-lg">
+            履歴一覧
+          </h2>
+        </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="
-                  flex h-8 w-8 items-center justify-center
-                  rounded-lg text-slate-300
-                  transition hover:bg-slate-700 hover:text-white
-                "
-                aria-label="閉じる"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+        {/* 右側：出力ボタン */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              executeWithErrorAndLoading({
+                setLoading,
+                action: () =>
+                  exportHistoryCsvTransaction(
+                    filteredHistories,
+                    hospitalSettings?.showPatientName ?? false
+                  )
+              })
+            }
+            className="
+              h-8 rounded-lg border border-slate-600
+              bg-slate-800 px-3 text-xs font-bold text-slate-100
+              transition hover:bg-slate-700
+            "
+          >
+            CSV出力
+          </button>
 
+          <button
+            type="button"
+            onClick={() =>
+              executeWithErrorAndLoading({
+                setLoading,
+                action: () =>
+                  exportHistoryPdfTransaction(
+                    filteredHistories,
+                    hospitalSettings?.showPatientName ?? false
+                  )
+              })
+            }
+            className="
+              h-8 rounded-lg bg-teal-700 px-3
+              text-xs font-bold text-white
+              transition hover:bg-teal-800
+            "
+          >
+            PDF出力
+          </button>
+        </div>
+        </div>
           {/* ===== main ===== */}
           <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4">
             {/* ===== search section ===== */}
@@ -328,9 +332,10 @@ export default function HistoryModal({
                             setStartDate(e.target.value)
                           }
                           className="
-                            h-10 w-full rounded-lg
+                            box-border h-10 min-w-0 w-full
+                            appearance-none rounded-lg
                             border border-slate-300 bg-white
-                            px-3 text-sm text-slate-800
+                            px-3 text-base text-slate-800
                             outline-none transition
                             focus:border-teal-600 focus:ring-2 focus:ring-teal-100
                           "
@@ -349,9 +354,10 @@ export default function HistoryModal({
                             setEndDate(e.target.value)
                           }
                           className="
-                            h-10 w-full rounded-lg
+                            box-border h-10 min-w-0 w-full
+                            appearance-none rounded-lg
                             border border-slate-300 bg-white
-                            px-3 text-sm text-slate-800
+                            px-3 text-base text-slate-800
                             outline-none transition
                             focus:border-teal-600 focus:ring-2 focus:ring-teal-100
                           "
@@ -378,7 +384,7 @@ export default function HistoryModal({
                           className="
                             h-10 w-full rounded-lg
                             border border-slate-300 bg-white
-                            px-3 text-sm text-slate-800
+                            px-3 text-base text-slate-800
                             outline-none transition
                             placeholder:text-slate-400
                             focus:border-teal-600 focus:ring-2 focus:ring-teal-100

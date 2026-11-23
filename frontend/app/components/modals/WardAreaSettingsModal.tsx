@@ -232,7 +232,7 @@ export default function WardAreaSettingsModal({ wards, setWards, rooms, setRooms
                         value={newWardName}
                         onChange={(e) => setNewWardName(e.target.value)}
                         placeholder="例：ICU"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                       />
                     </div>
                     <button
@@ -328,7 +328,7 @@ export default function WardAreaSettingsModal({ wards, setWards, rooms, setRooms
                     onChange={(e) => setNewRoomName(e.target.value)}
                     placeholder={selectedWardId ? "例：101号室" : "先に病棟を選択してください"}
                     disabled={!selectedWardId}
-                    className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                    className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 outline-none transition-colors placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                   />
                   <button
                     type="button"

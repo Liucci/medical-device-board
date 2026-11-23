@@ -274,39 +274,6 @@ Frontend Stateを再構築
 
 ---
 
-# 8. Realtimeとの関係
-
-RealtimeでSupabaseを利用する場合は、Supabase Realtimeが必要とするaccess tokenを利用する。
-
-概念的には、
-
-```text
-Backend Session
-      │
-      └── access_token
-              │
-              ▼
-Frontend
-      │
-      ▼
-Supabase Realtime
-```
-
-となる。
-
-Realtimeの認証に使用するaccess tokenと、Backend APIの認証根である`session_id`は役割が異なる。
-
-```text
-session_id
-  ↓
-Backend APIの認証根
-
-access_token
-  ↓
-Supabase / Realtimeとの認証に利用
-```
-
----
 
 # 9. Logout
 
@@ -394,7 +361,6 @@ flowchart TD
 | 認証の中心 | `session_id` Cookie |
 | Cookie | HttpOnly |
 | Backend Session | 認証情報を保持 |
-| Access Token | Supabase API / Realtime等に利用 |
 | Refresh Token | Backend Session側で管理 |
 | hospital_id | Backend Session側のユーザー情報を基準 |
 | Logout | Backend Session破棄 + Cookie削除 |
@@ -439,3 +405,34 @@ DB処理
 という順序で処理する。
 
 これにより、FrontendのDevToolsからリクエスト内容を書き換えられても、Backend Sessionを基準とした認証・認可を維持できる。
+
+
+System Adminの認証・権限確認・DB操作方針
+処理を明確に2段階に分けます。
+① 認証・権限確認
+1. FrontendからSession IDをCookieで送信
+2. Backendがget_current_sessionでSessionを取得
+3. session.roleを確認
+4. check_permissionでsystem_admin権限を検証
+
+② 管理操作
+1. get_admin_client()を取得
+2. Admin ClientをCRUD・Transactionに渡す
+3. DBの取得・登録・更新・削除を実行
+
+実装上の基本形
+
+@app.get("/fetch-announcements")
+def fetch_announcements_route(
+    session: BackendSession = Depends(get_current_session),
+):
+    # ① 認証・権限確認
+    check_permission(
+        current_user=session,
+        allowed_roles=["system_admin"]
+    )
+
+    # ② 管理者権限でDB操作
+    client = get_admin_client()
+
+    return fetch_announcements_transaction(client)
