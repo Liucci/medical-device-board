@@ -158,33 +158,55 @@ export default function InspectionResultModal({ isOpen, onClose, hospitalSetting
         >
           {/* ===== header ===== */}
           <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700 bg-slate-900 px-4 text-white sm:px-5">
-            <h2 className="text-base font-bold tracking-wide sm:text-lg">点検結果一覧</h2>
+
+            {/* 左側：閉じるボタン・タイトル */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={handleExportCsv}
-                className="h-8 rounded-lg border border-slate-600 bg-slate-800 px-3 text-xs font-bold text-slate-100 transition hover:bg-slate-700"
-              >
-                CSV出力
-              </button>
-              <button
-                type="button"
-                onClick={handleExportPdf}
-                className="h-8 rounded-lg bg-teal-700 px-3 text-xs font-bold text-white transition hover:bg-teal-800"
-              >
-                PDF出力
-              </button>
-              <button
-                type="button"
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 transition hover:bg-slate-700 hover:text-white"
+                className="
+                  flex h-8 w-8 items-center justify-center
+                  rounded-lg text-slate-300
+                  transition hover:bg-slate-700 hover:text-white
+                "
                 aria-label="閉じる"
               >
                 <X className="h-4 w-4" />
               </button>
+
+              <h2 className="text-base font-bold tracking-wide sm:text-lg">
+                点検結果一覧
+              </h2>
+            </div>
+
+            {/* 右側：出力ボタン */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                className="
+                  h-8 rounded-lg border border-slate-600
+                  bg-slate-800 px-3 text-xs font-bold text-slate-100
+                  transition hover:bg-slate-700
+                "
+              >
+                CSV出力
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                className="
+                  h-8 rounded-lg bg-teal-700 px-3
+                  text-xs font-bold text-white
+                  transition hover:bg-teal-800
+                "
+              >
+                PDF出力
+              </button>
             </div>
           </div>
-
+          
           {/* ===== main ===== */}
           <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:gap-4 sm:p-4">
             {/* ===== search section ===== */}
