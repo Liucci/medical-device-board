@@ -96,7 +96,7 @@ export default function UserManagementPage() {
   const inputClass = `
     w-full rounded-lg border border-white/10
     bg-[#111d3b] px-3 py-2
-    text-sm text-white placeholder:text-[#7180a5]
+    text-base text-white placeholder:text-[#7180a5]
     outline-none transition
     focus:border-[#75dfff] focus:ring-2 focus:ring-[#75dfff]/20
   `

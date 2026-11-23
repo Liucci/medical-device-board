@@ -402,7 +402,7 @@ export default function InspectionEditorPage() {
                                         value={inspectionName}
                                         onChange={(event) => setInspectionName(event.target.value)}
                                         placeholder="例：人工呼吸器 定期点検表"
-                                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+                                        className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                                     />
                                 </div>
                             </div>

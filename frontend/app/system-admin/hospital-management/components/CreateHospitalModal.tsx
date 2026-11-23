@@ -65,7 +65,7 @@ export default function CreateHospitalModal({
 
   const inputClass = `
     h-11 w-full rounded-lg border border-slate-300 bg-white px-3
-    text-sm font-medium text-slate-900 outline-none transition-colors
+    text-base font-medium text-slate-900 outline-none transition-colors
     focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
   `
 
@@ -119,7 +119,7 @@ export default function CreateHospitalModal({
                 rows={5}
                 className="
                   w-full resize-none rounded-lg border border-slate-300 bg-white
-                  px-3 py-2.5 text-sm text-slate-900 outline-none transition-colors
+                  px-3 py-2.5 text-base text-slate-900 outline-none transition-colors
                   focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
                 "
               />

@@ -384,7 +384,7 @@ export default function HistoryModal({
                           className="
                             h-10 w-full rounded-lg
                             border border-slate-300 bg-white
-                            px-3 text-sm text-slate-800
+                            px-3 text-base text-slate-800
                             outline-none transition
                             placeholder:text-slate-400
                             focus:border-teal-600 focus:ring-2 focus:ring-teal-100

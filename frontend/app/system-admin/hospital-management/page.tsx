@@ -313,7 +313,7 @@ useEffect(
                   onChange={e => setCreatedFrom(e.target.value)}
                   className="
                     min-w-0 flex-1 rounded-lg border border-white/10
-                    bg-[#0a122a]/80 px-2 py-2.5 text-xs text-white
+                    bg-[#0a122a]/80 px-2 py-2.5 text-base text-white
                     outline-none [color-scheme:dark]
                     focus:border-[#75dfff]/60 focus:ring-2 focus:ring-[#75dfff]/10
                   "
@@ -327,7 +327,7 @@ useEffect(
                   onChange={e => setCreatedTo(e.target.value)}
                   className="
                     min-w-0 flex-1 rounded-lg border border-white/10
-                    bg-[#0a122a]/80 px-2 py-2.5 text-xs text-white
+                    bg-[#0a122a]/80 px-2 py-2.5 text-base text-white
                     outline-none [color-scheme:dark]
                     focus:border-[#75dfff]/60 focus:ring-2 focus:ring-[#75dfff]/10
                   "

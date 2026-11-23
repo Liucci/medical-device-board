@@ -132,7 +132,7 @@ function InspectionChecklistItemRow({
                             value={isNotApplicable ? "" : value ?? ""}
                             disabled={isNotApplicable}
                             placeholder="数値入力"
-                            className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-base font-medium outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-36 sm:text-sm"
+                            className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-base font-medium outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-36 sm:text-base"
                             onChange={(event) => {
                                 const inputVal = event.target.value.replace(/[^0-9.]/g, "")
                                 const decIdx = inputVal.indexOf(".")
@@ -150,7 +150,7 @@ function InspectionChecklistItemRow({
                         value={isNotApplicable ? "" : value ?? ""}
                         disabled={isNotApplicable}
                         placeholder="テキスト入力"
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-64 sm:text-sm"
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-64 sm:text-base"
                         onChange={(event) => onChange(item.id, event.target.value || null)}
                     />
                 )
@@ -160,7 +160,7 @@ function InspectionChecklistItemRow({
                         type="date"
                         value={isNotApplicable ? "" : value?.slice(0, 10) ?? ""}
                         disabled={isNotApplicable}
-                        className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-48 sm:text-sm"
+                        className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:w-48 sm:text-base"
                         onChange={(event) => {
                             const date = event.target.value
                             onChange(item.id, date || null)
@@ -173,7 +173,7 @@ function InspectionChecklistItemRow({
                         <select
                             value={isNotApplicable ? "" : timeHour}
                             disabled={isNotApplicable}
-                            className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-20 sm:flex-none sm:text-sm"
+                            className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-20 sm:flex-none sm:text-base"
                             onChange={(event) => {
                                 const hour = event.target.value
                                 setTimeHour(hour)
@@ -187,7 +187,7 @@ function InspectionChecklistItemRow({
                         <select
                             value={isNotApplicable ? "" : timeMinute}
                             disabled={isNotApplicable}
-                            className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-20 sm:flex-none sm:text-sm"
+                            className="h-10 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 sm:min-w-20 sm:flex-none sm:text-base"
                             onChange={(event) => {
                                 const minute = event.target.value
                                 setTimeMinute(minute)
@@ -210,7 +210,7 @@ function InspectionChecklistItemRow({
                             type="date"
                             value={isNotApplicable ? "" : dateTimeDate}
                             disabled={isNotApplicable}
-                            className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 sm:w-40 sm:text-sm" 
+                            className="box-border h-10 min-w-0 w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 text-base outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-100 sm:w-40 sm:text-base" 
                             onChange={(event) => {
                                 const date = event.target.value
                                 setDateTimeDate(date)

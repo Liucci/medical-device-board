@@ -377,7 +377,7 @@ export default function DeviceTypeSettingsModal({
                       placeholder="例：人工呼吸器"
                       className="
                         h-10 w-full rounded-lg border border-slate-300 bg-white px-3
-                        text-sm font-medium text-slate-900 outline-none transition-colors
+                        text-base font-medium text-slate-900 outline-none transition-colors
                         focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
                       "
                     />
@@ -526,7 +526,7 @@ export default function DeviceTypeSettingsModal({
                     disabled={!selectedTypeId}
                     className="
                       min-w-0 flex-1 h-10 rounded-lg border border-slate-300 bg-white px-3
-                      text-sm font-medium text-slate-900 outline-none transition-colors
+                      text-base font-medium text-slate-900 outline-none transition-colors
                       disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400
                       focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15
                     "

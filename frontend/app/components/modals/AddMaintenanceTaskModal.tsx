@@ -86,7 +86,7 @@ return (
                   h-11 w-full rounded-lg
                   border border-slate-300
                   bg-white px-3
-                  text-sm font-medium text-slate-900
+                  text-base font-medium text-slate-900
                   outline-none
                   transition-colors
                   focus:border-teal-600
