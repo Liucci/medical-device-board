@@ -131,12 +131,18 @@ export default function CreateAnnouncementModal({
                                 await executeWithErrorAndLoading({
                                     setLoading,
                                     action: async () => {
-                                        await createAnnouncementTransaction({
-                                            announcement,
-                                            setAnnouncements,
-                                            onClose
-                                        })
-                                        setAnnouncement(initialAnnouncement)
+                                            await createAnnouncementTransaction({
+                                                announcement: {
+                                                    //backにはUTC時刻として渡す
+                                                    ...announcement,
+                                                    startAt: new Date(`${announcement.startAt}:00+09:00`).toISOString(),
+                                                    endAt: new Date(`${announcement.endAt}:00+09:00`).toISOString()
+                                                },
+                                                setAnnouncements,
+                                                onClose
+                                            })
+
+                                    setAnnouncement(initialAnnouncement)
                                     }
                                 })
                             }}
