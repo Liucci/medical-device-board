@@ -19,6 +19,6 @@ export async function fetchWardLastUpdated(): Promise<WardLastUpdatedResponse> {
                         )
 
     const data = await response.json()
-    console.log(data)
+    //console.log(data)
     return normalizeWardLastUpdated(data.updated_at)
 }

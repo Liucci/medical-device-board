@@ -141,6 +141,7 @@ export default function Page() {
   const [stockCellSize, setStockCellSize] = useState(80)
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
   const [currentUser, setCurrentUser] = useState<CurrentUser | null | undefined>(undefined)
   const [activeAnnouncements, setActiveAnnouncements] = useState<ActiveAnnouncementFrontType[]>([])
   const [hospitalSettings, setHospitalSettings] = useState<HospitalSettingsType | null>(null)
@@ -645,136 +646,6 @@ export default function Page() {
     }
   }
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await initDashboard({ setCurrentUser,})
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    init()
-  }, [])
-
-  //websocket受信用
-  useEffect(() => {
-    if (!currentUser) return
-
-    const ws = connectWebSocket(
-      //create device受信用
-      async () => {
-          const devices = await getDevicesFromApi()
-              setDeviceList(devices.map(normalizeDevice))
-              setStockLastUpdated(await fetchStockLastUpdated())
-      },
-      //delete device受信用
-      async () => {
-          const devices = await getDevicesFromApi()
-                setDeviceList(devices.map(normalizeDevice))
-                setStockLastUpdated(await fetchStockLastUpdated())
-                setWardLastUpdated(await fetchWardLastUpdated())
-      },
-      //update device受信用
-      async () => {
-          const [devices, roomInfections, tasks] = await Promise.all([
-                getDevicesFromApi(),
-                getRoomInfectionsFromApi(),
-                getTasksFromApi()
-          ])
-          setDeviceList(devices.map(normalizeDevice))
-          setRoomInfections(roomInfections.map(normalizeRoomInfection))
-          setTasks(tasks.map(normalizeMaintenanceTask))
-      },
-      //move device受信用
-      async () => {
-          const [devices, rooms, tasks, roomInfections] = await Promise.all([
-              getDevicesFromApi(),
-              getRoomsFromApi(),
-              getTasksFromApi(),
-              getRoomInfectionsFromApi()
-          ])
-          setDeviceList(devices.map(normalizeDevice))
-          setRooms(rooms.map(normalizeRoom))
-          setTasks(tasks.map(normalizeMaintenanceTask))
-          setRoomInfections(roomInfections.map(normalizeRoomInfection))
-      },
-      //update ward受信用
-      async () => {
-          const [wards, wardInfections] = await Promise.all([
-                getWardsFromApi(),
-                getWardInfectionsFromApi()
-          ])
-          setWards(wards.map(normalizeWard))
-          setWardInfections(wardInfections.map(normalizeWardInfection))
-      },
-      // update room受信用
-      async () => {
-          const rooms = await getRoomsFromApi()
-          setRooms(rooms.map(normalizeRoom))
-      },
-      //stock area受信用
-      async () => {
-          const stockAreas = await getStockAreasFromApi()
-                setStockAreas(stockAreas.map(normalizeStockArea))
-      },
-      //create inspection受信用
-      async () => {await refreshTodayInspectionsOnly()},
-
-      //update hospital setting受信用
-      async () => {
-          const settings = await fetchHospitalSettingsTransaction()
-              setHospitalSettings(settings)
-      },
-      //update announcement受信用
-      async () => {
-          await fetchActiveAnnouncementsTransaction({
-            setAnnouncements: setActiveAnnouncements
-          })
-      },      
-      //update device type受信用
-      async () => {
-        const deviceTypes = await getDeviceTypesFromApi()
-        setDeviceTypes(deviceTypes.map(normalizeDeviceType))
-      },
-
-      //update maintenance type受信用
-      async () => {
-        const maintenanceTypes = await getMaintenanceTypesFromApi()
-        setMaintenanceTypes(maintenanceTypes.map(normalizeMaintenanceType))
-      },
-      // update device model受信用
-      async () => {
-        const deviceModels = await getDeviceModelsFromApi()
-        setDeviceModels(deviceModels.map(normalizeDeviceModel))
-      },
-      // update infection type受信用
-      async () => {
-        const [
-          infectionTypes,
-          roomInfections,
-          wardInfections
-        ] = await Promise.all([
-          getInfectionTypesFromApi(),
-          getRoomInfectionsFromApi(),
-          getWardInfectionsFromApi()
-        ])
-
-        setInfectionTypes(infectionTypes.map(normalizeInfectionType))
-        setRoomInfections(roomInfections.map(normalizeRoomInfection))
-        setWardInfections(wardInfections.map(normalizeWardInfection))
-      },      
-
-      // update room infection受信用
-      async () => {
-        const roomInfections = await getRoomInfectionsFromApi()
-        setRoomInfections(roomInfections.map(normalizeRoomInfection))
-      },
-
-    )
-    return () => {
-      ws.close()
-    }
-  }, [currentUser])  
 
   // Dashboardの最新stateをフロントエンド形式でキャッシュに保存
   const saveDashboardCache = () => {
@@ -867,6 +738,300 @@ export default function Page() {
     setInspectionCounts(counts)
   }
 
+//初回読み込み時、current user取得
+  useEffect(() => {
+    const init = async () => {
+      try {
+        await initDashboard({ setCurrentUser,})
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    init()
+  }, [])
+
+  //websocket受信用
+  useEffect(() => {
+    if (!currentUser) return
+
+    const ws = connectWebSocket(
+      //create device受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const devices = await getDevicesFromApi()
+            setDeviceList(devices.map(normalizeDevice))
+            setStockLastUpdated(await fetchStockLastUpdated())
+          },
+        })
+      },
+
+      //delete device受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const devices = await getDevicesFromApi()
+            setDeviceList(devices.map(normalizeDevice))
+            setStockLastUpdated(await fetchStockLastUpdated())
+            setWardLastUpdated(await fetchWardLastUpdated())
+          },
+        })
+      },
+
+      //update device受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const [devices, roomInfections, tasks] = await Promise.all([
+              getDevicesFromApi(),
+              getRoomInfectionsFromApi(),
+              getTasksFromApi()
+            ])
+            setDeviceList(devices.map(normalizeDevice))
+            setRoomInfections(roomInfections.map(normalizeRoomInfection))
+            setTasks(tasks.map(normalizeMaintenanceTask))
+          },
+        })
+      },
+
+      //move device受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const [devices, rooms, tasks, roomInfections] = await Promise.all([
+              getDevicesFromApi(),
+              getRoomsFromApi(),
+              getTasksFromApi(),
+              getRoomInfectionsFromApi()
+            ])
+            setDeviceList(devices.map(normalizeDevice))
+            setRooms(rooms.map(normalizeRoom))
+            setTasks(tasks.map(normalizeMaintenanceTask))
+            setRoomInfections(roomInfections.map(normalizeRoomInfection))
+          },
+        })
+      },
+
+      //update ward受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const [wards, wardInfections] = await Promise.all([
+              getWardsFromApi(),
+              getWardInfectionsFromApi()
+            ])
+            setWards(wards.map(normalizeWard))
+            setWardInfections(wardInfections.map(normalizeWardInfection))
+          },
+        })
+      },
+
+      // update room受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const rooms = await getRoomsFromApi()
+            setRooms(rooms.map(normalizeRoom))
+          },
+        })
+      },
+
+      //stock area受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const stockAreas = await getStockAreasFromApi()
+            setStockAreas(stockAreas.map(normalizeStockArea))
+          },
+        })
+      },
+
+      //create inspection受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            await refreshTodayInspectionsOnly()
+          },
+        })
+      },
+
+      //update hospital setting受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const settings = await fetchHospitalSettingsTransaction()
+            setHospitalSettings(settings)
+          },
+        })
+      },
+
+      //update announcement受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            await fetchActiveAnnouncementsTransaction({
+              setAnnouncements: setActiveAnnouncements
+            })
+          },
+        })
+      },
+
+      //update device type受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const deviceTypes = await getDeviceTypesFromApi()
+            setDeviceTypes(deviceTypes.map(normalizeDeviceType))
+          },
+        })
+      },
+
+      //update maintenance type受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const maintenanceTypes = await getMaintenanceTypesFromApi()
+            setMaintenanceTypes(maintenanceTypes.map(normalizeMaintenanceType))
+          },
+        })
+      },
+
+      // update device model受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const deviceModels = await getDeviceModelsFromApi()
+            setDeviceModels(deviceModels.map(normalizeDeviceModel))
+          },
+        })
+      },
+
+      // update infection type受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const [
+              infectionTypes,
+              roomInfections,
+              wardInfections
+            ] = await Promise.all([
+              getInfectionTypesFromApi(),
+              getRoomInfectionsFromApi(),
+              getWardInfectionsFromApi()
+            ])
+
+            setInfectionTypes(infectionTypes.map(normalizeInfectionType))
+            setRoomInfections(roomInfections.map(normalizeRoomInfection))
+            setWardInfections(wardInfections.map(normalizeWardInfection))
+          },
+        })
+      },
+
+      // update room infection受信用
+      async () => {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const roomInfections = await getRoomInfectionsFromApi()
+            setRoomInfections(roomInfections.map(normalizeRoomInfection))
+          },
+        })
+      },
+    )
+
+    return () => {
+      ws.close()
+    }
+  }, [currentUser])
+
+  // タブ復帰時にDashboardデータを再取得
+  useEffect(() => {
+    let isRefreshing = false
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== "visible") return
+      if (!currentUser || isRefreshing) return
+
+      isRefreshing = true
+
+      try {
+        await executeWithErrorAndLoading({
+          setLoading: setIsSyncing,
+          action: async () => {
+            const data = await fetchInitDashboard()
+
+            // 取得データの確認
+            const arrayKeys = [
+              "devices",
+              "stock_areas",
+              "wards",
+              "rooms",
+              "device_types",
+              "device_models",
+              "tasks",
+              "maintenance_types",
+              "histories",
+              "infection_types",
+              "room_infections",
+              "ward_infections",
+              "active_announcements",
+              "inspection_types",
+              "inspection_item_categories",
+              "today_inspections",
+            ]
+
+            const isValidData =
+              data &&
+              arrayKeys.every(key => Array.isArray(data[key])) &&
+              "hospital_settings" in data
+
+            if (!isValidData) {
+              console.error("Dashboard再取得データが不正です")
+              return
+            }
+
+            applyDashboardData(data)
+            setDashboardCache(data)
+
+            const stockLastUpdated = await fetchStockLastUpdated()
+            const wardLastUpdated = await fetchWardLastUpdated()
+
+            setStockLastUpdated(stockLastUpdated)
+            setWardLastUpdated(wardLastUpdated)
+
+            //console.log("Dashboardデータを再取得しました")
+          },
+        })
+
+      } catch (error) {
+        console.error("Dashboard再取得エラー:", error)
+      } finally {
+        isRefreshing = false
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [currentUser])
+
+  //Dashboardを初期表示するときに、データをどこから取得して画面に反映するかを判断
   useEffect(() => {
     const fetchData = async () => {
       if (!currentUser) return
@@ -900,6 +1065,7 @@ export default function Page() {
     fetchData()
   }, [currentUser])
 
+  //current user情報が無い場合はlogin画面に遷移
   useEffect(() => {
     if (currentUser === undefined) return
     if (!currentUser) {
@@ -908,6 +1074,7 @@ export default function Page() {
     }
   }, [currentUser, router])
 
+//定時logout設定されてたら実行
   useEffect(() => {
     if (!hospitalSettings) return
     if (!hospitalSettings.autoLogoutEnabled) {
@@ -1210,7 +1377,10 @@ export default function Page() {
           cancelText={confirmModal.cancelText}
         />
       </div>
-      <LoadingOverlay loading={loading} />
+      <LoadingOverlay
+        loading={loading || isSyncing}
+        message={isSyncing ? "同期中..." : "処理中..."}
+      />      
     </>
   )
 }
