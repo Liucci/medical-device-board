@@ -71,7 +71,7 @@ from schemas.device_schemas import (
 from schemas.stock_area_schemas import (AddStockAreaRequest,DeleteStockAreasRequest,UpdateStockAreaRequest,UpdateStockAreaOrdersRequest)
 from schemas.ward_schemas import (AddWardRequest,WardResponse,DeleteWardRequest,UpdateWardRequest,UpdateWardOrdersRequest,)
 from schemas.room_schemas import (AddRoomRequest,UpdateRoomRequest,UpdateRoomPatientRequest,DeleteRoomsRequest,ClearRoomPatientRequest)
-from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest)
+from schemas.device_type_schemas import (AddDeviceTypeRequest,DeleteDeviceTypeRequest, UpdateDeviceTypeRequest,UpdateDeviceTypeOrdersRequest)
 from schemas.device_model_schemas import (AddDeviceModelRequest,DeviceModelsResponse,DeleteDeviceModelsRequest, UpdateDeviceModelRequest)
 from schemas.maintenance_type_schemas import (AddMaintenanceTypeRequest, UpdateMaintenanceTypeRequest, DeleteMaintenanceTypesRequest)
 from schemas.maintenance_task_schemas import CompleteMaintenanceTaskRequest
@@ -121,6 +121,8 @@ from transactions.rooms.delete_rooms_transaction import delete_room_transaction
 from transactions.device_types.create_device_type_transaction import (create_device_type_transaction)
 from transactions.device_types.delete_device_type_transaction import (delete_device_type_transaction)
 from transactions.device_types.update_device_type_transaction import update_device_type_transaction
+from transactions.device_types.update_device_type_display_order_transaction import (update_device_type_display_order_transaction)
+
 from transactions.device_models.create_device_model_transaction import (create_device_model_transaction)
 from transactions.device_models.update_device_model_transaction import update_device_model_transaction
 from transactions.device_models.delete_device_models_transaction import delete_device_models_transaction
@@ -800,6 +802,31 @@ async def update_device_type_route(
                                     hospital_id=session.hospital_id,
                                     message={"type": "update_device_type"}
     )
+#device typeの並び順
+@app.post("/update-device-type-display-order")
+async def update_device_type_display_order_route(
+                            device_types: UpdateDeviceTypeOrdersRequest,
+                            session: BackendSession = Depends(get_current_session),
+):
+    check_permission(
+                        current_user=session,
+                        allowed_roles=["admin"]
+    )
+
+    update_device_type_display_order_transaction(
+                                                client=session.client,
+                                                device_types=device_types,
+                                                hospital_id=session.hospital_id
+    )
+
+    await connection_manager.broadcast_to_hospital(
+                                                hospital_id=session.hospital_id,
+                                                message={"type": "update_device_type"}
+    )
+
+    return {
+            "success": True
+    }
 
 @app.post("/delete-device-type")
 async def delete_device_type_route(

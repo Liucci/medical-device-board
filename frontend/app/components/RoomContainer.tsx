@@ -71,14 +71,33 @@ export default function RoomContainer({
 
                             }: Props) {
 
-const roomDevices = deviceList.filter(
-  d => d.status === "room" && 
-  d.roomId === roomId &&
-  d.id !== pendingDevice?.id
-)
-  //console.log("患者名:",patientName)
-  //console.log("rooms",rooms)
-const longPress = useRef(createLongPressState())
+
+const roomDevices = deviceList
+  .filter(
+    d =>
+      d.status === "room" &&
+      d.roomId === roomId &&
+      d.id !== pendingDevice?.id
+  )
+  .sort((a, b) => {
+    // 第1優先：機器種別のdisplayOrder
+    const aOrder =
+      deviceTypes.find((t) => t.id === a.type)?.displayOrder ??
+      Number.MAX_SAFE_INTEGER
+
+    const bOrder =
+      deviceTypes.find((t) => t.id === b.type)?.displayOrder ??
+      Number.MAX_SAFE_INTEGER
+
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder
+    }
+
+    // 第2優先：型式ID
+    return a.model - b.model
+  })
+
+  const longPress = useRef(createLongPressState())
 //const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
 //const isLongPress = useRef(false)
 

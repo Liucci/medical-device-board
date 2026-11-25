@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Boxes, Building2, Settings2, Wrench, LayoutGrid, Warehouse, Biohazard, Shield, ClipboardPlus, ClipboardPenLine, ListChecks, Tags } from "lucide-react"
+import { Boxes, Building2, Settings2, Wrench, LayoutGrid, Warehouse, Biohazard, Shield, ClipboardPlus, ClipboardPenLine, ListChecks, Tags ,ListOrdered,} from "lucide-react"
 import { Device } from "../../types/deviceTypes"
 import { StockAreaType } from "../../types/stockTypes"
 import { DeviceTypeType } from "../../types/deviceTypeTypes"
@@ -27,7 +27,7 @@ import HospitalSettingModal from "./HospitalSettingModal"
 import EditChecklistTypeModal from "./inspection/EditChecklistTypeModal"
 import EditChecklistItemCategoryModal from "./inspection/EditChecklistItemCategoryModal"
 import useInputModal from "../../components/common/useInputModal"
-
+import DeviceTypeOrderModal from "./DeviceTypeOrderModal"
 type Props = {
   currentUser: CurrentUser
   onClose: () => void
@@ -54,7 +54,7 @@ type Props = {
   saveDashboardCache: () => void
 }
 
-type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance" | "infection" | "hospitalSetting" | "wardOrder" | "stockAreaOrder" | "checklistType" | "checklistCategory"
+type Mode = "menu" | "stock" | "ward" | "deviceType" | "maintenance" | "infection" | "hospitalSetting" | "wardOrder" | "stockAreaOrder"  | "deviceTypeOrder" | "checklistType" | "checklistCategory"
 
 export default function SettingsModal({
   currentUser,
@@ -172,6 +172,16 @@ export default function SettingsModal({
         setMode("stockAreaOrder")
       },
     },
+    {
+      label: "機器種別レイアウト",
+      mode: "deviceTypeOrder" as const,
+      icon: ListOrdered,
+      onClick: () => {
+        if (!checkAdminPermission()) return
+        setMode("deviceTypeOrder")
+      },
+    },
+
     {
       label: "点検表作成",
       icon: ClipboardPlus,
@@ -370,6 +380,24 @@ export default function SettingsModal({
                 </button>
               </div>
               <StockAreaOrderModal isOpen={true} onClose={() => setMode("menu")} stockAreas={stockAreas} setStockAreas={setStockAreas} />
+            </>
+          )}
+          {mode === "deviceTypeOrder" && (
+            <>
+              <div className="mb-3">
+                <button
+                  onClick={() => setMode("menu")}
+                  className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100"
+                >
+                  ← 戻る
+                </button>
+              </div>
+              <DeviceTypeOrderModal
+                isOpen={true}
+                onClose={() => setMode("menu")}
+                deviceTypes={deviceTypes}
+                setDeviceTypes={setDeviceTypes}
+              />
             </>
           )}
 

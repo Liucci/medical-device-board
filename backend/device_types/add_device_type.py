@@ -4,7 +4,8 @@ from schemas.device_type_schemas import (AddDeviceTypeRequest)
 def add_device_type(
                     client:Client,
                     device_type: AddDeviceTypeRequest,
-                    hospital_id:str
+                    hospital_id:str,
+                    display_order: int
                     ):
     
     
@@ -15,7 +16,8 @@ def add_device_type(
         .insert({
                 "hospital_id":hospital_id,
                 "name":device_type.name,
-                "icon_color": device_type.icon_color
+                "icon_color": device_type.icon_color,
+                "display_order": display_order,
         })
         .execute()
     )

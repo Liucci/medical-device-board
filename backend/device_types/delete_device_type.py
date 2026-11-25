@@ -7,12 +7,12 @@ def delete_device_type(
                        device_type:DeleteDeviceTypeRequest,
                        hospital_id:str
                        ):
-    print(f"delete device_type")
+    print("delete device_type")
     response = (
         client
         .table("device_types")
         .delete()
-        .eq("id",device_type)
+        .eq("id",device_type.id)
         .eq("hospital_id",hospital_id)
         .execute()
     )

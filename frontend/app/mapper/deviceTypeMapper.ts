@@ -6,7 +6,8 @@ import {
          UpdateDeviceTypeFrontType,
          UpdateDeviceTypeBackType,
          DeleteDeviceTypeFrontType,
-         DeleteDeviceTypeBackType
+         DeleteDeviceTypeBackType,
+         UpdateDeviceTypeOrdersType
        } from "../types/deviceTypeTypes"
 
 // DB → UI
@@ -16,7 +17,8 @@ export const normalizeDeviceType = (
                                                             id: d.id,
                                                             hospitalId: d.hospital_id,
                                                             name: d.name,
-                                                            iconColor: d.icon_color
+                                                            iconColor: d.icon_color,
+                                                            displayOrder: d.display_order
                                                           })
 
 // Create
@@ -42,3 +44,14 @@ export const toDeleteDeviceTypeRequest = (
                                           ) :DeleteDeviceTypeBackType=> ({
                                                   id: deviceType.id
                                                 })
+
+
+// 並び順編集用
+export const toUpdateDeviceTypeOrdersRequest = (
+              deviceTypes: UpdateDeviceTypeOrdersType
+              ) => ({
+                      device_types: deviceTypes.deviceTypes.map((deviceType) => ({
+                        id: deviceType.id,
+                        display_order: deviceType.displayOrder,
+              })),
+})

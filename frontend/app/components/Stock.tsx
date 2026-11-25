@@ -62,12 +62,6 @@ export default function Stock({
 
 
 
-/*   console.log("Stock CE室ID:", stockAreaId);
-  console.log("CE室 devices:", devices.filter(d => d.stockAreaId === stockAreaId));
- */  // この倉庫のdeviceだけ取得
-  //const longPressTimer = useRef<NodeJS.Timeout | null>(null)        
-  //const isLongPress = useRef(false)
-
 
 
 const longPress = useRef(createLongPressState())
@@ -81,14 +75,23 @@ const longPress = useRef(createLongPressState())
       d.id !== pendingDevice?.id
     )
     .sort((a, b) => {
-      // 第1優先：type
-      if (a.type !== b.type) {
-        return a.type - b.type
+      // 第1優先：機器種別のdisplayOrder
+      const aOrder =
+        deviceTypes.find((t) => t.id === a.type)?.displayOrder ??
+        Number.MAX_SAFE_INTEGER
+
+      const bOrder =
+        deviceTypes.find((t) => t.id === b.type)?.displayOrder ??
+        Number.MAX_SAFE_INTEGER
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder
       }
 
-      // 第2優先：model
+      // 第2優先：型式ID
       return a.model - b.model
-    }) 
+    })
+
 
 return (
     <>

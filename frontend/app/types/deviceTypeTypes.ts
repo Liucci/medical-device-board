@@ -5,6 +5,7 @@ export type DeviceTypeType = {
                                hospitalId: string
                                name: string
                                iconColor: string
+                               displayOrder: number
                              }
 
 // fetchのBackend型
@@ -14,6 +15,7 @@ export type DeviceTypeDBType = {
                                  hospital_id: string
                                  name: string
                                  icon_color: string
+                                 display_order: number
                                }
 
 // Create専用
@@ -52,3 +54,12 @@ export type DeleteDeviceTypeFrontType = {
 export type DeleteDeviceTypeBackType = {
                                      id: number
                                    }
+
+export type UpdateDeviceTypeOrderType = {
+  id: number
+  displayOrder: number
+}
+
+export type UpdateDeviceTypeOrdersType = {
+  deviceTypes: UpdateDeviceTypeOrderType[]
+}

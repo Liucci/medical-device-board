@@ -99,7 +99,7 @@ def delete_device_type_transaction(
 
     # typeを削除
     delete_device_type(
-        client,
-        device_type.id,
-        hospital_id
+        client=client,
+        device_type=device_type,
+        hospital_id=hospital_id
     )

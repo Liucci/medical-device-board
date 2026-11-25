@@ -6,6 +6,7 @@ class DeviceTypesResponse(BaseModel):
     hospital_id: str
     name: str #type名
     icon_color: str
+    display_order: int
 
 
 class AddDeviceTypeRequest(BaseModel):
@@ -22,3 +23,11 @@ class UpdateDeviceTypeRequest(BaseModel):
     id: int
     name: str | None = None
     icon_color: str | None = None
+
+class UpdateDeviceTypeOrderRequest(BaseModel):
+    id: int
+    display_order: int
+
+
+class UpdateDeviceTypeOrdersRequest(BaseModel):
+    device_types: list[UpdateDeviceTypeOrderRequest]
