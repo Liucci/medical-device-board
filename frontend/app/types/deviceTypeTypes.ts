@@ -58,6 +58,7 @@ export type DeleteDeviceTypeBackType = {
 export type UpdateDeviceTypeOrderType = {
   id: number
   displayOrder: number
+  iconColor: string
 }
 
 export type UpdateDeviceTypeOrdersType = {

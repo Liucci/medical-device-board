@@ -53,5 +53,6 @@ export const toUpdateDeviceTypeOrdersRequest = (
                       device_types: deviceTypes.deviceTypes.map((deviceType) => ({
                         id: deviceType.id,
                         display_order: deviceType.displayOrder,
+                        icon_color: deviceType.iconColor,
               })),
 })

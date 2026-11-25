@@ -74,7 +74,15 @@ export default function DeviceTypeOrderModal({
       return arrayMove(items, oldIndex, newIndex)
     })
   }
-
+  function handleColorChange(id: number, iconColor: string) {
+    setEditingDeviceTypes((items) =>
+      items.map((item) =>
+        item.id === id
+          ? { ...item, iconColor }
+          : item
+      )
+    )
+  }
 
   async function handleSave() {
     await executeWithErrorAndLoading({
@@ -85,6 +93,7 @@ export default function DeviceTypeOrderModal({
             deviceTypes: editingDeviceTypes.map((deviceType, index) => ({
               id: deviceType.id,
               displayOrder: index + 1,
+              iconColor: deviceType.iconColor,
             })),
           },
           setDeviceTypes,
@@ -126,6 +135,7 @@ export default function DeviceTypeOrderModal({
                     <SortableDeviceTypeItem
                       key={deviceType.id}
                       deviceType={deviceType}
+                      onColorChange={handleColorChange}
                     />
                   ))}
                 </div>

@@ -27,7 +27,7 @@ class UpdateDeviceTypeRequest(BaseModel):
 class UpdateDeviceTypeOrderRequest(BaseModel):
     id: int
     display_order: int
-
+    icon_color: str
 
 class UpdateDeviceTypeOrdersRequest(BaseModel):
     device_types: list[UpdateDeviceTypeOrderRequest]

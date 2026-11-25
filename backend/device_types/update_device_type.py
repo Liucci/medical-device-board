@@ -33,7 +33,10 @@ def update_device_type_display_order(
     response = (
                 client
                 .table("device_types")
-                .update({"display_order": device_type.display_order})
+                .update({
+                        "display_order": device_type.display_order,
+                        "icon_color": device_type.icon_color
+                         })
                 .eq("id", device_type.id)
                 .eq("hospital_id", hospital_id)
                 .execute()

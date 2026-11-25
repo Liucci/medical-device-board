@@ -7,9 +7,14 @@ import { DeviceTypeType } from "../../types/deviceTypeTypes"
 
 type Props = {
   deviceType: DeviceTypeType
+  onColorChange: (id: number, iconColor: string) => void
 }
 
-export default function SortableDeviceTypeItem({ deviceType }: Props) {
+export default function SortableDeviceTypeItem({ 
+                                              deviceType,
+                                              onColorChange, 
+                                              }: Props) 
+{
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: deviceType.id,
   })
@@ -42,9 +47,12 @@ export default function SortableDeviceTypeItem({ deviceType }: Props) {
 
       {/* 右側：機器種別表示領域 */}
       <div className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5">
-        <div
-          className="h-4 w-4 shrink-0 rounded"
-          style={{ backgroundColor: deviceType.iconColor }}
+        <input
+          type="color"
+          value={deviceType.iconColor}
+          onChange={(e) => onColorChange(deviceType.id, e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="h-7 w-7 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
         />
         <span className="truncate text-sm font-bold text-slate-900">
           {deviceType.name}
